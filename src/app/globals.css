@@ -1,0 +1,101 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Map tokens to VALID CSS colors */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* radius + fonts unchanged */
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* OPTIONAL: custom brand tokens for class names like bg-upperline-navy */
+  --color-upperline-navy: hsl(203 100% 18%);
+  --color-upperline-turquoise: hsl(187 70% 53%);
+}
+
+:root {
+  /* Base */
+  --background: 0 0% 100%;
+  --foreground: 222 84% 5%;
+
+  /* Brand (Upperline Navy + Turquoise) */
+  --primary: 203 100% 18%;           /* #003A5D */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 187 70% 53%;          /* #31C8DB */
+  --secondary-foreground: 210 40% 98%;
+
+  /* UI */
+  --muted: 215 16% 91%;
+  --muted-foreground: 218 11% 39%;
+  --accent: 29 93% 57%;              /* Tangerine #F78D2A */
+  --accent-foreground: 0 0% 100%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 222 84% 5%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 84% 5%;
+
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 187 70% 53%;
+
+  --radius: 1rem;
+}
+
+/* Optional dark mode seed (tune later) */
+.dark {
+  --background: 222 84% 5%;
+  --foreground: 0 0% 98%;
+  --card: 222 84% 6%;
+  --card-foreground: 0 0% 98%;
+  --popover: 222 84% 6%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 187 70% 53%;
+  --primary-foreground: 222 84% 5%;
+  --secondary: 203 100% 18%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 217 32% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 29 93% 57%;
+  --accent-foreground: 222 84% 5%;
+  --border: 217 32% 17%;
+  --input: 217 32% 17%;
+  --ring: 187 70% 53%;
+}
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
