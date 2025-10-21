@@ -8,13 +8,17 @@ export default function About() {
         </div>
         <div className="md:col-span-3 text-muted-foreground leading-relaxed">
           <p>
-            Upperline represents the next stage of disciplined real estate investing and
-            development. We focus on durable, essential assets and long-term value creation
-            through rigorous underwriting, thoughtful design, and aligned partnerships.
+            Upperline is a private, multi-strategy investment firm focused on real
+            estate with complementary exposure to private equity. Our real estate
+            platform leverages deep industry expertise to unlock value across a range
+            of asset classes.
           </p>
           <p className="mt-4">
-            Our approach blends institutional standards with entrepreneurial agility—bringing
-            clarity to complex sites and execution to high-conviction theses.
+            Our investment strategy emphasizes building a diversified portfolio in
+            high-growth markets driving performance through strategic insights,
+            innovative technology, and alignment with all stakeholders. Our team
+            approaches each opportunity with fresh perspective and creative thinking,
+            consistently delivering results that exceed expectations.
           </p>
         </div>
       </div>
