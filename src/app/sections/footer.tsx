@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="w-full border-t border-secondary/80 py-8 mt-20">
+    <footer className="w-full py-10 mt-0">
       <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center md:items-end justify-between gap-6 text-sm text-neutral-600">
         
         {/* Left: Email */}
@@ -26,8 +26,8 @@ export default function Footer() {
           <Image
             src="/upperline-logo.png"
             alt="Upperline logo"
-            width={140}
-            height={40}
+            width={280}
+            height={80}
             className="object-contain"
           />
         </div>

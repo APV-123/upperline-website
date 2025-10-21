@@ -53,7 +53,7 @@
 
   /* UI */
   --muted: 215 16% 91%;
-  --muted-foreground: 218 11% 39%;
+  --muted-foreground: 218 11% 26%;
   --accent: 29 93% 57%;              /* Tangerine #F78D2A */
   --accent-foreground: 0 0% 100%;
 
@@ -97,5 +97,8 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  html{
+    font-size: 18px; /* default is 16px - this bumps everything by ~12.5% */
   }
 }
