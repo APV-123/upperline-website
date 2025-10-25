@@ -1,11 +1,13 @@
 BEGIN:VCARD
 VERSION:3.0
-N:Vitenas;Alexander;;;
 FN:Alexander Vitenas
+N:Vitenas;Alexander;;;
+TITLE:Vice President | Acquisitions & Operations
 ORG:Upperline
-TITLE:Vice President, Acquisitions & Operations
-EMAIL;TYPE=WORK:av@upperlineco.com
-TEL;TYPE=CELL:+1-713-823-1148
-URL:https://www.upperlineco.com
-ADR;TYPE=WORK:;;3355 W Alabama St, Ste 720;Houston;TX;77098;USA
+TEL;TYPE=CELL:(713) 823-1148
+EMAIL;TYPE=WORK:alex@upperlineco.com
+URL;TYPE=WORK:https://www.upperlineco.com
+item1.URL;type=pref:https://www.linkedin.com/in/alexandervitenas/
+item1.X-ABLabel:LinkedIn
+PHOTO;VALUE=URI:https://www.upperlineco.com/assets/headshots/alexander-vitenas.jpg
 END:VCARD

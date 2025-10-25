@@ -1,10 +1,13 @@
 BEGIN:VCARD
 VERSION:3.0
-N:Mraz;Nealy;;;
 FN:Nealy Mraz
-ORG:Upperline
+N:Mraz;Nealy;;;
 TITLE:Chief Financial Officer
-EMAIL;TYPE=INTERNET,WORK:nm@upperlineco.com
-TEL;TYPE=CELL,VOICE:+1-210-415-2440
-URL:https://www.upperlineco.com
+ORG:Upperline
+TEL;TYPE=CELL:(210) 415-2440
+EMAIL;TYPE=WORK:nealy@upperlineco.com
+URL;TYPE=WORK:https://www.upperlineco.com
+item1.URL;type=pref:https://www.linkedin.com/in/nealy-stuckey-mraz-79488086/
+item1.X-ABLabel:LinkedIn
+PHOTO;VALUE=URI:https://www.upperlineco.com/assets/headshots/nealy-mraz.jpg
 END:VCARD

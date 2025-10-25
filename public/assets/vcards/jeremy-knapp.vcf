@@ -1,0 +1,13 @@
+BEGIN:VCARD
+VERSION:3.0
+FN:Jeremy Knapp
+N:Knapp;Jeremy;;;
+TITLE:Sr. Associate | Investment & Asset Management
+ORG:Upperline
+TEL;TYPE=CELL:(773) 329-3599
+EMAIL;TYPE=WORK:jeremy@upperlineco.com
+URL;TYPE=WORK:https://www.upperlineco.com
+item1.URL;type=pref:https://www.linkedin.com/in/jeremy-p-knapp/
+item1.X-ABLabel:LinkedIn
+PHOTO;VALUE=URI:https://www.upperlineco.com/assets/headshots/jeremy-knapp.jpg
+END:VCARD

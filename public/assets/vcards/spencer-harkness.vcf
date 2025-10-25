@@ -1,10 +1,13 @@
 BEGIN:VCARD
 VERSION:3.0
-N:Harkness;Spencer;;;
 FN:Spencer Harkness
+N:Harkness;Spencer;;;
+TITLE:Founder | CEO
 ORG:Upperline
-TITLE:Founder & CEO
-EMAIL;TYPE=INTERNET,WORK:sh@upperlineco.com
-TEL;TYPE=CELL,VOICE:+1-504-236-4422
-URL:https://www.upperlineco.com
+TEL;TYPE=CELL:(504) 236-4422
+EMAIL;TYPE=WORK:sh@upperlineco.com
+URL;TYPE=WORK:https://www.upperlineco.com
+item1.URL;type=pref:https://www.linkedin.com/in/spencer-harkness-33766644/
+item1.X-ABLabel:LinkedIn
+PHOTO;VALUE=URI:https://www.upperlineco.com/assets/headshots/spencer-harkness.jpg
 END:VCARD
