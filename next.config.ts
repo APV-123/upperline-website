@@ -1,16 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async redirects() {
-    return [
-      // Short, wallet-friendly links → redirect to parameterized meet page
-      {
-        source: "/tap/:handle",
-        destination: "/meet?o=:handle",
-        permanent: false,
-      },
-    ];
-  },
 
   async headers() {
     return [
