@@ -25,7 +25,7 @@ const logoPath = path.join(process.cwd(), "public/upperline-mark.png");
     const qrBuffer = await QRCode.toBuffer(url, {
       width: 800,
       margin: 2,
-      color: { dark: "#69a43a", light: "#ffffff" }, // Upperline navy on white
+      color: { dark: "#000000", light: "#ffffff" }, // Upperline navy on white
     });
 
     // 2) Determine QR size, compute logo size (~20% of QR width)
