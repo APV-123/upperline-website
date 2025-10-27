@@ -5,23 +5,28 @@ const PORTAL_ID = process.env.HUBSPOT_PORTAL_ID;
 const FORM_GUID = process.env.HUBSPOT_FORM_GUID;
 const PRIVATE_APP_TOKEN = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
 
-// Basic honeypot
 const isBot = (v: string | undefined) => (v ?? "").trim().length > 0;
-
-// Email validation regex
-const isValidEmail = (email: string) =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const maybe = (name: string, value?: string) =>
+  value && value.trim() ? [{ name, value: value.trim() }] : [];
 
 export async function POST(req: NextRequest) {
-  try {
-    if (!PORTAL_ID || !FORM_GUID || !PRIVATE_APP_TOKEN) {
-      console.error("Missing HubSpot environment variables");
-      return NextResponse.json(
-        { ok: false, error: "Server configuration error" },
-        { status: 500 }
-      );
-    }
+  // Check envs precisely
+  const missing = [
+    !PRIVATE_APP_TOKEN && "HUBSPOT_PRIVATE_APP_TOKEN",
+    !PORTAL_ID && "HUBSPOT_PORTAL_ID",
+    !FORM_GUID && "HUBSPOT_FORM_GUID",
+  ].filter(Boolean) as string[];
 
+  if (missing.length) {
+    console.error("Missing env:", missing.join(", "));
+    return NextResponse.json(
+      { ok: false, error: `Server configuration error: ${missing.join(", ")}` },
+      { status: 500 }
+    );
+  }
+
+  try {
     const body = await req.json();
 
     const {
@@ -41,13 +46,13 @@ export async function POST(req: NextRequest) {
       hutk = "",
       pageUrl = "",
       pageName = "Upperline Tap Contact",
-      website,
+      website, // honeypot
     } = body || {};
 
-    if (isBot(website)) {
-      return NextResponse.json({ ok: true, spam: true });
-    }
+    // Honeypot
+    if (isBot(website)) return NextResponse.json({ ok: true, spam: true });
 
+    // Required fields
     if (!email || !isValidEmail(email) || !firstname || !lastname) {
       return NextResponse.json(
         { ok: false, error: "Invalid or missing required fields" },
@@ -55,50 +60,67 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const payload = {
-      fields: [
-        { name: "firstname", value: firstname.trim() },
-        { name: "lastname", value: lastname.trim() },
-        { name: "company", value: company.trim() },
-        { name: "jobtitle", value: jobtitle.trim() },
-        { name: "email", value: email.trim() },
-        { name: "phone", value: phone.trim() },
-        { name: "met_with", value: met_with.trim() },
-      ],
-      context: {
-        hutk,
-        pageUri: pageUrl,
-        pageName,
-      },
-    };
+    // Pull HubSpot cookie + IP when available (omit hutk if empty)
+    const hutkCookie =
+      req.cookies.get("hubspotutk")?.value || hutk || ""; // prefer cookie, then body, else ""
+    const ipAddress =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("x-real-ip") ||
+      "";
 
-    const hsRes = await fetch(
-      `https://api.hsforms.com/submissions/v3/integration/submit/${PORTAL_ID}/${FORM_GUID}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${PRIVATE_APP_TOKEN}`,
-        },
-        body: JSON.stringify(payload),
-      }
-    );
+    const fields = [
+      { name: "firstname", value: firstname.trim() },
+      { name: "lastname", value: lastname.trim() },
+      { name: "company", value: company.trim() },
+      { name: "jobtitle", value: jobtitle.trim() },
+      { name: "email", value: email.trim() },
+      { name: "phone", value: phone.trim() },
+      { name: "met_with", value: met_with.trim() },
+      { name: "source_detail", value: source_detail.trim() },
+      ...maybe("utm_source", utm_source),
+      ...maybe("utm_medium", utm_medium),
+      ...maybe("utm_campaign", utm_campaign),
+      ...maybe("utm_content", utm_content),
+      ...maybe("utm_term", utm_term),
+    ];
+
+    const context: Record<string, string> = {
+      pageUri: pageUrl,
+      pageName,
+    };
+    if (hutkCookie) context.hutk = hutkCookie; // only include if truthy
+    if (ipAddress) context.ipAddress = ipAddress;
+
+    const payload = { fields, context };
+
+    const url = `https://api.hsforms.com/submissions/v3/integration/submit/${PORTAL_ID}/${FORM_GUID}`;
+
+    const hsRes = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${PRIVATE_APP_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const contentType = hsRes.headers.get("content-type") || "";
+    const hsBody = contentType.includes("application/json")
+      ? await hsRes.json()
+      : await hsRes.text();
 
     if (!hsRes.ok) {
-      const errText = await hsRes.text();
-      console.error("HubSpot API error:", errText);
+      console.error("HubSpot API error:", hsRes.status, hsBody);
       return NextResponse.json(
-        { ok: false, error: "HubSpot submission failed", details: errText },
+        { ok: false, error: "HubSpot submission failed", details: hsBody },
         { status: 502 }
       );
     }
 
-    return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    console.error("Server error:", e);
-    return NextResponse.json(
-      { ok: false, error: e?.message ?? "Unknown error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ ok: true, data: hsBody });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "Unknown error";
+    console.error("Server error:", message);
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
