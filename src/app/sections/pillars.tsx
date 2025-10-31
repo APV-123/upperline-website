@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type React from "react";
 
 const NAVY  = "#003a5d";
 const MUTED = "rgba(31,51,64,.82)";
+
+type CSSVarStyle = React.CSSProperties & Record<"--navy" | "--muted", string>;
 
 const PILLARS = [
   {
@@ -14,7 +17,7 @@ const PILLARS = [
   {
     title: "Development",
     body:
-      "Our team's extensive experience, combined with stron industry relationships and an integrated development management system, enables us to consistently deliver projects on schedule and within budget.",
+      "Our team's extensive experience, combined with strong industry relationships and an integrated development management system, enables us to consistently deliver projects on schedule and within budget.",
   },
   {
     title: "Asset Management",
@@ -55,21 +58,22 @@ export default function Pillars() {
     e.currentTarget.style.removeProperty("--mx");
     e.currentTarget.style.removeProperty("--my");
   };
+  const sectionStyle: CSSVarStyle = {
+    "--navy": NAVY,
+    "--muted": MUTED,
+    backgroundColor: "white",
+    backgroundImage:
+      "linear-gradient(rgba(0,58,93,0.06), rgba(0,58,93,0.06)), url('/Upperline_IconPattern3Outline_Navy_RGB.png')",
+    backgroundRepeat: "repeat",
+    backgroundSize: "560px auto",
+    backgroundPosition: "center top",
+  };
 
   return (
     <section
       aria-label="Upperline pillars"
       className="relative flex items-center min-h-[30vh] py-20 md:py-28"
-      style={{
-        ["--navy" as any]: NAVY,
-        ["--muted" as any]: MUTED,
-        backgroundColor: "white",
-        backgroundImage:
-          "linear-gradient(rgba(0,58,93,0.06), rgba(0,58,93,0.06)), url('/Upperline_IconPattern3Outline_Navy_RGB.png')",
-        backgroundRepeat: "repeat",
-        backgroundSize: "560px auto",
-        backgroundPosition: "center top",
-      }}
+      style={sectionStyle}
     >
       {/* Global styles */}
       <style jsx global>{`
