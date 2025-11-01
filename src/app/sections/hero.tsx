@@ -6,13 +6,14 @@ import { motion } from "framer-motion";
 export default function Hero() {
   return (
     <section
+      aria-label="Upperline hero"
       className="
         relative w-full overflow-hidden
-        min-h-[56vh]               /* xs: shorter on phones */
-        sm:min-h-[60vh]            /* small phones / small tablets */
-        md:min-h-[66vh]            /* tablet / small laptop */
-        lg:min-h-[70vh]            /* laptop */
-        xl:min-h-[72vh]            /* large desktop */
+        min-h-[62vh]           /* +6vh on phones for better cadence */
+        sm:min-h-[64vh]
+        md:min-h-[66vh]
+        lg:min-h-[70vh]
+        xl:min-h-[72vh]
       "
     >
       {/* Background */}
@@ -24,53 +25,59 @@ export default function Hero() {
         className="object-cover object-center"
       />
 
-      {/* Subtle gradient for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/5 to-transparent" />
-
-      {/* Logo mark (scales + nudges across breakpoints) */}
-      <div
-        className="
-          absolute
-          top-6 left-6           /* phones */
-          sm:top-8 sm:left-8
-          md:top-12 md:left-12
-          lg:top-14 lg:left-16
-        "
-      >
-        <Image
-          src="/upperline-mark.png"
-          alt="Upperline mark"
-          width={200}
-          height={200}
-          className="
-            w-16 h-auto          /* phones */
-            sm:w-20
-            md:w-32
-            lg:w-40              /* desktops */
-            drop-shadow-lg
-          "
-        />
+      {/* Vignette: slightly stronger at bottom for tagline legibility */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/38 via-black/8 to-transparent" />
+        {/* subtle top burn to keep the mark crisp */}
+        <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/15 to-transparent" />
       </div>
 
-      {/* Tagline (larger and slightly higher on small screens, then relax) */}
-      <motion.h2
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+      {/* Safe-area aware gutters */}
+      <div
         className="
-          absolute italic font-light text-white tracking-wide drop-shadow-md
-          left-6 bottom-6        /* phones */
-          sm:left-8 sm:bottom-8
-          md:left-16 md:bottom-10
-          lg:left-28 lg:bottom-14
-          text-2xl               /* phones */
-          sm:text-3xl
-          md:text-4xl
-          lg:text-5xl
+          absolute inset-0
+          px-6 sm:px-8 md:px-16 lg:px-28
+          pb-[max(1.25rem,env(safe-area-inset-bottom))]  /* bottom breathing room */
+          pt-[max(1.25rem,env(safe-area-inset-top))]
         "
       >
-        Capital Elevated.
-      </motion.h2>
+        {/* Logo mark */}
+        <div
+          className="
+            absolute
+            left-6 sm:left-8 md:left-16 lg:left-20
+            top-[max(1.5rem,env(safe-area-inset-top))]
+          "
+        >
+          <Image
+            src="/upperline-mark.png"
+            alt="Upperline mark"
+            width={200}
+            height={200}
+            className="
+              w-16 sm:w-20 md:w-28 lg:w-36 h-auto
+              drop-shadow-lg
+            "
+          />
+        </div>
+
+        {/* Tagline */}
+        <motion.h1
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="
+            absolute italic font-light text-white tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,.45)]
+            left-6 sm:left-8 md:left-16 lg:left-28
+            bottom-[max(1.75rem,calc(env(safe-area-inset-bottom)+1rem))]
+            leading-[1.05]
+            /* smooth responsive size instead of hard steps */
+            text-[clamp(28px,6.5vw,56px)]
+          "
+        >
+          Capital Elevated.
+        </motion.h1>
+      </div>
     </section>
   );
 }

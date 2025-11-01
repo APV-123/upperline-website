@@ -3,6 +3,7 @@ import About from "./sections/about";
 import WhatWeDo from "./sections/whatwedo";
 import Pillars from "./sections/pillars";
 import WhoWeAre from "./sections/whoweare";
+import DividerBand from "./sections/dividerband";
 import Footer from "./sections/footer";
 
 export default function Page() {
@@ -13,6 +14,7 @@ export default function Page() {
       <WhatWeDo />
       <Pillars />
       <WhoWeAre />
+      <DividerBand />
       <Footer />
     </main>
   );
