@@ -402,7 +402,12 @@ export default function Pillars() {
       `}</style>
 
       <div className="relative z-10 mx-auto max-w-5xl px-6 py-16 md:py-20">
-        <div className={isAnyOpen ? "grid gap-6 md:grid-cols-1" : "grid gap-6 md:grid-cols-3"}>
+        <div className={[ 
+          // more vertical gap on narrow screens; normal gap on md+
+          "grid gap-x-6 gap-y-10 sm:gap-y-12 md:gap-y-6",
+          isAnyOpen ? "md:grid-cols-1" : "md:grid-cols-3",
+         ].join(" ")}
+        >
           {(isAnyOpen ? [PILLARS[openIndex!]] : PILLARS).map((p, i) => {
             const idx = isAnyOpen ? openIndex! : i;
             const isOpen = isAnyOpen;
