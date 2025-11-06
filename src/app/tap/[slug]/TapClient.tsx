@@ -256,7 +256,10 @@ export function TapClient({
                       id="first"
                       ref={firstInputRef}
                       className={fieldStyle}
-                      autoComplete="given-name"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      spellCheck={false}
                       value={formData.firstname}
                       onChange={(e) => setFormData({ ...formData, firstname: e.target.value })}
                       required
@@ -270,7 +273,11 @@ export function TapClient({
                     <input
                       id="last"
                       className={fieldStyle}
-                      autoComplete="family-name"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      spellCheck={false}
+                      name="nope-last"
                       value={formData.lastname}
                       onChange={(e) => setFormData({ ...formData, lastname: e.target.value })}
                       required
@@ -287,7 +294,11 @@ export function TapClient({
                     id="email"
                     type="email"
                     className={fieldStyle}
-                    autoComplete="email"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    name="nope-email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
@@ -303,7 +314,11 @@ export function TapClient({
                     id="phone"
                     type="tel"
                     className={fieldStyle}
-                    autoComplete="tel"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    name="nope-phone"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   />
@@ -317,7 +332,11 @@ export function TapClient({
                   <input
                     id="company"
                     className={fieldStyle}
-                    autoComplete="organization"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    name="nope-company"
                     value={formData.company}
                     onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                   />
@@ -330,9 +349,12 @@ export function TapClient({
                   </label>
                   <input
                     id="role"
-                    name="jobtitle"
                     className={fieldStyle}
-                    autoComplete="organization-title"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    name="nope-jobtitle"
                     value={formData.jobtitle}
                     onChange={(e) => setFormData({ ...formData, jobtitle: e.target.value })}
                   />
@@ -347,6 +369,11 @@ export function TapClient({
                     id="notes"
                     className={`${fieldStyle} min-h-[110px]`}
                     rows={4}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    name="nope-notes"
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   />
@@ -355,7 +382,7 @@ export function TapClient({
                 {/* Honeypot */}
                 <input
                   id="website"
-                  name="website"
+                  name="nope-website"
                   className="hidden"
                   aria-hidden="true"
                   tabIndex={-1}
