@@ -1,7 +1,7 @@
 import Hero from "./sections/hero";
 import About from "./sections/about";
 import WhatWeDo from "./sections/whatwedo";
-import Pillars from "./sections/pillars";
+{/* import Pillars from "./sections/pillars"; */}
 import WhoWeAre from "./sections/whoweare";
 {/* import Team from "./sections/team"; */}
 import DividerBand from "./sections/dividerband";
@@ -13,7 +13,7 @@ export default function Page() {
       <Hero />
       <About />
       <WhatWeDo />
-      <Pillars />
+      {/* <Pillars /> */}
       <WhoWeAre />
       {/*<Team /> */}
       <DividerBand />
