@@ -12,7 +12,7 @@ const slugToMetWith: Record<
     name: "Alexander Vitenas",
     headshot: "/assets/headshots/alexander-vitenas.webp",
     vcf: "/assets/vcards/alexander-vitenas.vcf",
-    title: "VP | Acquisitions & Operations",
+    title: "Vice President | Acquisitions & Operations",
   },
   jeremy: {
     name: "Jeremy Knapp",
