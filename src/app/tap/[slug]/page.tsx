@@ -8,25 +8,49 @@ const slugToMetWith: Record<
   string,
   { name: string; headshot: string; vcf: string; title: string }
 > = {
-  alex:    { name: "Alexander Vitenas", headshot: "/assets/headshots/alexander-vitenas.webp", vcf: "/assets/vcards/alexander-vitenas.vcf", title: "VP | Acquisitions & Operations" },
-  jeremy:  { name: "Jeremy Knapp",      headshot: "/assets/headshots/jeremy-knapp.webp",      vcf: "/assets/vcards/jeremy-knapp.vcf",      title: "Sr Associate Investments & Asset Management" },
-  nealy:   { name: "Nealy Mraz",        headshot: "/assets/headshots/nealy-mraz.webp",        vcf: "/assets/vcards/nealy-mraz.vcf",        title: "Chief Financial Officer" },
-  spencer: { name: "Spencer Harkness",  headshot: "/assets/headshots/spencer-harkness.webp",  vcf: "/assets/vcards/spencer-harkness.vcf",  title: "Founder | CEO" },
+  alex: {
+    name: "Alexander Vitenas",
+    headshot: "/assets/headshots/alexander-vitenas.webp",
+    vcf: "/assets/vcards/alexander-vitenas.vcf",
+    title: "VP | Acquisitions & Operations",
+  },
+  jeremy: {
+    name: "Jeremy Knapp",
+    headshot: "/assets/headshots/jeremy-knapp.webp",
+    vcf: "/assets/vcards/jeremy-knapp.vcf",
+    title: "Sr Associate Investments & Asset Management",
+  },
+  nealy: {
+    name: "Nealy Mraz",
+    headshot: "/assets/headshots/nealy-mraz.webp",
+    vcf: "/assets/vcards/nealy-mraz.vcf",
+    title: "Chief Financial Officer",
+  },
+  spencer: {
+    name: "Spencer Harkness",
+    headshot: "/assets/headshots/spencer-harkness.webp",
+    vcf: "/assets/vcards/spencer-harkness.vcf",
+    title: "Founder | CEO",
+  },
+  eric: {
+    name: "Eric Mayfield",
+    headshot: "/assets/headshots/eric-mayfield.webp",
+    vcf: "/assets/vcards/eric-mayfield.vcf",
+    title: "Vice President | Development",
+  },
 };
 
-export default async function TapPage({
-  params,
-}: {
-  params: Promise<Params>;
-}) {
-  const { slug } = await params; // ← important
+// ✅ Tell Next exactly which static paths to build
+export function generateStaticParams() {
+  return Object.keys(slugToMetWith).map((slug) => ({ slug }));
+}
 
-  const data =
-    slugToMetWith[slug.toLowerCase()] ??
-    null;
+export default function TapPage({ params }: { params: Params }) {
+  const slug = params.slug.toLowerCase();
+
+  const data = slugToMetWith[slug] ?? null;
 
   if (!data) {
-    // nicer than rendering “Unknown”
     notFound();
   }
 
