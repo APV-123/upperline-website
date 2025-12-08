@@ -1,6 +1,6 @@
 // app/layout.tsx
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
 
@@ -21,6 +21,10 @@ export const metadata: Metadata = {
     ],
   },
   manifest: "/site.webmanifest",
+};
+
+// 👇 New viewport export for themeColor
+export const viewport: Viewport = {
   themeColor: "#00395C",
 };
 

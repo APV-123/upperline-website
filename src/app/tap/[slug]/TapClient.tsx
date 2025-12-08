@@ -419,7 +419,6 @@ export function TapClient({
         )}
 
         {showQR && (
-          // eslint-disable-next-line @next/next/no-img-element
           <motion.img
             src={`/qr/qr-${slug}.png`}
             alt={`QR code for ${metWith}`}
