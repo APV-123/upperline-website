@@ -4,7 +4,7 @@ const sharp = require("sharp");
 const fs = require("fs");
 const path = require("path");
 
-const team = ["alex", "jeremy", "nealy", "spencer"]; // add more slugs here
+const team = ["alex", "jeremy", "nealy", "spencer","eric", "brent"]; // add more slugs here
 const base = "https://upperlineco.com/tap/";
 
 const outDir = path.join(process.cwd(), "public/qr");

@@ -38,6 +38,13 @@ const slugToMetWith: Record<
     vcf: "/assets/vcards/eric-mayfield.vcf",
     title: "Vice President | Development",
   },
+  brent: {
+    name: "Brent Hodges",
+    headshot: "/assets/headshots/brent-hodges.webp",
+    vcf: "/assets/vcards/brent-hodges.vcf",
+    title: "Chief Investment Officer",
+  }
+
 };
 
 // ✅ Tell Next exactly which static paths to build
