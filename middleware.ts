@@ -1,30 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const host = req.headers.get("host") || "";
+  const host = req.headers.get("host") ?? "";
   const hostname = host.split(":")[0];
   const { pathname } = req.nextUrl;
 
-  // ✅ Dev / preview: treat vercel.app like id.upperlineco.com
+  const rewrite = (path: string) => {
+    const url = req.nextUrl.clone();
+    url.pathname = path;
+    return NextResponse.rewrite(url);
+  };
+
+  // Preview URLs → behave like id.upperlineco.com
   if (hostname.endsWith("vercel.app")) {
-    const url = req.nextUrl.clone();
-    url.pathname = `/(id)${pathname}`;
-    return NextResponse.rewrite(url);
+    if (pathname === "/") return rewrite("/(id)/id-root");
+    return rewrite(`/(id)${pathname}`);
   }
 
-  // ✅ Identity surface
   if (hostname === "id.upperlineco.com") {
-    const url = req.nextUrl.clone();
-    url.pathname = `/(id)${pathname}`;
-    return NextResponse.rewrite(url);
+    if (pathname === "/") return rewrite("/(id)/id-root");
+    return rewrite(`/(id)${pathname}`);
   }
 
-  // ✅ Portal surface
   if (hostname === "portal.upperlineco.com") {
-    const url = req.nextUrl.clone();
-    url.pathname = `/(portal)${pathname}`;
-    return NextResponse.rewrite(url);
+    if (pathname === "/") return rewrite("/(portal)/portal-root");
+    return rewrite(`/(portal)${pathname}`);
   }
 
   return NextResponse.next();
 }
+
+export const config = {
+  matcher: [
+    '/((?!_next|favicon.ico|assets|api).*)',
+  ],
+};
