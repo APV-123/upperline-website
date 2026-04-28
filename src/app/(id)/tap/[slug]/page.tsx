@@ -1,5 +1,5 @@
 // src/app/tap/[slug]/page.tsx
-import { TapClient } from "./TapClient";
+import { TapClient } from "../../../../../[slug]/TapClient";
 import { notFound } from "next/navigation";
 
 type Params = { slug: string };
