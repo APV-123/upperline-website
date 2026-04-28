@@ -1,4 +1,9 @@
-// src/app/page.tsx
+import Link from "next/link";
+
 export default function PreviewRoot() {
-  return <div>Say Baby</div>;
+  return (
+    <main style={{ padding: 24 }}>
+      <Link href="/tap/brent">Go to Tap</Link>
+    </main>
+  );
 }
