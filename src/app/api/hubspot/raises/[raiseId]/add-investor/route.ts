@@ -23,9 +23,15 @@ export async function POST(
 ) {
   try {
     const { raiseId } = await context.params;
-    const { contactId, amount } = await req.json();
+    const { contactId, amount } = await req.json();    
+    const DEFAULT_INVITE_AMOUNT = 250000;
 
-    if (!contactId || !amount) {
+    const normalizedAmount =
+      amount === undefined || amount === null
+        ? DEFAULT_INVITE_AMOUNT
+        : amount;
+
+    if (!contactId || amount === undefined || amount === null) {
       return NextResponse.json(
         { ok: false, error: 'contactId and amount are required' },
         { status: 400 }

@@ -27,16 +27,30 @@ function toPortalBucket(stageLabel: string | null, hsLastActivityDate: string | 
   const label = (stageLabel ?? '').toLowerCase();
 
   // Committed bucket
-  if (label === 'committed' || label === 'funded') return 'committed';
+  if (label === 'committed' || label === 'funded') {
+    return 'committed';
+  }
 
   // Passed bucket
-  if (label === 'passed' || label.includes('deferred') || label.includes('recycle')) return 'passed';
+  if (label === 'passed' || label.includes('deferred') || label.includes('recycle')) {
+    return 'passed';
+  }
 
-  // Needs Touch bucket (computed)
-  if (label === 'introduced') return 'needs_touch';
-  if (isStale(hsLastActivityDate)) return 'needs_touch';
+  // Needs Touch bucket (true work states)
+  if (label === 'soft interest' || label.includes('docs')) {
+    return 'needs_touch';
+  }
 
-  // Everything else in-flight
+  // Circling bucket (early relationship)
+  if (label === 'introduced' || label === 'engaged') {
+    return 'circling';
+  }
+
+  // Fallback safety
+  if (isStale(hsLastActivityDate)) {
+    return 'needs_touch';
+  }
+
   return 'circling';
 }
 

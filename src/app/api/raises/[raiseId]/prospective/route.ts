@@ -13,6 +13,7 @@ export async function GET(
     .select('*')
     .eq('raise_id', raiseId)
     .eq('status', 'subscribed')
+    .neq('invite_status', 'invited')
     .order('created_at', { ascending: true });
 
   if (error) {
@@ -22,5 +23,5 @@ export async function GET(
     );
   }
 
-  return NextResponse.json({ ok: true, investors: data ?? [] });
+  return NextResponse.json({ ok: true, prospects: data ?? [] });
 }

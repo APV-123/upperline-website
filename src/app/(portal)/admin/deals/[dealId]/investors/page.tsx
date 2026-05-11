@@ -34,6 +34,24 @@ type ContactRow = {
     name: string;
     email: string;
 };
+type ProspectRow = {
+    id: string;
+    raise_id: string;
+    contact_id: string;
+    contact_name: string | null;
+    contact_email: string | null;
+    status: string | null;
+
+    invite_status: string | null;
+    invite_subject: string | null;
+    invite_body: string | null;
+    invite_method: string | null;
+
+    created_at: string | null;
+    invited_at: string | null;
+    declined_at: string | null;
+};
+
 const BUCKETS: { key: Bucket; label: string }[] = [
     { key: 'committed', label: 'Committed' },
     { key: 'circling', label: 'Circling' },
@@ -52,102 +70,133 @@ function formatDateMaybe(iso: string | null) {
     return d.toLocaleDateString();
 }
 
-function InvestorCard({ investor }: { investor: Investor }) {
-    const isNeedsTouch = investor.bucket === 'needs_touch';
 
+function InvestorCard({
+    investor,
+    onOpen,
+}: {
+    investor: Investor;
+    onOpen: () => void;
+}) {
+    const isNeedsTouch = investor.bucket === 'needs_touch';
+    const [menuOpen, setMenuOpen] = useState(false);
     return (
         <div
+            onClick= {onOpen}
             style={{
-                background: '#1a1f24', // Iron-toned dark
+                background: '#1a1f24',
                 borderRadius: 14,
                 padding: 20,
                 marginBottom: 16,
                 color: '#f1f3f4',
                 border: '1px solid rgba(255,255,255,0.06)',
-                boxShadow: isNeedsTouch ? '0 0 0 2px rgba(225,29,72,0.35)' : 'none', // calm urgency
+                boxShadow: isNeedsTouch ? '0 0 0 2px rgba(225,29,72,0.35)' : 'none',
+                cursor: 'pointer',
             }}
         >
-            {/* Investor Name */}
-            <div
-                style={{
-                    fontSize: 18,
-                    fontWeight: 600,
-                    letterSpacing: '0.2px',
-                    marginBottom: 6,
-                }}
-            >
+            <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 6 }}>
                 {investor.name}
             </div>
 
-            {/* Secondary line: email + stage label */}
-            <div
-                style={{
-                    fontSize: 12,
-                    opacity: 0.7,
-                    marginBottom: 10,
-                }}
-            >
-                {investor.email ? investor.email : '—'}
+            <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 10 }}>
+                {investor.email || '—'}
                 {investor.stageLabel ? ` · ${investor.stageLabel}` : ''}
             </div>
 
-            {/* Amount */}
-            <div
-                style={{
-                    fontSize: 14,
-                    opacity: 0.85,
-                    marginBottom: 10,
-                }}
-            >
+            <div style={{ fontSize: 14, opacity: 0.85, marginBottom: 10 }}>
                 ${investor.amount.toLocaleString()}
             </div>
 
-            {/* Activity */}
-            <div
-                style={{
-                    fontSize: 12,
-                    opacity: 0.6,
-                    marginBottom: 18,
-                }}
-            >
-                Last activity · {investor.lastActivity}
-            </div>
-
-            {/* Actions (placeholders for now) */}
-            <div
-                style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 8,
-                }}
-            >
-                {['Send Terms', 'Nudge', 'Approve', 'Mark Committed', 'Pass'].map((label) => (
+            {/* Actions */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
+                <div style={{ position: 'relative' }}>
                     <button
-                        key={label}
-                        onClick={() => console.log(label, investor.name, investor.dealId)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setMenuOpen((v) => !v);
+                        }}
                         style={{
-                            background: 'transparent',
-                            color: '#cfd4d8',
-                            border: '1px solid rgba(255,255,255,0.18)',
-                            borderRadius: 8,
+                            background: 'rgba(255,255,255,0.06)',
+                            color: '#e5e7eb',
+                            border: '1px solid rgba(255,255,255,0.14)',
+                            borderRadius: 999,
                             fontSize: 12,
-                            padding: '6px 10px',
+                            fontWeight: 500,
+                            padding: '6px 12px',
                             cursor: 'pointer',
                         }}
                     >
-                        {label}
+                        Actions ▾
                     </button>
-                ))}
+
+                    {menuOpen && (
+                        <div
+                            style={{
+                                position: 'absolute',
+                                right: 0,
+                                top: '110%',
+                                background: '#0f1317',
+                                border: '1px solid rgba(255,255,255,0.12)',
+                                borderRadius: 10,
+                                padding: 6,
+                                minWidth: 170,
+                                zIndex: 20,
+                                boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                            }}
+                        >
+                            {[
+                                'Send Terms',
+                                'Nudge',
+                                'Approve',
+                                'Mark Committed',
+                                'Pass',
+                            ].map((label) => (
+                                <button
+                                    key={label}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        console.log(label, investor.dealId);
+                                        setMenuOpen(false);
+                                    }}
+                                    style={{
+                                        display: 'block',
+                                        width: '100%',
+                                        textAlign: 'left',
+                                        padding: '6px 10px',
+                                        fontSize: 12,
+                                        background: 'transparent',
+                                        border: 'none',
+                                        color: '#e5e7eb',
+                                        cursor: 'pointer',
+                                        borderRadius: 6,
+                                    }}
+                                    onMouseEnter={(e) =>
+                                        (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')
+                                    }
+                                    onMouseLeave={(e) =>
+                                        (e.currentTarget.style.background = 'transparent')
+                                    }
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
 }
 
+
 export default function DealInvestorsPage() {
     const [rows, setRows] = useState<ApiInvestorRow[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
+    //Prospective (Supabase)
+    const [prospects, setProspects] = useState<ProspectRow[]>([]);
+    const [loadingProspects, setLoadingProspects] = useState(false);
+    const [activeInvestor, setActiveInvestor] = useState<Investor | null>(null);
     // Hardcode raiseId for v1; later you can derive from dealId route param or a deal->raise mapping.
     const raiseId = 'INW-ROSE-001';
     async function reloadInvestors() {
@@ -165,43 +214,39 @@ export default function DealInvestorsPage() {
         }
         setLoading(false);
     }
-
+    async function loadProspects() {
+        setLoadingProspects(true);
+        try {
+            const res = await fetch(`/api/raises/${raiseId}/prospective`, {
+                cache: 'no-store',
+            });
+            const json = await res.json();
+            if (res.ok && json?.ok) {
+                setProspects(json.prospects ?? []);
+            }
+        } finally {
+            setLoadingProspects(false);
+        }
+    }
     useEffect(() => {
         let alive = true;
 
-        async function load() {
-            try {
-                setLoading(true);
-                setError(null);
+        async function loadAll() {
+            if (!alive) return;
 
-                const res = await fetch(`/api/hubspot/raises/${raiseId}`, { cache: 'no-store' });
-                const data = await res.json();
-
-                if (!alive) return;
-
-                if (!res.ok || data?.ok === false) {
-                    setError(data?.error ?? 'Failed to load investors');
-                    setRows([]);
-                    return;
-                }
-
-                setRows((data?.investors ?? []) as ApiInvestorRow[]);
-            } catch (e: any) {
-                if (!alive) return;
-                setError(e?.message ?? 'Failed to load investors');
-                setRows([]);
-            } finally {
-                if (!alive) return;
-                setLoading(false);
-            }
+            await Promise.all([
+                reloadInvestors(),
+                loadProspects(),
+            ]);
         }
 
-        reloadInvestors();
+        loadAll();
 
         return () => {
             alive = false;
         };
     }, [raiseId]);
+
 
     const investors: Investor[] = useMemo(() => {
         return rows.map((r) => {
@@ -231,96 +276,125 @@ export default function DealInvestorsPage() {
 
 
     const [showAddInvestor, setShowAddInvestor] = useState(false);
-    const [adding, setAdding] = useState(false);
 
-    return (
-        <div
-            style={{
-                backgroundColor: '#f5f6f7', // soft neutral canvas
-                minHeight: '100vh',
-                padding: '36px 44px',
-            }}
-        >
-            {/* Header */}
+    function optimisticAddInvestorDeal(p: ProspectRow, dealId: string) {
+        const optimistic: ApiInvestorRow = {
+            dealId: dealId,
+            contactId: p.contact_id,
+            investorName: p.contact_name ?? 'Unnamed Contact',
+            investorEmail: p.contact_email ?? null,
+            amount: 250000, // your default invite amount
+            dealstage: 'Introduced',       // not critical; just display
+            dealstageLabel: 'Introduced',  // what your card shows
+            bucket: 'needs_touch',         // force it to appear immediately
+            pipeline: null,
+            raise_id: raiseId,
+            hs_lastactivitydate: null,
+            hs_lastmodifieddate: new Date().toISOString(),
+        };
 
+        setRows((prev) => {
+            // avoid duplicates if we already inserted this deal
+            const filtered = prev.filter((r) => r.dealId !== dealId);
+            return [optimistic, ...filtered];
+        });
+    }
+
+    // Invite Draft modal state (Stage 2)
+    const [showInviteDraft, setShowInviteDraft] = useState(false);
+    const [activeProspect, setActiveProspect] = useState<ProspectRow | null>(null);
+
+    function openInviteDraft(p: ProspectRow) {
+        setActiveProspect(p);
+        setShowInviteDraft(true);
+    }
+        return (
             <div
                 style={{
-                    marginBottom: 32,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
+                    backgroundColor: '#f5f6f7', // soft neutral canvas
+                    minHeight: '100vh',
+                    padding: '36px 44px',
                 }}
             >
+                {/* Header */}
 
-                <h1
-                    style={{
-                        fontSize: 28,
-                        fontWeight: 500,
-                        marginBottom: 6,
-                    }}
-                >
-                    Inwood – Rosehill LP
-                </h1>
                 <div
                     style={{
-                        fontSize: 14,
-                        opacity: 0.65,
+                        marginBottom: 32,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
                     }}
                 >
-                    Admin · Investor Command Center
+
+                    <h1
+                        style={{
+                            fontSize: 28,
+                            fontWeight: 500,
+                            marginBottom: 6,
+                        }}
+                    >
+                        Inwood – Rosehill LP
+                    </h1>
+                    <div
+                        style={{
+                            fontSize: 14,
+                            opacity: 0.65,
+                        }}
+                    >
+                        Admin · Investor Command Center
+                    </div>
                 </div>
-            </div>
 
-            <button
-                onClick={() => setShowAddInvestor(true)}
-                style={{
-                    background: '#ffffff',
-                    border: '1px solid rgba(0,0,0,0.15)',
-                    borderRadius: 10,
-                    padding: '8px 14px',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                }}
-            >
-                + Add Investor
-            </button>
+                <button
+                    onClick={() => setShowAddInvestor(true)}
+                    style={{
+                        background: '#ffffff',
+                        border: '1px solid rgba(0,0,0,0.15)',
+                        borderRadius: 10,
+                        padding: '8px 14px',
+                        fontSize: 13,
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                    }}
+                >
+                    + Add Investor
+                </button>
 
-            {/* Totals */}
-            <div
-                style={{
-                    display: 'flex',
-                    gap: 48,
-                    marginBottom: 18,
-                }}
-            >
-                <div>
-                    <div style={{ fontSize: 22, fontWeight: 600 }}>${committedTotal.toLocaleString()}</div>
-                    <div style={{ fontSize: 12, opacity: 0.6 }}>Committed</div>
+                {/* Totals */}
+                <div
+                    style={{
+                        display: 'flex',
+                        gap: 48,
+                        marginBottom: 18,
+                    }}
+                >
+                    <div>
+                        <div style={{ fontSize: 22, fontWeight: 600 }}>${committedTotal.toLocaleString()}</div>
+                        <div style={{ fontSize: 12, opacity: 0.6 }}>Committed</div>
+                    </div>
+                    <div>
+                        <div style={{ fontSize: 22, fontWeight: 600 }}>${RAISE_TARGET.toLocaleString()}</div>
+                        <div style={{ fontSize: 12, opacity: 0.6 }}>Target</div>
+                    </div>
                 </div>
-                <div>
-                    <div style={{ fontSize: 22, fontWeight: 600 }}>${RAISE_TARGET.toLocaleString()}</div>
-                    <div style={{ fontSize: 12, opacity: 0.6 }}>Target</div>
+
+                {/* Status line */}
+                <div style={{ fontSize: 12, opacity: 0.65, marginBottom: 40 }}>
+                    Raise ID · <span style={{ fontWeight: 600 }}>{raiseId}</span>
+                    {loading ? ' · Loading…' : ''}
+                    {error ? ` · ${error}` : ''}
                 </div>
-            </div>
 
-            {/* Status line */}
-            <div style={{ fontSize: 12, opacity: 0.65, marginBottom: 40 }}>
-                Raise ID · <span style={{ fontWeight: 600 }}>{raiseId}</span>
-                {loading ? ' · Loading…' : ''}
-                {error ? ` · ${error}` : ''}
-            </div>
-
-            {/* Buckets */}
-            <div
-                style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(4, 1fr)',
-                    gap: 24,
-                }}
-            >
-                {BUCKETS.map((bucket) => (
-                    <div key={bucket.key}>
+                {/* Buckets */}
+                <div
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(5, 1fr)',
+                        gap: 24,
+                    }}
+                >
+                    <div>
                         <h3
                             style={{
                                 fontSize: 13,
@@ -331,295 +405,671 @@ export default function DealInvestorsPage() {
                                 marginBottom: 18,
                             }}
                         >
-                            {bucket.label}
+                            Prospective
                         </h3>
 
-                        {investors
-                            .filter((i) => i.bucket === bucket.key)
-                            .map((investor) => (
-                                <InvestorCard key={investor.id} investor={investor} />
-                            ))}
+                        {loadingProspects && (
+                            <div style={{ fontSize: 12, opacity: 0.6 }}>Loading…</div>
+                        )}
+
+                        {!loadingProspects && prospects.length === 0 && (
+                            <div style={{ fontSize: 12, opacity: 0.6 }}>
+                                No prospective investors yet.
+                            </div>
+                        )}
+
+                        {prospects.map((p) => (
+                            <div
+                                key={p.id}
+                                style={{
+                                    background: '#1a1f24',
+                                    borderRadius: 14,
+                                    padding: 16,
+                                    marginBottom: 16,
+                                    color: '#f1f3f4',
+                                    border: '1px solid rgba(255,255,255,0.06)',
+                                }}
+                            >
+                                <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
+                                    {p.contact_name || 'Unnamed Contact'}
+                                </div>
+
+                                <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 12 }}>
+                                    {p.contact_email || '—'}
+                                </div>
+
+                                {/* Draft status line */}
+                                {p.invite_status === 'draft_ready' && (
+                                    <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>
+                                        Draft ready
+                                    </div>
+                                )}
+
+                                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                    <button
+                                        style={{
+                                            background: 'transparent',
+                                            color: '#cfd4d8',
+                                            border: '1px solid rgba(255,255,255,0.18)',
+                                            borderRadius: 8,
+                                            fontSize: 12,
+                                            padding: '6px 10px',
+                                            cursor: 'pointer',
+                                        }}
+                                        onClick={() => openInviteDraft(p)}
+                                    >
+                                        {p.invite_status === 'draft_ready' ? 'Edit Draft' : 'Draft Invite'}
+                                    </button>
+
+                                    {/* Send invite: marks prospect as invited and creates HubSpot deal (optimistic UI) */}
+                                    <button
+                                        disabled={p.invite_status !== 'draft_ready'}
+                                        style={{
+                                            background: 'transparent',
+                                            color: '#cfd4d8',
+                                            border: '1px solid rgba(255,255,255,0.18)',
+                                            borderRadius: 8,
+                                            fontSize: 12,
+                                            padding: '6px 10px',
+                                            cursor: p.invite_status === 'draft_ready' ? 'pointer' : 'not-allowed',
+                                            opacity: p.invite_status === 'draft_ready' ? 1 : 0.45,
+                                        }}
+                                        onClick={async () => {
+                                            if (!confirm('Mark invite as sent and move investor into pipeline?')) return;
+
+                                            // 1) Mark invited in Supabase
+                                            const sendRes = await fetch(
+                                                `/api/raises/${raiseId}/prospective/${p.id}/send`,
+                                                { method: 'POST' }
+                                            );
+
+                                            const sendJson = await sendRes.json().catch(() => ({} as any));
+                                            if (!sendRes.ok || (sendJson as any)?.ok === false) {
+                                                alert((sendJson as any)?.error ?? 'Failed to mark invite as sent');
+                                                return;
+                                            }
+
+                                            // 2) Create HubSpot deal
+                                            const hubspotRes = await fetch(`/api/hubspot/raises/${raiseId}/add-investor`, {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    contactId: p.contact_id,
+                                                    amount: 250000,
+                                                    investorName: p.contact_name,
+                                                }),
+                                            });
+
+                                            const hubspotJson = await hubspotRes.json().catch(() => ({} as any));
+                                            if (!hubspotRes.ok || (hubspotJson as any)?.ok === false) {
+                                                alert((hubspotJson as any)?.error ?? 'Failed to create HubSpot deal');
+                                                return;
+                                            }
+
+                                            const dealId = (hubspotJson as any)?.dealId;
+                                            if (dealId) {
+                                                // ✅ 3) Optimistically render immediately in Needs Touch
+                                                optimisticAddInvestorDeal(p, dealId);
+                                            }
+
+                                            // 4) Refresh Prospective (removes invited from that list)
+                                            await loadProspects();
+
+                                            // 5) Background reconcile — HubSpot read may lag, so retry once or twice
+                                            setTimeout(() => reloadInvestors(), 1500);
+                                            setTimeout(() => reloadInvestors(), 4000);
+                                        }}
+                                    >
+                                        Send
+                                    </button>
+
+
+                                    <button
+                                        style={{
+                                            background: 'transparent',
+                                            color: '#fb7185',
+                                            border: '1px solid rgba(251,113,133,0.35)',
+                                            borderRadius: 8,
+                                            fontSize: 12,
+                                            padding: '6px 10px',
+                                            cursor: 'pointer',
+                                        }}
+                                        onClick={async () => {
+                                            await fetch(`/api/raises/${raiseId}/prospective/${p.id}`, { method: 'DELETE' });
+                                            await loadProspects();
+                                        }}
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
-            {showAddInvestor && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(0,0,0,0.45)',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 50,
-                    }}
-                >
+                    {BUCKETS.map((bucket) => (
+                        <div key={bucket.key}>
+                            <h3
+                                style={{
+                                    fontSize: 13,
+                                    fontWeight: 500,
+                                    letterSpacing: '1px',
+                                    textTransform: 'uppercase',
+                                    opacity: 0.7,
+                                    marginBottom: 18,
+                                }}
+                            >
+                                {bucket.label}
+                            </h3>
+
+                            {investors
+                                .filter((i) => i.bucket === bucket.key)
+                                .map((investor) => (
+                                    <InvestorCard
+                                        key={investor.id}
+                                        investor={investor}
+                                        onOpen={() => setActiveInvestor(investor)}
+                                    />
+                                ))}
+                        </div>
+                    ))}
+                </div>
+                {showAddInvestor && (
                     <div
                         style={{
-                            background: '#1a1f24',
-                            color: '#f1f3f4',
-                            borderRadius: 14,
-                            width: 720,
-                            maxWidth: '90vw',
-                            maxHeight: '80vh',
+                            position: 'fixed',
+                            inset: 0,
+                            background: 'rgba(0,0,0,0.45)',
                             display: 'flex',
-                            flexDirection: 'column',
-                            padding: 24,
-                            boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            zIndex: 50,
                         }}
                     >
-                        <h3 style={{ fontSize: 18, marginBottom: 16 }}>
-                            Add Prospective Investor
-                        </h3>
+                        <div
+                            style={{
+                                background: '#1a1f24',
+                                color: '#f1f3f4',
+                                borderRadius: 14,
+                                width: 720,
+                                maxWidth: '90vw',
+                                maxHeight: '80vh',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                padding: 24,
+                                boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
+                            }}
+                        >
+                            <h3 style={{ fontSize: 18, marginBottom: 16 }}>
+                                Add Prospective Investor
+                            </h3>
 
-                        <div style={{ flex: 1, minHeight: 0 }}>
-                            <AddProspectsModal
-                                raiseId={raiseId}
-                                onClose={() => setShowAddInvestor(false)}
-                                onAdded={async () => {
-                                    setShowAddInvestor(false);
-                                    await reloadInvestors();
-                                }}
-                            />
+                            <div style={{ flex: 1, minHeight: 0 }}>
+                                <AddProspectsModal
+                                    raiseId={raiseId}
+                                    onClose={() => setShowAddInvestor(false)}
+                                    onAdded={async () => {
+                                        await loadProspects(); //refresh the queue from Supabase
+                                        setShowAddInvestor(false);
+                                    }}
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
-    );
-}
-
-function AddProspectsModal({
-    raiseId,
-    onClose,
-    onAdded,
-}: {
-    raiseId: string;
-    onClose: () => void;
-    onAdded: () => Promise<void> | void;
-}) {
-    const [query, setQuery] = useState('');
-    const [rows, setRows] = useState<ContactRow[]>([]);
-    const [selected, setSelected] = useState<Record<string, ContactRow>>({});
-    const [nextAfter, setNextAfter] = useState<string | null>(null);
-
-    const [loading, setLoading] = useState(false);
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    const selectedCount = Object.keys(selected).length;
-
-    type ContactSearchResponse = {
-        ok: boolean;
-        results: Array<{
-            id: string;
-            name?: string;
-            email?: string;
-            firstname?: string;
-            lastname?: string;
-        }>;
-        nextAfter: string | null;
-        error?: string;
-        details?: string;
-    };
-
-    async function fetchContacts(opts: { reset: boolean }) {
-        const { reset } = opts;
-        try {
-            setLoading(true);
-            setError(null);
-
-            const after = reset ? null : nextAfter;
-
-            const url =
-                `/api/hubspot/contacts/search?q=${encodeURIComponent(query)}&limit=25` +
-                (after ? `&after=${encodeURIComponent(after)}` : '');
-
-            const res = await fetch(url, { cache: 'no-store' });
-            const json = (await res.json()) as ContactSearchResponse;
-
-            if (!res.ok || json?.ok === false) {
-                setError(json?.error ?? 'Failed to load contacts');
-                return;
-            }
-
-            const mapped: ContactRow[] = (json.results ?? []).map((c) => ({
-                id: String(c.id),
-                name:
-                    (c.name && c.name.trim()) ||
-                    `${c.firstname ?? ''} ${c.lastname ?? ''}`.trim() ||
-                    '—',
-                email: (c.email ?? '').trim(),
-            }));
-
-            if (reset) {
-                setRows(mapped);
-            } else {
-                setRows((prev) => [...prev, ...mapped]);
-            }
-
-            setNextAfter(json.nextAfter ?? null);
-        } catch (e: any) {
-            setError(e?.message ?? 'Failed to load contacts');
-        } finally {
-            setLoading(false);
-        }
-    }
-    const [existingIds, setExistingIds] = useState<Set<string>>(new Set());
-
-    useEffect(() => {
-        async function loadExisting() {
-            const res = await fetch(`/api/raises/${raiseId}/prospective`, {
-                cache: 'no-store',
-            });
-            if (!res.ok) return;
-
-            const json = await res.json();
-            const ids = new Set(
-                (json?.prospects ?? []).map((p: any) => String(p.contact_id))
-            );
-            setExistingIds(ids);
-        }
-
-        loadExisting();
-    }, [raiseId]);
-
-    // Debounced search (also triggers initial load with empty query)
-    useEffect(() => {
-        if (!query.trim()) {
-            setRows([]);
-            setNextAfter(null);
-            return;
-        }
-
-        const t = setTimeout(() => {
-            fetchContacts({ reset: true });
-        }, 250);
-
-        return () => clearTimeout(t);
-    }, [query]);
-
-
-    function toggleRow(r: ContactRow) {
-        setSelected((prev) => {
-            const copy = { ...prev };
-            if (copy[r.id]) delete copy[r.id];
-            else copy[r.id] = r;
-            return copy;
-        });
-    }
-
-    function toggleAllVisible() {
-        setSelected((prev) => {
-            const copy = { ...prev };
-            const allSelected = rows.length > 0 && rows.every((r) => !!copy[r.id]);
-
-            if (allSelected) {
-                rows.forEach((r) => delete copy[r.id]);
-            } else {
-                rows.forEach((r) => {
-                    copy[r.id] = r;
-                });
-            }
-            return copy;
-        });
-    }
-
-    async function bulkSubscribe() {
-        try {
-            setSaving(true);
-            setError(null);
-
-            const contacts = Object.values(selected).map((c) => ({
-                contactId: c.id,
-                contactName: c.name,
-                contactEmail: c.email,
-            }));
-
-            if (contacts.length === 0) return;
-
-            const res = await fetch(
-                `/api/hubspot/raises/${raiseId}/subscribe-batch`,
+                )}
                 {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contacts }),
+                    showInviteDraft && activeProspect && (
+                        <div
+                            style={{
+                                position: 'fixed',
+                                inset: 0,
+                                background: 'rgba(0,0,0,0.45)',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                zIndex: 60,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    background: '#1a1f24',
+                                    color: '#f1f3f4',
+                                    borderRadius: 14,
+                                    width: 720,
+                                    maxWidth: '90vw',
+                                    maxHeight: '80vh',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    padding: 24,
+                                    boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
+                                }}
+                            >
+                                <h3 style={{ fontSize: 18, marginBottom: 16 }}>
+                                    Draft Invite Email
+                                </h3>
+
+                                <div style={{ flex: 1, minHeight: 0 }}>
+                                    <InviteDraftForm
+                                        raiseId={raiseId}
+                                        prospect={activeProspect}
+                                        onClose={() => {
+                                            setShowInviteDraft(false);
+                                            setActiveProspect(null);
+                                        }}
+                                        onSaved={async () => {
+                                            await loadProspects();
+                                            setShowInviteDraft(false);
+                                            setActiveProspect(null);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )
                 }
-            );
+                {activeInvestor && (
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            right: 0,
+                            width: 420,
+                            height: '100vh',
+                            background: '#0f1317',
+                            borderLeft: '1px solid rgba(255,255,255,0.12)',
+                            padding: 20,
+                            zIndex: 50,
+                            boxShadow: '-12px 0 32px rgba(0,0,0,0.5)',
+                            color: '#f1f3f4',
+                        }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <h3>{activeInvestor.name}</h3>
+                            <button onClick={() => setActiveInvestor(null)}>✕</button>
+                        </div>
 
-            const contentType = res.headers.get('content-type') || '';
+                        <div>{activeInvestor.email}</div>
+                        <div>Stage: {activeInvestor.stageLabel}</div>
+                        <div>Amount: ${activeInvestor.amount.toLocaleString()}</div>
+                    </div>
+                )}
 
-            if (!contentType.includes('application/json')) {
-                // Server returned HTML (auth page, error page, etc.)
-                const text = await res.text();
-                console.error('Non-JSON response from subscribe-batch:', text);
-                setError('Failed to add prospects. Please try again.');
-                return;
-            }
-
-            const json = await res.json();
-
-            if (!res.ok || json?.ok === false) {
-                setError(json?.error ?? 'Failed to add prospects');
-                return;
-            }
-
-            await onAdded();
-            onClose();
-        } catch (e: any) {
-            console.error(e);
-            setError('Failed to add prospects. Please try again.');
-        } finally {
-            setSaving(false);
-        }
+            </div>
+        );
     }
 
-    return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, height: '100%' }}>
-            {/* Search */}
-            <input
-                placeholder="Search HubSpot contacts by name or email…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: 10,
-                    border: '1px solid rgba(255,255,255,0.18)',
-                    background: 'transparent',
-                    color: '#f1f3f4',
-                }}
-            />
-            {Object.keys(selected).length > 0 && (
-                <div style={{ fontSize: 13, opacity: 0.75 }}>
-                    {Object.keys(selected).length} prospect
-                    {Object.keys(selected).length > 1 ? 's' : ''} staged
-                </div>
-            )}
-            {/* Error */}
-            {error && (
-                <div style={{ color: '#fb7185', fontSize: 12 }}>
-                    {error}
-                </div>
-            )}
+    function AddProspectsModal({
+        raiseId,
+        onClose,
+        onAdded,
+    }: {
+        raiseId: string;
+        onClose: () => void;
+        onAdded: () => Promise<void> | void;
+    }) {
+        const [query, setQuery] = useState('');
+        const [rows, setRows] = useState<ContactRow[]>([]);
+        const [selected, setSelected] = useState<Record<string, ContactRow>>({});
+        const [nextAfter, setNextAfter] = useState<string | null>(null);
 
-            {/* Top actions */}
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                }}
-            >
-                <div style={{ fontSize: 12, opacity: 0.75 }}>
-                    {rows.length > 0
-                        ? `${selectedCount} selected on page`
-                        : ''}
+        const [loading, setLoading] = useState(false);
+        const [saving, setSaving] = useState(false);
+        const [error, setError] = useState<string | null>(null);
+
+        const selectedCount = Object.keys(selected).length;
+
+        type ContactSearchResponse = {
+            ok: boolean;
+            results: Array<{
+                id: string;
+                name?: string;
+                email?: string;
+                firstname?: string;
+                lastname?: string;
+            }>;
+            nextAfter: string | null;
+            error?: string;
+            details?: string;
+        };
+
+        async function fetchContacts(opts: { reset: boolean }) {
+            const { reset } = opts;
+            try {
+                setLoading(true);
+                setError(null);
+
+                const after = reset ? null : nextAfter;
+
+                const url =
+                    `/api/hubspot/contacts/search?q=${encodeURIComponent(query)}&limit=25` +
+                    (after ? `&after=${encodeURIComponent(after)}` : '');
+
+                const res = await fetch(url, { cache: 'no-store' });
+                const json = (await res.json()) as ContactSearchResponse;
+
+                if (!res.ok || json?.ok === false) {
+                    setError(json?.error ?? 'Failed to load contacts');
+                    return;
+                }
+
+                const mapped: ContactRow[] = (json.results ?? []).map((c) => ({
+                    id: String(c.id),
+                    name:
+                        (c.name && c.name.trim()) ||
+                        `${c.firstname ?? ''} ${c.lastname ?? ''}`.trim() ||
+                        '—',
+                    email: (c.email ?? '').trim(),
+                }));
+
+                if (reset) {
+                    setRows(mapped);
+                } else {
+                    setRows((prev) => [...prev, ...mapped]);
+                }
+
+                setNextAfter(json.nextAfter ?? null);
+            } catch (e: any) {
+                setError(e?.message ?? 'Failed to load contacts');
+            } finally {
+                setLoading(false);
+            }
+        }
+        const [existingIds, setExistingIds] = useState<Set<string>>(new Set());
+
+        useEffect(() => {
+            async function loadExisting() {
+                const res = await fetch(`/api/raises/${raiseId}/prospective`, {
+                    cache: 'no-store',
+                });
+                if (!res.ok) return;
+
+                const json = await res.json();
+                const ids = new Set(
+                    (json?.prospects ?? []).map((p: any) => String(p.contact_id))
+                );
+                setExistingIds(ids);
+            }
+
+            loadExisting();
+        }, [raiseId]);
+
+        // Debounced search (also triggers initial load with empty query)
+        useEffect(() => {
+            if (!query.trim()) {
+                setRows([]);
+                setNextAfter(null);
+                return;
+            }
+
+            const t = setTimeout(() => {
+                fetchContacts({ reset: true });
+            }, 250);
+
+            return () => clearTimeout(t);
+        }, [query]);
+
+
+        function toggleRow(r: ContactRow) {
+            setSelected((prev) => {
+                const copy = { ...prev };
+                if (copy[r.id]) delete copy[r.id];
+                else copy[r.id] = r;
+                return copy;
+            });
+        }
+
+        function toggleAllVisible() {
+            setSelected((prev) => {
+                const copy = { ...prev };
+                const allSelected = rows.length > 0 && rows.every((r) => !!copy[r.id]);
+
+                if (allSelected) {
+                    rows.forEach((r) => delete copy[r.id]);
+                } else {
+                    rows.forEach((r) => {
+                        copy[r.id] = r;
+                    });
+                }
+                return copy;
+            });
+        }
+
+        async function bulkSubscribe() {
+            try {
+                setSaving(true);
+                setError(null);
+
+                const contacts = Object.values(selected).map((c) => ({
+                    contactId: c.id,
+                    contactName: c.name,
+                    contactEmail: c.email,
+                }));
+
+                if (contacts.length === 0) return;
+
+                const res = await fetch(
+                    `/api/raises/${raiseId}/subscribe-batch`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contacts }),
+                    }
+                );
+
+                const contentType = res.headers.get('content-type') || '';
+
+                if (!contentType.includes('application/json')) {
+                    // Server returned HTML (auth page, error page, etc.)
+                    const text = await res.text();
+                    console.error('Non-JSON response from subscribe-batch:', text);
+                    setError('Failed to add prospects. Please try again.');
+                    return;
+                }
+
+                const json = await res.json();
+
+                if (!res.ok || json?.ok === false) {
+                    setError(json?.error ?? 'Failed to add prospects');
+                    return;
+                }
+
+                await onAdded();
+                onClose();
+            } catch (e: any) {
+                console.error(e);
+                setError('Failed to add prospects. Please try again.');
+            } finally {
+                setSaving(false);
+            }
+        }
+
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, height: '100%' }}>
+                {/* Search */}
+                <input
+                    placeholder="Search HubSpot contacts by name or email…"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        borderRadius: 10,
+                        border: '1px solid rgba(255,255,255,0.18)',
+                        background: 'transparent',
+                        color: '#f1f3f4',
+                    }}
+                />
+                {Object.keys(selected).length > 0 && (
+                    <div style={{ fontSize: 13, opacity: 0.75 }}>
+                        {Object.keys(selected).length} prospect
+                        {Object.keys(selected).length > 1 ? 's' : ''} staged
+                    </div>
+                )}
+                {/* Error */}
+                {error && (
+                    <div style={{ color: '#fb7185', fontSize: 12 }}>
+                        {error}
+                    </div>
+                )}
+
+                {/* Top actions */}
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                    }}
+                >
+                    <div style={{ fontSize: 12, opacity: 0.75 }}>
+                        {rows.length > 0
+                            ? `${selectedCount} selected on page`
+                            : ''}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 10 }}>
+                        <button
+                            onClick={toggleAllVisible}
+                            style={{
+                                background: 'transparent',
+                                color: '#cfd4d8',
+                                border: '1px solid rgba(255,255,255,0.18)',
+                                borderRadius: 8,
+                                fontSize: 12,
+                                padding: '6px 10px',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Select all on page
+                        </button>
+
+                        <button
+                            onClick={bulkSubscribe}
+                            disabled={selectedCount === 0 || saving}
+                            style={{
+                                background: '#ffffff',
+                                color: '#000',
+                                borderRadius: 8,
+                                padding: '6px 14px',
+                                fontWeight: 600,
+                                border: 'none',
+                                cursor: selectedCount === 0 ? 'not-allowed' : 'pointer',
+                                opacity: selectedCount === 0 ? 0.55 : 1,
+                            }}
+                        >
+                            {saving ? 'Adding…' : 'Add selected as prospects'}
+                        </button>
+                    </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: 10 }}>
+                {/* SCROLLABLE TABLE CONTAINER */}
+                <div
+                    style={{
+                        flex: 1,
+                        minHeight: 0, // 🔑 REQUIRED so flex children can scroll
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: 12,
+                        overflow: 'hidden',
+                        display: 'flex',
+                        flexDirection: 'column',
+                    }}
+                >
+                    {/* Header row (fixed) */}
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: '44px 1.3fr 1.7fr',
+                            padding: '10px 12px',
+                            background: 'rgba(255,255,255,0.04)',
+                            fontSize: 12,
+                            letterSpacing: '0.6px',
+                            textTransform: 'uppercase',
+                            opacity: 0.8,
+                            flexShrink: 0,
+                        }}
+                    >
+                        <div />
+                        <div>Name</div>
+                        <div>Email</div>
+                    </div>
+
+                    {/* Body (scrolls) */}
+                    <div style={{ overflowY: 'auto', flex: 1, paddingBottom: 60 }}>
+                        {rows.map((r) => {
+                            const checked = !!selected[r.id];
+                            const alreadyAdded = existingIds.has(r.id);
+
+                            return (
+                                <div
+                                    key={r.id}
+                                    style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: '44px 1.3fr 1.7fr',
+                                        padding: '10px 12px',
+                                        borderTop: '1px solid rgba(255,255,255,0.06)',
+                                        alignItems: 'center',
+                                        opacity: alreadyAdded ? 0.45 : 1,
+                                    }}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        disabled={alreadyAdded}
+                                        checked={checked}
+                                        onChange={() => toggleRow(r)}
+                                        style={{ width: 16, height: 16 }}
+                                    />
+
+                                    <div style={{ fontSize: 13 }}>
+                                        {r.name || '—'}
+                                        {alreadyAdded && (
+                                            <span style={{ fontSize: 11, marginLeft: 8, opacity: 0.7 }}>
+                                                Already added
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div style={{ fontSize: 13, opacity: 0.85 }}>
+                                        {r.email || '—'}
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                        {!loading && rows.length === 0 && (
+                            <div style={{ padding: 14, fontSize: 13, opacity: 0.7 }}>
+                                No contacts found.
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Bottom actions */}
+                <div
+                    style={{
+                        position: 'sticky',
+                        bottom: 0,
+                        background: '#1a1f24',
+                        paddingTop: 12,
+                        marginTop: 12,
+                        borderTop: '1px solid rgba(255,255,255,0.08)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        zIndex: 2,
+                    }}
+                >
                     <button
-                        onClick={toggleAllVisible}
+                        onClick={onClose}
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#cfd4d8',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        disabled={!nextAfter || loading}
+                        onClick={() => fetchContacts({ reset: false })}
                         style={{
                             background: 'transparent',
                             color: '#cfd4d8',
@@ -627,15 +1077,162 @@ function AddProspectsModal({
                             borderRadius: 8,
                             fontSize: 12,
                             padding: '6px 10px',
-                            cursor: 'pointer',
+                            cursor: !nextAfter ? 'not-allowed' : 'pointer',
+                            opacity: !nextAfter ? 0.55 : 1,
                         }}
                     >
-                        Select all on page
+                        {loading ? 'Loading…' : nextAfter ? 'Load more' : 'No more results'}
                     </button>
+                </div>
 
+            </div>
+        );
+    }
+
+    function InviteDraftForm({
+        raiseId,
+        prospect,
+        onClose,
+        onSaved,
+    }: {
+        raiseId: string;
+        prospect: ProspectRow;
+        onClose: () => void;
+        onSaved: () => Promise<void> | void;
+    }) {
+        if (!prospect) return null;
+
+        const defaultSubject = 'Inwood – Rosehill | Investor Preview';
+
+        const firstName =
+            (prospect.contact_name ?? '').split(' ')[0].trim() || 'there';
+
+        const defaultBody = `Hi {{first_name}},
+
+I wanted to share an early look at our Inwood – Rosehill opportunity.
+
+If you’re open to it, I’d be happy to walk you through the deal and answer any questions.
+
+Best,
+`;
+
+        const [subject, setSubject] = useState(
+            prospect.invite_subject ?? defaultSubject
+        );
+        const [body, setBody] = useState(
+            prospect.invite_body ?? defaultBody
+        );
+        const [saving, setSaving] = useState(false);
+        const [error, setError] = useState<string | null>(null);
+
+        function renderPreview(text: string) {
+            // safer than replaceAll
+            return text.split('{{first_name}}').join(firstName);
+        }
+
+        async function saveDraft() {
+            try {
+                setSaving(true);
+                setError(null);
+
+                const res = await fetch(
+                    `/api/raises/${raiseId}/prospective/${prospect.id}/draft`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            subject,
+                            body,
+                            invite_method: 'hubspot_outlook',
+                        }),
+                    }
+                );
+
+                const json = await res.json();
+                if (!res.ok || json?.ok === false) {
+                    setError(json?.error ?? 'Failed to save draft');
+                    return;
+                }
+
+                await onSaved();
+            } catch (e: any) {
+                setError(e?.message ?? 'Failed to save draft');
+            } finally {
+                setSaving(false);
+            }
+        }
+
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, height: '100%' }}>
+                <div style={{ fontSize: 12, opacity: 0.75 }}>
+                    Recipient:{' '}
+                    <strong>{prospect.contact_name || 'Unnamed Contact'}</strong>
+                    {' '}· {prospect.contact_email || '—'}
+                </div>
+
+                <input
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Subject"
+                    style={{
+                        padding: '10px 12px',
+                        borderRadius: 10,
+                        border: '1px solid rgba(255,255,255,0.18)',
+                        background: 'transparent',
+                        color: '#f1f3f4',
+                    }}
+                />
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, flex: 1 }}>
+                    <textarea
+                        value={body}
+                        onChange={(e) => setBody(e.target.value)}
+                        style={{
+                            padding: 12,
+                            borderRadius: 10,
+                            border: '1px solid rgba(255,255,255,0.18)',
+                            background: 'transparent',
+                            color: '#f1f3f4',
+                            resize: 'none',
+                            fontSize: 13,
+                            lineHeight: 1.4,
+                        }}
+                    />
+
+                    <div
+                        style={{
+                            border: '1px solid rgba(255,255,255,0.18)',
+                            borderRadius: 10,
+                            padding: 12,
+                            background: 'rgba(255,255,255,0.04)',
+                            fontSize: 13,
+                            lineHeight: 1.4,
+                            whiteSpace: 'pre-wrap',
+                        }}
+                    >
+                        <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 8 }}>
+                            Preview
+                        </div>
+                        {renderPreview(body)}
+                    </div>
+                </div>
+
+                {error && (
+                    <div style={{ fontSize: 12, color: '#fb7185' }}>
+                        {error}
+                    </div>
+                )}
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                     <button
-                        onClick={bulkSubscribe}
-                        disabled={selectedCount === 0 || saving}
+                        onClick={onClose}
+                        style={{ background: 'transparent', border: 'none', color: '#cfd4d8' }}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={saveDraft}
+                        disabled={saving}
                         style={{
                             background: '#ffffff',
                             color: '#000',
@@ -643,141 +1240,16 @@ function AddProspectsModal({
                             padding: '6px 14px',
                             fontWeight: 600,
                             border: 'none',
-                            cursor: selectedCount === 0 ? 'not-allowed' : 'pointer',
-                            opacity: selectedCount === 0 ? 0.55 : 1,
+                            cursor: 'pointer',
                         }}
                     >
-                        {saving ? 'Adding…' : 'Add selected as prospects'}
+                        {saving ? 'Saving…' : 'Save Draft'}
                     </button>
                 </div>
-            </div>
 
-            {/* SCROLLABLE TABLE CONTAINER */}
-            <div
-                style={{
-                    flex: 1,
-                    minHeight: 0, // 🔑 REQUIRED so flex children can scroll
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: 12,
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column',
-                }}
-            >
-                {/* Header row (fixed) */}
-                <div
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: '44px 1.3fr 1.7fr',
-                        padding: '10px 12px',
-                        background: 'rgba(255,255,255,0.04)',
-                        fontSize: 12,
-                        letterSpacing: '0.6px',
-                        textTransform: 'uppercase',
-                        opacity: 0.8,
-                        flexShrink: 0,
-                    }}
-                >
-                    <div />
-                    <div>Name</div>
-                    <div>Email</div>
-                </div>
-
-                {/* Body (scrolls) */}
-                <div style={{ overflowY: 'auto', flex: 1, paddingBottom: 60 }}>
-                    {rows.map((r) => {
-                        const checked = !!selected[r.id];
-                        const alreadyAdded = existingIds.has(r.id);
-
-                        return (
-                            <div
-                                key={r.id}
-                                style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: '44px 1.3fr 1.7fr',
-                                    padding: '10px 12px',
-                                    borderTop: '1px solid rgba(255,255,255,0.06)',
-                                    alignItems: 'center',
-                                    opacity: alreadyAdded ? 0.45 : 1,
-                                }}
-                            >
-                                <input
-                                    type="checkbox"
-                                    disabled={alreadyAdded}
-                                    checked={checked}
-                                    onChange={() => toggleRow(r)}
-                                    style={{ width: 16, height: 16 }}
-                                />
-
-                                <div style={{ fontSize: 13 }}>
-                                    {r.name || '—'}
-                                    {alreadyAdded && (
-                                        <span style={{ fontSize: 11, marginLeft: 8, opacity: 0.7 }}>
-                                            Already added
-                                        </span>
-                                    )}
-                                </div>
-
-                                <div style={{ fontSize: 13, opacity: 0.85 }}>
-                                    {r.email || '—'}
-                                </div>
-                            </div>
-                        );
-                    })}
-
-                    {!loading && rows.length === 0 && (
-                        <div style={{ padding: 14, fontSize: 13, opacity: 0.7 }}>
-                            No contacts found.
-                        </div>
-                    )}
+                <div style={{ fontSize: 12, opacity: 0.6 }}>
+                    This saves the draft only. Sending happens separately via Outlook + HubSpot.
                 </div>
             </div>
-
-            {/* Bottom actions */}
-            <div
-                style={{
-                    position: 'sticky',
-                    bottom: 0,
-                    background: '#1a1f24',
-                    paddingTop: 12,
-                    marginTop: 12,
-                    borderTop: '1px solid rgba(255,255,255,0.08)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    zIndex: 2,
-                }}
-            >
-                <button
-                    onClick={onClose}
-                    style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: '#cfd4d8',
-                        cursor: 'pointer',
-                    }}
-                >
-                    Cancel
-                </button>
-
-                <button
-                    disabled={!nextAfter || loading}
-                    onClick={() => fetchContacts({ reset: false })}
-                    style={{
-                        background: 'transparent',
-                        color: '#cfd4d8',
-                        border: '1px solid rgba(255,255,255,0.18)',
-                        borderRadius: 8,
-                        fontSize: 12,
-                        padding: '6px 10px',
-                        cursor: !nextAfter ? 'not-allowed' : 'pointer',
-                        opacity: !nextAfter ? 0.55 : 1,
-                    }}
-                >
-                    {loading ? 'Loading…' : nextAfter ? 'Load more' : 'No more results'}
-                </button>
-            </div>
-
-        </div>
-    );
-}
+        );
+    }
