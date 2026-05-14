@@ -5,6 +5,7 @@ import {
     HUBSPOT_DEAL_STAGES,
     STAGE_LABEL_TO_ID,
 } from '@/lib/hubspotStages';
+import { FileX } from 'lucide-react';
 
 type Bucket = 'committed' | 'circling' | 'needs_touch' | 'passed';
 
@@ -33,6 +34,7 @@ type Investor = {
     stageLabel?: string | null;
     stageId?: string | null;
     dealId?: string;
+    contactId?: string | null;
 };
 type ContactRow = {
     id: string;        // HubSpot contactId
@@ -55,6 +57,15 @@ type ProspectRow = {
     created_at: string | null;
     invited_at: string | null;
     declined_at: string | null;
+};
+
+type HubSpotActivity = {
+    id: string;
+    type: 'EMAIL' | 'CALL' | 'MEETING' | 'NOTE' | 'TASK';
+    subject?: string | null;
+    preview?: string | null;
+    timestamp: string; // ISO string
+    ownerName?: string | null;
 };
 
 const BUCKETS: { key: Bucket; label: string }[] = [
@@ -312,21 +323,79 @@ function MenuItem({
 }
 
 export default function DealInvestorsPage() {
+    //===========================================
+    //Primary data (read-only)
+    //===========================================
     const [rows, setRows] = useState<ApiInvestorRow[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    //Prospective (Supabase)
+
+    //Prospective investors (Supabase)
     const [prospects, setProspects] = useState<ProspectRow[]>([]);
     const [loadingProspects, setLoadingProspects] = useState(false);
+
+    //Active context
     const [activeInvestor, setActiveInvestor] = useState<Investor | null>(null);
-    //Selection / UI State
+
+    // HubSpot activity timeline (read)
+    const [activity, setActivity] = useState<HubSpotActivity[]>([]);
+    const [loadingActivity, setLoadingActivity] = useState(false);
+    const [activityError, setActivityError] = useState<string | null>(null);
+
+    //============================================
+    // UI State / interaction state
+    //============================================
     const [commitAmount, setCommitAmount] = useState<number | null>(null);
     const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
     const [isUpdatingStage, setIsUpdatingStage] = useState(false);
-    // Invite Draft modal state
+
+    const [isSliderExpanded, setIsSliderExpanded] = useState(false);
+    const [openActivityId, setOpenActivityId] = useState<string | null>(null);
+
     const [showInviteDraft, setShowInviteDraft] = useState(false);
     const [activeProspect, setActiveProspect] = useState<ProspectRow | null>(null);
 
+    // =======================
+    // HubSpot writes (mutations)
+    // =======================
+    // Internal notes
+    const [noteDraft, setNoteDraft] = useState('');
+    const [savingNote, setSavingNote] = useState(false);
+
+    async function handleSaveNote() {
+        if (!activeInvestor?.contactId) return;
+
+        const body = noteDraft.trim();
+        if (!body) return;
+
+        setSavingNote(true);
+        setNoteDraft('');
+
+        // Optimistic insert into Activity feed
+        const optimisticNote: HubSpotActivity = {
+            id: `note-${Date.now()}`,
+            type: 'NOTE',
+            subject: 'Internal note',
+            preview: body,
+            timestamp: new Date().toISOString(),
+            ownerName: 'You',
+        };
+
+        setActivity((prev) => [optimisticNote, ...prev]);
+
+        try {
+            await fetch(`/api/hubspot/contacts/${activeInvestor.contactId}/note`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ body }),
+            });
+        } catch (e) {
+            // Optional: rollback or surface error later
+            console.error('Failed to save note', e);
+        } finally {
+            setSavingNote(false);
+        }
+    }
     function openInviteDraft(p: ProspectRow) {
         setActiveProspect(p);
         setShowInviteDraft(true);
@@ -362,6 +431,32 @@ export default function DealInvestorsPage() {
             setLoadingProspects(false);
         }
     }
+    async function loadContactActivity(contactId: string) {
+        setLoadingActivity(true);
+        setActivityError(null);
+
+        try {
+            const res = await fetch(
+                `/api/hubspot/contacts/${contactId}/activity`,
+                { cache: 'no-store' }
+            );
+
+            const json = await res.json().catch(() => ({} as any));
+
+            if (!res.ok || json?.ok === false) {
+                setActivity([]);
+                setActivityError(json?.error ?? 'Failed to load activity');
+                return;
+            }
+
+            setActivity(json.activities ?? []);
+        } catch (e: any) {
+            setActivity([]);
+            setActivityError(e?.message ?? 'Failed to load activity');
+        } finally {
+            setLoadingActivity(false);
+        }
+    }
     useEffect(() => {
         let alive = true;
 
@@ -382,9 +477,17 @@ export default function DealInvestorsPage() {
     }, [raiseId]);
 
     useEffect(() => {
-        if (activeInvestor) {
-            setCommitAmount(activeInvestor.amount);
-            setSelectedStageId(activeInvestor.stageId ?? null);
+        if (!activeInvestor) return;
+        setOpenActivityId(null);
+        setCommitAmount(activeInvestor.amount);
+        setSelectedStageId(activeInvestor.stageId ?? null);
+
+        // ✅ Load HubSpot activity timeline for this deal
+        if (activeInvestor.contactId) {
+            loadContactActivity(activeInvestor.contactId);
+        } else {
+            setActivity([]);
+            setActivityError(null);
         }
     }, [activeInvestor]);
     const investors: Investor[] = useMemo(() => {
@@ -397,6 +500,7 @@ export default function DealInvestorsPage() {
             return {
                 id: r.dealId,
                 dealId: r.dealId,
+                contactId: r.contactId,
                 name: r.investorName,
                 email: r.investorEmail,
                 amount: Number(r.amount ?? 0),
@@ -561,6 +665,14 @@ export default function DealInvestorsPage() {
         commitAmount != null && commitAmount !== activeInvestor?.amount;
 
     const canUpdate = Boolean(hasStageChange || hasAmountChange);
+
+    const CLAMP_3: React.CSSProperties = {
+        display: '-webkit-box',
+        WebkitLineClamp: 3,
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden',
+    };
+
 
 
     return (
@@ -927,117 +1039,345 @@ export default function DealInvestorsPage() {
                         position: 'fixed',
                         top: 0,
                         right: 0,
-                        width: 420,
+                        width: isSliderExpanded ? 720 : 420,
                         height: '100vh',
                         background: '#0f1317',
                         borderLeft: '1px solid rgba(255,255,255,0.12)',
-                        padding: 20,
                         zIndex: 50,
                         boxShadow: '-12px 0 32px rgba(0,0,0,0.5)',
                         color: '#f1f3f4',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        transition: 'width 180ms ease',
                     }}
                 >
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <h3>{activeInvestor.name}</h3>
-                        <button onClick={() => setActiveInvestor(null)}>✕</button>
+                    <div
+                        style={{
+                            padding: 20,
+                            borderBottom: '1px solid rgba(255,255,255,0.08)',
+                            flexShrink: 0,
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                marginBottom: 6,
+                            }}
+                        >
+                            <h3 style={{ margin: 0 }}>{activeInvestor.name}</h3>
+
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <button
+                                    onClick={() => setIsSliderExpanded(v => !v)}
+                                    title={isSliderExpanded ? 'Collapse panel' : 'Expand panel'}
+                                    style={{
+                                        background: 'transparent',
+                                        border: '1px solid rgba(255,255,255,0.25)',
+                                        borderRadius: 6,
+                                        color: '#f1f3f4',
+                                        cursor: 'pointer',
+                                        padding: '2px 6px',
+                                        fontSize: 12,
+                                    }}
+                                >
+                                    {isSliderExpanded ? '⤡' : '⤢'}
+                                </button>
+
+                                <button
+                                    onClick={() => {
+                                        setIsSliderExpanded(false);
+                                        setActiveInvestor(null);
+                                    }}
+                                    style={{
+                                        background: 'transparent',
+                                        border: 'none',
+                                        color: '#f1f3f4',
+                                        fontSize: 16,
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>{activeInvestor.email}</div>
+                        <div>Stage: {activeInvestor.stageLabel}</div>
+                        <div>Amount: ${activeInvestor.amount.toLocaleString()}</div>
+                        {/* Snapshot: last interaction */}
+                        <div style={{ marginTop: 14, fontSize: 12, opacity: 0.8 }}>
+                            <div>
+                                <strong>Last interaction:</strong> {activeInvestor.lastActivity || '—'}
+                            </div>
+                        </div>
                     </div>
+                    <div
+                        style={{
+                            flex: 1,
+                            overflowY: 'auto',
+                            padding: 20,
+                        }}
+                    >
+                        {/* Activity timeline */}
+                        <div style={{ marginTop: 18 }}>
+                            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
+                                Activity
+                            </div>
+                            {/*============================
+                                Log internal note (Hubspot write)
+                            ===============================*/}
 
-                    <div>{activeInvestor.email}</div>
-                    <div>Stage: {activeInvestor.stageLabel}</div>
-                    <div>Amount: ${activeInvestor.amount.toLocaleString()}</div>
+                            <div
+                                style={{
+                                    marginBottom: 16,
+                                    padding: 12,
+                                    border: '1px solid rgba(255,255,255,0.12)',
+                                    borderRadius: 10,
+                                    background: 'rgba(255,255,255,0.02)',
+                                }}
+                            >
+                                <textarea
+                                    placeholder="Log internal note…"
+                                    value={noteDraft}
+                                    onChange={(e) => setNoteDraft(e.target.value)}
+                                    rows={3}
+                                    style={{
+                                        width: '100%',
+                                        resize: 'none',
+                                        background: 'transparent',
+                                        border: 'none',
+                                        color: '#f1f3f4',
+                                        fontSize: 13,
+                                        outline: 'none',
+                                        lineHeight: 1.4,
+                                    }}
+                                />
 
-                    <div style={{ marginTop: 16 }}>
-                        {/* Commit / Amount */}
-                        <label style={{ fontSize: 12, opacity: 0.7 }}>
-                            Amount
-                        </label>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'flex-end',
+                                        marginTop: 8,
+                                    }}
+                                >
+                                    <button
+                                        disabled={!noteDraft.trim() || savingNote}
+                                        onClick={handleSaveNote}
+                                        style={{
+                                            fontSize: 12,
+                                            padding: '6px 12px',
+                                            borderRadius: 8,
+                                            border: '1px solid rgba(255,255,255,0.2)',
+                                            background: savingNote ? '#374151' : '#2563eb',
+                                            color: '#fff',
+                                            cursor: savingNote ? 'not-allowed' : 'pointer',
+                                        }}
+                                    >
+                                        {savingNote ? 'Saving…' : 'Save note'}
+                                    </button>
+                                </div>
+                            </div>
 
-                        <input
-                            type="number"
-                            value={commitAmount ?? ''}
+                            {loadingActivity && (
+                                <div style={{ fontSize: 12, opacity: 0.65 }}>Loading activity…</div>
+                            )}
 
-                            onChange={(e) => {
-                                const v = e.target.value;
-                                setCommitAmount(v === '' ? null : Number(v));
-                            }}
+                            {!loadingActivity && activityError && (
+                                <div style={{ fontSize: 12, color: '#fb7185' }}>{activityError}</div>
+                            )}
 
-                            style={{
-                                marginTop: 6,
-                                width: '100%',
-                                padding: '8px 10px',
-                                borderRadius: 8,
-                                border: '1px solid rgba(255,255,255,0.15)',
-                                background: 'transparent',
-                                color: '#f1f3f4',
-                                fontSize: 14,
-                            }}
-                        />
+                            {!loadingActivity && !activityError && activity.length === 0 && (
+                                <div style={{ fontSize: 12, opacity: 0.65 }}>No activity found.</div>
+                            )}
+                            {/*===========================
+                                Activity feed (read-only)
+                            ==============================*/}
+                            {!loadingActivity && activity.map((a) => {
+                                const isEmail = a.type === 'EMAIL';
+                                const isOpen = openActivityId === a.id;
 
-                        {/* Stage selector */}
-                        <label
-                            style={{
-                                fontSize: 12,
-                                opacity: 0.7,
-                                marginTop: 14,
-                                display: 'block',
-                            }}
-                        >
-                            Stage
-                        </label>
+                                return (
+                                    <div
+                                        key={a.id}
+                                        onClick={() => {
+                                            if (!isEmail) return;
 
-                        <select
-                            value={selectedStageId ?? ''}
-                            onChange={(e) => setSelectedStageId(e.target.value)}
-                            style={{
-                                marginTop: 6,
-                                width: '100%',
-                                padding: '8px 10px',
-                                borderRadius: 8,
-                                border: '1px solid rgba(255,255,255,0.15)',
-                                background: '#0f1317',
-                                color: '#f1f3f4',
-                                fontSize: 14,
-                            }}
-                        >
-                            {HUBSPOT_DEAL_STAGES.map((stage) => (
-                                <option key={stage.id} value={stage.id}>
-                                    {stage.label}
-                                </option>
-                            ))}
-                        </select>
+                                            // Toggle this email open/closed
+                                            setOpenActivityId(prev => (prev === a.id ? null : a.id));
 
-                        {/* Update action */}
-                        <button
-                            onClick={handleUpdateStage}
-                            disabled={!canUpdate || isUpdatingStage}
-                            style={{
-                                marginTop: 14,
-                                width: '100%',
-                                background:
-                                    !canUpdate || isUpdatingStage
-                                        ? '#374151'     // disabled
-                                        : '#2563eb',    // active
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: 8,
-                                padding: '10px',
-                                fontWeight: 600,
-                                cursor:
-                                    !canUpdate || isUpdatingStage
-                                        ? 'not-allowed'
-                                        : 'pointer',
-                                opacity:
-                                    isUpdatingStage ? 0.85 : 1,
-                            }}
-                        >
-                            Update Stage
-                        </button>
+                                            // If panel is compact, expand it for reading
+                                            if (!isSliderExpanded) setIsSliderExpanded(true);
+                                        }}
+                                        style={{
+                                            borderLeft: '2px solid rgba(255,255,255,0.12)',
+                                            paddingLeft: 10,
+                                            marginBottom: 12,
+                                            cursor: isEmail ? 'pointer' : 'default',
+                                            opacity: isEmail ? 1 : 0.65,
+                                            background: isEmail && !isOpen ? 'rgba(255,255,255,0.02)' : 'transparent',
+                                            transition: 'background 120ms ease',
+                                        }}
+                                    >
+                                        {/* Header row */}
+                                        <div
+                                            style={{
+                                                fontSize: 12,
+                                                fontWeight: 600,
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                            }}
+                                        >
+                                            <span>
+                                                {a.type}
+                                                {a.ownerName ? ` · ${a.ownerName}` : ''}
+                                            </span>
+
+                                            {isEmail && (
+                                                <span style={{ fontSize: 11, opacity: 0.7, letterSpacing: '0.3px' }}>
+                                                    {isOpen ? 'Hide' : 'Open'}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {/* Timestamp */}
+                                        <div style={{ fontSize: 11, opacity: 0.7 }}>
+                                            {new Date(a.timestamp).toLocaleString()}
+                                        </div>
+
+                                        {/* Subject */}
+                                        {a.subject && (
+                                            <div
+                                                style={{
+                                                    fontSize: 12,
+                                                    marginTop: 4,
+                                                    fontWeight: 600,
+                                                }}
+                                            >
+                                                {a.subject}
+                                            </div>
+                                        )}
+
+                                        {/* Body preview */}
+                                        {a.preview && (
+                                            <div
+                                                style={{
+                                                    fontSize: 12,
+                                                    opacity: 0.8,
+                                                    marginTop: 6,
+                                                    whiteSpace: isOpen ? 'pre-wrap' : 'normal',
+                                                    ...(isOpen ? {} : CLAMP_3),
+                                                }}
+                                            >
+                                                {a.preview}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
+                    <div
+                        style={{
+                            padding: 20,
+                            borderTop: '1px solid rgba(255,255,255,0.08)',
+                            flexShrink: 0,
+                        }}
+                    >
+                        <div style={{ marginTop: 16 }}>
+                            {/* Commit / Amount */}
+                            <label style={{ fontSize: 12, opacity: 0.7 }}>
+                                Amount
+                            </label>
 
+                            <input
+                                type="number"
+                                value={commitAmount ?? ''}
+
+                                onChange={(e) => {
+                                    const v = e.target.value;
+                                    setCommitAmount(v === '' ? null : Number(v));
+                                }}
+
+                                style={{
+                                    marginTop: 6,
+                                    width: '100%',
+                                    padding: '8px 10px',
+                                    borderRadius: 8,
+                                    border: '1px solid rgba(255,255,255,0.15)',
+                                    background: 'transparent',
+                                    color: '#f1f3f4',
+                                    fontSize: 14,
+                                }}
+                            />
+
+                            {/* Stage selector */}
+                            <label
+                                style={{
+                                    fontSize: 12,
+                                    opacity: 0.7,
+                                    marginTop: 14,
+                                    display: 'block',
+                                }}
+                            >
+                                Stage
+                            </label>
+
+                            <select
+                                value={selectedStageId ?? ''}
+                                onChange={(e) => setSelectedStageId(e.target.value)}
+                                style={{
+                                    marginTop: 6,
+                                    width: '100%',
+                                    padding: '8px 10px',
+                                    borderRadius: 8,
+                                    border: '1px solid rgba(255,255,255,0.15)',
+                                    background: '#0f1317',
+                                    color: '#f1f3f4',
+                                    fontSize: 14,
+                                }}
+                            >
+                                {HUBSPOT_DEAL_STAGES.map((stage) => (
+                                    <option key={stage.id} value={stage.id}>
+                                        {stage.label}
+                                    </option>
+                                ))}
+                            </select>
+
+                            {/* Update action */}
+                            <button
+                                onClick={handleUpdateStage}
+                                disabled={!canUpdate || isUpdatingStage}
+                                style={{
+                                    marginTop: 14,
+                                    width: '100%',
+                                    background:
+                                        !canUpdate || isUpdatingStage
+                                            ? '#374151'     // disabled
+                                            : '#2563eb',    // active
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: 8,
+                                    padding: '10px',
+                                    fontWeight: 600,
+                                    cursor:
+                                        !canUpdate || isUpdatingStage
+                                            ? 'not-allowed'
+                                            : 'pointer',
+                                    opacity:
+                                        isUpdatingStage ? 0.85 : 1,
+                                }}
+                            >
+                                Update Stage
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            )}
+            )
+            }
 
-        </div>
+        </div >
     );
 }
 
