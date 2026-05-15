@@ -362,21 +362,22 @@ export default function DealInvestorsPage() {
     const [noteDraft, setNoteDraft] = useState('');
     const [savingNote, setSavingNote] = useState(false);
 
+
     async function handleSaveNote() {
         if (!activeInvestor?.contactId) return;
 
-        const body = noteDraft.trim();
-        if (!body) return;
+        const text = noteDraft.trim();
+        if (!text) return;
 
         setSavingNote(true);
         setNoteDraft('');
 
-        // Optimistic insert into Activity feed
+        // ✅ Optimistic insert (fast UI)
         const optimisticNote: HubSpotActivity = {
             id: `note-${Date.now()}`,
             type: 'NOTE',
             subject: 'Internal note',
-            preview: body,
+            preview: text,
             timestamp: new Date().toISOString(),
             ownerName: 'You',
         };
@@ -384,18 +385,49 @@ export default function DealInvestorsPage() {
         setActivity((prev) => [optimisticNote, ...prev]);
 
         try {
-            await fetch(`/api/hubspot/contacts/${activeInvestor.contactId}/note`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ body }),
-            });
+            const res = await fetch(
+                `/api/hubspot/contacts/${activeInvestor.contactId}/note`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        body: text,
+                        dealId: activeInvestor.dealId ?? null, // ✅ attach to deal if present
+                    }),
+                }
+            );
+
+            const json = await res.json().catch(() => ({} as any));
+
+            if (!res.ok || json?.ok === false) {
+                console.error('[NOTE SAVE FAILED]', json?.error ?? json);
+
+                // ✅ Roll back optimistic insert (important)
+                setActivity((prev) =>
+                    prev.filter((a) => a.id !== optimisticNote.id)
+                );
+
+                setActivityError(json?.error ?? 'Failed to save note');
+                return;
+            }
+
+            // ✅ Pull canonical data back from HubSpot
+            await loadContactActivity(activeInvestor.contactId);
+
         } catch (e) {
-            // Optional: rollback or surface error later
-            console.error('Failed to save note', e);
+            console.error('[NOTE SAVE ERROR]', e);
+
+            // ✅ Roll back optimistic insert
+            setActivity((prev) =>
+                prev.filter((a) => a.id !== optimisticNote.id)
+            );
+
+            setActivityError('Failed to save note');
         } finally {
             setSavingNote(false);
         }
     }
+
     function openInviteDraft(p: ProspectRow) {
         setActiveProspect(p);
         setShowInviteDraft(true);
