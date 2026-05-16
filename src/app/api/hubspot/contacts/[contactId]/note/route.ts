@@ -1,14 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import { safeJson } from "@/lib/safeJson";
 
-const HUBSPOT_BASE = 'https://api.hubapi.com';
+const HUBSPOT_BASE = "https://api.hubapi.com";
 
 function authHeaders() {
   const token = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
-  if (!token) throw new Error('Missing HUBSPOT_PRIVATE_APP_TOKEN');
+  if (!token) throw new Error("Missing HUBSPOT_PRIVATE_APP_TOKEN");
 
   return {
     Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   };
 }
 
@@ -16,22 +17,45 @@ function authHeaders() {
 let NOTE_TO_CONTACT_TYPE_ID: number | null = null;
 let NOTE_TO_DEAL_TYPE_ID: number | null = null;
 
-type AssocLabel = { category: string; typeId: number; label: string | null };
+type AssocLabel = {
+  category: string; // e.g. "HUBSPOT_DEFINED" | "USER_DEFINED"
+  typeId: number;
+  label: string | null;
+};
+
+type AssocLabelsResponse = {
+  results: AssocLabel[];
+};
+
+type NoteCreateResponse = {
+  id?: string;
+};
+
+type CreateNoteAssociation = {
+  to: { id: string };
+  types: Array<{
+    associationCategory: "HUBSPOT_DEFINED";
+    associationTypeId: number;
+  }>;
+};
+
 async function getHubSpotDefinedUnlabeledTypeId(from: string, to: string): Promise<number> {
-  // Labels endpoint returns association type IDs between two object types. [3](https://developers.hubspot.com/docs/api-reference/legacy/crm/associations/associations-schema/labels/get-associations-label)[4](https://community.hubspot.com/t5/APIs-Integrations/Where-to-find-all-CRM-association-types-in-HubSpot/td-p/755274)
   const res = await fetch(`${HUBSPOT_BASE}/crm/associations/v4/${from}/${to}/labels`, {
     headers: authHeaders(),
-    cache: 'no-store',
+    cache: "no-store",
   });
 
-  const json = await res.json().catch(() => ({} as any));
-  if (!res.ok) {
-    throw new Error(`Failed to fetch association labels for ${from}->${to}: ${JSON.stringify(json)}`);
+  const json = await safeJson<AssocLabelsResponse>(res);
+
+  if (!res.ok || !json) {
+    const fallbackText = !json ? await res.text().catch(() => "") : "";
+    throw new Error(
+      `Failed to fetch association labels for ${from}->${to}: ${fallbackText || res.status}`
+    );
   }
 
-  const results: AssocLabel[] = json?.results ?? [];
-  const unlabeled = results.find(
-    (r) => r.category === 'HUBSPOT_DEFINED' && (r.label === null || r.label === '')
+  const unlabeled = json.results.find(
+    (r) => r.category === "HUBSPOT_DEFINED" && (r.label === null || r.label === "")
   );
 
   if (!unlabeled) {
@@ -41,36 +65,47 @@ async function getHubSpotDefinedUnlabeledTypeId(from: string, to: string): Promi
   return unlabeled.typeId;
 }
 
+type NoteRequestBody = {
+  body?: unknown;
+  dealId?: unknown;
+};
+
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ contactId: string }> }
 ) {
   try {
     const { contactId } = await params;
-    const { body, dealId } = await req.json();
+
+    const payload = (await req.json()) as NoteRequestBody;
+    const body = typeof payload.body === "string" ? payload.body.trim() : "";
+    const dealId = typeof payload.dealId === "string" || typeof payload.dealId === "number"
+      ? String(payload.dealId)
+      : null;
 
     if (!contactId) {
-      return NextResponse.json({ ok: false, error: 'Missing contactId' }, { status: 400 });
-    }
-    if (!body || typeof body !== 'string') {
-      return NextResponse.json({ ok: false, error: 'Missing note body' }, { status: 400 });
+      return NextResponse.json({ ok: false, error: "Missing contactId" }, { status: 400 });
     }
 
-    // Resolve association type IDs once (portal-specific) using labels endpoint. [3](https://developers.hubspot.com/docs/api-reference/legacy/crm/associations/associations-schema/labels/get-associations-label)[4](https://community.hubspot.com/t5/APIs-Integrations/Where-to-find-all-CRM-association-types-in-HubSpot/td-p/755274)
+    if (!body) {
+      return NextResponse.json({ ok: false, error: "Missing note body" }, { status: 400 });
+    }
+
+    // Resolve association type IDs once (portal-specific) using labels endpoint.
     if (NOTE_TO_CONTACT_TYPE_ID == null) {
-      NOTE_TO_CONTACT_TYPE_ID = await getHubSpotDefinedUnlabeledTypeId('notes', 'contacts');
-    }
-    if (dealId && NOTE_TO_DEAL_TYPE_ID == null) {
-      NOTE_TO_DEAL_TYPE_ID = await getHubSpotDefinedUnlabeledTypeId('notes', 'deals');
+      NOTE_TO_CONTACT_TYPE_ID = await getHubSpotDefinedUnlabeledTypeId("notes", "contacts");
     }
 
-    // Build associations array (HubSpot supports associating during creation). [5](https://developers.hubspot.com/docs/api-reference/latest/crm/associations/overview)[1](https://developers.hubspot.com/docs/api-reference/legacy/crm/activities/notes/guide)[2](https://developers.hubspot.com/docs/api-reference/crm-notes-v3/basic/post-crm-v3-objects-notes)
-    const associations: any[] = [
+    if (dealId && NOTE_TO_DEAL_TYPE_ID == null) {
+      NOTE_TO_DEAL_TYPE_ID = await getHubSpotDefinedUnlabeledTypeId("notes", "deals");
+    }
+
+    const associations: CreateNoteAssociation[] = [
       {
         to: { id: String(contactId) },
         types: [
           {
-            associationCategory: 'HUBSPOT_DEFINED',
+            associationCategory: "HUBSPOT_DEFINED",
             associationTypeId: NOTE_TO_CONTACT_TYPE_ID,
           },
         ],
@@ -78,20 +113,25 @@ export async function POST(
     ];
 
     if (dealId) {
+      if (NOTE_TO_DEAL_TYPE_ID == null) {
+        // Defensive: should never happen, but avoids non-null assertions.
+        throw new Error("NOTE_TO_DEAL_TYPE_ID not resolved");
+      }
+
       associations.push({
-        to: { id: String(dealId) },
+        to: { id: dealId },
         types: [
           {
-            associationCategory: 'HUBSPOT_DEFINED',
-            associationTypeId: NOTE_TO_DEAL_TYPE_ID!,
+            associationCategory: "HUBSPOT_DEFINED",
+            associationTypeId: NOTE_TO_DEAL_TYPE_ID,
           },
         ],
       });
     }
 
-    // Create note (v3 Notes API). [1](https://developers.hubspot.com/docs/api-reference/legacy/crm/activities/notes/guide)[2](https://developers.hubspot.com/docs/api-reference/crm-notes-v3/basic/post-crm-v3-objects-notes)
+    // Create note (v3 Notes API)
     const createRes = await fetch(`${HUBSPOT_BASE}/crm/v3/objects/notes`, {
-      method: 'POST',
+      method: "POST",
       headers: authHeaders(),
       body: JSON.stringify({
         properties: {
@@ -102,21 +142,21 @@ export async function POST(
       }),
     });
 
-    const createJson = await createRes.json().catch(() => ({} as any));
+    const createJson = await safeJson<NoteCreateResponse>(createRes);
+
     if (!createRes.ok) {
-      console.error('[NOTE CREATE FAILED]', createRes.status, createJson);
+      const fallbackText = !createJson ? await createRes.text().catch(() => "") : "";
+      console.error("[NOTE CREATE FAILED]", createRes.status, createJson ?? fallbackText);
       return NextResponse.json(
-        { ok: false, error: createJson },
+        { ok: false, error: createJson ?? fallbackText ?? "Note create failed" },
         { status: 500 }
       );
     }
 
     return NextResponse.json({ ok: true, noteId: createJson?.id ?? null });
-  } catch (e: any) {
-    console.error('[NOTE ROUTE ERROR]', e);
-    return NextResponse.json(
-      { ok: false, error: e.message ?? 'Unknown error' },
-      { status: 500 }
-    );
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "Unknown error";
+    console.error("[NOTE ROUTE ERROR]", message);
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

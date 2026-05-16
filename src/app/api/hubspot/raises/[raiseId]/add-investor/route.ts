@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 
 function hsHeaders() {
@@ -13,7 +12,6 @@ function hsHeaders() {
   };
 }
 
-// 🔑 HARD-CODE THESE FOR NOW (you already resolved them)
 const PIPELINE_ID = '2243555049';
 const INTRODUCED_STAGE_ID = '3604434673';
 
@@ -23,7 +21,8 @@ export async function POST(
 ) {
   try {
     const { raiseId } = await context.params;
-    const { contactId, amount } = await req.json();    
+    const { contactId, amount } = await req.json();
+
     const DEFAULT_INVITE_AMOUNT = 250000;
 
     const normalizedAmount =
@@ -31,21 +30,20 @@ export async function POST(
         ? DEFAULT_INVITE_AMOUNT
         : amount;
 
-    if (!contactId || amount === undefined || amount === null) {
+    if (!contactId) {
       return NextResponse.json(
-        { ok: false, error: 'contactId and amount are required' },
+        { ok: false, error: 'contactId is required' },
         { status: 400 }
       );
     }
 
-    // 1️⃣ Create the deal
     const dealRes = await fetch('https://api.hubapi.com/crm/v3/objects/deals', {
       method: 'POST',
       headers: hsHeaders(),
       body: JSON.stringify({
         properties: {
           dealname: `Investor – ${raiseId}`,
-          amount: String(amount),
+          amount: String(normalizedAmount),
           pipeline: PIPELINE_ID,
           dealstage: INTRODUCED_STAGE_ID,
           raise_id: raiseId,
@@ -64,7 +62,6 @@ export async function POST(
     const deal = await dealRes.json();
     const dealId = deal.id;
 
-    // 2️⃣ Associate deal ↔ contact (HubSpot default association)
     await fetch(
       `https://api.hubapi.com/crm/v4/objects/deals/${dealId}/associations/default/contacts/${contactId}`,
       {
@@ -74,9 +71,11 @@ export async function POST(
     );
 
     return NextResponse.json({ ok: true, dealId });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Unhandled error';
+
     return NextResponse.json(
-      { ok: false, error: err?.message ?? 'Unhandled error' },
+      { ok: false, error: message },
       { status: 500 }
     );
   }

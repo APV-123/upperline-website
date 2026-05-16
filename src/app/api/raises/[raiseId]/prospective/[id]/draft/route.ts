@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/SupabaseServer';
 
+type DraftRequest = {
+  subject?: string;
+  body?: string;
+  invite_method?: string;
+};
+
 export async function POST(
   req: Request,
   context: { params: Promise<{ raiseId: string; id: string }> }
@@ -8,7 +14,7 @@ export async function POST(
   const { raiseId, id } = await context.params;
 
   try {
-    const body = await req.json();
+    const body = (await req.json()) as DraftRequest;
     const { subject, body: invite_body, invite_method } = body;
 
     if (!subject || !invite_body) {
@@ -37,9 +43,12 @@ export async function POST(
     }
 
     return NextResponse.json({ ok: true });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : 'Unhandled error';
+
     return NextResponse.json(
-      { ok: false, error: err?.message ?? 'Unhandled error' },
+      { ok: false, error: message },
       { status: 500 }
     );
   }

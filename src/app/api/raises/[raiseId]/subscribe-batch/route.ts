@@ -7,17 +7,25 @@ type InputContact = {
   contactEmail?: string;
 };
 
+type SubscribeBatchRequest = {
+  contacts?: InputContact[];
+};
+
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ raiseId: string }> }
 ) {
   try {
     const { raiseId } = await context.params;
-    const body = await req.json();
 
-    const contacts: InputContact[] = body?.contacts ?? [];
+    const body = (await req.json()) as SubscribeBatchRequest;
+    const contacts = body?.contacts ?? [];
+
     if (!Array.isArray(contacts) || contacts.length === 0) {
-      return NextResponse.json({ ok: false, error: 'contacts[] is required' }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: 'contacts[] is required' },
+        { status: 400 }
+      );
     }
 
     const rows = contacts.map((c) => ({
@@ -34,11 +42,20 @@ export async function POST(
       .upsert(rows, { onConflict: 'raise_id,contact_id' });
 
     if (error) {
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+      return NextResponse.json(
+        { ok: false, error: error.message },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ ok: true, added: rows.length });
-  } catch (err: any) {
-    return NextResponse.json({ ok: false, error: err?.message ?? 'Unhandled error' }, { status: 500 });
+  } catch (err: unknown) {
+    const message =
+      err instanceof Error ? err.message : 'Unhandled error';
+
+    return NextResponse.json(
+      { ok: false, error: message },
+      { status: 500 }
+    );
   }
 }

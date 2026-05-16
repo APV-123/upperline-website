@@ -5,7 +5,6 @@ import {
     HUBSPOT_DEAL_STAGES,
     STAGE_LABEL_TO_ID,
 } from '@/lib/hubspotStages';
-import { FileX } from 'lucide-react';
 
 type Bucket = 'committed' | 'circling' | 'needs_touch' | 'passed';
 
@@ -58,7 +57,6 @@ type ProspectRow = {
     invited_at: string | null;
     declined_at: string | null;
 };
-
 type HubSpotActivity = {
     id: string;
     type: 'EMAIL' | 'CALL' | 'MEETING' | 'NOTE' | 'TASK';
@@ -66,6 +64,37 @@ type HubSpotActivity = {
     preview?: string | null;
     timestamp: string; // ISO string
     ownerName?: string | null;
+};
+type StageAction = 'engaged' | 'commit' | 'fund' | 'revert' | 'pass';
+type ContactActivityResponse = {
+    ok?: boolean;
+    error?: string;
+    activities?: HubSpotActivity[];
+};
+type SendInviteResponse = {
+    ok?: boolean;
+    error?: string;
+};
+type HubspotCreateDealResponse = {
+    ok?: boolean;
+    error?: string;
+    dealId?: string;
+};
+type ContactSearchResponse = {
+    ok: boolean;
+    results: Array<{
+        id: string;
+        name?: string;
+        email?: string;
+        firstname?: string;
+        lastname?: string;
+    }>;
+    nextAfter: string | null;
+    error?: string;
+    details?: string;
+};
+type ExistingProspect = {
+    contact_id: string | number;
 };
 
 const BUCKETS: { key: Bucket; label: string }[] = [
@@ -86,7 +115,8 @@ function formatDateMaybe(iso: string | null) {
     return d.toLocaleDateString();
 }
 // ✅ Stage-aware action rules (BUSINESS LOGIC, not UI)
-function getAllowedActions(stageId?: string | null) {
+
+function getAllowedActions(stageId?: string | null): StageAction[] {
     if (!stageId) return [];
 
     switch (stageId) {
@@ -397,7 +427,7 @@ export default function DealInvestorsPage() {
                 }
             );
 
-            const json = await res.json().catch(() => ({} as any));
+            const json = await res.json().catch(() => null);
 
             if (!res.ok || json?.ok === false) {
                 console.error('[NOTE SAVE FAILED]', json?.error ?? json);
@@ -463,6 +493,7 @@ export default function DealInvestorsPage() {
             setLoadingProspects(false);
         }
     }
+
     async function loadContactActivity(contactId: string) {
         setLoadingActivity(true);
         setActivityError(null);
@@ -473,7 +504,7 @@ export default function DealInvestorsPage() {
                 { cache: 'no-store' }
             );
 
-            const json = await res.json().catch(() => ({} as any));
+            const json = (await res.json().catch(() => null)) as ContactActivityResponse | null;
 
             if (!res.ok || json?.ok === false) {
                 setActivity([]);
@@ -481,11 +512,14 @@ export default function DealInvestorsPage() {
                 return;
             }
 
-            setActivity(json.activities ?? []);
-        } catch (e: any) {
+            setActivity(json?.activities ?? []);
+
+        } catch (e: unknown) {
             setActivity([]);
-            setActivityError(e?.message ?? 'Failed to load activity');
-        } finally {
+            const message = e instanceof Error ? e.message : 'Failed to load activity';
+            setActivityError(message);
+        }
+        finally {
             setLoadingActivity(false);
         }
     }
@@ -882,9 +916,10 @@ export default function DealInvestorsPage() {
                                             { method: 'POST' }
                                         );
 
-                                        const sendJson = await sendRes.json().catch(() => ({} as any));
-                                        if (!sendRes.ok || (sendJson as any)?.ok === false) {
-                                            alert((sendJson as any)?.error ?? 'Failed to mark invite as sent');
+                                        const sendJson = (await sendRes.json().catch(() => null)) as SendInviteResponse | null;
+
+                                        if (!sendRes.ok || sendJson?.ok === false) {
+                                            alert(sendJson?.error ?? 'Failed to mark invite as sent');
                                             return;
                                         }
 
@@ -899,13 +934,15 @@ export default function DealInvestorsPage() {
                                             }),
                                         });
 
-                                        const hubspotJson = await hubspotRes.json().catch(() => ({} as any));
-                                        if (!hubspotRes.ok || (hubspotJson as any)?.ok === false) {
-                                            alert((hubspotJson as any)?.error ?? 'Failed to create HubSpot deal');
+                                        const hubspotJson = (await hubspotRes.json().catch(() => null)) as HubspotCreateDealResponse | null;
+
+                                        if (!hubspotRes.ok || hubspotJson?.ok === false) {
+                                            alert(hubspotJson?.error ?? 'Failed to create HubSpot deal');
                                             return;
                                         }
 
-                                        const dealId = (hubspotJson as any)?.dealId;
+                                        const dealId = hubspotJson?.dealId;
+
                                         if (dealId) {
                                             // ✅ 3) Optimistically render immediately in Needs Touch
                                             optimisticAddInvestorDeal(p, dealId);
@@ -1433,20 +1470,6 @@ function AddProspectsModal({
 
     const selectedCount = Object.keys(selected).length;
 
-    type ContactSearchResponse = {
-        ok: boolean;
-        results: Array<{
-            id: string;
-            name?: string;
-            email?: string;
-            firstname?: string;
-            lastname?: string;
-        }>;
-        nextAfter: string | null;
-        error?: string;
-        details?: string;
-    };
-
     async function fetchContacts(opts: { reset: boolean }) {
         const { reset } = opts;
         try {
@@ -1483,9 +1506,12 @@ function AddProspectsModal({
             }
 
             setNextAfter(json.nextAfter ?? null);
-        } catch (e: any) {
-            setError(e?.message ?? 'Failed to load contacts');
-        } finally {
+
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : 'Failed to load contacts';
+            setError(message);
+        }
+        finally {
             setLoading(false);
         }
     }
@@ -1499,9 +1525,13 @@ function AddProspectsModal({
             if (!res.ok) return;
 
             const json = await res.json();
-            const ids = new Set(
-                (json?.prospects ?? []).map((p: any) => String(p.contact_id))
+
+            const ids = new Set<string>(
+                (json?.prospects ?? []).map((p: ExistingProspect) =>
+                    String(p.contact_id)
+                )
             );
+
             setExistingIds(ids);
         }
 
@@ -1590,9 +1620,10 @@ function AddProspectsModal({
 
             await onAdded();
             onClose();
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error(e);
-            setError('Failed to add prospects. Please try again.');
+            const message = e instanceof Error ? e.message : 'Failed to add prospects. Please try again.';
+            setError(message);
         } finally {
             setSaving(false);
         }
@@ -1817,7 +1848,7 @@ function InviteDraftForm({
     onClose: () => void;
     onSaved: () => Promise<void> | void;
 }) {
-    if (!prospect) return null;
+
 
     const defaultSubject = 'Inwood – Rosehill | Investor Preview';
 
@@ -1842,6 +1873,7 @@ Best,
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    if (!prospect) return null;
     function renderPreview(text: string) {
         // safer than replaceAll
         return text.split('{{first_name}}').join(firstName);
@@ -1872,9 +1904,11 @@ Best,
             }
 
             await onSaved();
-        } catch (e: any) {
-            setError(e?.message ?? 'Failed to save draft');
-        } finally {
+        } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : 'Failed to save draft';
+            setError(message);
+        }
+        finally {
             setSaving(false);
         }
     }
