@@ -66,9 +66,11 @@ export default function DealIndexPage() {
 
         {/* overlay content */}
         <div className={styles.heroContent}>
-          <img
+          <Image
             src="/upperline-mark.png"
             alt="Upperline mark"
+            width={120}   // adjust as needed
+            height={40}   // adjust as needed
             className={styles.heroMark}
           />
         </div>

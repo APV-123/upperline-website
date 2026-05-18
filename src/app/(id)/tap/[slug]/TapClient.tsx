@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { QrCode } from "lucide-react";
+import Image from "next/image";
+
 
 declare global {
   interface Window {
@@ -46,7 +48,7 @@ export function TapClient({
   const [ok, setOk] = useState<null | boolean>(null);
 
   const firstInputRef = useRef<HTMLInputElement | null>(null);
-
+  const MotionImage = motion(Image);
   useEffect(() => {
     pushDL({ event: "tap_page_view", tap_owner: slug });
   }, [slug]);
@@ -138,12 +140,14 @@ export function TapClient({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/Upperline-logo-inverted.png"
           alt="Upperline"
-          style={{ width: "min(160px, 40vw)", height: "auto", margin: "0 auto 16px" }}
+          width={160}
+          height={60}
+          style={{ margin: "0 auto 16px" }}
         />
+
       </motion.div>
 
       <motion.div style={card} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.28 }}>
@@ -181,13 +185,12 @@ export function TapClient({
         {!showQR && (
           <>
             {/* Header */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <motion.img
+            <MotionImage
               src={headshot}
               alt={metWith}
+              width={120}
+              height={120}
               style={{
-                width: 120,
-                height: 120,
                 objectFit: "cover",
                 borderRadius: "50%",
                 marginBottom: 16,
@@ -419,9 +422,11 @@ export function TapClient({
         )}
 
         {showQR && (
-          <motion.img
+          <MotionImage
             src={`/qr/qr-${slug}.png`}
             alt={`QR code for ${metWith}`}
+            width={420}
+            height={420}
             style={{
               width: "84%",
               maxWidth: 420,
@@ -436,6 +441,7 @@ export function TapClient({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.25 }}
           />
+
         )}
       </motion.div>
     </div>
