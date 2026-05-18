@@ -1,12 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { useParams } from 'next/navigation';
 
 type Deal = {
   id: string;
   name: string;
   target_amount: number;
+};
+
+type DashboardResponse = {
+  ok: boolean;
+  deal: Deal;
 };
 
 export default function DealExecutiveSummaryPage() {
@@ -20,7 +25,8 @@ export default function DealExecutiveSummaryPage() {
         cache: 'no-store',
       });
 
-      const json = await res.json();
+      const json = (await res.json()) as DashboardResponse;
+
       if (res.ok && json?.ok) {
         setDeal(json.deal);
       }
@@ -35,13 +41,11 @@ export default function DealExecutiveSummaryPage() {
     <div style={container}>
       <div style={content}>
 
-        {/* 🔹 Header */}
+        {/* Header */}
         <h1 style={title}>{deal.name}</h1>
-        <p style={subtitle}>
-          Confidential Investment Opportunity
-        </p>
+        <p style={subtitle}>Confidential Investment Opportunity</p>
 
-        {/* 🔹 Overview */}
+        {/* Overview */}
         <Section title="Opportunity Overview">
           <p>
             Upperline is pleased to present an opportunity to participate in the
@@ -53,7 +57,7 @@ export default function DealExecutiveSummaryPage() {
           </p>
         </Section>
 
-        {/* 🔹 Investment Highlights */}
+        {/* Highlights */}
         <Section title="Investment Highlights">
           <ul>
             <li>Prime location within a high-growth Houston submarket</li>
@@ -63,7 +67,7 @@ export default function DealExecutiveSummaryPage() {
           </ul>
         </Section>
 
-        {/* 🔹 Structure */}
+        {/* Structure */}
         <Section title="Investment Structure">
           <Row label="Target Equity Raise">
             ${deal.target_amount.toLocaleString()}
@@ -72,7 +76,7 @@ export default function DealExecutiveSummaryPage() {
           <Row label="Sponsor">Upperline</Row>
         </Section>
 
-        {/* 🔹 Strategy */}
+        {/* Business Plan */}
         <Section title="Business Plan">
           <p>
             The strategy is to acquire the site and execute a targeted development
@@ -84,7 +88,7 @@ export default function DealExecutiveSummaryPage() {
           </p>
         </Section>
 
-        {/* 🔹 CTA */}
+        {/* CTA */}
         <div style={cta}>
           <strong>Next Step</strong>
           <p>
@@ -98,9 +102,14 @@ export default function DealExecutiveSummaryPage() {
   );
 }
 
-/* ---------------- UI ---------------- */
+/* ✅ Properly typed components */
 
-function Section({ title, children }: any) {
+type SectionProps = {
+  title: string;
+  children: ReactNode;
+};
+
+function Section({ title, children }: SectionProps) {
   return (
     <div style={section}>
       <h2 style={sectionTitle}>{title}</h2>
@@ -109,7 +118,12 @@ function Section({ title, children }: any) {
   );
 }
 
-function Row({ label, children }: any) {
+type RowProps = {
+  label: string;
+  children: ReactNode;
+};
+
+function Row({ label, children }: RowProps) {
   return (
     <div style={row}>
       <span style={rowLabel}>{label}</span>
@@ -118,7 +132,7 @@ function Row({ label, children }: any) {
   );
 }
 
-/* ---------------- styles ---------------- */
+/* styles */
 
 const container: React.CSSProperties = {
   background: '#f8fafc',
