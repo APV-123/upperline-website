@@ -2041,7 +2041,7 @@ Best,`;
             setError(null);
 
             const res = await fetch(
-                `/api/deals/${dealId}/prospects/${prospect.id}/draft`,
+                `/api/deals/${dealId}/prospects/${prospect.contact_id}/draft`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
