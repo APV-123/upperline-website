@@ -1,23 +1,44 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/SupabaseServer';
 
-export async function POST(req: Request, { params }: any) {
-  const { dealId } = params;
-  const body = await req.json();
+type Params = {
+  dealId: string;
+};
 
-  const { name, target_amount } = body;
+export async function POST(
+  req: Request,
+  context: { params: Params }
+) {
+  const { dealId } = context.params;
 
-  const { error } = await supabaseServer
-    .from('deals')
-    .update({
-      name,
-      target_amount,
-    })
-    .eq('id', dealId);
+  try {
+    const body = await req.json();
 
-  if (error) {
-    return NextResponse.json({ ok: false, error: error.message });
+    const { name, target_amount } = body;
+
+    const { error } = await supabaseServer
+      .from('deals')
+      .update({
+        name,
+        target_amount,
+      })
+      .eq('id', dealId);
+
+    if (error) {
+      return NextResponse.json({
+        ok: false,
+        error: error.message,
+      });
+    }
+
+    return NextResponse.json({ ok: true });
+
+  } catch (e) {
+    console.error('[UPDATE DEAL ERROR]', e);
+
+    return NextResponse.json(
+      { ok: false, error: 'Server error' },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json({ ok: true });
 }
