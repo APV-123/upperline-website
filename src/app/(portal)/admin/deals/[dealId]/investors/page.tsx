@@ -1002,6 +1002,7 @@ export default function DealInvestorsPage() {
                                 </div>
                             )}
 
+
                             {prospects.map((p) => {
                                 const isDraftReady = (p.invite_status ?? '').trim() === 'draft_ready';
 
@@ -1017,7 +1018,6 @@ export default function DealInvestorsPage() {
                                             border: '1px solid rgba(255,255,255,0.06)',
                                         }}
                                     >
-
                                         <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
                                             {p.contact_name || 'Unnamed Contact'}
                                         </div>
@@ -1027,7 +1027,7 @@ export default function DealInvestorsPage() {
                                         </div>
 
                                         {/* Draft status line */}
-                                        {p.invite_status === 'draft_ready' && (
+                                        {isDraftReady && (
                                             <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>
                                                 Draft ready
                                             </div>
@@ -1046,10 +1046,8 @@ export default function DealInvestorsPage() {
                                                 }}
                                                 onClick={() => openInviteDraft(p)}
                                             >
-                                                {p.invite_status === 'draft_ready' ? 'Edit Draft' : 'Draft Invite'}
+                                                {isDraftReady ? 'Edit Draft' : 'Draft Invite'}
                                             </button>
-
-                                            {/* Send invite: marks prospect as invited and creates HubSpot deal (optimistic UI) */}
 
                                             <button
                                                 disabled={!isDraftReady}
@@ -1063,12 +1061,12 @@ export default function DealInvestorsPage() {
                                                     cursor: isDraftReady ? 'pointer' : 'not-allowed',
                                                     opacity: isDraftReady ? 1 : 0.45,
                                                 }}
-
                                                 onClick={async () => {
                                                     if (!confirm('Mark invite as sent and move investor into pipeline?')) return;
 
-                                                    // 1) Mark invited in Supabase
-                                                    const sendRes = await fetch(`/api/deals/${dealId}/prospects/${p.contact_id}/send`, { method: 'POST' }
+                                                    const sendRes = await fetch(
+                                                        `/api/deals/${dealId}/prospects/${p.contact_id}/send`,
+                                                        { method: 'POST' }
                                                     );
 
                                                     const sendJson = (await sendRes.json().catch(() => null)) as SendInviteResponse | null;
@@ -1078,7 +1076,6 @@ export default function DealInvestorsPage() {
                                                         return;
                                                     }
 
-                                                    // 2) Create HubSpot deal
                                                     const hubspotRes = await fetch(`/api/deals/${dealId}/add-investor`, {
                                                         method: 'POST',
                                                         headers: { 'Content-Type': 'application/json' },
@@ -1096,24 +1093,13 @@ export default function DealInvestorsPage() {
                                                         return;
                                                     }
 
-                                                    const hubspotDealId = hubspotJson?.dealId;
-
-                                                    if (hubspotDealId) {
-                                                        //3) Optimistically render
-                                                        optimisticAddInvestorDeal(p, hubspotDealId);
-                                                    }
-
-                                                    // 4) Refresh Prospective (removes invited from that list)
                                                     await loadDashboard();
-
-                                                    // 5) Background reconcile — HubSpot read may lag, so retry once or twice
                                                     setTimeout(() => loadDashboard(), 1500);
                                                     setTimeout(() => loadDashboard(), 4000);
                                                 }}
                                             >
                                                 Send
                                             </button>
-
 
                                             <button
                                                 style={{
@@ -1134,7 +1120,9 @@ export default function DealInvestorsPage() {
                                             </button>
                                         </div>
                                     </div>
-                                ))}
+                                );
+                            })}
+
                         </div>
                         {BUCKETS.map((bucket) => (
                             <div key={bucket.key}>
