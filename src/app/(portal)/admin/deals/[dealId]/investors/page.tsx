@@ -2011,14 +2011,15 @@ function InviteDraftForm({
     const firstName =
         (prospect.contact_name ?? '').split(' ')[0].trim() || 'there';
 
+
     const defaultBody = `Hi {{ first_name }},
 
-                            I wanted to share an early look at our Inwood – Rosehill opportunity.
+I wanted to share an early look at our Inwood – Rosehill opportunity.
 
-                            If you’re open to it, I’d be happy to walk you through the deal and answer any questions.
+If you’re open to it, I’d be happy to walk you through the deal and answer any questions.
 
-                            Best,
-                            `;
+Best,`;
+
 
     const [subject, setSubject] = useState(
         prospect.invite_subject ?? defaultSubject
