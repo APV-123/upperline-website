@@ -60,7 +60,7 @@ export default function DealEditPage() {
       const json = await res.json();
 
       if (!res.ok || json?.ok === false) {
-        alert(json?.error ?? 'Failed to save deal');
+        alert(JSON.stringify(json));
         return;
       }
 
