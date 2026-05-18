@@ -1,25 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
-import { safeJson } from "@/lib/safeJson";
 
 type Bucket = "committed" | "circling" | "needs_touch" | "passed";
+type Params = { raiseId: string };
 
-function hsHeaders() {
+/** ---------- Helpers ---------- */
+
+function getHubSpotToken(): string | null {
   const raw = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
-  if (!raw) throw new Error("Missing HUBSPOT_PRIVATE_APP_TOKEN");
+  if (!raw) return null;
 
   // Remove surrounding quotes and trim whitespace/newlines
-  const token = raw.replace(/^['"]|['"]$/g, "").trim();
+  return raw.replace(/^['"]|['"]$/g, "").trim();
+}
 
-  // Use Headers to normalize casing
-  return new Headers({
-    authorization: `Bearer ${token}`,
-    "content-type": "application/json",
-  });
+function hsHeaders(method: "GET" | "POST"): Headers {
+  const token = getHubSpotToken();
+
+  // We’ll still return headers even if token missing; callers will handle
+  const h = new Headers();
+  if (token) h.set("authorization", `Bearer ${token}`);
+  h.set("accept", "application/json");
+
+  // Only set content-type when we actually send JSON
+  if (method === "POST") h.set("content-type", "application/json");
+
+  return h;
 }
 
 function isStale(hsLastActivityDate: string | null, days = 5) {
-  if (!hsLastActivityDate) return true; // no activity => stale
+  if (!hsLastActivityDate) return true;
   const last = new Date(hsLastActivityDate).getTime();
+  if (Number.isNaN(last)) return true;
   const diffDays = (Date.now() - last) / (1000 * 60 * 60 * 24);
   return diffDays > days;
 }
@@ -34,6 +45,25 @@ function toPortalBucket(stageLabel: string | null, hsLastActivityDate: string | 
 
   if (isStale(hsLastActivityDate)) return "needs_touch";
   return "circling";
+}
+
+function parseJsonMaybe<T>(raw: string): T | null {
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return null;
+  }
+}
+
+async function readJsonOrText<T>(res: Response): Promise<{
+  ok: boolean;
+  status: number;
+  raw: string;
+  json: T | null;
+}> {
+  const raw = await res.text();
+  const json = parseJsonMaybe<T>(raw);
+  return { ok: res.ok, status: res.status, raw, json };
 }
 
 /** ---------- Minimal HubSpot response shapes (only what we use) ---------- */
@@ -60,70 +90,41 @@ type DealSearchResult = {
   };
 };
 
-type DealSearchResponse = {
-  results?: DealSearchResult[];
-};
+type DealSearchResponse = { results?: DealSearchResult[] };
 
-type PipelineStage = {
-  id: string | number;
-  label: string;
-};
+type PipelineStage = { id: string | number; label: string };
+type StagesResponse = { results?: PipelineStage[] };
 
-type StagesResponse = {
-  results?: PipelineStage[];
-};
+type AssocType = { category?: string; typeId?: number };
+type AssocToEntry = { id?: string | number; toObjectId?: string | number; associationTypes?: AssocType[] };
+type AssocRow = { from?: { id?: string | number }; to?: AssocToEntry[] };
+type AssocBatchReadResponse = { results?: AssocRow[] };
 
-type AssocType = {
-  category?: string;
-  typeId?: number;
-};
-
-type AssocToEntry = {
-  id?: string | number;
-  toObjectId?: string | number;
-  associationTypes?: AssocType[];
-};
-
-type AssocRow = {
-  from?: { id?: string | number };
-  to?: AssocToEntry[];
-};
-
-type AssocBatchReadResponse = {
-  results?: AssocRow[];
-};
-
-type ContactProps = {
-  firstname?: string;
-  lastname?: string;
-  email?: string;
-  [key: string]: string | undefined;
-};
-
-type ContactResult = {
-  id: string | number;
-  properties?: ContactProps;
-};
-
-type ContactsBatchReadResponse = {
-  results?: ContactResult[];
-};
+type ContactProps = { firstname?: string; lastname?: string; email?: string; [key: string]: string | undefined };
+type ContactResult = { id: string | number; properties?: ContactProps };
+type ContactsBatchReadResponse = { results?: ContactResult[] };
 
 /** ---------- Route ---------- */
 
 export async function GET(
   _req: NextRequest,
-  context: { params: Promise<{ raiseId: string }> }
+  context: { params: Params | Promise<Params> }
 ) {
-  try {
-    const { raiseId } = await context.params;
+  const { raiseId } = await context.params;
 
+  const token = getHubSpotToken();
+  if (!token) {
+    return NextResponse.json(
+      { ok: false, error: "Missing HUBSPOT_PRIVATE_APP_TOKEN" },
+      { status: 500 }
+    );
+  }
+
+  try {
     // 1) Search deals by raise_id
     const searchPayload: DealSearchPayload = {
       filterGroups: [
-        {
-          filters: [{ propertyName: "raise_id", operator: "EQ", value: raiseId }],
-        },
+        { filters: [{ propertyName: "raise_id", operator: "EQ", value: raiseId }] },
       ],
       properties: [
         "dealname",
@@ -137,29 +138,38 @@ export async function GET(
       limit: 100,
     };
 
-    const dealsRes = await fetch("https://api.hubapi.com/crm/v3/objects/deals/search", {
-      method: "POST",
-      headers: hsHeaders(),
-      body: JSON.stringify(searchPayload),
-      cache: "no-store",
-    });
+    const dealsRes = await fetch(
+      "https://api.hubapi.com/crm/v3/objects/deals/search",
+      {
+        method: "POST",
+        headers: hsHeaders("POST"),
+        body: JSON.stringify(searchPayload),
+        cache: "no-store",
+      }
+    );
 
-    if (!dealsRes.ok) {
-      const details = await dealsRes.text();
+    const dealsRead = await readJsonOrText<DealSearchResponse>(dealsRes);
+
+    if (!dealsRead.ok) {
+      // Preserve HubSpot status + body snippet
       return NextResponse.json(
-        { ok: false, error: "Deal search failed", details },
-        { status: 500 }
+        {
+          ok: false,
+          error: "Deal search failed",
+          status: dealsRead.status,
+          details: dealsRead.raw.slice(0, 800),
+        },
+        { status: 502 }
       );
     }
 
-    const dealsJson = await safeJson<DealSearchResponse>(dealsRes);
-    const deals: DealSearchResult[] = dealsJson?.results ?? [];
+    const deals: DealSearchResult[] = dealsRead.json?.results ?? [];
 
     if (!deals.length) {
       return NextResponse.json({ ok: true, raiseId, investors: [] });
     }
 
-    // 1b) Build stageId -> label map per pipeline
+    // 1b) Build stageId -> label map per pipeline (parallel)
     const pipelineIds = Array.from(
       new Set(
         deals
@@ -170,62 +180,61 @@ export async function GET(
 
     const stageLabelByPipeline = new Map<string, Map<string, string>>();
 
-    for (const pipelineId of pipelineIds) {
-      const stagesRes = await fetch(
-        `https://api.hubapi.com/crm/v3/pipelines/deals/${pipelineId}/stages`,
-        {
-          method: "GET",
-          headers: hsHeaders(),
-          cache: "no-store",
+    await Promise.all(
+      pipelineIds.map(async (pipelineId) => {
+        const stagesRes = await fetch(
+          `https://api.hubapi.com/crm/v3/pipelines/deals/${pipelineId}/stages`,
+          {
+            method: "GET",
+            headers: hsHeaders("GET"),
+            cache: "no-store",
+          }
+        );
+
+        const stagesRead = await readJsonOrText<StagesResponse>(stagesRes);
+        if (!stagesRead.ok) return;
+
+        const map = new Map<string, string>();
+        for (const s of stagesRead.json?.results ?? []) {
+          map.set(String(s.id), String(s.label));
         }
-      );
-
-      if (!stagesRes.ok) continue;
-
-      const stagesJson = await safeJson<StagesResponse>(stagesRes);
-      const map = new Map<string, string>();
-
-      for (const s of stagesJson?.results ?? []) {
-        map.set(String(s.id), String(s.label));
-      }
-
-      stageLabelByPipeline.set(String(pipelineId), map);
-    }
+        stageLabelByPipeline.set(String(pipelineId), map);
+      })
+    );
 
     // 2) Batch read Deal -> Contact associations
-    const dealIds = deals.map((d) => ({ id: d.id }));
-
     const assocRes = await fetch(
       "https://api.hubapi.com/crm/v4/associations/deals/contacts/batch/read",
       {
         method: "POST",
-        headers: hsHeaders(),
-        body: JSON.stringify({ inputs: dealIds }),
+        headers: hsHeaders("POST"),
+        body: JSON.stringify({ inputs: deals.map((d) => ({ id: d.id })) }),
         cache: "no-store",
       }
     );
 
-    if (!assocRes.ok) {
-      const details = await assocRes.text();
+    const assocRead = await readJsonOrText<AssocBatchReadResponse>(assocRes);
+
+    if (!assocRead.ok) {
       return NextResponse.json(
-        { ok: false, error: "Associations batch read failed", details },
-        { status: 500 }
+        {
+          ok: false,
+          error: "Associations batch read failed",
+          status: assocRead.status,
+          details: assocRead.raw.slice(0, 800),
+        },
+        { status: 502 }
       );
     }
 
-    const assocJson = await safeJson<AssocBatchReadResponse>(assocRes);
-
-    // Map dealId -> contactId (INVESTOR contact only)
     const dealToContactId = new Map<string, string>();
     const contactIdSet = new Set<string>();
 
-    for (const row of assocJson?.results ?? []) {
+    for (const row of assocRead.json?.results ?? []) {
       const dealIdRaw = row.from?.id;
       if (!dealIdRaw) continue;
-
       const dealId = String(dealIdRaw);
 
-      // Find Deal -> Contact association (HubSpot-defined typeId 3)
       const contactAssoc = (row.to ?? []).find((t) =>
         (t.associationTypes ?? []).some(
           (a) => a.category === "HUBSPOT_DEFINED" && a.typeId === 3
@@ -236,7 +245,6 @@ export async function GET(
       if (!contactIdRaw) continue;
 
       const contactId = String(contactIdRaw);
-
       dealToContactId.set(dealId, contactId);
       contactIdSet.add(contactId);
     }
@@ -244,30 +252,38 @@ export async function GET(
     const contactIds = Array.from(contactIdSet);
 
     // 3) Batch read Contacts for name/email
-    const contactsRes = await fetch("https://api.hubapi.com/crm/v3/objects/contacts/batch/read", {
-      method: "POST",
-      headers: hsHeaders(),
-      body: JSON.stringify({
-        inputs: contactIds.map((id) => ({ id: String(id) })),
-        properties: ["firstname", "lastname", "email"],
-      }),
-      cache: "no-store",
-    });
+    const contactsRes = await fetch(
+      "https://api.hubapi.com/crm/v3/objects/contacts/batch/read",
+      {
+        method: "POST",
+        headers: hsHeaders("POST"),
+        body: JSON.stringify({
+          inputs: contactIds.map((id) => ({ id: String(id) })),
+          properties: ["firstname", "lastname", "email"],
+        }),
+        cache: "no-store",
+      }
+    );
 
-    if (!contactsRes.ok) {
-      const details = await contactsRes.text();
+    const contactsRead = await readJsonOrText<ContactsBatchReadResponse>(contactsRes);
+
+    if (!contactsRead.ok) {
       return NextResponse.json(
-        { ok: false, error: "Contacts batch read failed", details },
-        { status: 500 }
+        {
+          ok: false,
+          error: "Contacts batch read failed",
+          status: contactsRead.status,
+          details: contactsRead.raw.slice(0, 800),
+        },
+        { status: 502 }
       );
     }
 
-    const contactsJson = await safeJson<ContactsBatchReadResponse>(contactsRes);
     const contactsById = new Map<string, ContactResult>(
-      (contactsJson?.results ?? []).map((c) => [String(c.id), c])
+      (contactsRead.json?.results ?? []).map((c) => [String(c.id), c])
     );
 
-    // 4) Normalize rows for portal + include dealstageLabel + bucket
+    // 4) Normalize rows for portal
     const investors = deals.map((deal) => {
       const pipeline = deal.properties?.pipeline ?? null;
       const dealstage = deal.properties?.dealstage ?? null;

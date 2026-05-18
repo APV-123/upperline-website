@@ -1,16 +1,42 @@
+
 import { NextResponse } from "next/server";
-import { safeJson } from "@/lib/safeJson";
 
 const HUBSPOT_BASE = "https://api.hubapi.com";
 
-function authHeaders() {
-  const token = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
-  if (!token) throw new Error("Missing HUBSPOT_PRIVATE_APP_TOKEN");
+type Params = { contactId: string };
 
-  return {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
+function getHubSpotToken(): string | null {
+  const raw = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
+  if (!raw) return null;
+  return raw.replace(/^['"]|['"]$/g, "").trim();
+}
+
+function authHeaders(method: "GET" | "POST"): Headers {
+  const token = getHubSpotToken();
+  const h = new Headers();
+  if (token) h.set("authorization", `Bearer ${token}`);
+  h.set("accept", "application/json");
+  if (method === "POST") h.set("content-type", "application/json");
+  return h;
+}
+
+function parseJsonMaybe<T>(raw: string): T | null {
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return null;
+  }
+}
+
+async function readJsonOrText<T>(res: Response): Promise<{
+  ok: boolean;
+  status: number;
+  raw: string;
+  json: T | null;
+}> {
+  const raw = await res.text(); // ✅ read once
+  const json = parseJsonMaybe<T>(raw);
+  return { ok: res.ok, status: res.status, raw, json };
 }
 
 // Cache association type IDs so we only look them up once per server instance
@@ -18,7 +44,7 @@ let NOTE_TO_CONTACT_TYPE_ID: number | null = null;
 let NOTE_TO_DEAL_TYPE_ID: number | null = null;
 
 type AssocLabel = {
-  category: string; // e.g. "HUBSPOT_DEFINED" | "USER_DEFINED"
+  category: string; // "HUBSPOT_DEFINED" | "USER_DEFINED"
   typeId: number;
   label: string | null;
 };
@@ -39,27 +65,44 @@ type CreateNoteAssociation = {
   }>;
 };
 
-async function getHubSpotDefinedUnlabeledTypeId(from: string, to: string): Promise<number> {
-  const res = await fetch(`${HUBSPOT_BASE}/crm/associations/v4/${from}/${to}/labels`, {
-    headers: authHeaders(),
-    cache: "no-store",
-  });
+async function getHubSpotDefinedUnlabeledTypeId(
+  from: string,
+  to: string
+): Promise<number> {
+  const token = getHubSpotToken();
+  if (!token) {
+    throw new Error("Missing HUBSPOT_PRIVATE_APP_TOKEN");
+  }
 
-  const json = await safeJson<AssocLabelsResponse>(res);
+  const res = await fetch(
+    `${HUBSPOT_BASE}/crm/associations/v4/${from}/${to}/labels`,
+    {
+      method: "GET",
+      headers: authHeaders("GET"),
+      cache: "no-store",
+    }
+  );
 
-  if (!res.ok || !json) {
-    const fallbackText = !json ? await res.text().catch(() => "") : "";
+  const read = await readJsonOrText<AssocLabelsResponse>(res);
+
+  if (!read.ok || !read.json) {
     throw new Error(
-      `Failed to fetch association labels for ${from}->${to}: ${fallbackText || res.status}`
+      `Failed to fetch association labels for ${from}->${to}: ${read.status} ${read.raw.slice(
+        0,
+        300
+      )}`
     );
   }
 
-  const unlabeled = json.results.find(
-    (r) => r.category === "HUBSPOT_DEFINED" && (r.label === null || r.label === "")
+  const unlabeled = read.json.results.find(
+    (r) =>
+      r.category === "HUBSPOT_DEFINED" && (r.label === null || r.label === "")
   );
 
   if (!unlabeled) {
-    throw new Error(`No HUBSPOT_DEFINED unlabeled association type found for ${from}->${to}`);
+    throw new Error(
+      `No HUBSPOT_DEFINED unlabeled association type found for ${from}->${to}`
+    );
   }
 
   return unlabeled.typeId;
@@ -72,32 +115,56 @@ type NoteRequestBody = {
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ contactId: string }> }
+  context: { params: Params | Promise<Params> }
 ) {
-  try {
-    const { contactId } = await params;
+  const { contactId } = await context.params;
 
+  const token = getHubSpotToken();
+  if (!token) {
+    return NextResponse.json(
+      { ok: false, error: "Missing HUBSPOT_PRIVATE_APP_TOKEN" },
+      { status: 500 }
+    );
+  }
+
+  try {
     const payload = (await req.json()) as NoteRequestBody;
-    const body = typeof payload.body === "string" ? payload.body.trim() : "";
-    const dealId = typeof payload.dealId === "string" || typeof payload.dealId === "number"
-      ? String(payload.dealId)
-      : null;
+
+    const body =
+      typeof payload.body === "string" ? payload.body.trim() : "";
+
+    const dealId =
+      typeof payload.dealId === "string" || typeof payload.dealId === "number"
+        ? String(payload.dealId)
+        : null;
 
     if (!contactId) {
-      return NextResponse.json({ ok: false, error: "Missing contactId" }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: "Missing contactId" },
+        { status: 400 }
+      );
     }
 
     if (!body) {
-      return NextResponse.json({ ok: false, error: "Missing note body" }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: "Missing note body" },
+        { status: 400 }
+      );
     }
 
-    // Resolve association type IDs once (portal-specific) using labels endpoint.
+    // Resolve association type IDs once
     if (NOTE_TO_CONTACT_TYPE_ID == null) {
-      NOTE_TO_CONTACT_TYPE_ID = await getHubSpotDefinedUnlabeledTypeId("notes", "contacts");
+      NOTE_TO_CONTACT_TYPE_ID = await getHubSpotDefinedUnlabeledTypeId(
+        "notes",
+        "contacts"
+      );
     }
 
     if (dealId && NOTE_TO_DEAL_TYPE_ID == null) {
-      NOTE_TO_DEAL_TYPE_ID = await getHubSpotDefinedUnlabeledTypeId("notes", "deals");
+      NOTE_TO_DEAL_TYPE_ID = await getHubSpotDefinedUnlabeledTypeId(
+        "notes",
+        "deals"
+      );
     }
 
     const associations: CreateNoteAssociation[] = [
@@ -114,8 +181,10 @@ export async function POST(
 
     if (dealId) {
       if (NOTE_TO_DEAL_TYPE_ID == null) {
-        // Defensive: should never happen, but avoids non-null assertions.
-        throw new Error("NOTE_TO_DEAL_TYPE_ID not resolved");
+        return NextResponse.json(
+          { ok: false, error: "NOTE_TO_DEAL_TYPE_ID not resolved" },
+          { status: 500 }
+        );
       }
 
       associations.push({
@@ -132,31 +201,43 @@ export async function POST(
     // Create note (v3 Notes API)
     const createRes = await fetch(`${HUBSPOT_BASE}/crm/v3/objects/notes`, {
       method: "POST",
-      headers: authHeaders(),
+      headers: authHeaders("POST"),
       body: JSON.stringify({
         properties: {
           hs_note_body: body,
-          hs_timestamp: new Date().toISOString(),
+          // HubSpot commonly accepts ms timestamps; this is safest
+          hs_timestamp: Date.now(),
         },
         associations,
       }),
+      cache: "no-store",
     });
 
-    const createJson = await safeJson<NoteCreateResponse>(createRes);
+    const createRead = await readJsonOrText<NoteCreateResponse>(createRes);
 
-    if (!createRes.ok) {
-      const fallbackText = !createJson ? await createRes.text().catch(() => "") : "";
-      console.error("[NOTE CREATE FAILED]", createRes.status, createJson ?? fallbackText);
+    if (!createRead.ok) {
+      console.error(
+        "[NOTE CREATE FAILED]",
+        createRead.status,
+        createRead.raw.slice(0, 600)
+      );
+
       return NextResponse.json(
-        { ok: false, error: createJson ?? fallbackText ?? "Note create failed" },
-        { status: 500 }
+        {
+          ok: false,
+          error: "Note create failed",
+          status: createRead.status,
+          details: createRead.raw.slice(0, 600),
+        },
+        { status: 502 }
       );
     }
 
-    return NextResponse.json({ ok: true, noteId: createJson?.id ?? null });
+    return NextResponse.json({ ok: true, noteId: createRead.json?.id ?? null });
   } catch (e: unknown) {
     const message = e instanceof Error ? e.message : "Unknown error";
     console.error("[NOTE ROUTE ERROR]", message);
+
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
