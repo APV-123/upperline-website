@@ -1,13 +1,23 @@
+
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/SupabaseServer';
 
-export async function GET(
-  _req: Request,
-  context: { params: Promise<{ dealId: string }> }
-) {
-  const supabase = supabaseServer;
+type Params = { dealId: string };
 
+export async function GET(
+  req: Request,
+  context: { params: Params | Promise<Params> }
+) {
   const { dealId } = await context.params;
+
+  if (!dealId) {
+    return NextResponse.json(
+      { ok: false, error: 'Missing dealId' },
+      { status: 400 }
+    );
+  }
+
+  const supabase = supabaseServer;
 
   const { data, error } = await supabase
     .from('prospects')
@@ -15,10 +25,15 @@ export async function GET(
     .eq('deal_id', dealId);
 
   if (error) {
-    return NextResponse.json({
-      ok: false,
-      error: error.message,
-    });
+    console.error('[PROSPECTS FETCH ERROR]', error);
+
+    return NextResponse.json(
+      {
+        ok: false,
+        error: error.message || 'Failed to fetch prospects',
+      },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({

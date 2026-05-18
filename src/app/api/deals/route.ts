@@ -1,8 +1,9 @@
+
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/SupabaseServer';
 import type { InvestorRow, ProspectRow } from '@/lib/types/deal';
 
-export async function GET() {
+export async function GET(req: Request) {
   const supabase = supabaseServer;
 
   const { data: deals, error } = await supabase
@@ -11,37 +12,64 @@ export async function GET() {
     .order('created_at', { ascending: false });
 
   if (error || !deals) {
+    console.error('[DEALS FETCH ERROR]', error);
     return NextResponse.json({
       ok: false,
       error: error?.message || 'Failed to fetch deals',
     });
   }
 
-  // ✅ FIX: proper base URL fallback
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  // ✅ Use request origin instead of env guessing (fixes Vercel issues)
+  const origin = new URL(req.url).origin;
 
-  try {
-    const enrichedDeals = await Promise.all(
-      deals.map(async (deal) => {
-        // ✅ FIXED URL construction (no more undefined crash)
+  // ✅ Forward auth/session cookies
+  const cookie = req.headers.get('cookie') ?? '';
+
+  const enrichedDeals = await Promise.all(
+    deals.map(async (deal) => {
+      try {
         const [investorsRes, prospectsRes] = await Promise.all([
-          fetch(`${baseUrl}/api/deals/${deal.id}/investors`, {
+          fetch(`${origin}/api/deals/${deal.id}/investors`, {
             cache: 'no-store',
+            headers: { cookie },
           }),
-          fetch(`${baseUrl}/api/deals/${deal.id}/prospects`, {
+          fetch(`${origin}/api/deals/${deal.id}/prospects`, {
             cache: 'no-store',
+            headers: { cookie },
           }),
         ]);
+
+        // ✅ Guard against failed responses
+        if (!investorsRes.ok) {
+          const t = await investorsRes.text();
+          throw new Error(`Investors fetch failed (${investorsRes.status}): ${t.slice(0, 200)}`);
+        }
+
+        if (!prospectsRes.ok) {
+          const t = await prospectsRes.text();
+          throw new Error(`Prospects fetch failed (${prospectsRes.status}): ${t.slice(0, 200)}`);
+        }
+
+        // ✅ Guard against non-JSON responses (VERY common in auth failures)
+        const investorsContentType = investorsRes.headers.get('content-type') || '';
+        const prospectsContentType = prospectsRes.headers.get('content-type') || '';
+
+        if (!investorsContentType.includes('application/json')) {
+          const t = await investorsRes.text();
+          throw new Error(`Investors returned non-JSON: ${t.slice(0, 200)}`);
+        }
+
+        if (!prospectsContentType.includes('application/json')) {
+          const t = await prospectsRes.text();
+          throw new Error(`Prospects returned non-JSON: ${t.slice(0, 200)}`);
+        }
 
         const investorsJson = await investorsRes.json();
         const prospectsJson = await prospectsRes.json();
 
-        // ✅ Typed
         const investors: InvestorRow[] = investorsJson?.investors ?? [];
         const prospects: ProspectRow[] = prospectsJson?.prospects ?? [];
 
-        // ✅ Metrics
         const committed = investors
           .filter((i) => i.bucket === 'committed')
           .reduce((sum, i) => sum + (i.amount || 0), 0);
@@ -63,20 +91,25 @@ export async function GET() {
             draftReadyCount,
           },
         };
-      })
-    );
+      } catch (err) {
+        // ✅ DO NOT BREAK ENTIRE PAGE
+        console.error('[ENRICH FAILED FOR DEAL]', deal.id, err);
 
-    return NextResponse.json({
-      ok: true,
-      deals: enrichedDeals,
-    });
+        return {
+          ...deal,
+          metrics: {
+            committed: 0,
+            investorCount: 0,
+            invitedCount: 0,
+            draftReadyCount: 0,
+          },
+        };
+      }
+    })
+  );
 
-  } catch (e) {
-    console.error('[DEALS ENRICH ERROR]', e);
-
-    return NextResponse.json({
-      ok: false,
-      error: 'Failed to enrich deals',
-    });
-  }
+  return NextResponse.json({
+    ok: true,
+    deals: enrichedDeals,
+  });
 }
