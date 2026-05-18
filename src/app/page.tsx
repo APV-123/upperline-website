@@ -1,47 +1,51 @@
-"use client";
+'use client';
 
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./deal-index.module.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type Deal = {
-  slug: string;
+  id: string;
   name: string;
-  location: string;
-  strategy: string;
-  targetRaise: string;
-  blurb: string;
+  target_amount: number;
 };
-
-const DEALS: Deal[] = [
-  {
-    slug: "inwood-rosehill",
-    name: "Inwood – Rosehill",
-    location: "Houston, TX",
-    strategy: "Retail / Mixed-Use",
-    targetRaise: "$1.5M Target",
-    blurb:
-      "A curated early look at our Inwood – Rosehill opportunity. Review the thesis and key facts before requesting full access.",
-  },
-  {
-    slug: "houston-farmers-market",
-    name: "Houston Farmers Market",
-    location: "Houston, TX",
-    strategy: "Retail Redevelopment",
-    targetRaise: "Target TBD",
-    blurb:
-      "An early preview of a value-creation redevelopment concept. Explore the highlights and tell us if you'd like to engage.",
-  },
-];
 
 export default function DealIndexPage() {
   const router = useRouter();
 
+  const [deals, setDeals] = useState<Deal[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // ✅ Fetch PUBLIC deals (this is the key change)
+  useEffect(() => {
+    async function loadDeals() {
+      try {
+        const res = await fetch('/api/public/deals', {
+          cache: 'no-store',
+        });
+
+        const json = await res.json();
+
+        if (json?.ok) {
+          setDeals(json.deals ?? []);
+        } else {
+          console.error('[PUBLIC DEALS ERROR]', json?.error);
+        }
+      } catch (e) {
+        console.error('[PUBLIC DEALS FETCH FAILED]', e);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadDeals();
+  }, []);
+
+  // ✅ Keep your keyboard shortcut EXACTLY as-is
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      // ✅ Cmd + K (Mac) or Ctrl + K (Windows)
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         router.push("/login");
@@ -51,10 +55,10 @@ export default function DealIndexPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [router]);
+
   return (
     <div className={styles.page}>
       {/* Hero */}
-
       <section className={styles.hero}>
         <Image
           src="/assets/media/hero/optimized/wood-slat-facade.webp"
@@ -64,13 +68,12 @@ export default function DealIndexPage() {
           className={styles.heroImage}
         />
 
-        {/* overlay content */}
         <div className={styles.heroContent}>
           <Image
             src="/upperline-mark.png"
             alt="Upperline mark"
-            width={120}   // adjust as needed
-            height={40}   // adjust as needed
+            width={120}
+            height={40}
             className={styles.heroMark}
           />
         </div>
@@ -85,28 +88,50 @@ export default function DealIndexPage() {
           <p className={styles.navySub}>
             Select an opportunity below to review details and indicate interest.
           </p>
-
         </div>
       </section>
-
 
       {/* Body */}
       <main className={styles.main}>
         <div className={styles.grid}>
-          {DEALS.map((deal) => (
-            <Link key={deal.slug} href={`/${deal.slug}`} className={styles.card}>
+
+          {/* ✅ Loading state */}
+          {loading && (
+            <div style={{ padding: 12 }}>Loading opportunities…</div>
+          )}
+
+          {/* ✅ Empty state */}
+          {!loading && deals.length === 0 && (
+            <div style={{ padding: 12 }}>No opportunities available.</div>
+          )}
+
+          {/* ✅ Dynamic deals */}
+          {deals.map((deal) => (
+            <Link
+              key={deal.id}
+              href={`/deals/${deal.id}`}   // ✅ dynamic routing
+              className={styles.card}
+            >
               <div className={styles.cardTop}>
                 <div className={styles.cardTitle}>{deal.name}</div>
+
                 <div className={styles.cardMeta}>
-                  {deal.location} · {deal.strategy}
+                  Houston, TX · Opportunity
                 </div>
               </div>
 
-              <div className={styles.cardBlurb}>{deal.blurb}</div>
+              <div className={styles.cardBlurb}>
+                Investment opportunity overview coming soon.
+              </div>
 
               <div className={styles.cardBottom}>
-                <div className={styles.cardRaise}>{deal.targetRaise}</div>
-                <div className={styles.cardCta}>View Investment →</div>
+                <div className={styles.cardRaise}>
+                  ${deal.target_amount.toLocaleString()} Target
+                </div>
+
+                <div className={styles.cardCta}>
+                  View Investment →
+                </div>
               </div>
             </Link>
           ))}

@@ -216,4 +216,3 @@ const cta: React.CSSProperties = {
   borderRadius: 6,
   background: '#f1f5f9',
 };
-``
