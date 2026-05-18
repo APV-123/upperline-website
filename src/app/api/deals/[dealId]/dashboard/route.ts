@@ -89,11 +89,11 @@ export async function GET(
       }),
     ]);
 
-    // ✅ 3. SAFE FALLBACKS (THIS WAS THE BUG)
+    // ✅ 3. SAFE LOAD
     let investors: InvestorRow[] = [];
     let prospects: ProspectRow[] = [];
 
-    // ---- investors ----
+    // investors
     try {
       if (!investorsRes.ok) {
         const t = await investorsRes.text();
@@ -106,7 +106,7 @@ export async function GET(
       console.error('[INVESTORS PARSE ERROR]', e);
     }
 
-    // ---- prospects ----
+    // prospects
     try {
       if (!prospectsRes.ok) {
         const t = await prospectsRes.text();
@@ -119,19 +119,32 @@ export async function GET(
       console.error('[PROSPECTS PARSE ERROR]', e);
     }
 
-    // ✅ 4. Metrics (always runs now)
+    // ✅ ✅ ✅ 4. DEDUPE FIX (THIS IS THE KEY ADDITION)
+    const investorContactIds = new Set(
+      investors.map((i) => i.contactId)
+    );
+
+    const filteredProspects = prospects.filter(
+      (p) => !investorContactIds.has(p.contact_id)
+    );
+
+    // ✅ 5. Metrics (use filtered prospects!)
     const committed = investors
       .filter((i) => i.bucket === 'committed')
       .reduce((sum, i) => sum + (i.amount || 0), 0);
 
-    const committedCount = investors.filter((i) => i.bucket === 'committed').length;
+    const committedCount = investors.filter(
+      (i) => i.bucket === 'committed'
+    ).length;
 
     const avgCheck =
       committedCount > 0 ? Math.round(committed / committedCount) : 0;
 
-    const invitedCount = prospects.filter((p) => p.invited_at).length;
+    const invitedCount = filteredProspects.filter(
+      (p) => p.invited_at
+    ).length;
 
-    const draftReadyCount = prospects.filter(
+    const draftReadyCount = filteredProspects.filter(
       (p) => p.invite_status === 'draft_ready'
     ).length;
 
@@ -139,12 +152,12 @@ export async function GET(
       (i) => i.bucket !== 'passed'
     ).length;
 
-    // ✅ 5. ALWAYS RETURN SUCCESS
+    // ✅ 6. RETURN CLEAN DATA
     return NextResponse.json<DashboardResponse>({
       ok: true,
       deal,
       investors,
-      prospects,
+      prospects: filteredProspects,
       metrics: {
         committed,
         committedCount,
