@@ -9,33 +9,58 @@ type Deal = {
   target_amount: number;
 };
 
-type DashboardResponse = {
+type PublicDealResponse = {
   ok: boolean;
-  deal: Deal;
+  deal?: Deal;
+  error?: string;
 };
 
 export default function DealExecutiveSummaryPage() {
   const { dealId } = useParams<{ dealId: string }>();
 
   const [deal, setDeal] = useState<Deal | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
-      const res = await fetch(`/api/deals/${dealId}/dashboard`, {
-        cache: 'no-store',
-      });
+      try {
+        const res = await fetch(`/api/public/deals/${dealId}`, {
+          cache: 'no-store',
+        });
 
-      const json = (await res.json()) as DashboardResponse;
+        const json = (await res.json()) as PublicDealResponse;
 
-      if (res.ok && json?.ok) {
-        setDeal(json.deal);
+        if (res.ok && json?.ok && json.deal) {
+          setDeal(json.deal);
+        } else {
+          console.error('[PUBLIC DEAL LOAD FAILED]', json?.error);
+          setDeal(null);
+        }
+      } catch (e) {
+        console.error('[PUBLIC DEAL FETCH ERROR]', e);
+        setDeal(null);
+      } finally {
+        setLoading(false);
       }
     }
 
     load();
   }, [dealId]);
 
-  if (!deal) return <div style={container}>Loading summary…</div>;
+  if (loading)
+    return <div style={container}>Loading summary…</div>;
+
+  if (!deal)
+    return (
+      <div style={container}>
+        <div style={content}>
+          <h1 style={title}>Deal Not Available</h1>
+          <p style={subtitle}>
+            This deal is either not published or does not exist.
+          </p>
+        </div>
+      </div>
+    );
 
   return (
     <div style={container}>
@@ -102,7 +127,7 @@ export default function DealExecutiveSummaryPage() {
   );
 }
 
-/* ✅ Properly typed components */
+/* ✅ Components unchanged */
 
 type SectionProps = {
   title: string;
@@ -132,7 +157,7 @@ function Row({ label, children }: RowProps) {
   );
 }
 
-/* styles */
+/* styles unchanged */
 
 const container: React.CSSProperties = {
   background: '#f8fafc',
@@ -191,3 +216,4 @@ const cta: React.CSSProperties = {
   borderRadius: 6,
   background: '#f1f5f9',
 };
+``
