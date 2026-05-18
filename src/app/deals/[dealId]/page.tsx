@@ -10,12 +10,6 @@ type Deal = {
   target_amount: number;
 };
 
-type PublicDealResponse = {
-  ok: boolean;
-  deal?: Deal;
-  error?: string;
-};
-
 export default function DealPage() {
   const { dealId } = useParams<{ dealId: string }>();
 
@@ -29,16 +23,16 @@ export default function DealPage() {
           cache: 'no-store',
         });
 
-        const json = (await res.json()) as PublicDealResponse;
+        const json = await res.json();
 
         if (res.ok && json?.ok && json.deal) {
           setDeal(json.deal);
         } else {
-          console.error('[PUBLIC DEAL LOAD FAILED]', json?.error);
+          console.error('[DEAL LOAD FAILED]', json?.error);
           setDeal(null);
         }
       } catch (e) {
-        console.error('[PUBLIC DEAL FETCH ERROR]', e);
+        console.error('[DEAL FETCH ERROR]', e);
         setDeal(null);
       } finally {
         setLoading(false);
@@ -48,21 +42,19 @@ export default function DealPage() {
     load();
   }, [dealId]);
 
-  // ✅ Loading state
   if (loading) {
     return <div style={{ padding: 40 }}>Loading…</div>;
   }
 
-  // ✅ Not found / not public
   if (!deal) {
     return (
       <div style={{ padding: 40 }}>
         <h1>Deal Not Available</h1>
-        <p>This deal is either not published or does not exist.</p>
+        <p>This deal is not public or does not exist.</p>
       </div>
     );
   }
 
-  // ✅ THIS is the key line
+  // ✅ SINGLE SOURCE OF UI
   return <DealExecutiveSummaryView deal={deal} />;
 }
