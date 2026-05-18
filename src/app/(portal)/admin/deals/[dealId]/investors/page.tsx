@@ -1002,133 +1002,139 @@ export default function DealInvestorsPage() {
                                 </div>
                             )}
 
-                            {prospects.map((p) => (
-                                <div
-                                    key={p.contact_id}
-                                    style={{
-                                        background: '#1a1f24',
-                                        borderRadius: 14,
-                                        padding: 16,
-                                        marginBottom: 16,
-                                        color: '#f1f3f4',
-                                        border: '1px solid rgba(255,255,255,0.06)',
-                                    }}
-                                >
-                                    <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
-                                        {p.contact_name || 'Unnamed Contact'}
-                                    </div>
+                            {prospects.map((p) => {
+                                const isDraftReady = (p.invite_status ?? '').trim() === 'draft_ready';
 
-                                    <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 12 }}>
-                                        {p.contact_email || '—'}
-                                    </div>
+                                return (
+                                    <div
+                                        key={p.contact_id}
+                                        style={{
+                                            background: '#1a1f24',
+                                            borderRadius: 14,
+                                            padding: 16,
+                                            marginBottom: 16,
+                                            color: '#f1f3f4',
+                                            border: '1px solid rgba(255,255,255,0.06)',
+                                        }}
+                                    >
 
-                                    {/* Draft status line */}
-                                    {p.invite_status === 'draft_ready' && (
-                                        <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>
-                                            Draft ready
+                                        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
+                                            {p.contact_name || 'Unnamed Contact'}
                                         </div>
-                                    )}
 
-                                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                                        <button
-                                            style={{
-                                                background: 'transparent',
-                                                color: '#cfd4d8',
-                                                border: '1px solid rgba(255,255,255,0.18)',
-                                                borderRadius: 8,
-                                                fontSize: 12,
-                                                padding: '6px 10px',
-                                                cursor: 'pointer',
-                                            }}
-                                            onClick={() => openInviteDraft(p)}
-                                        >
-                                            {p.invite_status === 'draft_ready' ? 'Edit Draft' : 'Draft Invite'}
-                                        </button>
+                                        <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 12 }}>
+                                            {p.contact_email || '—'}
+                                        </div>
 
-                                        {/* Send invite: marks prospect as invited and creates HubSpot deal (optimistic UI) */}
-                                        <button
-                                            disabled={p.invite_status !== 'draft_ready'}
-                                            style={{
-                                                background: 'transparent',
-                                                color: '#cfd4d8',
-                                                border: '1px solid rgba(255,255,255,0.18)',
-                                                borderRadius: 8,
-                                                fontSize: 12,
-                                                padding: '6px 10px',
-                                                cursor: p.invite_status === 'draft_ready' ? 'pointer' : 'not-allowed',
-                                                opacity: p.invite_status === 'draft_ready' ? 1 : 0.45,
-                                            }}
-                                            onClick={async () => {
-                                                if (!confirm('Mark invite as sent and move investor into pipeline?')) return;
+                                        {/* Draft status line */}
+                                        {p.invite_status === 'draft_ready' && (
+                                            <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>
+                                                Draft ready
+                                            </div>
+                                        )}
 
-                                                // 1) Mark invited in Supabase
-                                                const sendRes = await fetch(`/api/deals/${dealId}/prospects/${p.contact_id}/send`, { method: 'POST' }
-                                                );
+                                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                            <button
+                                                style={{
+                                                    background: 'transparent',
+                                                    color: '#cfd4d8',
+                                                    border: '1px solid rgba(255,255,255,0.18)',
+                                                    borderRadius: 8,
+                                                    fontSize: 12,
+                                                    padding: '6px 10px',
+                                                    cursor: 'pointer',
+                                                }}
+                                                onClick={() => openInviteDraft(p)}
+                                            >
+                                                {p.invite_status === 'draft_ready' ? 'Edit Draft' : 'Draft Invite'}
+                                            </button>
 
-                                                const sendJson = (await sendRes.json().catch(() => null)) as SendInviteResponse | null;
+                                            {/* Send invite: marks prospect as invited and creates HubSpot deal (optimistic UI) */}
 
-                                                if (!sendRes.ok || sendJson?.ok === false) {
-                                                    alert(sendJson?.error ?? 'Failed to mark invite as sent');
-                                                    return;
-                                                }
+                                            <button
+                                                disabled={!isDraftReady}
+                                                style={{
+                                                    background: 'transparent',
+                                                    color: '#cfd4d8',
+                                                    border: '1px solid rgba(255,255,255,0.18)',
+                                                    borderRadius: 8,
+                                                    fontSize: 12,
+                                                    padding: '6px 10px',
+                                                    cursor: isDraftReady ? 'pointer' : 'not-allowed',
+                                                    opacity: isDraftReady ? 1 : 0.45,
+                                                }}
 
-                                                // 2) Create HubSpot deal
-                                                const hubspotRes = await fetch(`/api/deals/${dealId}/add-investor`, {
-                                                    method: 'POST',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({
-                                                        contactId: p.contact_id,
-                                                        amount: 250000,
-                                                        investorName: p.contact_name,
-                                                    }),
-                                                });
+                                                onClick={async () => {
+                                                    if (!confirm('Mark invite as sent and move investor into pipeline?')) return;
 
-                                                const hubspotJson = (await hubspotRes.json().catch(() => null)) as HubspotCreateDealResponse | null;
+                                                    // 1) Mark invited in Supabase
+                                                    const sendRes = await fetch(`/api/deals/${dealId}/prospects/${p.contact_id}/send`, { method: 'POST' }
+                                                    );
 
-                                                if (!hubspotRes.ok || hubspotJson?.ok === false) {
-                                                    alert(hubspotJson?.error ?? 'Failed to create HubSpot deal');
-                                                    return;
-                                                }
+                                                    const sendJson = (await sendRes.json().catch(() => null)) as SendInviteResponse | null;
 
-                                                const hubspotDealId = hubspotJson?.dealId;
+                                                    if (!sendRes.ok || sendJson?.ok === false) {
+                                                        alert(sendJson?.error ?? 'Failed to mark invite as sent');
+                                                        return;
+                                                    }
 
-                                                if (hubspotDealId) {
-                                                    //3) Optimistically render
-                                                    optimisticAddInvestorDeal(p, hubspotDealId);
-                                                }
+                                                    // 2) Create HubSpot deal
+                                                    const hubspotRes = await fetch(`/api/deals/${dealId}/add-investor`, {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({
+                                                            contactId: p.contact_id,
+                                                            amount: 250000,
+                                                            investorName: p.contact_name,
+                                                        }),
+                                                    });
 
-                                                // 4) Refresh Prospective (removes invited from that list)
-                                                await loadDashboard();
+                                                    const hubspotJson = (await hubspotRes.json().catch(() => null)) as HubspotCreateDealResponse | null;
 
-                                                // 5) Background reconcile — HubSpot read may lag, so retry once or twice
-                                                setTimeout(() => loadDashboard(), 1500);
-                                                setTimeout(() => loadDashboard(), 4000);
-                                            }}
-                                        >
-                                            Send
-                                        </button>
+                                                    if (!hubspotRes.ok || hubspotJson?.ok === false) {
+                                                        alert(hubspotJson?.error ?? 'Failed to create HubSpot deal');
+                                                        return;
+                                                    }
+
+                                                    const hubspotDealId = hubspotJson?.dealId;
+
+                                                    if (hubspotDealId) {
+                                                        //3) Optimistically render
+                                                        optimisticAddInvestorDeal(p, hubspotDealId);
+                                                    }
+
+                                                    // 4) Refresh Prospective (removes invited from that list)
+                                                    await loadDashboard();
+
+                                                    // 5) Background reconcile — HubSpot read may lag, so retry once or twice
+                                                    setTimeout(() => loadDashboard(), 1500);
+                                                    setTimeout(() => loadDashboard(), 4000);
+                                                }}
+                                            >
+                                                Send
+                                            </button>
 
 
-                                        <button
-                                            style={{
-                                                background: 'transparent',
-                                                color: '#fb7185',
-                                                border: '1px solid rgba(251,113,133,0.35)',
-                                                borderRadius: 8,
-                                                fontSize: 12,
-                                                padding: '6px 10px',
-                                                cursor: 'pointer',
-                                            }}
-                                            onClick={async () => {
-                                                await fetch(`/api/deals/${dealId}/prospects/${p.contact_id}`, { method: 'DELETE' });
-                                                await loadDashboard();
-                                            }}
-                                        >
-                                            Remove
-                                        </button>
+                                            <button
+                                                style={{
+                                                    background: 'transparent',
+                                                    color: '#fb7185',
+                                                    border: '1px solid rgba(251,113,133,0.35)',
+                                                    borderRadius: 8,
+                                                    fontSize: 12,
+                                                    padding: '6px 10px',
+                                                    cursor: 'pointer',
+                                                }}
+                                                onClick={async () => {
+                                                    await fetch(`/api/deals/${dealId}/prospects/${p.contact_id}`, { method: 'DELETE' });
+                                                    await loadDashboard();
+                                                }}
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
                         </div>
                         {BUCKETS.map((bucket) => (
                             <div key={bucket.key}>
