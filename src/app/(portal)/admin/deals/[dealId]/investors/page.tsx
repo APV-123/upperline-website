@@ -5,6 +5,9 @@ import {
     HUBSPOT_DEAL_STAGES,
     STAGE_LABEL_TO_ID,
 } from '@/lib/hubspotStages';
+import AdminNav from '@/components/navigation/AdminNav';
+import { useParams } from 'next/navigation';
+import { useCallback } from 'react';
 
 type Bucket = 'committed' | 'circling' | 'needs_touch' | 'passed';
 
@@ -104,9 +107,7 @@ const BUCKETS: { key: Bucket; label: string }[] = [
     { key: 'passed', label: 'Passed' },
 ];
 
-// For now we hardcode the raise target at the UI layer.
-// Later: move target into HubSpot property or a Portal config table keyed by raise_id.
-const RAISE_TARGET = 1_500_000;
+
 
 function formatDateMaybe(iso: string | null) {
     if (!iso) return '—';
@@ -356,13 +357,17 @@ export default function DealInvestorsPage() {
     //===========================================
     //Primary data (read-only)
     //===========================================
+    const [deal, setDeal] = useState<{
+        name: string;
+        raise_id: string;
+        target_amount: number;
+    } | null>(null);
+    const params = useParams<{ dealId: string }>();
+    const dealId = params.dealId;
     const [rows, setRows] = useState<ApiInvestorRow[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
     //Prospective investors (Supabase)
     const [prospects, setProspects] = useState<ProspectRow[]>([]);
-    const [loadingProspects, setLoadingProspects] = useState(false);
+    const [loadingProspects] = useState(false);
 
     //Active context
     const [activeInvestor, setActiveInvestor] = useState<Investor | null>(null);
@@ -462,37 +467,25 @@ export default function DealInvestorsPage() {
         setActiveProspect(p);
         setShowInviteDraft(true);
     }
-    // Hardcode raiseId for v1; later you can derive from dealId route param or a deal->raise mapping.
-    const raiseId = 'INW-ROSE-001';
-    async function reloadInvestors() {
-        setLoading(true);
-        setError(null);
+    const loadDashboard = useCallback(async () => {
+        if (!dealId) return;
 
-        const res = await fetch(`/api/hubspot/raises/${raiseId}`, { cache: 'no-store' });
-        const data = await res.json();
+        const res = await fetch(`/api/deals/${dealId}/dashboard`, {
+            cache: 'no-store',
+        });
 
-        if (!res.ok || data?.ok === false) {
-            setError(data?.error ?? 'Failed to load investors');
-            setRows([]);
-        } else {
-            setRows((data?.investors ?? []) as ApiInvestorRow[]);
+        const json = await res.json();
+
+        if (!res.ok || json?.ok === false) {
+            console.error('Failed to load dashboard');
+            return;
         }
-        setLoading(false);
-    }
-    async function loadProspects() {
-        setLoadingProspects(true);
-        try {
-            const res = await fetch(`/api/raises/${raiseId}/prospective`, {
-                cache: 'no-store',
-            });
-            const json = await res.json();
-            if (res.ok && json?.ok) {
-                setProspects(json.prospects ?? []);
-            }
-        } finally {
-            setLoadingProspects(false);
-        }
-    }
+
+        setDeal(json.deal);
+        setRows(json.investors);
+        setProspects(json.prospects);
+
+    }, [dealId]);
 
     async function loadContactActivity(contactId: string) {
         setLoadingActivity(true);
@@ -524,23 +517,9 @@ export default function DealInvestorsPage() {
         }
     }
     useEffect(() => {
-        let alive = true;
-
-        async function loadAll() {
-            if (!alive) return;
-
-            await Promise.all([
-                reloadInvestors(),
-                loadProspects(),
-            ]);
-        }
-
-        loadAll();
-
-        return () => {
-            alive = false;
-        };
-    }, [raiseId]);
+        if (!dealId) return;
+        loadDashboard();
+    }, [dealId, loadDashboard]);
 
     useEffect(() => {
         if (!activeInvestor) return;
@@ -585,8 +564,32 @@ export default function DealInvestorsPage() {
             .filter((i) => i.bucket === 'committed')
             .reduce((sum, i) => sum + (i.amount || 0), 0);
     }, [investors]);
+    const target = deal?.target_amount ?? 0;
+    const committed = committedTotal;
 
+    const pct = target > 0 ? committed / target : 0;
+    const remaining = Math.max(target - committed, 0);
 
+    const committedCount = investors.filter(i => i.bucket === 'committed').length;
+    const avgCommittedCheck = committedCount > 0
+        ? Math.round(committed / committedCount)
+        : 0;
+
+    const invitedProspectsCount = prospects.filter(p => p.invited_at).length;
+    const draftReadyCount = prospects.filter(p => p.invite_status === 'draft_ready').length;
+
+    const activeInvestorsCount = investors.filter(i => i.bucket !== 'passed').length;
+    const shownCount = investors.length + invitedProspectsCount;
+    // --- Dashboard design tokens + helpers ---
+    const NAVY = '#003a5d'; // Upperline brand navy 【1-a56f89】
+    const SLATE_TEXT = '#64748b';
+    const DARK_TEXT = '#0f172a';
+    const BORDER = 'rgba(15,23,42,0.08)';
+
+    const pctClamped = Math.max(0, Math.min(pct, 1));
+    const pctLabel = `${Math.round(pctClamped * 100)}%`;
+
+    const fmt0 = (n: number) => `$${Math.round(n).toLocaleString()}`;
     const [showAddInvestor, setShowAddInvestor] = useState(false);
 
     function optimisticAddInvestorDeal(p: ProspectRow, dealId: string) {
@@ -600,7 +603,7 @@ export default function DealInvestorsPage() {
             dealstageLabel: 'Introduced',  // what your card shows
             bucket: 'needs_touch',         // force it to appear immediately
             pipeline: null,
-            raise_id: raiseId,
+            raise_id: deal?.raise_id ?? null,
             hs_lastactivitydate: null,
             hs_lastmodifieddate: new Date().toISOString(),
         };
@@ -653,7 +656,7 @@ export default function DealInvestorsPage() {
             }),
         });
 
-        setTimeout(() => reloadInvestors(), 1500);
+        setTimeout(() => loadDashboard(), 1500);
     }
 
     async function handleUpdateStage() {
@@ -717,7 +720,7 @@ export default function DealInvestorsPage() {
         }
 
         // ✅ Reconcile with source of truth
-        setTimeout(() => reloadInvestors(), 1500);
+        setTimeout(() => loadDashboard(), 1500);
     }
     function bucketFromStage(stageId: string): Bucket {
         if (['3604434677', '3604434678'].includes(stageId)) return 'committed';
@@ -742,720 +745,869 @@ export default function DealInvestorsPage() {
 
 
     return (
-        <div
-            style={{
-                backgroundColor: '#f5f6f7', // soft neutral canvas
-                minHeight: '100vh',
-                padding: '36px 44px',
-            }}
-        >
-            {/* Header */}
+
+        <>
+            <AdminNav />
 
             <div
                 style={{
-                    marginBottom: 32,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
+                    background: '#003a5d', // ✅ brand navy
+                    minHeight: '100vh',
+                    paddingTop: 16,
+                    paddingBottom: 32,
                 }}
             >
-
-                <h1
-                    style={{
-                        fontSize: 28,
-                        fontWeight: 500,
-                        marginBottom: 6,
-                    }}
-                >
-                    Inwood – Rosehill LP
-                </h1>
                 <div
                     style={{
-                        fontSize: 14,
-                        opacity: 0.65,
+                        maxWidth: 1200,
+                        marginLeft: 32,
+                        marginRight: 32,
+                        padding: 16,
+                        background: '#f3f4f6', // ✅ slate
+                        minHeight: 'calc(100vh - 120px)',
                     }}
                 >
-                    Admin · Investor Command Center
-                </div>
-            </div>
 
-            <button
-                onClick={() => setShowAddInvestor(true)}
-                style={{
-                    background: '#ffffff',
-                    border: '1px solid rgba(0,0,0,0.15)',
-                    borderRadius: 10,
-                    padding: '8px 14px',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    cursor: 'pointer',
-                }}
-            >
-                + Add Investor
-            </button>
+                    {/* Header */}
 
-            {/* Totals */}
-            <div
-                style={{
-                    display: 'flex',
-                    gap: 48,
-                    marginBottom: 18,
-                }}
-            >
-                <div>
-                    <div style={{ fontSize: 22, fontWeight: 600 }}>${committedTotal.toLocaleString()}</div>
-                    <div style={{ fontSize: 12, opacity: 0.6 }}>Committed</div>
-                </div>
-                <div>
-                    <div style={{ fontSize: 22, fontWeight: 600 }}>${RAISE_TARGET.toLocaleString()}</div>
-                    <div style={{ fontSize: 12, opacity: 0.6 }}>Target</div>
-                </div>
-            </div>
-
-            {/* Status line */}
-            <div style={{ fontSize: 12, opacity: 0.65, marginBottom: 40 }}>
-                Raise ID · <span style={{ fontWeight: 600 }}>{raiseId}</span>
-                {loading ? ' · Loading…' : ''}
-                {error ? ` · ${error}` : ''}
-            </div>
-
-            {/* Buckets */}
-            <div
-                style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(5, 1fr)',
-                    gap: 24,
-                }}
-            >
-                <div>
-                    <h3
-                        style={{
-                            fontSize: 13,
-                            fontWeight: 500,
-                            letterSpacing: '1px',
-                            textTransform: 'uppercase',
-                            opacity: 0.7,
-                            marginBottom: 18,
-                        }}
-                    >
-                        Prospective
-                    </h3>
-
-                    {loadingProspects && (
-                        <div style={{ fontSize: 12, opacity: 0.6 }}>Loading…</div>
-                    )}
-
-                    {!loadingProspects && prospects.length === 0 && (
-                        <div style={{ fontSize: 12, opacity: 0.6 }}>
-                            No prospective investors yet.
-                        </div>
-                    )}
-
-                    {prospects.map((p) => (
-                        <div
-                            key={p.id}
-                            style={{
-                                background: '#1a1f24',
-                                borderRadius: 14,
-                                padding: 16,
-                                marginBottom: 16,
-                                color: '#f1f3f4',
-                                border: '1px solid rgba(255,255,255,0.06)',
-                            }}
-                        >
-                            <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
-                                {p.contact_name || 'Unnamed Contact'}
-                            </div>
-
-                            <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 12 }}>
-                                {p.contact_email || '—'}
-                            </div>
-
-                            {/* Draft status line */}
-                            {p.invite_status === 'draft_ready' && (
-                                <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>
-                                    Draft ready
-                                </div>
-                            )}
-
-                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                                <button
-                                    style={{
-                                        background: 'transparent',
-                                        color: '#cfd4d8',
-                                        border: '1px solid rgba(255,255,255,0.18)',
-                                        borderRadius: 8,
-                                        fontSize: 12,
-                                        padding: '6px 10px',
-                                        cursor: 'pointer',
-                                    }}
-                                    onClick={() => openInviteDraft(p)}
-                                >
-                                    {p.invite_status === 'draft_ready' ? 'Edit Draft' : 'Draft Invite'}
-                                </button>
-
-                                {/* Send invite: marks prospect as invited and creates HubSpot deal (optimistic UI) */}
-                                <button
-                                    disabled={p.invite_status !== 'draft_ready'}
-                                    style={{
-                                        background: 'transparent',
-                                        color: '#cfd4d8',
-                                        border: '1px solid rgba(255,255,255,0.18)',
-                                        borderRadius: 8,
-                                        fontSize: 12,
-                                        padding: '6px 10px',
-                                        cursor: p.invite_status === 'draft_ready' ? 'pointer' : 'not-allowed',
-                                        opacity: p.invite_status === 'draft_ready' ? 1 : 0.45,
-                                    }}
-                                    onClick={async () => {
-                                        if (!confirm('Mark invite as sent and move investor into pipeline?')) return;
-
-                                        // 1) Mark invited in Supabase
-                                        const sendRes = await fetch(
-                                            `/api/raises/${raiseId}/prospective/${p.id}/send`,
-                                            { method: 'POST' }
-                                        );
-
-                                        const sendJson = (await sendRes.json().catch(() => null)) as SendInviteResponse | null;
-
-                                        if (!sendRes.ok || sendJson?.ok === false) {
-                                            alert(sendJson?.error ?? 'Failed to mark invite as sent');
-                                            return;
-                                        }
-
-                                        // 2) Create HubSpot deal
-                                        const hubspotRes = await fetch(`/api/hubspot/raises/${raiseId}/add-investor`, {
-                                            method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({
-                                                contactId: p.contact_id,
-                                                amount: 250000,
-                                                investorName: p.contact_name,
-                                            }),
-                                        });
-
-                                        const hubspotJson = (await hubspotRes.json().catch(() => null)) as HubspotCreateDealResponse | null;
-
-                                        if (!hubspotRes.ok || hubspotJson?.ok === false) {
-                                            alert(hubspotJson?.error ?? 'Failed to create HubSpot deal');
-                                            return;
-                                        }
-
-                                        const dealId = hubspotJson?.dealId;
-
-                                        if (dealId) {
-                                            // ✅ 3) Optimistically render immediately in Needs Touch
-                                            optimisticAddInvestorDeal(p, dealId);
-                                        }
-
-                                        // 4) Refresh Prospective (removes invited from that list)
-                                        await loadProspects();
-
-                                        // 5) Background reconcile — HubSpot read may lag, so retry once or twice
-                                        setTimeout(() => reloadInvestors(), 1500);
-                                        setTimeout(() => reloadInvestors(), 4000);
-                                    }}
-                                >
-                                    Send
-                                </button>
-
-
-                                <button
-                                    style={{
-                                        background: 'transparent',
-                                        color: '#fb7185',
-                                        border: '1px solid rgba(251,113,133,0.35)',
-                                        borderRadius: 8,
-                                        fontSize: 12,
-                                        padding: '6px 10px',
-                                        cursor: 'pointer',
-                                    }}
-                                    onClick={async () => {
-                                        await fetch(`/api/raises/${raiseId}/prospective/${p.id}`, { method: 'DELETE' });
-                                        await loadProspects();
-                                    }}
-                                >
-                                    Remove
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-                {BUCKETS.map((bucket) => (
-                    <div key={bucket.key}>
-                        <h3
-                            style={{
-                                fontSize: 13,
-                                fontWeight: 500,
-                                letterSpacing: '1px',
-                                textTransform: 'uppercase',
-                                opacity: 0.7,
-                                marginBottom: 18,
-                            }}
-                        >
-                            {bucket.label}
-                        </h3>
-
-                        {investors
-                            .filter((i) => i.bucket === bucket.key)
-                            .map((investor) => (
-                                <InvestorCard
-                                    key={investor.id}
-                                    investor={investor}
-                                    onOpen={() => setActiveInvestor(investor)}
-                                    onQuickStage={(stageId) => quickStageChange(investor, stageId)}
-                                />
-                            ))}
-                    </div>
-                ))}
-            </div>
-            {showAddInvestor && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(0,0,0,0.45)',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 50,
-                    }}
-                >
                     <div
                         style={{
-                            background: '#1a1f24',
-                            color: '#f1f3f4',
-                            borderRadius: 14,
-                            width: 720,
-                            maxWidth: '90vw',
-                            maxHeight: '80vh',
                             display: 'flex',
                             flexDirection: 'column',
-                            padding: 24,
-                            boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
-                        }}
-                    >
-                        <h3 style={{ fontSize: 18, marginBottom: 16 }}>
-                            Add Prospective Investor
-                        </h3>
-
-                        <div style={{ flex: 1, minHeight: 0 }}>
-                            <AddProspectsModal
-                                raiseId={raiseId}
-                                onClose={() => setShowAddInvestor(false)}
-                                onAdded={async () => {
-                                    await loadProspects(); //refresh the queue from Supabase
-                                    setShowAddInvestor(false);
-                                }}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
-            {
-                showInviteDraft && activeProspect && (
-                    <div
-                        style={{
-                            position: 'fixed',
-                            inset: 0,
-                            background: 'rgba(0,0,0,0.45)',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            zIndex: 60,
+                            alignItems: 'flex-start',
+                            gap: 6,
+                            marginBottom: 14,
                         }}
                     >
                         <div
                             style={{
-                                background: '#1a1f24',
-                                color: '#f1f3f4',
-                                borderRadius: 14,
-                                width: 720,
-                                maxWidth: '90vw',
-                                maxHeight: '80vh',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                padding: 24,
-                                boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
+                                fontSize: 20,
+                                fontWeight: 600,
+                                color: '#0f172a',
                             }}
                         >
-                            <h3 style={{ fontSize: 18, marginBottom: 16 }}>
-                                Draft Invite Email
-                            </h3>
-
-                            <div style={{ flex: 1, minHeight: 0 }}>
-                                <InviteDraftForm
-                                    raiseId={raiseId}
-                                    prospect={activeProspect}
-                                    onClose={() => {
-                                        setShowInviteDraft(false);
-                                        setActiveProspect(null);
-                                    }}
-                                    onSaved={async () => {
-                                        await loadProspects();
-                                        setShowInviteDraft(false);
-                                        setActiveProspect(null);
-                                    }}
-                                />
-                            </div>
+                            {deal?.name || 'Loading deal...'}
                         </div>
+
+                        <button
+                            onClick={() => setShowAddInvestor(true)}
+                            style={{
+                                background: '#003a5d',
+                                color: '#fff',
+                                borderRadius: 6,
+                                padding: '6px 12px',
+                                fontSize: 12,
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontWeight: 500,
+                            }}
+                        >
+                            Add Investor
+                        </button>
                     </div>
-                )
-            }
-            {activeInvestor && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        right: 0,
-                        width: isSliderExpanded ? 720 : 420,
-                        height: '100vh',
-                        background: '#0f1317',
-                        borderLeft: '1px solid rgba(255,255,255,0.12)',
-                        zIndex: 50,
-                        boxShadow: '-12px 0 32px rgba(0,0,0,0.5)',
-                        color: '#f1f3f4',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        transition: 'width 180ms ease',
-                    }}
-                >
-                    <div
-                        style={{
-                            padding: 20,
-                            borderBottom: '1px solid rgba(255,255,255,0.08)',
-                            flexShrink: 0,
-                        }}
-                    >
+                    {/* ===== Raise Dashboard ===== */}
+                    <div style={{ marginBottom: 16 }}>
+                        {/* Row 1: Progress */}
                         <div
                             style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                marginBottom: 6,
+                                background: '#fff',
+                                border: `1px solid ${BORDER}`,
+                                borderRadius: 6,
+                                padding: 12,
+                                marginBottom: 10,
                             }}
                         >
-                            <h3 style={{ margin: 0 }}>{activeInvestor.name}</h3>
-
-                            <div style={{ display: 'flex', gap: 8 }}>
-                                <button
-                                    onClick={() => setIsSliderExpanded(v => !v)}
-                                    title={isSliderExpanded ? 'Collapse panel' : 'Expand panel'}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                                <div
                                     style={{
-                                        background: 'transparent',
-                                        border: '1px solid rgba(255,255,255,0.25)',
-                                        borderRadius: 6,
-                                        color: '#f1f3f4',
-                                        cursor: 'pointer',
-                                        padding: '2px 6px',
-                                        fontSize: 12,
+                                        fontSize: 11,
+                                        letterSpacing: '0.5px',
+                                        textTransform: 'uppercase',
+                                        color: SLATE_TEXT,
+                                        opacity: 0.8,
                                     }}
                                 >
-                                    {isSliderExpanded ? '⤡' : '⤢'}
-                                </button>
-
-                                <button
-                                    onClick={() => {
-                                        setIsSliderExpanded(false);
-                                        setActiveInvestor(null);
-                                    }}
-                                    style={{
-                                        background: 'transparent',
-                                        border: 'none',
-                                        color: '#f1f3f4',
-                                        fontSize: 16,
-                                        cursor: 'pointer',
-                                    }}
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                        </div>
-
-                        <div>{activeInvestor.email}</div>
-                        <div>Stage: {activeInvestor.stageLabel}</div>
-                        <div>Amount: ${activeInvestor.amount.toLocaleString()}</div>
-                        {/* Snapshot: last interaction */}
-                        <div style={{ marginTop: 14, fontSize: 12, opacity: 0.8 }}>
-                            <div>
-                                <strong>Last interaction:</strong> {activeInvestor.lastActivity || '—'}
-                            </div>
-                        </div>
-                    </div>
-                    <div
-                        style={{
-                            flex: 1,
-                            overflowY: 'auto',
-                            padding: 20,
-                        }}
-                    >
-                        {/* Activity timeline */}
-                        <div style={{ marginTop: 18 }}>
-                            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
-                                Activity
-                            </div>
-                            {/*============================
-                                Log internal note (Hubspot write)
-                            ===============================*/}
-
-                            <div
-                                style={{
-                                    marginBottom: 16,
-                                    padding: 12,
-                                    border: '1px solid rgba(255,255,255,0.12)',
-                                    borderRadius: 10,
-                                    background: 'rgba(255,255,255,0.02)',
-                                }}
-                            >
-                                <textarea
-                                    placeholder="Log internal note…"
-                                    value={noteDraft}
-                                    onChange={(e) => setNoteDraft(e.target.value)}
-                                    rows={3}
-                                    style={{
-                                        width: '100%',
-                                        resize: 'none',
-                                        background: 'transparent',
-                                        border: 'none',
-                                        color: '#f1f3f4',
-                                        fontSize: 13,
-                                        outline: 'none',
-                                        lineHeight: 1.4,
-                                    }}
-                                />
+                                    Raise Progress
+                                </div>
 
                                 <div
                                     style={{
-                                        display: 'flex',
-                                        justifyContent: 'flex-end',
-                                        marginTop: 8,
+                                        fontSize: 16,
+                                        fontWeight: 700,
+                                        color: DARK_TEXT,
                                     }}
                                 >
-                                    <button
-                                        disabled={!noteDraft.trim() || savingNote}
-                                        onClick={handleSaveNote}
-                                        style={{
-                                            fontSize: 12,
-                                            padding: '6px 12px',
-                                            borderRadius: 8,
-                                            border: '1px solid rgba(255,255,255,0.2)',
-                                            background: savingNote ? '#374151' : '#2563eb',
-                                            color: '#fff',
-                                            cursor: savingNote ? 'not-allowed' : 'pointer',
-                                        }}
-                                    >
-                                        {savingNote ? 'Saving…' : 'Save note'}
-                                    </button>
+                                    {pctLabel}
                                 </div>
                             </div>
 
-                            {loadingActivity && (
-                                <div style={{ fontSize: 12, opacity: 0.65 }}>Loading activity…</div>
-                            )}
+                            <div style={{ display: 'flex', gap: 12, marginTop: 6, alignItems: 'baseline' }}>
+                                <div style={{ fontSize: 22, fontWeight: 700, color: DARK_TEXT }}>
+                                    {fmt0(committed)}
+                                </div>
 
-                            {!loadingActivity && activityError && (
-                                <div style={{ fontSize: 12, color: '#fb7185' }}>{activityError}</div>
-                            )}
+                                <div style={{ fontSize: 13, color: SLATE_TEXT }}>
+                                    of {fmt0(target)} target
+                                </div>
 
-                            {!loadingActivity && !activityError && activity.length === 0 && (
-                                <div style={{ fontSize: 12, opacity: 0.65 }}>No activity found.</div>
-                            )}
-                            {/*===========================
-                                Activity feed (read-only)
-                            ==============================*/}
-                            {!loadingActivity && activity.map((a) => {
-                                const isEmail = a.type === 'EMAIL';
-                                const isOpen = openActivityId === a.id;
+                                {/* Remaining (right aligned) */}
+                                <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
+                                    <div style={{ fontSize: 11, color: SLATE_TEXT, opacity: 0.9 }}>Remaining</div>
+                                    <div style={{ fontSize: 13, fontWeight: 700, color: DARK_TEXT }}>
+                                        {fmt0(remaining)}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Progress bar INSIDE the card (this was your nesting bug) */}
+                            <div
+                                style={{
+                                    height: 8,
+                                    background: '#eef1f4',
+                                    borderRadius: 999,
+                                    marginTop: 10,
+                                    overflow: 'hidden',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        width: `${pctClamped * 100}%`,
+                                        height: '100%',
+                                        background: NAVY,
+                                    }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Row 2: KPI tiles */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+                            {[
+                                { label: 'Shown', value: shownCount.toLocaleString(), sub: 'investors + invited' },
+                                { label: 'Avg Check (Committed)', value: fmt0(avgCommittedCheck), sub: `${committedCount} committed` },
+                                { label: 'Active Investors', value: activeInvestorsCount.toLocaleString(), sub: 'not passed' },
+                                { label: 'Prospects', value: prospects.length.toLocaleString(), sub: `${draftReadyCount} draft-ready` },
+                            ].map((kpi) => (
+                                <div
+                                    key={kpi.label}
+                                    style={{
+                                        background: '#fff',
+                                        border: kpi.label === 'Shown'
+                                            ? '1px solid rgba(15,23,42,0.12)'
+                                            : `1px solid ${BORDER}`,
+                                        borderRadius: 6,
+                                        padding: 12,
+                                        boxShadow: kpi.label === 'Shown' ? '0 1px 2px rgba(0,0,0,0.04)' : 'none',
+                                    }}
+                                >
+                                    <div style={{ fontSize: 11, color: SLATE_TEXT }}>{kpi.label}</div>
+                                    <div style={{ fontSize: 18, fontWeight: 700, color: DARK_TEXT, marginTop: 4 }}>
+                                        {kpi.value}
+                                    </div>
+                                    <div style={{ fontSize: 11, color: SLATE_TEXT, marginTop: 2 }}>
+                                        {kpi.sub}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Row 3: Funnel strip (micro) */}
+                        <div
+                            style={{
+                                marginTop: 10,
+                                background: '#fff',
+                                border: `1px solid ${BORDER}`,
+                                borderRadius: 6,
+                                padding: 10,
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                                <div style={{ fontSize: 11, color: SLATE_TEXT }}>Funnel</div>
+                                <div style={{ fontSize: 11, color: SLATE_TEXT }}>
+                                    Draft → Invited → Active → Committed
+                                </div>
+                            </div>
+
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    fontSize: 12,
+                                    marginBottom: 6,
+                                    color: DARK_TEXT,
+                                    fontWeight: 600,
+                                }}
+                            >
+                                <div>{draftReadyCount}</div>
+                                <div>{invitedProspectsCount}</div>
+                                <div>{activeInvestorsCount}</div>
+                                <div>{committedCount}</div>
+                            </div>
+
+                            {(() => {
+                                const a = draftReadyCount;
+                                const b = invitedProspectsCount;
+                                const c = activeInvestorsCount;
+                                const d = committedCount;
+                                const total = Math.max(a + b + c + d, 1);
+                                const seg = (n: number) => `${(n / total) * 100}%`;
 
                                 return (
                                     <div
-                                        key={a.id}
-                                        onClick={() => {
-                                            if (!isEmail) return;
-
-                                            // Toggle this email open/closed
-                                            setOpenActivityId(prev => (prev === a.id ? null : a.id));
-
-                                            // If panel is compact, expand it for reading
-                                            if (!isSliderExpanded) setIsSliderExpanded(true);
-                                        }}
                                         style={{
-                                            borderLeft: '2px solid rgba(255,255,255,0.12)',
-                                            paddingLeft: 10,
-                                            marginBottom: 12,
-                                            cursor: isEmail ? 'pointer' : 'default',
-                                            opacity: isEmail ? 1 : 0.65,
-                                            background: isEmail && !isOpen ? 'rgba(255,255,255,0.02)' : 'transparent',
-                                            transition: 'background 120ms ease',
+                                            display: 'flex',
+                                            height: 8,
+                                            borderRadius: 999,
+                                            overflow: 'hidden',
+                                            background: '#eef1f4',
                                         }}
                                     >
-                                        {/* Header row */}
-                                        <div
-                                            style={{
-                                                fontSize: 12,
-                                                fontWeight: 600,
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                            }}
-                                        >
-                                            <span>
-                                                {a.type}
-                                                {a.ownerName ? ` · ${a.ownerName}` : ''}
-                                            </span>
-
-                                            {isEmail && (
-                                                <span style={{ fontSize: 11, opacity: 0.7, letterSpacing: '0.3px' }}>
-                                                    {isOpen ? 'Hide' : 'Open'}
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        {/* Timestamp */}
-                                        <div style={{ fontSize: 11, opacity: 0.7 }}>
-                                            {new Date(a.timestamp).toLocaleString()}
-                                        </div>
-
-                                        {/* Subject */}
-                                        {a.subject && (
-                                            <div
-                                                style={{
-                                                    fontSize: 12,
-                                                    marginTop: 4,
-                                                    fontWeight: 600,
-                                                }}
-                                            >
-                                                {a.subject}
-                                            </div>
-                                        )}
-
-                                        {/* Body preview */}
-                                        {a.preview && (
-                                            <div
-                                                style={{
-                                                    fontSize: 12,
-                                                    opacity: 0.8,
-                                                    marginTop: 6,
-                                                    whiteSpace: isOpen ? 'pre-wrap' : 'normal',
-                                                    ...(isOpen ? {} : CLAMP_3),
-                                                }}
-                                            >
-                                                {a.preview}
-                                            </div>
-                                        )}
+                                        <div style={{ width: seg(a), background: '#cbd5e1' }} />
+                                        <div style={{ width: seg(b), background: '#93c5fd' }} />
+                                        <div style={{ width: seg(c), background: NAVY }} />
+                                        <div style={{ width: seg(d), background: '#22c55e' }} />
                                     </div>
                                 );
-                            })}
+                            })()}
                         </div>
                     </div>
+
+                    {/* Buckets */}
                     <div
                         style={{
-                            padding: 20,
-                            borderTop: '1px solid rgba(255,255,255,0.08)',
-                            flexShrink: 0,
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(5, 1fr)',
+                            gap: 24,
                         }}
                     >
-                        <div style={{ marginTop: 16 }}>
-                            {/* Commit / Amount */}
-                            <label style={{ fontSize: 12, opacity: 0.7 }}>
-                                Amount
-                            </label>
-
-                            <input
-                                type="number"
-                                value={commitAmount ?? ''}
-
-                                onChange={(e) => {
-                                    const v = e.target.value;
-                                    setCommitAmount(v === '' ? null : Number(v));
-                                }}
-
+                        <div>
+                            <h3
                                 style={{
-                                    marginTop: 6,
-                                    width: '100%',
-                                    padding: '8px 10px',
-                                    borderRadius: 8,
-                                    border: '1px solid rgba(255,255,255,0.15)',
-                                    background: 'transparent',
-                                    color: '#f1f3f4',
-                                    fontSize: 14,
-                                }}
-                            />
-
-                            {/* Stage selector */}
-                            <label
-                                style={{
-                                    fontSize: 12,
+                                    fontSize: 13,
+                                    fontWeight: 500,
+                                    letterSpacing: '1px',
+                                    textTransform: 'uppercase',
                                     opacity: 0.7,
-                                    marginTop: 14,
-                                    display: 'block',
+                                    marginBottom: 18,
                                 }}
                             >
-                                Stage
-                            </label>
+                                Prospective
+                            </h3>
 
-                            <select
-                                value={selectedStageId ?? ''}
-                                onChange={(e) => setSelectedStageId(e.target.value)}
-                                style={{
-                                    marginTop: 6,
-                                    width: '100%',
-                                    padding: '8px 10px',
-                                    borderRadius: 8,
-                                    border: '1px solid rgba(255,255,255,0.15)',
-                                    background: '#0f1317',
-                                    color: '#f1f3f4',
-                                    fontSize: 14,
-                                }}
-                            >
-                                {HUBSPOT_DEAL_STAGES.map((stage) => (
-                                    <option key={stage.id} value={stage.id}>
-                                        {stage.label}
-                                    </option>
-                                ))}
-                            </select>
+                            {loadingProspects && (
+                                <div style={{ fontSize: 12, opacity: 0.6 }}>Loading…</div>
+                            )}
 
-                            {/* Update action */}
-                            <button
-                                onClick={handleUpdateStage}
-                                disabled={!canUpdate || isUpdatingStage}
-                                style={{
-                                    marginTop: 14,
-                                    width: '100%',
-                                    background:
-                                        !canUpdate || isUpdatingStage
-                                            ? '#374151'     // disabled
-                                            : '#2563eb',    // active
-                                    color: '#fff',
-                                    border: 'none',
-                                    borderRadius: 8,
-                                    padding: '10px',
-                                    fontWeight: 600,
-                                    cursor:
-                                        !canUpdate || isUpdatingStage
-                                            ? 'not-allowed'
-                                            : 'pointer',
-                                    opacity:
-                                        isUpdatingStage ? 0.85 : 1,
-                                }}
-                            >
-                                Update Stage
-                            </button>
+                            {!loadingProspects && prospects.length === 0 && (
+                                <div style={{ fontSize: 12, opacity: 0.6 }}>
+                                    No prospective investors yet.
+                                </div>
+                            )}
+
+                            {prospects.map((p) => (
+                                <div
+                                    key={p.id}
+                                    style={{
+                                        background: '#1a1f24',
+                                        borderRadius: 14,
+                                        padding: 16,
+                                        marginBottom: 16,
+                                        color: '#f1f3f4',
+                                        border: '1px solid rgba(255,255,255,0.06)',
+                                    }}
+                                >
+                                    <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
+                                        {p.contact_name || 'Unnamed Contact'}
+                                    </div>
+
+                                    <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 12 }}>
+                                        {p.contact_email || '—'}
+                                    </div>
+
+                                    {/* Draft status line */}
+                                    {p.invite_status === 'draft_ready' && (
+                                        <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>
+                                            Draft ready
+                                        </div>
+                                    )}
+
+                                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                        <button
+                                            style={{
+                                                background: 'transparent',
+                                                color: '#cfd4d8',
+                                                border: '1px solid rgba(255,255,255,0.18)',
+                                                borderRadius: 8,
+                                                fontSize: 12,
+                                                padding: '6px 10px',
+                                                cursor: 'pointer',
+                                            }}
+                                            onClick={() => openInviteDraft(p)}
+                                        >
+                                            {p.invite_status === 'draft_ready' ? 'Edit Draft' : 'Draft Invite'}
+                                        </button>
+
+                                        {/* Send invite: marks prospect as invited and creates HubSpot deal (optimistic UI) */}
+                                        <button
+                                            disabled={p.invite_status !== 'draft_ready'}
+                                            style={{
+                                                background: 'transparent',
+                                                color: '#cfd4d8',
+                                                border: '1px solid rgba(255,255,255,0.18)',
+                                                borderRadius: 8,
+                                                fontSize: 12,
+                                                padding: '6px 10px',
+                                                cursor: p.invite_status === 'draft_ready' ? 'pointer' : 'not-allowed',
+                                                opacity: p.invite_status === 'draft_ready' ? 1 : 0.45,
+                                            }}
+                                            onClick={async () => {
+                                                if (!confirm('Mark invite as sent and move investor into pipeline?')) return;
+
+                                                // 1) Mark invited in Supabase
+                                                const sendRes = await fetch(`/api/deals/${dealId}/prospects/${p.id}/send`, { method: 'POST' }
+                                                );
+
+                                                const sendJson = (await sendRes.json().catch(() => null)) as SendInviteResponse | null;
+
+                                                if (!sendRes.ok || sendJson?.ok === false) {
+                                                    alert(sendJson?.error ?? 'Failed to mark invite as sent');
+                                                    return;
+                                                }
+
+                                                // 2) Create HubSpot deal
+                                                const hubspotRes = await fetch(`/api/deals/${dealId}/add-investor`, {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({
+                                                        contactId: p.contact_id,
+                                                        amount: 250000,
+                                                        investorName: p.contact_name,
+                                                    }),
+                                                });
+
+                                                const hubspotJson = (await hubspotRes.json().catch(() => null)) as HubspotCreateDealResponse | null;
+
+                                                if (!hubspotRes.ok || hubspotJson?.ok === false) {
+                                                    alert(hubspotJson?.error ?? 'Failed to create HubSpot deal');
+                                                    return;
+                                                }
+
+                                                const hubspotDealId = hubspotJson?.dealId;
+
+                                                if (hubspotDealId) {
+                                                    //3) Optimistically render
+                                                    optimisticAddInvestorDeal(p, hubspotDealId);
+                                                }
+
+                                                // 4) Refresh Prospective (removes invited from that list)
+                                                await loadDashboard();
+
+                                                // 5) Background reconcile — HubSpot read may lag, so retry once or twice
+                                                setTimeout(() => loadDashboard(), 1500);
+                                                setTimeout(() => loadDashboard(), 4000);
+                                            }}
+                                        >
+                                            Send
+                                        </button>
+
+
+                                        <button
+                                            style={{
+                                                background: 'transparent',
+                                                color: '#fb7185',
+                                                border: '1px solid rgba(251,113,133,0.35)',
+                                                borderRadius: 8,
+                                                fontSize: 12,
+                                                padding: '6px 10px',
+                                                cursor: 'pointer',
+                                            }}
+                                            onClick={async () => {
+                                                await fetch(`/api/deals/${dealId}/prospects/${p.id}`, { method: 'DELETE' });
+                                                await loadDashboard();
+                                            }}
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    </div>
-                </div>
-            )
-            }
+                        {BUCKETS.map((bucket) => (
+                            <div key={bucket.key}>
+                                <h3
+                                    style={{
+                                        fontSize: 13,
+                                        fontWeight: 500,
+                                        letterSpacing: '1px',
+                                        textTransform: 'uppercase',
+                                        opacity: 0.7,
+                                        marginBottom: 18,
+                                    }}
+                                >
+                                    {bucket.label}
+                                </h3>
 
-        </div >
+                                {investors
+                                    .filter((i) => i.bucket === bucket.key)
+                                    .map((investor) => (
+                                        <InvestorCard
+                                            key={investor.id}
+                                            investor={investor}
+                                            onOpen={() => setActiveInvestor(investor)}
+                                            onQuickStage={(stageId) => quickStageChange(investor, stageId)}
+                                        />
+                                    ))}
+                            </div>
+                        ))}
+                    </div>
+                    {showAddInvestor && (
+                        <div
+                            style={{
+                                position: 'fixed',
+                                inset: 0,
+                                background: 'rgba(0,0,0,0.45)',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                zIndex: 50,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    background: '#1a1f24',
+                                    color: '#f1f3f4',
+                                    borderRadius: 14,
+                                    width: 720,
+                                    maxWidth: '90vw',
+                                    maxHeight: '80vh',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    padding: 24,
+                                    boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
+                                }}
+                            >
+                                <h3 style={{ fontSize: 18, marginBottom: 16 }}>
+                                    Add Prospective Investor
+                                </h3>
+
+                                <div style={{ flex: 1, minHeight: 0 }}>
+                                    <AddProspectsModal
+                                        dealId={dealId}
+                                        onClose={() => setShowAddInvestor(false)}
+                                        onAdded={async () => {
+                                            await loadDashboard(); //refresh the queue from Supabase
+                                            setShowAddInvestor(false);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {
+                        showInviteDraft && activeProspect && (
+                            <div
+                                style={{
+                                    position: 'fixed',
+                                    inset: 0,
+                                    background: 'rgba(0,0,0,0.45)',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    zIndex: 60,
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        background: '#1a1f24',
+                                        color: '#f1f3f4',
+                                        borderRadius: 14,
+                                        width: 720,
+                                        maxWidth: '90vw',
+                                        maxHeight: '80vh',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        padding: 24,
+                                        boxShadow: '0 20px 60px rgba(0,0,0,0.45)',
+                                    }}
+                                >
+                                    <h3 style={{ fontSize: 18, marginBottom: 16 }}>
+                                        Draft Invite Email
+                                    </h3>
+
+                                    <div style={{ flex: 1, minHeight: 0 }}>
+                                        <InviteDraftForm
+                                            dealId={dealId}
+                                            prospect={activeProspect}
+                                            onClose={() => {
+                                                setShowInviteDraft(false);
+                                                setActiveProspect(null);
+                                            }}
+                                            onSaved={async () => {
+                                                await loadDashboard();
+                                                setShowInviteDraft(false);
+                                                setActiveProspect(null);
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    }
+                    {activeInvestor && (
+                        <div
+                            style={{
+                                position: 'fixed',
+                                top: 0,
+                                right: 0,
+                                width: isSliderExpanded ? 720 : 420,
+                                height: '100vh',
+                                background: '#0f1317',
+                                borderLeft: '1px solid rgba(255,255,255,0.12)',
+                                zIndex: 50,
+                                boxShadow: '-12px 0 32px rgba(0,0,0,0.5)',
+                                color: '#f1f3f4',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                transition: 'width 180ms ease',
+                            }}
+                        >
+                            <div
+                                style={{
+                                    padding: 20,
+                                    borderBottom: '1px solid rgba(255,255,255,0.08)',
+                                    flexShrink: 0,
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        marginBottom: 6,
+                                    }}
+                                >
+                                    <h3 style={{ margin: 0 }}>{activeInvestor.name}</h3>
+
+                                    <div style={{ display: 'flex', gap: 8 }}>
+                                        <button
+                                            onClick={() => setIsSliderExpanded(v => !v)}
+                                            title={isSliderExpanded ? 'Collapse panel' : 'Expand panel'}
+                                            style={{
+                                                background: 'transparent',
+                                                border: '1px solid rgba(255,255,255,0.25)',
+                                                borderRadius: 6,
+                                                color: '#f1f3f4',
+                                                cursor: 'pointer',
+                                                padding: '2px 6px',
+                                                fontSize: 12,
+                                            }}
+                                        >
+                                            {isSliderExpanded ? '⤡' : '⤢'}
+                                        </button>
+
+                                        <button
+                                            onClick={() => {
+                                                setIsSliderExpanded(false);
+                                                setActiveInvestor(null);
+                                            }}
+                                            style={{
+                                                background: 'transparent',
+                                                border: 'none',
+                                                color: '#f1f3f4',
+                                                fontSize: 16,
+                                                cursor: 'pointer',
+                                            }}
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div>{activeInvestor.email}</div>
+                                <div>Stage: {activeInvestor.stageLabel}</div>
+                                <div>Amount: ${activeInvestor.amount.toLocaleString()}</div>
+                                {/* Snapshot: last interaction */}
+                                <div style={{ marginTop: 14, fontSize: 12, opacity: 0.8 }}>
+                                    <div>
+                                        <strong>Last interaction:</strong> {activeInvestor.lastActivity || '—'}
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                style={{
+                                    flex: 1,
+                                    overflowY: 'auto',
+                                    padding: 20,
+                                }}
+                            >
+                                {/* Activity timeline */}
+                                <div style={{ marginTop: 18 }}>
+                                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
+                                        Activity
+                                    </div>
+                                    {/*============================
+                                Log internal note (Hubspot write)
+                            ===============================*/}
+
+                                    <div
+                                        style={{
+                                            marginBottom: 16,
+                                            padding: 12,
+                                            border: '1px solid rgba(255,255,255,0.12)',
+                                            borderRadius: 10,
+                                            background: 'rgba(255,255,255,0.02)',
+                                        }}
+                                    >
+                                        <textarea
+                                            placeholder="Log internal note…"
+                                            value={noteDraft}
+                                            onChange={(e) => setNoteDraft(e.target.value)}
+                                            rows={3}
+                                            style={{
+                                                width: '100%',
+                                                resize: 'none',
+                                                background: 'transparent',
+                                                border: 'none',
+                                                color: '#f1f3f4',
+                                                fontSize: 13,
+                                                outline: 'none',
+                                                lineHeight: 1.4,
+                                            }}
+                                        />
+
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                justifyContent: 'flex-end',
+                                                marginTop: 8,
+                                            }}
+                                        >
+                                            <button
+                                                disabled={!noteDraft.trim() || savingNote}
+                                                onClick={handleSaveNote}
+                                                style={{
+                                                    fontSize: 12,
+                                                    padding: '6px 12px',
+                                                    borderRadius: 8,
+                                                    border: '1px solid rgba(255,255,255,0.2)',
+                                                    background: savingNote ? '#374151' : '#2563eb',
+                                                    color: '#fff',
+                                                    cursor: savingNote ? 'not-allowed' : 'pointer',
+                                                }}
+                                            >
+                                                {savingNote ? 'Saving…' : 'Save note'}
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {loadingActivity && (
+                                        <div style={{ fontSize: 12, opacity: 0.65 }}>Loading activity…</div>
+                                    )}
+
+                                    {!loadingActivity && activityError && (
+                                        <div style={{ fontSize: 12, color: '#fb7185' }}>{activityError}</div>
+                                    )}
+
+                                    {!loadingActivity && !activityError && activity.length === 0 && (
+                                        <div style={{ fontSize: 12, opacity: 0.65 }}>No activity found.</div>
+                                    )}
+                                    {/*===========================
+                                Activity feed (read-only)
+                            ==============================*/}
+                                    {!loadingActivity && activity.map((a) => {
+                                        const isEmail = a.type === 'EMAIL';
+                                        const isOpen = openActivityId === a.id;
+
+                                        return (
+                                            <div
+                                                key={a.id}
+                                                onClick={() => {
+                                                    if (!isEmail) return;
+
+                                                    // Toggle this email open/closed
+                                                    setOpenActivityId(prev => (prev === a.id ? null : a.id));
+
+                                                    // If panel is compact, expand it for reading
+                                                    if (!isSliderExpanded) setIsSliderExpanded(true);
+                                                }}
+                                                style={{
+                                                    borderLeft: '2px solid rgba(255,255,255,0.12)',
+                                                    paddingLeft: 10,
+                                                    marginBottom: 12,
+                                                    cursor: isEmail ? 'pointer' : 'default',
+                                                    opacity: isEmail ? 1 : 0.65,
+                                                    background: isEmail && !isOpen ? 'rgba(255,255,255,0.02)' : 'transparent',
+                                                    transition: 'background 120ms ease',
+                                                }}
+                                            >
+                                                {/* Header row */}
+                                                <div
+                                                    style={{
+                                                        fontSize: 12,
+                                                        fontWeight: 600,
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                    }}
+                                                >
+                                                    <span>
+                                                        {a.type}
+                                                        {a.ownerName ? ` · ${a.ownerName}` : ''}
+                                                    </span>
+
+                                                    {isEmail && (
+                                                        <span style={{ fontSize: 11, opacity: 0.7, letterSpacing: '0.3px' }}>
+                                                            {isOpen ? 'Hide' : 'Open'}
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                {/* Timestamp */}
+                                                <div style={{ fontSize: 11, opacity: 0.7 }}>
+                                                    {new Date(a.timestamp).toLocaleString()}
+                                                </div>
+
+                                                {/* Subject */}
+                                                {a.subject && (
+                                                    <div
+                                                        style={{
+                                                            fontSize: 12,
+                                                            marginTop: 4,
+                                                            fontWeight: 600,
+                                                        }}
+                                                    >
+                                                        {a.subject}
+                                                    </div>
+                                                )}
+
+                                                {/* Body preview */}
+                                                {a.preview && (
+                                                    <div
+                                                        style={{
+                                                            fontSize: 12,
+                                                            opacity: 0.8,
+                                                            marginTop: 6,
+                                                            whiteSpace: isOpen ? 'pre-wrap' : 'normal',
+                                                            ...(isOpen ? {} : CLAMP_3),
+                                                        }}
+                                                    >
+                                                        {a.preview}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            <div
+                                style={{
+                                    padding: 20,
+                                    borderTop: '1px solid rgba(255,255,255,0.08)',
+                                    flexShrink: 0,
+                                }}
+                            >
+                                <div style={{ marginTop: 16 }}>
+                                    {/* Commit / Amount */}
+                                    <label style={{ fontSize: 12, opacity: 0.7 }}>
+                                        Amount
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        value={commitAmount ?? ''}
+
+                                        onChange={(e) => {
+                                            const v = e.target.value;
+                                            setCommitAmount(v === '' ? null : Number(v));
+                                        }}
+
+                                        style={{
+                                            marginTop: 6,
+                                            width: '100%',
+                                            padding: '8px 10px',
+                                            borderRadius: 8,
+                                            border: '1px solid rgba(255,255,255,0.15)',
+                                            background: 'transparent',
+                                            color: '#f1f3f4',
+                                            fontSize: 14,
+                                        }}
+                                    />
+
+                                    {/* Stage selector */}
+                                    <label
+                                        style={{
+                                            fontSize: 12,
+                                            opacity: 0.7,
+                                            marginTop: 14,
+                                            display: 'block',
+                                        }}
+                                    >
+                                        Stage
+                                    </label>
+
+                                    <select
+                                        value={selectedStageId ?? ''}
+                                        onChange={(e) => setSelectedStageId(e.target.value)}
+                                        style={{
+                                            marginTop: 6,
+                                            width: '100%',
+                                            padding: '8px 10px',
+                                            borderRadius: 8,
+                                            border: '1px solid rgba(255,255,255,0.15)',
+                                            background: '#0f1317',
+                                            color: '#f1f3f4',
+                                            fontSize: 14,
+                                        }}
+                                    >
+                                        {HUBSPOT_DEAL_STAGES.map((stage) => (
+                                            <option key={stage.id} value={stage.id}>
+                                                {stage.label}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    {/* Update action */}
+                                    <button
+                                        onClick={handleUpdateStage}
+                                        disabled={!canUpdate || isUpdatingStage}
+                                        style={{
+                                            marginTop: 14,
+                                            width: '100%',
+                                            background:
+                                                !canUpdate || isUpdatingStage
+                                                    ? '#374151'     // disabled
+                                                    : '#2563eb',    // active
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: 8,
+                                            padding: '10px',
+                                            fontWeight: 600,
+                                            cursor:
+                                                !canUpdate || isUpdatingStage
+                                                    ? 'not-allowed'
+                                                    : 'pointer',
+                                            opacity:
+                                                isUpdatingStage ? 0.85 : 1,
+                                        }}
+                                    >
+                                        Update Stage
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )
+                    }
+
+                </div >
+            </div >
+        </>
     );
 }
 
 function AddProspectsModal({
-    raiseId,
+    dealId,
     onClose,
     onAdded,
 }: {
-    raiseId: string;
+    dealId: string;
     onClose: () => void;
     onAdded: () => Promise<void> | void;
 }) {
@@ -1470,56 +1622,64 @@ function AddProspectsModal({
 
     const selectedCount = Object.keys(selected).length;
 
-    async function fetchContacts(opts: { reset: boolean }) {
-        const { reset } = opts;
-        try {
-            setLoading(true);
-            setError(null);
 
-            const after = reset ? null : nextAfter;
+    const fetchContacts = useCallback(
+        async (opts: { reset: boolean }) => {
+            const { reset } = opts;
 
-            const url =
-                `/api/hubspot/contacts/search?q=${encodeURIComponent(query)}&limit=25` +
-                (after ? `&after=${encodeURIComponent(after)}` : '');
+            try {
+                setLoading(true);
+                setError(null);
 
-            const res = await fetch(url, { cache: 'no-store' });
-            const json = (await res.json()) as ContactSearchResponse;
+                const after = reset ? null : nextAfter;
 
-            if (!res.ok || json?.ok === false) {
-                setError(json?.error ?? 'Failed to load contacts');
-                return;
+                // ✅ FIX: remove &amp; → must be real &
+                const url =
+                    `/api/hubspot/contacts/search?q=${encodeURIComponent(query)}&limit=25` +
+                    (after ? `&after=${encodeURIComponent(after)}` : '');
+
+                const res = await fetch(url, { cache: 'no-store' });
+                const json = (await res.json()) as ContactSearchResponse;
+
+                if (!res.ok || json?.ok === false) {
+                    setError(json?.error ?? 'Failed to load contacts');
+                    return;
+                }
+
+                const mapped: ContactRow[] = (json.results ?? []).map((c) => ({
+                    id: String(c.id),
+                    name:
+                        (c.name && c.name.trim()) ||
+                        `${c.firstname ?? ''} ${c.lastname ?? ''}`.trim() ||
+                        '—',
+                    email: (c.email ?? '').trim(),
+                }));
+
+                if (reset) {
+                    setRows(mapped);
+                } else {
+                    setRows((prev) => [...prev, ...mapped]);
+                }
+
+                setNextAfter(json.nextAfter ?? null);
+
+            } catch (e: unknown) {
+                const message = e instanceof Error ? e.message : 'Failed to load contacts';
+                setError(message);
+            } finally {
+                setLoading(false);
             }
+        },
+        [query, nextAfter] // ✅ dependencies
+    );
 
-            const mapped: ContactRow[] = (json.results ?? []).map((c) => ({
-                id: String(c.id),
-                name:
-                    (c.name && c.name.trim()) ||
-                    `${c.firstname ?? ''} ${c.lastname ?? ''}`.trim() ||
-                    '—',
-                email: (c.email ?? '').trim(),
-            }));
-
-            if (reset) {
-                setRows(mapped);
-            } else {
-                setRows((prev) => [...prev, ...mapped]);
-            }
-
-            setNextAfter(json.nextAfter ?? null);
-
-        } catch (e: unknown) {
-            const message = e instanceof Error ? e.message : 'Failed to load contacts';
-            setError(message);
-        }
-        finally {
-            setLoading(false);
-        }
-    }
     const [existingIds, setExistingIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         async function loadExisting() {
-            const res = await fetch(`/api/raises/${raiseId}/prospective`, {
+            if (!dealId) return;
+
+            const res = await fetch(`/api/deals/${dealId}/prospects`, {
                 cache: 'no-store',
             });
             if (!res.ok) return;
@@ -1527,31 +1687,26 @@ function AddProspectsModal({
             const json = await res.json();
 
             const ids = new Set<string>(
-                (json?.prospects ?? []).map((p: ExistingProspect) =>
-                    String(p.contact_id)
-                )
+                (json?.prospects ?? []).map((p: ExistingProspect) => String(p.contact_id))
             );
 
             setExistingIds(ids);
         }
 
         loadExisting();
-    }, [raiseId]);
+    }, [dealId]);
 
     // Debounced search (also triggers initial load with empty query)
     useEffect(() => {
-        if (!query.trim()) {
-            setRows([]);
-            setNextAfter(null);
-            return;
-        }
+        if (!query.trim()) return;
 
-        const t = setTimeout(() => {
+        const timeout = setTimeout(() => {
             fetchContacts({ reset: true });
         }, 250);
 
-        return () => clearTimeout(t);
-    }, [query]);
+        return () => clearTimeout(timeout);
+    }, [query, fetchContacts]);
+
 
 
     function toggleRow(r: ContactRow) {
@@ -1592,14 +1747,13 @@ function AddProspectsModal({
 
             if (contacts.length === 0) return;
 
-            const res = await fetch(
-                `/api/raises/${raiseId}/subscribe-batch`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contacts }),
-                }
-            );
+
+            const res = await fetch(`/api/deals/${dealId}/subscribe-batch`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contacts }),
+            });
+
 
             const contentType = res.headers.get('content-type') || '';
 
@@ -1837,17 +1991,19 @@ function AddProspectsModal({
     );
 }
 
+
 function InviteDraftForm({
-    raiseId,
+    dealId,
     prospect,
     onClose,
     onSaved,
 }: {
-    raiseId: string;
+    dealId: string;
     prospect: ProspectRow;
     onClose: () => void;
     onSaved: () => Promise<void> | void;
 }) {
+
 
 
     const defaultSubject = 'Inwood – Rosehill | Investor Preview';
@@ -1855,14 +2011,14 @@ function InviteDraftForm({
     const firstName =
         (prospect.contact_name ?? '').split(' ')[0].trim() || 'there';
 
-    const defaultBody = `Hi {{first_name}},
+    const defaultBody = `Hi {{ first_name }},
 
-I wanted to share an early look at our Inwood – Rosehill opportunity.
+                            I wanted to share an early look at our Inwood – Rosehill opportunity.
 
-If you’re open to it, I’d be happy to walk you through the deal and answer any questions.
+                            If you’re open to it, I’d be happy to walk you through the deal and answer any questions.
 
-Best,
-`;
+                            Best,
+                            `;
 
     const [subject, setSubject] = useState(
         prospect.invite_subject ?? defaultSubject
@@ -1876,7 +2032,7 @@ Best,
     if (!prospect) return null;
     function renderPreview(text: string) {
         // safer than replaceAll
-        return text.split('{{first_name}}').join(firstName);
+        return text.split('{{ first_name }}').join(firstName);
     }
 
     async function saveDraft() {
@@ -1885,7 +2041,7 @@ Best,
             setError(null);
 
             const res = await fetch(
-                `/api/raises/${raiseId}/prospective/${prospect.id}/draft`,
+                `/api/deals/${dealId}/prospects/${prospect.id}/draft`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1967,7 +2123,6 @@ Best,
                     {renderPreview(body)}
                 </div>
             </div>
-
             {error && (
                 <div style={{ fontSize: 12, color: '#fb7185' }}>
                     {error}
@@ -2002,5 +2157,6 @@ Best,
                 This saves the draft only. Sending happens separately via Outlook + HubSpot.
             </div>
         </div>
+
     );
 }
