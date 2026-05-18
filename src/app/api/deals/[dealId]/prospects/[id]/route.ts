@@ -12,13 +12,18 @@ export async function DELETE(
     .select('raise_id')
     .eq('id', dealId)
     .single();
+    const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+    'http://localhost:3000';
 
   if (error || !deal?.raise_id) {
     return NextResponse.json({ ok: false, error: 'Missing raise_id' });
   }
 
+  
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/raises/${deal.raise_id}/prospective/${id}`,
+    `${baseUrl}/api/raises/${deal.raise_id}/prospective/${id}`,
     { method: 'DELETE' }
   );
 

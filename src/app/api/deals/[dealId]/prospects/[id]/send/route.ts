@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/SupabaseServer';
 
@@ -7,18 +8,25 @@ export async function POST(
 ) {
   const { dealId, id } = await context.params;
 
-  const { data: deal, error } = await supabaseServer
+  const supabase = supabaseServer;
+
+  const { data: deal, error } = await supabase
     .from('deals')
     .select('raise_id')
     .eq('id', dealId)
     .single();
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+    'http://localhost:3000';
 
   if (error || !deal?.raise_id) {
     return NextResponse.json({ ok: false, error: 'Missing raise_id' });
   }
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/raises/${deal.raise_id}/prospective/${id}/send`,
+    `${baseUrl}/api/raises/${deal.raise_id}/prospective/${id}/send`,
     { method: 'POST' }
   );
 

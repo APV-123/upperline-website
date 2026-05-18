@@ -21,7 +21,10 @@ export async function GET(
   // 2. Call your EXISTING logic
   
     const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+    'http://localhost:3000';
+
 
     const res = await fetch(
     `${baseUrl}/api/hubspot/raises/${deal.raise_id}`,
