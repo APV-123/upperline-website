@@ -44,20 +44,20 @@ type ContactRow = {
     email: string;
 };
 type ProspectRow = {
-  raise_id: string;
-  contact_id: string;
-  contact_name: string | null;
-  contact_email: string | null;
-  status: string | null;
+    raise_id: string;
+    contact_id: string;
+    contact_name: string | null;
+    contact_email: string | null;
+    status: string | null;
 
-  invite_status: string | null;
-  invite_subject: string | null;
-  invite_body: string | null;
-  invite_method: string | null;
+    invite_status: string | null;
+    invite_subject: string | null;
+    invite_body: string | null;
+    invite_method: string | null;
 
-  created_at: string | null;
-  invited_at: string | null;
-  declined_at: string | null;
+    created_at: string | null;
+    invited_at: string | null;
+    declined_at: string | null;
 };
 type HubSpotActivity = {
     id: string;
@@ -2035,6 +2035,7 @@ Best,`;
         return text.split('{{ first_name }}').join(firstName);
     }
 
+
     async function saveDraft() {
         try {
             setSaving(true);
@@ -2053,21 +2054,25 @@ Best,`;
                 }
             );
 
-            const json = await res.json();
+            // ✅ SAFE JSON PARSING (fixes your demo error)
+            const json = await res.json().catch(() => null);
+
             if (!res.ok || json?.ok === false) {
+                console.error('[DRAFT SAVE FAILED]', json);
                 setError(json?.error ?? 'Failed to save draft');
                 return;
             }
 
             await onSaved();
+
         } catch (e: unknown) {
             const message = e instanceof Error ? e.message : 'Failed to save draft';
             setError(message);
-        }
-        finally {
+        } finally {
             setSaving(false);
         }
     }
+
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, height: '100%' }}>
