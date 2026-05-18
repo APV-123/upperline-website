@@ -1006,6 +1006,9 @@ export default function DealInvestorsPage() {
                             {prospects.map((p) => {
                                 const isDraftReady = (p.invite_status ?? '').trim() === 'draft_ready';
 
+                                console.log('RAW:', p.invite_status);
+                                console.log('CLEAN:', `"${(p.invite_status ?? '').trim()}"`);
+
                                 return (
                                     <div
                                         key={p.contact_id}
