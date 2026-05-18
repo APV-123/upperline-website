@@ -44,21 +44,20 @@ type ContactRow = {
     email: string;
 };
 type ProspectRow = {
-    id: string;
-    raise_id: string;
-    contact_id: string;
-    contact_name: string | null;
-    contact_email: string | null;
-    status: string | null;
+  raise_id: string;
+  contact_id: string;
+  contact_name: string | null;
+  contact_email: string | null;
+  status: string | null;
 
-    invite_status: string | null;
-    invite_subject: string | null;
-    invite_body: string | null;
-    invite_method: string | null;
+  invite_status: string | null;
+  invite_subject: string | null;
+  invite_body: string | null;
+  invite_method: string | null;
 
-    created_at: string | null;
-    invited_at: string | null;
-    declined_at: string | null;
+  created_at: string | null;
+  invited_at: string | null;
+  declined_at: string | null;
 };
 type HubSpotActivity = {
     id: string;
@@ -1005,7 +1004,7 @@ export default function DealInvestorsPage() {
 
                             {prospects.map((p) => (
                                 <div
-                                    key={p.id}
+                                    key={p.contact_id}
                                     style={{
                                         background: '#1a1f24',
                                         borderRadius: 14,
@@ -1063,7 +1062,7 @@ export default function DealInvestorsPage() {
                                                 if (!confirm('Mark invite as sent and move investor into pipeline?')) return;
 
                                                 // 1) Mark invited in Supabase
-                                                const sendRes = await fetch(`/api/deals/${dealId}/prospects/${p.id}/send`, { method: 'POST' }
+                                                const sendRes = await fetch(`/api/deals/${dealId}/prospects/${p.contact_id}/send`, { method: 'POST' }
                                                 );
 
                                                 const sendJson = (await sendRes.json().catch(() => null)) as SendInviteResponse | null;
@@ -1121,7 +1120,7 @@ export default function DealInvestorsPage() {
                                                 cursor: 'pointer',
                                             }}
                                             onClick={async () => {
-                                                await fetch(`/api/deals/${dealId}/prospects/${p.id}`, { method: 'DELETE' });
+                                                await fetch(`/api/deals/${dealId}/prospects/${p.contact_id}`, { method: 'DELETE' });
                                                 await loadDashboard();
                                             }}
                                         >

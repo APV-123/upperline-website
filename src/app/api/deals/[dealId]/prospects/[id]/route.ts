@@ -7,26 +7,47 @@ export async function DELETE(
 ) {
   const { dealId, id } = await context.params;
 
-  const { data: deal, error } = await supabaseServer
-    .from('deals')
-    .select('raise_id')
-    .eq('id', dealId)
-    .single();
-    const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
-    'http://localhost:3000';
+  try {
+    const supabase = supabaseServer;
 
-  if (error || !deal?.raise_id) {
-    return NextResponse.json({ ok: false, error: 'Missing raise_id' });
+    // ✅ 1. Get raise_id from deals table
+    const { data: deal, error: dealError } = await supabase
+      .from('deals')
+      .select('raise_id')
+      .eq('id', dealId)
+      .single();
+
+    if (dealError || !deal?.raise_id) {
+      return NextResponse.json(
+        { ok: false, error: 'Missing raise_id' },
+        { status: 400 }
+      );
+    }
+
+    // ✅ 2. Delete directly from raise_subscriptions
+    const { error } = await supabase
+      .from('raise_subscriptions')
+      .delete()
+      .eq('raise_id', deal.raise_id)
+      .eq('contact_id', id); // 🔥 this is the key
+
+    if (error) {
+      console.error('[DELETE PROSPECT ERROR]', error);
+
+      return NextResponse.json(
+        { ok: false, error: error.message },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ ok: true });
+
+  } catch (e) {
+    console.error('[DELETE PROSPECT CRASH]', e);
+
+    return NextResponse.json(
+      { ok: false, error: 'Server error' },
+      { status: 500 }
+    );
   }
-
-  
-  const res = await fetch(
-    `${baseUrl}/api/raises/${deal.raise_id}/prospective/${id}`,
-    { method: 'DELETE' }
-  );
-
-  const json = await res.json().catch(() => ({}));
-  return NextResponse.json(json, { status: res.status });
 }
