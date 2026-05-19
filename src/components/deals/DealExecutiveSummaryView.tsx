@@ -249,6 +249,35 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                     key={doc.label}
                     onClick={() => {
                       if (doc.gated) {
+                        const savedEmail = localStorage.getItem(`ca:${deal.id}`);
+
+                        if (savedEmail) {
+                          // skip CA — already accepted
+                          fetch(`/api/deals/${deal.id}/ca/submit`, {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                              name: "Returning User",
+                              email: savedEmail,
+                              company: "",
+                            }),
+                          })
+                            .then((r) => r.json())
+                            .then((json) => {
+                              if (json?.signedUrl) {
+                                setSelectedDoc({
+                                  label: "Full Equity Memo",
+                                  url: json.signedUrl,
+                                  gated: false,
+                                });
+                              }
+                            });
+
+                          return;
+                        }
+
                         setShowCA(true);
                         return;
                       }
@@ -330,59 +359,143 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
           </div>
         )}
         {showCA && (
-          <div style={caBackdrop} onClick={() => !caBusy && setShowCA(false)}>
-            <div style={caCard} onClick={(e) => e.stopPropagation()}>
-              <h3 style={{ margin: '0 0 6px' }}>Confidentiality Agreement</h3>
-              <p style={{ margin: '0 0 14px', fontSize: 13, color: '#475569' }}>
-                To access the full equity memo, please confirm acceptance of confidentiality terms.
-              </p>
+          <div style={sheetBackdrop} onClick={() => !caBusy && setShowCA(false)}>
+            <div style={sheet} onClick={(e) => e.stopPropagation()}>
 
-              <label style={caLabel}>Full name</label>
-              <input style={caInput} value={caName} onChange={(e) => setCaName(e.target.value)} />
+              {/* Handle */}
+              <div style={sheetHandle} />
 
-              <label style={caLabel}>Email</label>
-              <input style={caInput} value={caEmail} onChange={(e) => setCaEmail(e.target.value)} />
-
-              <label style={caLabel}>Company (optional)</label>
-              <input style={caInput} value={caCompany} onChange={(e) => setCaCompany(e.target.value)} />
-
-              <label style={{ display: 'flex', gap: 8, marginTop: 12, fontSize: 13 }}>
-                <input type="checkbox" checked={caAgree} onChange={(e) => setCaAgree(e.target.checked)} />
-                I agree to keep these materials confidential.
-              </label>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 16 }}>
-                <button style={caSecondaryBtn} disabled={caBusy} onClick={() => setShowCA(false)}>
-                  Cancel
-                </button>
+              {/* Header */}
+              <div style={sheetHeader}>
+                <div style={{ fontWeight: 700 }}>Confidentiality Agreement</div>
                 <button
-                  style={caPrimaryBtn}
-                  disabled={caBusy || !caAgree || !caEmail.includes('@') || !caName.trim()}
-                  onClick={async () => {
-                    setCaBusy(true);
-                    try {
-                      const res = await fetch(`/api/deals/${deal.id}/ca/submit`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: caName, email: caEmail, company: caCompany }),
-                      });
-                      const json = await res.json().catch(() => null);
-
-                      if (!res.ok || !json?.ok || !json?.signedUrl) {
-                        alert(json?.error ?? 'Unable to grant access');
-                        return;
-                      }
-
-                      // ✅ unlock full memo by selecting it with the signed URL
-                      setSelectedDoc({ label: 'Full Equity Memo', url: json.signedUrl, gated: false });
-                      setShowCA(false);
-                    } finally {
-                      setCaBusy(false);
-                    }
-                  }}
+                  style={sheetClose}
+                  onClick={() => setShowCA(false)}
+                  disabled={caBusy}
                 >
-                  {caBusy ? 'Granting access…' : 'Access Full Memo'}
+                  ✕
                 </button>
+              </div>
+
+              {/* SCROLLABLE AGREEMENT */}
+              <div style={sheetScroll}>
+
+                <p style={sheetP}>
+                  This agreement governs access to confidential materials for evaluating a potential investment and accessing Upperline’s deal room.
+                </p>
+
+                <p style={sheetP}>
+                  You agree to keep all provided materials strictly confidential and not distribute, copy, or share information without prior written consent.
+                </p>
+
+                <p style={sheetP}>
+                  Confidential information includes financials, projections, legal documents, investor materials, and any data provided through this portal.
+                </p>
+
+                <p style={sheetP}>
+                  Materials are provided solely for evaluation of a potential investment opportunity and may not be used for any other purpose.
+                </p>
+
+                <p style={sheetP}>
+                  This agreement remains in effect for five (5) years from acceptance. Electronic acceptance is legally binding.
+                </p>
+
+              </div>
+
+              {/* STICKY FORM */}
+              <div style={sheetFooter}>
+
+                <div style={sheetFormRow}>
+                  <label style={sheetLabel}>Full name</label>
+                  <input
+                    style={sheetInput}
+                    value={caName}
+                    onChange={(e) => setCaName(e.target.value)}
+                  />
+                </div>
+
+                <div style={sheetFormRow}>
+                  <label style={sheetLabel}>Email</label>
+                  <input
+                    style={sheetInput}
+                    value={caEmail}
+                    onChange={(e) => setCaEmail(e.target.value)}
+                  />
+                </div>
+
+                <div style={sheetFormRow}>
+                  <label style={sheetLabel}>Company (optional)</label>
+                  <input
+                    style={sheetInput}
+                    value={caCompany}
+                    onChange={(e) => setCaCompany(e.target.value)}
+                  />
+                </div>
+
+                <label style={sheetCheckboxRow}>
+                  <input
+                    type="checkbox"
+                    checked={caAgree}
+                    onChange={(e) => setCaAgree(e.target.checked)}
+                  />
+                  I agree to keep these materials confidential.
+                </label>
+
+                <div style={sheetActions}>
+                  <button
+                    style={sheetSecondaryBtn}
+                    onClick={() => setShowCA(false)}
+                    disabled={caBusy}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    style={sheetPrimaryBtn}
+                    disabled={
+                      caBusy ||
+                      !caAgree ||
+                      !caEmail.includes("@") ||
+                      !caName.trim()
+                    }
+                    onClick={async () => {
+                      setCaBusy(true);
+                      try {
+                        const res = await fetch(`/api/deals/${deal.id}/ca/submit`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            name: caName,
+                            email: caEmail,
+                            company: caCompany,
+                          }),
+                        });
+
+                        const json = await res.json().catch(() => null);
+
+                        if (!res.ok || !json?.ok || !json?.signedUrl) {
+                          alert(json?.error ?? "Unable to grant access");
+                          return;
+                        }
+                        //persist CA state
+                        localStorage.setItem(`ca:${deal.id}`, caEmail);
+                        //unlock memo
+                        setSelectedDoc({
+                          label: "Full Equity Memo",
+                          url: json.signedUrl,
+                          gated: false,
+                        });
+
+                        setShowCA(false);
+                      } finally {
+                        setCaBusy(false);
+                      }
+                    }}
+                  >
+                    {caBusy ? "Granting access…" : "Access Full Memo"}
+                  </button>
+                </div>
+
               </div>
             </div>
           </div>
@@ -729,4 +842,113 @@ const caSecondaryBtn: React.CSSProperties = {
   border: '1px solid #e5e7eb',
   cursor: 'pointer',
   fontWeight: 600,
+};
+const sheetBackdrop: React.CSSProperties = {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0,0,0,0.55)",
+  zIndex: 10001,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "flex-end",
+};
+
+const sheet: React.CSSProperties = {
+  width: "100%",
+  maxWidth: 720,
+  background: "#fff",
+  borderTopLeftRadius: 16,
+  borderTopRightRadius: 16,
+  boxShadow: "0 -20px 60px rgba(0,0,0,0.35)",
+  overflow: "hidden",
+};
+
+const sheetHandle: React.CSSProperties = {
+  width: 40,
+  height: 4,
+  background: "#cbd5e1",
+  borderRadius: 999,
+  margin: "8px auto",
+};
+
+const sheetHeader: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "10px 16px",
+  borderBottom: "1px solid #e5e7eb",
+};
+
+const sheetClose: React.CSSProperties = {
+  background: "none",
+  border: "none",
+  fontSize: 18,
+  cursor: "pointer",
+};
+
+const sheetScroll: React.CSSProperties = {
+  maxHeight: "32vh",
+  overflowY: "auto",
+  padding: "12px 16px",
+  background: "#f8fafc",
+};
+
+const sheetP: React.CSSProperties = {
+  fontSize: 13,
+  marginBottom: 10,
+  color: "#334155",
+  lineHeight: 1.4,
+};
+
+const sheetFooter: React.CSSProperties = {
+  padding: "16px",
+};
+
+const sheetFormRow: React.CSSProperties = {
+  marginBottom: 10,
+};
+
+const sheetLabel: React.CSSProperties = {
+  fontSize: 12,
+  display: "block",
+  marginBottom: 4,
+  color: "#475569",
+};
+
+const sheetInput: React.CSSProperties = {
+  width: "100%",
+  padding: 10,
+  borderRadius: 8,
+  border: "1px solid #e5e7eb",
+};
+
+const sheetCheckboxRow: React.CSSProperties = {
+  display: "flex",
+  gap: 8,
+  marginTop: 8,
+  fontSize: 13,
+};
+
+const sheetActions: React.CSSProperties = {
+  display: "flex",
+  justifyContent: "space-between",
+  marginTop: 12,
+};
+
+const sheetPrimaryBtn: React.CSSProperties = {
+  background: "#1f3d36",
+  color: "#fff",
+  padding: "10px 14px",
+  borderRadius: 8,
+  border: "none",
+  cursor: "pointer",
+  fontWeight: 600,
+};
+
+const sheetSecondaryBtn: React.CSSProperties = {
+  background: "#f1f5f9",
+  padding: "10px 14px",
+  borderRadius: 8,
+  border: "1px solid #e5e7eb",
+  cursor: "pointer",
 };
