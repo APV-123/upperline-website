@@ -22,6 +22,11 @@ type PublicDeal = {
   total_equity_requirement?: string;
   construction_loan?: string;
   total_project_cost?: string;
+  
+  image_1_url?: string;
+  image_2_url?: string;
+  image_3_url?: string;
+
 };
 
 export async function GET(
@@ -60,7 +65,12 @@ export async function GET(
         stabilized_return_on_cost,
         total_equity_requirement,
         construction_loan,
-        total_project_cost
+        total_project_cost,
+              
+        image_1_url,
+        image_2_url,
+        image_3_url
+
       `)
       .eq('id', dealId)
       .eq('is_public', true) // ✅ CRITICAL: enforce visibility
