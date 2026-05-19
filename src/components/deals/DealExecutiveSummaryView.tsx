@@ -128,10 +128,13 @@ function Metric({
 
 /* ✅ Date formatter */
 function formatDate(value: string) {
-  const d = new Date(value);
-  if (isNaN(d.getTime())) return value;
+  const [year, month, day] = value.split('-').map(Number);
+
+  const d = new Date(year, month - 1, day); // ✅ LOCAL date (no timezone shift)
+
   return d.toLocaleDateString();
 }
+
 
 /* ✅ Styles */
 

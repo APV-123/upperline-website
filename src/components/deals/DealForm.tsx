@@ -73,7 +73,7 @@ export default function DealForm({ initialDeal, onSave, loading, title }: Props)
           value={deal.location}
           onChange={(e) => setDeal((prev) => ({ ...prev, location: e.target.value }))}
           style={input}
-          placeholder="19260 Cypress Rose Hill Rd., Tomball, TX"
+          placeholder="3355 W Alabama St., Ste. 720, Houston, Texas, United States"
         />
 
         {/* Estimated Closing Date */}
