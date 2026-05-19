@@ -373,28 +373,6 @@ export function TapClient({
             }}
           />
         )}
-        {showQR && (
-          <MotionImage
-            src={`/qr/qr-${slug}.png`}
-            alt={`QR code for ${metWith}`}
-            width={420}
-            height={420}
-            style={{
-              width: "84%",
-              maxWidth: 420,
-              height: "auto",
-              margin: "8px auto 4px",
-              display: "block",
-              background: "#fff",
-              borderRadius: 12,
-              padding: 12,
-            }}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.25 }}
-          />
-
-        )}
       </motion.div>
     </div >
   );
