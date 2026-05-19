@@ -377,36 +377,11 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                 </button>
               </div>
 
-              {/* SCROLLABLE AGREEMENT */}
-              <div style={sheetScroll}>
-
-                <p style={sheetP}>
-                  This agreement governs access to confidential materials for evaluating a potential investment and accessing Upperline’s deal room.
-                </p>
-
-                <p style={sheetP}>
-                  You agree to keep all provided materials strictly confidential and not distribute, copy, or share information without prior written consent.
-                </p>
-
-                <p style={sheetP}>
-                  Confidential information includes financials, projections, legal documents, investor materials, and any data provided through this portal.
-                </p>
-
-                <p style={sheetP}>
-                  Materials are provided solely for evaluation of a potential investment opportunity and may not be used for any other purpose.
-                </p>
-
-                <p style={sheetP}>
-                  This agreement remains in effect for five (5) years from acceptance. Electronic acceptance is legally binding.
-                </p>
-
-              </div>
-
-              {/* STICKY FORM */}
+              {/* FORM FIRST */}
               <div style={sheetFooter}>
 
                 <div style={sheetFormRow}>
-                  <label style={sheetLabel}>Full name</label>
+                  <label style={sheetLabel}>Full Name</label>
                   <input
                     style={sheetInput}
                     value={caName}
@@ -432,13 +407,53 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                   />
                 </div>
 
+              </div>
+
+              {/* LEGAL AGREEMENT SCROLLER */}
+              <div style={agreementScroll}>
+
+                <h4 style={agreementTitle}>Confidentiality Agreement</h4>
+
+                <p style={agreementText}>
+                  This Confidentiality and Non-Disclosure Agreement (“Agreement”) governs access to proprietary and non-public information for the purpose of evaluating a potential investment opportunity.
+                </p>
+
+                <p style={agreementText}>
+                  By accessing these materials, you acknowledge that all information provided constitutes confidential information, including but not limited to financial statements, projections, ownership structures, investment models, and all documents made available through this deal portal.
+                </p>
+
+                <p style={agreementText}>
+                  You agree that such information shall be used solely for the purpose of evaluating a potential investment and shall not be disclosed, reproduced, or distributed to any third party without prior written consent.
+                </p>
+
+                <p style={agreementText}>
+                  You further agree not to contact any tenants, lenders, investors, brokers, or other parties identified within the materials without explicit authorization from Upperline.
+                </p>
+
+                <p style={agreementText}>
+                  All confidential information remains the exclusive property of Upperline. No license or ownership rights are granted by access to these materials.
+                </p>
+
+                <p style={agreementText}>
+                  This Agreement shall remain in effect for a period of five (5) years from the date of acceptance. Unauthorized use or disclosure may result in legal action and injunctive relief.
+                </p>
+
+                <p style={agreementText}>
+                  Acceptance of this Agreement electronically constitutes a legally binding agreement enforceable to the same extent as a manually executed agreement.
+                </p>
+
+              </div>
+
+              {/* ACCEPTANCE + ACTIONS */}
+              <div style={sheetFooter}>
+
                 <label style={sheetCheckboxRow}>
                   <input
                     type="checkbox"
                     checked={caAgree}
                     onChange={(e) => setCaAgree(e.target.checked)}
                   />
-                  I agree to keep these materials confidential.
+                  I have read and accept the terms of the confidentiality agreement.
                 </label>
 
                 <div style={sheetActions}>
@@ -477,9 +492,10 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                           alert(json?.error ?? "Unable to grant access");
                           return;
                         }
-                        //persist CA state
+
+                        // ✅ THIS IS YOUR PERSISTENCE
                         localStorage.setItem(`ca:${deal.id}`, caEmail);
-                        //unlock memo
+
                         setSelectedDoc({
                           label: "Full Equity Memo",
                           url: json.signedUrl,
@@ -497,6 +513,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                 </div>
 
               </div>
+
             </div>
           </div>
         )}
@@ -951,4 +968,26 @@ const sheetSecondaryBtn: React.CSSProperties = {
   borderRadius: 8,
   border: "1px solid #e5e7eb",
   cursor: "pointer",
+};
+const agreementScroll: React.CSSProperties = {
+  maxHeight: 180,
+  overflowY: "auto",
+  padding: "14px 16px",
+  margin: "10px 16px",
+  border: "1px solid #e5e7eb",
+  borderRadius: 10,
+  background: "#f8fafc",
+};
+
+const agreementTitle: React.CSSProperties = {
+  fontSize: 14,
+  fontWeight: 700,
+  marginBottom: 8,
+};
+
+const agreementText: React.CSSProperties = {
+  fontSize: 12.5,
+  lineHeight: 1.5,
+  marginBottom: 10,
+  color: "#334155",
 };
