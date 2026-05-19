@@ -19,6 +19,9 @@ export async function GET() {
         id,
         name,
         target_amount,
+        location,
+        estimated_closing_date,
+        overview_text,
         raise_id,
         created_at
       `)
