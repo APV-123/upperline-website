@@ -60,9 +60,12 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
     setLightboxIndex((i) => (i - 1 + images.length) % images.length);
   const [showCA, setShowCA] = useState(false);
   const [caBusy, setCaBusy] = useState(false);
-  const [caName, setCaName] = useState('');
+  const [caFirstName, setCaFirstName] = useState('');
+  const [caLastName, setCaLastName] = useState('');
   const [caEmail, setCaEmail] = useState('');
   const [caCompany, setCaCompany] = useState('');
+  const [caJobTitle, setCaJobTitle] = useState('');
+  const [caPhone, setCaPhone] = useState('');
   const [caAgree, setCaAgree] = useState(false);
 
 
@@ -380,13 +383,27 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
               {/* FORM FIRST */}
               <div style={sheetFooter}>
 
-                <div style={sheetFormRow}>
-                  <label style={sheetLabel}>Full Name</label>
-                  <input
-                    style={sheetInput}
-                    value={caName}
-                    onChange={(e) => setCaName(e.target.value)}
-                  />
+                {/* FIRST / LAST ROW */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+
+                  <div>
+                    <label style={sheetLabel}>First Name</label>
+                    <input
+                      style={sheetInput}
+                      value={caFirstName}
+                      onChange={(e) => setCaFirstName(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={sheetLabel}>Last Name</label>
+                    <input
+                      style={sheetInput}
+                      value={caLastName}
+                      onChange={(e) => setCaLastName(e.target.value)}
+                    />
+                  </div>
+
                 </div>
 
                 <div style={sheetFormRow}>
@@ -406,7 +423,25 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                     onChange={(e) => setCaCompany(e.target.value)}
                   />
                 </div>
+                {/* Job Title */}
+                <div style={sheetFormRow}>
+                  <label style={sheetLabel}>Job Title (optional)</label>
+                  <input
+                    style={sheetInput}
+                    value={caJobTitle}
+                    onChange={(e) => setCaJobTitle(e.target.value)}
+                  />
+                </div>
 
+                {/* Phone */}
+                <div style={sheetFormRow}>
+                  <label style={sheetLabel}>Phone Number (optional)</label>
+                  <input
+                    style={sheetInput}
+                    value={caPhone}
+                    onChange={(e) => setCaPhone(e.target.value)}
+                  />
+                </div>
               </div>
 
               {/* LEGAL AGREEMENT SCROLLER */}

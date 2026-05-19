@@ -7,7 +7,10 @@ type Body = {
   name?: unknown;
   email?: unknown;
   company?: unknown;
+  jobtitle?: unknown;
+  phone?: unknown;
 };
+
 
 function cleanText(v: unknown) {
   return typeof v === "string" ? v.trim() : "";
@@ -20,15 +23,19 @@ function splitName(fullName: string) {
   return { firstname, lastname };
 }
 
+
 async function submitToHubSpotForm(payload: {
   firstname: string;
   lastname: string;
   email: string;
   company?: string;
+  jobtitle?: string;
+  phone?: string;
   deal_id: string;
   deal_name?: string;
   pageUri?: string;
-}) {
+})
+ {
   const portalId = process.env.HUBSPOT_PORTAL_ID;
   const formId = process.env.HUBSPOT_CA_FORM_ID;
   if (!portalId || !formId) {
@@ -42,17 +49,20 @@ async function submitToHubSpotForm(payload: {
   // Ensure these custom properties exist in HubSpot:
   // source_detail, deal_id, deal_name, engagement_action, entry_point
   const fields: Array<{ name: string; value: string }> = [
-    { name: "firstname", value: payload.firstname },
-    { name: "lastname", value: payload.lastname },
-    { name: "email", value: payload.email },
-    ...(payload.company ? [{ name: "company", value: payload.company }] : []),
+  { name: "firstname", value: payload.firstname },
+  { name: "lastname", value: payload.lastname },
+  { name: "email", value: payload.email },
 
-    { name: "source_detail", value: "CA → Full Memo Access" },
-    { name: "deal_id", value: payload.deal_id },
-    ...(payload.deal_name ? [{ name: "deal_name", value: payload.deal_name }] : []),
-    { name: "engagement_action", value: "Signed CA" },
-    { name: "entry_point", value: "Portal Deal Page" },
-  ];
+  ...(payload.company ? [{ name: "company", value: payload.company }] : []),
+  ...(payload.jobtitle ? [{ name: "jobtitle", value: payload.jobtitle }] : []), // ✅
+  ...(payload.phone ? [{ name: "phone", value: payload.phone }] : []),         // ✅
+
+  { name: "source_detail", value: "CA → Full Memo Access" },
+  { name: "deal_id", value: payload.deal_id },
+  ...(payload.deal_name ? [{ name: "deal_name", value: payload.deal_name }] : []),
+  { name: "engagement_action", value: "Signed CA" },
+  { name: "entry_point", value: "Portal Deal Page" },
+];
 
   const res = await fetch(url, {
     method: "POST",
@@ -79,6 +89,8 @@ export async function POST(req: Request, context: { params: Promise<Params> }) {
   const name = cleanText(body.name);
   const email = cleanText(body.email).toLowerCase();
   const company = cleanText(body.company);
+  const jobtitle = cleanText(body.jobtitle);
+  const phone = cleanText(body.phone);
 
   if (!dealId) {
     return NextResponse.json({ ok: false, error: "Missing dealId" }, { status: 400 });
@@ -99,16 +111,18 @@ export async function POST(req: Request, context: { params: Promise<Params> }) {
   // create unique index if not exists deal_ca_unique on deal_ca_acceptances (deal_id, email);
   const { error: caErr } = await supabaseServer
     .from("deal_ca_acceptances")
+    
     .upsert(
-      {
+    {
         deal_id: dealId,
         email,
         name,
         company: company || null,
+        jobtitle: jobtitle || null,  // ✅ ADD
+        phone: phone || null,        // ✅ ADD
         ip,
         user_agent: userAgent,
-      },
-      { onConflict: "deal_id,email" }
+    },
     );
 
   if (caErr) {
@@ -128,17 +142,17 @@ export async function POST(req: Request, context: { params: Promise<Params> }) {
 
   // 3) HubSpot submission (non-blocking)
   const { firstname, lastname } = splitName(name);
-  submitToHubSpotForm({
+    submitToHubSpotForm({
     firstname,
     lastname,
     email,
     company: company || undefined,
+    jobtitle: jobtitle || undefined, // ✅ ADD
+    phone: phone || undefined,       // ✅ ADD
     deal_id: dealId,
     deal_name: deal.name,
     pageUri: referer ?? `https://portal.upperlineco.com/deals/${dealId}`,
-  }).catch((e) => {
-    console.error("[CA HUBSPOT] Unexpected error:", e);
-  });
+    });
 
   // 4) Signed URL for private memo (10 minutes)
   const { data: signed, error: signErr } = await supabaseServer.storage
