@@ -30,6 +30,17 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
       <div style={content}>
 
         {/* HEADER */}
+        <div style={headerRow}>
+          <img src="/upperline-logo.png" style={logo} />
+
+          <button
+            style={ctaBtn}
+            onClick={() => window.location.href = 'mailto:bh@upperline.com'}
+          >
+            Discuss Further
+          </button>
+        </div>
+
         <h1 style={title}>{deal.name}</h1>
         <p style={subtitle}>LP Equity Opportunity</p>
 
@@ -219,15 +230,6 @@ const metaRow: React.CSSProperties = {
   marginBottom: 24,
 };
 
-const imagePlaceholder: React.CSSProperties = {
-  height: 300,
-  background: "#e5e7eb",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  marginBottom: 30,
-};
-
 const section: React.CSSProperties = {
   marginBottom: 30,
 };
@@ -288,4 +290,24 @@ const smallImage = {
   height: 194,
   objectFit: 'cover' as const,
   borderRadius: 8,
+};
+const headerRow: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 20,
+};
+
+const logo: React.CSSProperties = {
+  height: 32,
+};
+
+const ctaBtn: React.CSSProperties = {
+  background: '#1f3d36',
+  color: '#fff',
+  padding: '10px 18px',
+  borderRadius: 6,
+  border: 'none',
+  cursor: 'pointer',
+  fontWeight: 600,
 };
