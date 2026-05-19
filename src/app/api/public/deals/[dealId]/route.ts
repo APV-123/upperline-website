@@ -8,7 +8,20 @@ type PublicDeal = {
   name: string;
   raise_id: string;
   target_amount: number;
+  location?: string;
+  estimated_closing_date?: string;
+  overview_text?: string;
   created_at: string | null;
+
+  project_unlevered_irr?: string;
+  project_levered_irr?: string;
+  target_lp_equity_multiple?: string;
+  target_lp_levered_irr?: string;
+  untrended_return_on_cost?: string;
+  stabilized_return_on_cost?: string;
+  total_equity_requirement?: string;
+  construction_loan?: string;
+  total_project_cost?: string;
 };
 
 export async function GET(
@@ -37,7 +50,17 @@ export async function GET(
         estimated_closing_date,
         overview_text,
         raise_id,
-        created_at
+        created_at,
+
+        project_unlevered_irr,
+        project_levered_irr,
+        target_lp_equity_multiple,
+        target_lp_levered_irr,
+        untrended_return_on_cost,
+        stabilized_return_on_cost,
+        total_equity_requirement,
+        construction_loan,
+        total_project_cost
       `)
       .eq('id', dealId)
       .eq('is_public', true) // ✅ CRITICAL: enforce visibility
