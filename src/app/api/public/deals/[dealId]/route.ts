@@ -27,6 +27,12 @@ type PublicDeal = {
   image_2_url?: string;
   image_3_url?: string;
 
+  
+  pitch_book_url?: string;
+  abridged_memo_url?: string;
+  full_memo_url?: string;
+  full_memo_requires_ca?: boolean;
+
 };
 
 export async function GET(
@@ -69,8 +75,12 @@ export async function GET(
               
         image_1_url,
         image_2_url,
-        image_3_url
+        image_3_url,
 
+        pitch_book_url,
+        abridged_memo_url,
+        full_memo_url,
+        full_memo_requires_ca
       `)
       .eq('id', dealId)
       .eq('is_public', true) // ✅ CRITICAL: enforce visibility
