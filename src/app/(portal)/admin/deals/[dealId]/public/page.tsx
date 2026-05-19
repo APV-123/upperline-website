@@ -97,21 +97,6 @@ export default function AdminDealPreviewPage() {
           >
             Edit Deal
           </button>
-
-          <button
-            onClick={() => router.push('/admin')}
-            style={{
-              padding: '6px 12px',
-              borderRadius: 6,
-              background: '#ffffff',
-              color: '#003a5d',
-              border: 'none',
-              cursor: 'pointer',
-              fontWeight: 600,
-            }}
-          >
-            Back to Deals
-          </button>
         </div>
       </div>
 

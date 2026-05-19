@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import DealForm from '@/components/deals/DealForm';
+import AdminNav from '@/components/navigation/AdminNav';
 
 type Deal = {
   id: string;
@@ -15,9 +17,8 @@ export default function DealEditPage() {
 
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
 
-  // ✅ Load existing deal
+  // ✅ Load deal
   useEffect(() => {
     async function load() {
       try {
@@ -42,154 +43,58 @@ export default function DealEditPage() {
     load();
   }, [dealId]);
 
-  async function handleSave() {
-    if (!deal) return;
-
-    setSaving(true);
-
-    try {
-      const res = await fetch(`/api/deals/${dealId}/update`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: deal.name,
-          target_amount: deal.target_amount,
-        }),
-      });
-
-      const json = await res.json();
-
-      if (!res.ok || json?.ok === false) {
-        alert(JSON.stringify(json));
-        return;
-      }
-
-      // ✅ Go back to preview after save
-      router.push(`/admin/deals/${dealId}/public`);
-    } catch (e) {
-      console.error('[SAVE ERROR]', e);
-      alert('Failed to save deal');
-    } finally {
-      setSaving(false);
-    }
-  }
-
+  // ✅ Loading state
   if (loading) {
     return <div style={{ padding: 40 }}>Loading deal…</div>;
   }
 
+  // ✅ Not found
   if (!deal) {
     return (
-      <div style={{ padding: 40 }}>
-        <h1>Deal not found</h1>
-      </div>
+      <>
+        <AdminNav />
+        <div style={{ padding: 40 }}>
+          <h1>Deal not found</h1>
+        </div>
+      </>
     );
   }
 
   return (
-    <div style={container}>
-      <div style={content}>
-        <h1 style={title}>Edit Deal</h1>
+    <>
+      {/* ✅ NAV */}
+      <AdminNav />
 
-        {/* Name */}
-        <label style={label}>Deal Name</label>
-        <input
-          value={deal.name}
-          onChange={(e) =>
-            setDeal((prev) =>
-              prev ? { ...prev, name: e.target.value } : prev
-            )
+      {/* ✅ FORM */}
+      <DealForm
+        initialDeal={deal}
+        onSave={async (updatedDeal) => {
+          const res = await fetch(`/api/deals/${dealId}/update`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedDeal),
+          });
+
+          const text = await res.text();
+
+          let json;
+          try {
+            json = JSON.parse(text);
+          } catch {
+            console.error('[NON JSON RESPONSE]', text);
+            alert('Server error');
+            return;
           }
-          style={input}
-        />
 
-        {/* Target Amount */}
-        <label style={label}>Target Raise</label>
-        <input
-          type="number"
-          value={deal.target_amount}
-          onChange={(e) =>
-            setDeal((prev) =>
-              prev
-                ? { ...prev, target_amount: Number(e.target.value) }
-                : prev
-            )
+          if (!res.ok || !json.ok) {
+            alert(json.error || 'Failed to save');
+            return;
           }
-          style={input}
-        />
 
-        {/* Actions */}
-        <div style={{ marginTop: 20, display: 'flex', gap: 10 }}>
-          <button onClick={handleSave} style={primaryBtn} disabled={saving}>
-            {saving ? 'Saving…' : 'Save'}
-          </button>
-
-          <button
-            onClick={() =>
-              router.push(`/admin/deals/${dealId}/public`)
-            }
-            style={secondaryBtn}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
+          // ✅ go back to preview after saving
+          router.push(`/admin/deals/${dealId}/public`);
+        }}
+      />
+    </>
   );
 }
-
-/* ✅ Styles */
-
-const container: React.CSSProperties = {
-  background: '#f8fafc',
-  minHeight: '100vh',
-  padding: '40px 20px',
-  display: 'flex',
-  justifyContent: 'center',
-};
-
-const content: React.CSSProperties = {
-  maxWidth: 600,
-  width: '100%',
-  background: '#ffffff',
-  padding: 30,
-  borderRadius: 8,
-};
-
-const title: React.CSSProperties = {
-  fontSize: 22,
-  fontWeight: 700,
-  marginBottom: 20,
-};
-
-const label: React.CSSProperties = {
-  fontSize: 12,
-  marginTop: 12,
-  display: 'block',
-  opacity: 0.7,
-};
-
-const input: React.CSSProperties = {
-  width: '100%',
-  padding: '8px 10px',
-  marginTop: 6,
-  borderRadius: 6,
-  border: '1px solid #e5e7eb',
-};
-
-const primaryBtn: React.CSSProperties = {
-  padding: '8px 16px',
-  borderRadius: 6,
-  background: '#003a5d',
-  color: '#fff',
-  border: 'none',
-  cursor: 'pointer',
-};
-
-const secondaryBtn: React.CSSProperties = {
-  padding: '8px 16px',
-  borderRadius: 6,
-  background: '#e5e7eb',
-  border: 'none',
-  cursor: 'pointer',
-};
