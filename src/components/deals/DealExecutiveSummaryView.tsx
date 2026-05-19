@@ -23,9 +23,33 @@ type Deal = {
   image_2_url?: string;
   image_3_url?: string;
 
+  pitch_book_url?: string;
+  abridged_memo_url?: string;
+  full_memo_url?: string;
+  full_memo_requires_ca?: boolean;
 };
 
 export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
+  const [selectedDoc, setSelectedDoc] = useState<any>(null);
+  function buildDocuments(deal: Deal) {
+  return [
+    {
+      label: 'Upperline Pitch Book',
+      url: deal.pitch_book_url,
+      gated: false,
+    },
+    {
+      label: 'Deal Preview Memo',
+      url: deal.abridged_memo_url,
+      gated: false,
+    },
+    {
+      label: 'Full Equity Memo',
+      url: deal.full_memo_url,
+      gated: deal.full_memo_requires_ca ?? true,
+    },
+  ].filter((doc) => doc.url); // only show if exists
+}
   return (
     <div style={container}>
       <div style={content}>
@@ -141,8 +165,62 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
             {deal.overview_text || "No overview provided."}
           </p>
         </div>
+        {/* DOCUMENTS */}
+        <div style={section}>
+          <h2 style={sectionTitle}>Documents</h2>
 
+          <div style={docContainer}>
+
+            {/* LEFT: DOCUMENT LIST */}
+            <div style={docList}>
+              {buildDocuments(deal).map((doc) => {
+                const isActive = selectedDoc?.label === doc.label;
+
+                return (
+                  <div
+                    key={doc.label}
+                    onClick={() => {
+                      if (doc.gated) {
+                        alert('Please sign confidentiality agreement to access this document.');
+                        return;
+                      }
+                      setSelectedDoc(doc);
+                    }}
+                    style={{
+                      ...docItem,
+                      background: isActive ? '#eef2f7' : '#fff',
+                      opacity: doc.gated ? 0.6 : 1,
+                    }}
+                  >
+                    {doc.gated ? '🔒 ' : '📄 '}
+                    {doc.label}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* RIGHT: PREVIEW */}
+            <div style={docPreview}>
+              {selectedDoc ? (
+                <>
+                  <div style={docHeader}>
+                    <div>{selectedDoc.label}</div>
+                    <a href={selectedDoc.url} target="_blank">
+                      <button style={downloadBtn}>Download</button>
+                    </a>
+                  </div>
+
+                  <iframe src={selectedDoc.url} style={iframe} />
+                </>
+              ) : (
+                <div style={{ padding: 20 }}>Select a document</div>
+              )}
+            </div>
+
+          </div>
+        </div>
       </div>
+
     </div>
   );
 }
@@ -319,3 +397,53 @@ const ctaBtn: React.CSSProperties = {
   cursor: 'pointer',
   fontWeight: 600,
 };
+const docContainer = {
+  display: 'grid',
+  gridTemplateColumns: '250px 1fr',
+  gap: 16,
+  height: 500,
+};
+
+const docList = {
+  border: '1px solid #e5e7eb',
+  borderRadius: 6,
+  overflow: 'auto',
+};
+
+const docItem = {
+  padding: 12,
+  borderBottom: '1px solid #e5e7eb',
+  cursor: 'pointer',
+  fontSize: 13,
+};
+
+const docPreview = {
+  border: '1px solid #e5e7eb',
+  borderRadius: 6,
+  overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column' as const,
+};
+
+const iframe = {
+  flex: 1,
+  width: '100%',
+  border: 'none',
+};
+
+const docHeader = {
+  padding: 12,
+  borderBottom: '1px solid #e5e7eb',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+};
+
+const downloadBtn = {
+  padding: '6px 10px',
+  borderRadius: 6,
+  border: '1px solid #e5e7eb',
+  background: '#fff',
+  cursor: 'pointer',
+};
+``
