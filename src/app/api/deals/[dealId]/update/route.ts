@@ -9,7 +9,22 @@ type UpdateBody = {
   location?: unknown;
   estimated_closing_date?: unknown;
   overview_text?: unknown;
+
+  // ✅ metrics
+  project_unlevered_irr?: unknown;
+  project_levered_irr?: unknown;
+  target_lp_equity_multiple?: unknown;
+  target_lp_levered_irr?: unknown;
+  untrended_return_on_cost?: unknown;
+  stabilized_return_on_cost?: unknown;
+  total_equity_requirement?: unknown;
+  construction_loan?: unknown;
+  total_project_cost?: unknown;
 };
+
+function cleanText(value: unknown) {
+  return typeof value === 'string' ? value.trim() : null;
+}
 
 function cleanDate(value: unknown): string | null {
   if (typeof value !== 'string') return null;
@@ -26,20 +41,43 @@ export async function POST(
   try {
     const body = (await req.json().catch(() => ({}))) as UpdateBody;
 
-    const name = typeof body.name === 'string' ? body.name.trim() : null;
+    const name = cleanText(body.name);
     const target_amount = Number(body.target_amount ?? 0);
-    const location = typeof body.location === 'string' ? body.location.trim() : null;
+
+    const location = cleanText(body.location);
     const estimated_closing_date = cleanDate(body.estimated_closing_date);
-    const overview_text = typeof body.overview_text === 'string' ? body.overview_text.trim() : null;
+    const overview_text = cleanText(body.overview_text);
+
+    // ✅ metrics parsing
+    const project_unlevered_irr = cleanText(body.project_unlevered_irr);
+    const project_levered_irr = cleanText(body.project_levered_irr);
+    const target_lp_equity_multiple = cleanText(body.target_lp_equity_multiple);
+    const target_lp_levered_irr = cleanText(body.target_lp_levered_irr);
+    const untrended_return_on_cost = cleanText(body.untrended_return_on_cost);
+    const stabilized_return_on_cost = cleanText(body.stabilized_return_on_cost);
+    const total_equity_requirement = cleanText(body.total_equity_requirement);
+    const construction_loan = cleanText(body.construction_loan);
+    const total_project_cost = cleanText(body.total_project_cost);
 
     if (!dealId) {
-      return NextResponse.json({ ok: false, error: 'Missing dealId' }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: 'Missing dealId' },
+        { status: 400 }
+      );
     }
+
     if (!name) {
-      return NextResponse.json({ ok: false, error: 'Invalid name' }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: 'Invalid name' },
+        { status: 400 }
+      );
     }
+
     if (!Number.isFinite(target_amount) || target_amount <= 0) {
-      return NextResponse.json({ ok: false, error: 'Invalid target_amount' }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: 'Invalid target_amount' },
+        { status: 400 }
+      );
     }
 
     const { data, error } = await supabaseServer
@@ -50,22 +88,42 @@ export async function POST(
         location,
         estimated_closing_date,
         overview_text,
+
+        // ✅ metrics
+        project_unlevered_irr,
+        project_levered_irr,
+        target_lp_equity_multiple,
+        target_lp_levered_irr,
+        untrended_return_on_cost,
+        stabilized_return_on_cost,
+        total_equity_requirement,
+        construction_loan,
+        total_project_cost,
       })
       .eq('id', dealId)
       .select();
 
     if (error) {
       console.error('[DEAL UPDATE ERROR]', error);
-      return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+      return NextResponse.json(
+        { ok: false, error: error.message },
+        { status: 500 }
+      );
     }
 
     if (!data || data.length === 0) {
-      return NextResponse.json({ ok: false, error: 'No rows updated (bad dealId?)' }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: 'No rows updated (bad dealId?)' },
+        { status: 400 }
+      );
     }
 
     return NextResponse.json({ ok: true, deal: data[0] });
   } catch (e) {
     console.error('[DEAL UPDATE CRASH]', e);
-    return NextResponse.json({ ok: false, error: 'Server error' }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: 'Server error' },
+      { status: 500 }
+    );
   }
 }

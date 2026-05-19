@@ -5,9 +5,24 @@ type CreateBody = {
   name?: unknown;
   target_amount?: unknown;
   location?: unknown;
-  estimated_closing_date?: unknown; // "YYYY-MM-DD"
+  estimated_closing_date?: unknown;
   overview_text?: unknown;
+
+  // ✅ metrics
+  project_unlevered_irr?: unknown;
+  project_levered_irr?: unknown;
+  target_lp_equity_multiple?: unknown;
+  target_lp_levered_irr?: unknown;
+  untrended_return_on_cost?: unknown;
+  stabilized_return_on_cost?: unknown;
+  total_equity_requirement?: unknown;
+  construction_loan?: unknown;
+  total_project_cost?: unknown;
 };
+
+function cleanText(value: unknown) {
+  return typeof value === 'string' ? value.trim() : null;
+}
 
 function cleanDate(value: unknown): string | null {
   if (typeof value !== 'string') return null;
@@ -25,7 +40,6 @@ function slugify(input: string) {
 }
 
 function makeRaiseId(name: string) {
-  // short-ish stable prefix + random suffix to avoid collisions
   const base = slugify(name);
   const suffix = Math.random().toString(36).slice(2, 8).toUpperCase();
   return `${base}-${suffix}`;
@@ -35,13 +49,23 @@ export async function POST(req: Request) {
   try {
     const body = (await req.json().catch(() => ({}))) as CreateBody;
 
-    const name = typeof body.name === 'string' ? body.name.trim() : null;
+    const name = cleanText(body.name);
     const target_amount = Number(body.target_amount ?? 0);
-    const location =
-      typeof body.location === 'string' ? body.location.trim() : null;
+
+    const location = cleanText(body.location);
     const estimated_closing_date = cleanDate(body.estimated_closing_date);
-    const overview_text =
-      typeof body.overview_text === 'string' ? body.overview_text.trim() : null;
+    const overview_text = cleanText(body.overview_text);
+
+    // ✅ metrics (stored as text)
+    const project_unlevered_irr = cleanText(body.project_unlevered_irr);
+    const project_levered_irr = cleanText(body.project_levered_irr);
+    const target_lp_equity_multiple = cleanText(body.target_lp_equity_multiple);
+    const target_lp_levered_irr = cleanText(body.target_lp_levered_irr);
+    const untrended_return_on_cost = cleanText(body.untrended_return_on_cost);
+    const stabilized_return_on_cost = cleanText(body.stabilized_return_on_cost);
+    const total_equity_requirement = cleanText(body.total_equity_requirement);
+    const construction_loan = cleanText(body.construction_loan);
+    const total_project_cost = cleanText(body.total_project_cost);
 
     if (!name) {
       return NextResponse.json(
@@ -49,6 +73,7 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
     if (!Number.isFinite(target_amount) || target_amount <= 0) {
       return NextResponse.json(
         { ok: false, error: 'Invalid target_amount' },
@@ -62,14 +87,45 @@ export async function POST(req: Request) {
       .from('deals')
       .insert({
         name,
-        raise_id,                 // ✅ added
+        raise_id,
         target_amount,
         location,
         estimated_closing_date,
         overview_text,
-        is_public: false,         // default = draft
+
+        // ✅ metrics mapped directly
+        project_unlevered_irr,
+        project_levered_irr,
+        target_lp_equity_multiple,
+        target_lp_levered_irr,
+        untrended_return_on_cost,
+        stabilized_return_on_cost,
+        total_equity_requirement,
+        construction_loan,
+        total_project_cost,
+
+        is_public: false,
       })
-      .select('id, name, raise_id, target_amount, location, estimated_closing_date, overview_text, is_public, created_at');
+      .select(`
+        id,
+        name,
+        raise_id,
+        target_amount,
+        location,
+        estimated_closing_date,
+        overview_text,
+        project_unlevered_irr,
+        project_levered_irr,
+        target_lp_equity_multiple,
+        target_lp_levered_irr,
+        untrended_return_on_cost,
+        stabilized_return_on_cost,
+        total_equity_requirement,
+        construction_loan,
+        total_project_cost,
+        is_public,
+        created_at
+      `);
 
     if (error) {
       return NextResponse.json(
