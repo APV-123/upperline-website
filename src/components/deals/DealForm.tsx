@@ -203,12 +203,19 @@ export default function DealForm({ initialDeal, onSave, loading }: Props) {
   );
 }
 
+type FieldProps = {
+  label: string;
+  value: string | number;
+  onChange: (value: string) => void;
+  type?: string;
+};
+
 function Field({
   label,
   value,
   onChange,
   type = 'text',
-}: any) {
+}: FieldProps) {
   return (
     <div style={{ marginTop: 12 }}>
       <label style={labelStyle}>{label}</label>
@@ -222,7 +229,14 @@ function Field({
   );
 }
 
-function TextArea({ label, value, onChange }: any) {
+
+type TextAreaProps = {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function TextArea({ label, value, onChange }: TextAreaProps) {
   return (
     <div style={{ marginTop: 12 }}>
       <label style={labelStyle}>{label}</label>
@@ -235,7 +249,12 @@ function TextArea({ label, value, onChange }: any) {
   );
 }
 
-function Section({ title, children }: any) {
+type SectionProps = {
+  title: string;
+  children: React.ReactNode;
+};
+
+function Section({ title, children }: SectionProps) {
   return (
     <div style={{ marginBottom: 28 }}>
       <h2 style={{ fontSize: 16, fontWeight: 600 }}>{title}</h2>
@@ -243,6 +262,7 @@ function Section({ title, children }: any) {
     </div>
   );
 }
+
 
 /* styles */
 

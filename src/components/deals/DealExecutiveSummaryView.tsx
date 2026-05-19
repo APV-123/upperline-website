@@ -55,45 +55,46 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
           <div style={metricsGrid}>
 
             <Metric label="Target Raise">
-              ${deal.target_amount.toLocaleString()}
+              {formatCurrency(String(deal.target_amount))}
             </Metric>
 
             <Metric label="Project Unlevered IRR">
-              {deal.project_unlevered_irr || "—"}
+              {formatPercent(deal.project_unlevered_irr)}
             </Metric>
 
             <Metric label="Project Levered IRR">
-              {deal.project_levered_irr || "—"}
+              {formatPercent(deal.project_levered_irr)}
             </Metric>
 
             <Metric label="Target LP Equity Multiple">
-              {deal.target_lp_equity_multiple || "—"}
+              {formatMultiple(deal.target_lp_equity_multiple)}
             </Metric>
 
             <Metric label="Target LP Levered IRR">
-              {deal.target_lp_levered_irr || "—"}
+              {formatPercent(deal.target_lp_levered_irr)}
             </Metric>
 
             <Metric label="Un-Trended Return on Cost">
-              {deal.untrended_return_on_cost || "—"}
+              {formatPercent(deal.untrended_return_on_cost)}
             </Metric>
 
             <Metric label="Stabilized Return on Cost">
-              {deal.stabilized_return_on_cost || "—"}
+              {formatPercent(deal.stabilized_return_on_cost)}
             </Metric>
 
             <Metric label="Total Equity Requirement">
-              {deal.total_equity_requirement || "—"}
+              {formatCurrency(deal.total_equity_requirement)}
             </Metric>
 
             <Metric label="Construction Loan">
               {deal.construction_loan || "—"}
+              {/* leave raw since it may include text like "(65% LTC)" */}
             </Metric>
 
             <Metric label="Total Project Cost">
               {deal.total_project_cost || "—"}
             </Metric>
-
+            
           </div>
         </div>
 
@@ -134,7 +135,34 @@ function formatDate(value: string) {
 
   return d.toLocaleDateString();
 }
+function formatPercent(value?: string) {
+  if (!value) return '—';
+  return value.includes('%') ? value : `${value}%`;
+}
 
+function formatMultiple(value?: string) {
+  if (!value) return '—';
+  return value.toLowerCase().includes('x') ? value : `${value}x`;
+}
+
+function formatCurrency(value?: string) {
+  if (!value) return '—';
+
+  // strip $ and commas if user added them
+  const num = Number(String(value).replace(/[$,]/g, ''));
+
+  if (!Number.isFinite(num)) return value;
+
+  if (num >= 1_000_000) {
+    return `$${(num / 1_000_000).toFixed(1)}M`;
+  }
+
+  if (num >= 1_000) {
+    return `$${(num / 1_000).toFixed(1)}K`;
+  }
+
+  return `$${num}`;
+}
 
 /* ✅ Styles */
 
