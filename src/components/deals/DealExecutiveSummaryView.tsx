@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 
 type Deal = {
   name: string;
@@ -31,7 +32,14 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
 
         {/* HEADER */}
         <div style={headerRow}>
-          <img src="/upperline-logo.png" style={logo} />
+
+          <Image
+            src="/upperline-logo.png"
+            alt="Upperline"
+            width={120}
+            height={32}
+          />
+
 
           <button
             style={ctaBtn}
