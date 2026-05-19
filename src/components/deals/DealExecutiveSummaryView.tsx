@@ -44,9 +44,21 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         </div>
 
         {/* IMAGE PLACEHOLDER */}
-        <div style={imagePlaceholder}>
-          Deal Image
+        <div style={imageGrid}>
+          {deal.image_1_url && (
+            <img src={deal.image_1_url} style={mainImage} />
+          )}
+
+          <div style={sideImages}>
+            {deal.image_2_url && (
+              <img src={deal.image_2_url} style={smallImage} />
+            )}
+            {deal.image_3_url && (
+              <img src={deal.image_3_url} style={smallImage} />
+            )}
+          </div>
         </div>
+
 
         {/* INVESTMENT METRICS */}
         <div style={section}>
@@ -94,7 +106,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
             <Metric label="Total Project Cost">
               {deal.total_project_cost || "—"}
             </Metric>
-            
+
           </div>
         </div>
 

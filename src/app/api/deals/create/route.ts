@@ -18,6 +18,11 @@ type CreateBody = {
   total_equity_requirement?: unknown;
   construction_loan?: unknown;
   total_project_cost?: unknown;
+
+  // ✅ images
+  image_1_url?: unknown;
+  image_2_url?: unknown;
+  image_3_url?: unknown;
 };
 
 function cleanText(value: unknown) {
@@ -56,7 +61,7 @@ export async function POST(req: Request) {
     const estimated_closing_date = cleanDate(body.estimated_closing_date);
     const overview_text = cleanText(body.overview_text);
 
-    // ✅ metrics (stored as text)
+    // ✅ metrics
     const project_unlevered_irr = cleanText(body.project_unlevered_irr);
     const project_levered_irr = cleanText(body.project_levered_irr);
     const target_lp_equity_multiple = cleanText(body.target_lp_equity_multiple);
@@ -66,6 +71,11 @@ export async function POST(req: Request) {
     const total_equity_requirement = cleanText(body.total_equity_requirement);
     const construction_loan = cleanText(body.construction_loan);
     const total_project_cost = cleanText(body.total_project_cost);
+
+    // ✅ images
+    const image_1_url = cleanText(body.image_1_url);
+    const image_2_url = cleanText(body.image_2_url);
+    const image_3_url = cleanText(body.image_3_url);
 
     if (!name) {
       return NextResponse.json(
@@ -93,7 +103,7 @@ export async function POST(req: Request) {
         estimated_closing_date,
         overview_text,
 
-        // ✅ metrics mapped directly
+        // ✅ metrics
         project_unlevered_irr,
         project_levered_irr,
         target_lp_equity_multiple,
@@ -103,6 +113,11 @@ export async function POST(req: Request) {
         total_equity_requirement,
         construction_loan,
         total_project_cost,
+
+        // ✅ images
+        image_1_url,
+        image_2_url,
+        image_3_url,
 
         is_public: false,
       })
@@ -114,6 +129,7 @@ export async function POST(req: Request) {
         location,
         estimated_closing_date,
         overview_text,
+
         project_unlevered_irr,
         project_levered_irr,
         target_lp_equity_multiple,
@@ -123,6 +139,11 @@ export async function POST(req: Request) {
         total_equity_requirement,
         construction_loan,
         total_project_cost,
+
+        image_1_url,
+        image_2_url,
+        image_3_url,
+
         is_public,
         created_at
       `);

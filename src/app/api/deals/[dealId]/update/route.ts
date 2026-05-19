@@ -20,6 +20,11 @@ type UpdateBody = {
   total_equity_requirement?: unknown;
   construction_loan?: unknown;
   total_project_cost?: unknown;
+  
+  // ✅ images
+  image_1_url?: unknown;
+  image_2_url?: unknown;
+  image_3_url?: unknown;
 };
 
 function cleanText(value: unknown) {
@@ -58,6 +63,10 @@ export async function POST(
     const total_equity_requirement = cleanText(body.total_equity_requirement);
     const construction_loan = cleanText(body.construction_loan);
     const total_project_cost = cleanText(body.total_project_cost);
+    const image_1_url = cleanText(body.image_1_url);
+    const image_2_url = cleanText(body.image_2_url);
+    const image_3_url = cleanText(body.image_3_url);
+
 
     if (!dealId) {
       return NextResponse.json(
@@ -99,6 +108,10 @@ export async function POST(
         total_equity_requirement,
         construction_loan,
         total_project_cost,
+
+        image_1_url,
+        image_2_url,
+        image_3_url,
       })
       .eq('id', dealId)
       .select();
