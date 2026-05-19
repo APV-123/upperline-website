@@ -185,23 +185,29 @@ export function TapClient({
         {!showQR && (
           <>
             {/* Header */}
-            <MotionImage
-              src={headshot}
-              alt={metWith}
-              width={120}
-              height={120}
-              style={{
-                objectFit: "cover",
-                borderRadius: "50%",
-                marginBottom: 16,
-                border: "2px solid rgba(255,255,255,0.2)",
-                boxShadow: "0 10px 22px rgba(0,0,0,.30)",
-                display: "inline-block",
-              }}
+
+            <motion.div
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.35 }}
-            />
+              style={{ marginBottom: 16, display: "inline-block" }}
+            >
+              <Image
+                src={headshot}
+                alt={metWith}
+                width={120}
+                height={120}
+                sizes="120px"
+                style={{
+                  objectFit: "cover",
+                  borderRadius: "50%",
+                  border: "2px solid rgba(255,255,255,0.2)",
+                  boxShadow: "0 10px 22px rgba(0,0,0,.30)",
+                  display: "block",
+                }}
+              />
+            </motion.div>
+
             <motion.h1 style={{ margin: "0 0 4px", fontSize: 22, letterSpacing: 0.3 }} {...fadeUp} transition={{ duration: 0.35 }}>
               {metWith}
             </motion.h1>
