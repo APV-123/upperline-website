@@ -17,6 +17,11 @@ type Deal = {
   total_equity_requirement?: string;
   construction_loan?: string;
   total_project_cost?: string;
+
+  image_1_url?: string;
+  image_2_url?: string;
+  image_3_url?: string;
+
 };
 
 export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
@@ -257,4 +262,30 @@ const metricLabel: React.CSSProperties = {
 const metricValue: React.CSSProperties = {
   fontSize: 16,
   fontWeight: 600,
+};
+const imageGrid = {
+  display: 'grid',
+  gridTemplateColumns: '2fr 1fr',
+  gap: 12,
+  marginBottom: 30,
+};
+
+const mainImage = {
+  width: '100%',
+  height: 400,
+  objectFit: 'cover' as const,
+  borderRadius: 8,
+};
+
+const sideImages = {
+  display: 'flex',
+  flexDirection: 'column' as const,
+  gap: 12,
+};
+
+const smallImage = {
+  width: '100%',
+  height: 194,
+  objectFit: 'cover' as const,
+  borderRadius: 8,
 };
