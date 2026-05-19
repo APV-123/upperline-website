@@ -4,7 +4,8 @@ import { supabaseServer } from "@/lib/SupabaseServer";
 type Params = { dealId: string };
 
 type Body = {
-  name?: unknown;
+  firstname?: unknown;
+  lastname?: unknown;
   email?: unknown;
   company?: unknown;
   jobtitle?: unknown;
@@ -15,14 +16,6 @@ type Body = {
 function cleanText(v: unknown) {
   return typeof v === "string" ? v.trim() : "";
 }
-
-function splitName(fullName: string) {
-  const parts = fullName.trim().split(/\s+/).filter(Boolean);
-  const firstname = parts.slice(0, 1).join(" ");
-  const lastname = parts.slice(1).join(" ") || "(unknown)";
-  return { firstname, lastname };
-}
-
 
 async function submitToHubSpotForm(payload: {
   firstname: string;
@@ -86,7 +79,9 @@ export async function POST(req: Request, context: { params: Promise<Params> }) {
   const { dealId } = await context.params;
 
   const body = (await req.json().catch(() => ({}))) as Body;
-  const name = cleanText(body.name);
+  const firstname = cleanText(body.firstname);
+  const lastname = cleanText(body.lastname);
+  const name = `${firstname} ${lastname}`.trim();
   const email = cleanText(body.email).toLowerCase();
   const company = cleanText(body.company);
   const jobtitle = cleanText(body.jobtitle);
@@ -123,6 +118,9 @@ export async function POST(req: Request, context: { params: Promise<Params> }) {
         ip,
         user_agent: userAgent,
     },
+    {
+        onConflict: "deal_id,email",
+    }
     );
 
   if (caErr) {
@@ -141,7 +139,6 @@ export async function POST(req: Request, context: { params: Promise<Params> }) {
   }
 
   // 3) HubSpot submission (non-blocking)
-  const { firstname, lastname } = splitName(name);
     submitToHubSpotForm({
     firstname,
     lastname,

@@ -506,7 +506,8 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                       caBusy ||
                       !caAgree ||
                       !caEmail.includes("@") ||
-                      !caName.trim()
+                      !caFirstName.trim() ||
+                      !caLastName.trim()
                     }
                     onClick={async () => {
                       setCaBusy(true);
@@ -515,9 +516,11 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
-                            name: caName,
+                            name: `${caFirstName} ${caLastName}`,
                             email: caEmail,
                             company: caCompany,
+                            jobtitle: caJobTitle,
+                            phone: caPhone,
                           }),
                         });
 
