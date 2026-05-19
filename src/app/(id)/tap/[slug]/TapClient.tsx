@@ -182,10 +182,9 @@ export function TapClient({
           {showQR ? <span style={{ fontSize: 12, fontWeight: 600 }}>×</span> : <QrCode size={18} strokeWidth={2} />}
         </button>
 
-        {!showQR && (
+        {!showQR ? (
           <>
             {/* Header */}
-
             <motion.div
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -208,29 +207,51 @@ export function TapClient({
               />
             </motion.div>
 
-            <motion.h1 style={{ margin: "0 0 4px", fontSize: 22, letterSpacing: 0.3 }} {...fadeUp} transition={{ duration: 0.35 }}>
+            <motion.h1
+              style={{ margin: "0 0 4px", fontSize: 22, letterSpacing: 0.3 }}
+              {...fadeUp}
+              transition={{ duration: 0.35 }}
+            >
               {metWith}
             </motion.h1>
-            <motion.p style={{ margin: "0 0 16px", fontSize: 14, color: BRAND.turq }} {...fadeUp} transition={{ duration: 0.35 }}>
+
+            <motion.p
+              style={{ margin: "0 0 16px", fontSize: 14, color: BRAND.turq }}
+              {...fadeUp}
+              transition={{ duration: 0.35 }}
+            >
               {title}
             </motion.p>
 
-            {/* vCard button — show only when the form is CLOSED */}
-            {!isFormOpen && (
-              <motion.a
-                href={vcf}
-                style={btn("#fff", "#000")}
-                {...fadeUp}
-                transition={{ duration: 0.35 }}
-                onClick={() => pushDL({ event: "tap_vcard_click", tap_owner: slug })}
-              >
-                Save my contact (vCard)
-              </motion.a>
-            )}
-
-            {/* CTA vs Form */}
             {!isFormOpen ? (
-              <div style={{ marginTop: 12 }}>
+              <>
+                <motion.a
+                  href={vcf}
+                  style={btn("#fff", "#000")}
+                  {...fadeUp}
+                  transition={{ duration: 0.35 }}
+                  onClick={() =>
+                    pushDL({ event: "tap_vcard_click", tap_owner: slug })
+                  }
+                >
+                  Save my contact (vCard)
+                </motion.a>
+
+                <motion.a
+                  href="https://portal.upperlineco.com"
+                  style={btn("#fff", "#000")}
+                  {...fadeUp}
+                  transition={{ duration: 0.35 }}
+                  onClick={() =>
+                    pushDL({
+                      event: "tap_active_deals_click",
+                      tap_owner: slug,
+                    })
+                  }
+                >
+                  View Active Deals
+                </motion.a>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -238,24 +259,20 @@ export function TapClient({
                     pushDL({ event: "tap_share_open", tap_owner: slug });
                   }}
                   style={{
-                    display: "block",
+                    ...btn(BRAND.turq, "#002333"),
                     width: "100%",
-                    textAlign: "center",
-                    padding: "16px 18px",
-                    borderRadius: 12,
-                    fontWeight: 600,
-                    marginTop: 12,
-                    background: BRAND.turq,
-                    color: "#002333",
-                    boxShadow: "0 6px 18px rgba(0,0,0,.15)",
                   }}
                 >
                   Share your info
                 </button>
-              </div>
+              </>
             ) : (
-              <form onSubmit={handleSubmit} className="mt-3 space-y-4" style={{ textAlign: "left" }}>
-                {/* Row 1: First/Last (one line) */}
+              <form
+                onSubmit={handleSubmit}
+                className="mt-3 space-y-4"
+                style={{ textAlign: "left" }}
+              >
+                {/* Row 1: First/Last */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="first" className={labelStyle}>
@@ -265,12 +282,10 @@ export function TapClient({
                       id="first"
                       ref={firstInputRef}
                       className={fieldStyle}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      autoCapitalize="off"
-                      spellCheck={false}
                       value={formData.firstname}
-                      onChange={(e) => setFormData({ ...formData, firstname: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, firstname: e.target.value })
+                      }
                       required
                     />
                   </div>
@@ -282,19 +297,15 @@ export function TapClient({
                     <input
                       id="last"
                       className={fieldStyle}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      autoCapitalize="off"
-                      spellCheck={false}
-                      name="nope-last"
                       value={formData.lastname}
-                      onChange={(e) => setFormData({ ...formData, lastname: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, lastname: e.target.value })
+                      }
                       required
                     />
                   </div>
                 </div>
 
-                {/* Email (full width) */}
                 <div>
                   <label htmlFor="email" className={labelStyle}>
                     Email <span className="text-white/50">*</span>
@@ -303,129 +314,65 @@ export function TapClient({
                     id="email"
                     type="email"
                     className={fieldStyle}
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                    spellCheck={false}
-                    name="nope-email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     required
                   />
                 </div>
 
-                {/* Phone (full width) */}
-                <div>
-                  <label htmlFor="phone" className={labelStyle}>
-                    Phone
-                  </label>
-                  <input
-                    id="phone"
-                    type="tel"
-                    className={fieldStyle}
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                    spellCheck={false}
-                    name="nope-phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  />
-                </div>
-
-                {/* Company (full width) */}
-                <div>
-                  <label htmlFor="company" className={labelStyle}>
-                    Company
-                  </label>
-                  <input
-                    id="company"
-                    className={fieldStyle}
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                    spellCheck={false}
-                    name="nope-company"
-                    value={formData.company}
-                    onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                  />
-                </div>
-
-                {/* Role / Job Title (full width) */}
-                <div>
-                  <label htmlFor="role" className={labelStyle}>
-                    Role (Job title)
-                  </label>
-                  <input
-                    id="role"
-                    className={fieldStyle}
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                    spellCheck={false}
-                    name="nope-jobtitle"
-                    value={formData.jobtitle}
-                    onChange={(e) => setFormData({ ...formData, jobtitle: e.target.value })}
-                  />
-                </div>
-
-                {/* Notes */}
-                <div>
-                  <label htmlFor="notes" className={labelStyle}>
-                    Notes
-                  </label>
-                  <textarea
-                    id="notes"
-                    className={`${fieldStyle} min-h-[110px]`}
-                    rows={4}
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                    spellCheck={false}
-                    name="nope-notes"
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  />
-                </div>
-
-                {/* Honeypot */}
-                <input
-                  id="website"
-                  name="nope-website"
-                  className="hidden"
-                  aria-hidden="true"
-                  tabIndex={-1}
-                  autoComplete="off"
-                />
-
-                {/* Actions */}
                 <div className="flex items-center gap-4 pt-1">
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 rounded-xl px-5 py-3 font-semibold bg-[#31c8db] text-[#002333] shadow-md hover:brightness-105 active:translate-y-[1px] transition"
+                    className="flex-1 rounded-xl px-5 py-3 font-semibold bg-[#31c8db] text-[#002333]"
                   >
                     {loading ? "Sending…" : "Share your info"}
                   </button>
+
                   <button
                     type="button"
                     onClick={() => setIsFormOpen(false)}
-                    className="text-white/80 hover:text-white underline"
+                    className="text-white/80 underline"
                   >
                     Cancel
                   </button>
                 </div>
 
-                {ok === true && <p className="text-emerald-400 text-sm pt-1">Thanks! We’ve got your info.</p>}
+                {ok === true && (
+                  <p className="text-emerald-400 text-sm">
+                    Thanks! We’ve got your info.
+                  </p>
+                )}
+
                 {ok === false && (
-                  <p className="text-rose-400 text-sm pt-1">
-                    Something went wrong. Try again or email admin@upperlineco.com.
+                  <p className="text-rose-400 text-sm">
+                    Something went wrong. Try again.
                   </p>
                 )}
               </form>
             )}
           </>
+        ) : (
+          <MotionImage
+            src={`/qr/qr-${slug}.png`}
+            alt={`QR code for ${metWith}`}
+            width={420}
+            height={420}
+            style={{
+              width: "84%",
+              maxWidth: 420,
+              height: "auto",
+              margin: "8px auto 4px",
+              display: "block",
+              background: "#fff",
+              borderRadius: 12,
+              padding: 12,
+            }}
+          />
         )}
+
 
         {showQR && (
           <MotionImage
@@ -450,6 +397,6 @@ export function TapClient({
 
         )}
       </motion.div>
-    </div>
+    </div >
   );
 }
