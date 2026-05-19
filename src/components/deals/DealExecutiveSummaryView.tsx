@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
 type Deal = {
@@ -36,6 +36,15 @@ type Document = {
 
 export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
+
+  useEffect(() => {
+    const docs = buildDocuments(deal);
+    if (docs.length > 0 && !selectedDoc) {
+      setSelectedDoc(docs[0]);
+    }
+  }, [deal]);
+
+
   function buildDocuments(deal: Deal): Document[] {
     return [
       {
@@ -53,7 +62,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         url: deal.full_memo_url || '',
         gated: deal.full_memo_requires_ca ?? true,
       },
-    ].filter((doc) => doc.url); // ✅ only keep docs that exist
+    ].filter((doc): doc is Document => Boolean(doc.url));
   }
   return (
     <div style={container}>
@@ -195,6 +204,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                       ...docItem,
                       background: isActive ? '#eef2f7' : '#fff',
                       opacity: doc.gated ? 0.6 : 1,
+                      cursor: doc.gated ? 'not-allowed' : 'pointer',
                     }}
                   >
                     {doc.gated ? '🔒 ' : '📄 '}
