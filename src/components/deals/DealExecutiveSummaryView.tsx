@@ -28,28 +28,33 @@ type Deal = {
   full_memo_url?: string;
   full_memo_requires_ca?: boolean;
 };
+type Document = {
+  label: string;
+  url: string;
+  gated: boolean;
+};
 
 export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
-  const [selectedDoc, setSelectedDoc] = useState<any>(null);
-  function buildDocuments(deal: Deal) {
-  return [
-    {
-      label: 'Upperline Pitch Book',
-      url: deal.pitch_book_url,
-      gated: false,
-    },
-    {
-      label: 'Deal Preview Memo',
-      url: deal.abridged_memo_url,
-      gated: false,
-    },
-    {
-      label: 'Full Equity Memo',
-      url: deal.full_memo_url,
-      gated: deal.full_memo_requires_ca ?? true,
-    },
-  ].filter((doc) => doc.url); // only show if exists
-}
+  const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
+  function buildDocuments(deal: Deal): Document[] {
+    return [
+      {
+        label: 'Upperline Pitch Book',
+        url: deal.pitch_book_url || '',
+        gated: false,
+      },
+      {
+        label: 'Deal Preview Memo',
+        url: deal.abridged_memo_url || '',
+        gated: false,
+      },
+      {
+        label: 'Full Equity Memo',
+        url: deal.full_memo_url || '',
+        gated: deal.full_memo_requires_ca ?? true,
+      },
+    ].filter((doc) => doc.url); // ✅ only keep docs that exist
+  }
   return (
     <div style={container}>
       <div style={content}>
@@ -446,4 +451,3 @@ const downloadBtn = {
   background: '#fff',
   cursor: 'pointer',
 };
-``
