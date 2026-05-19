@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AdminNav from '@/components/navigation/AdminNav';
+import { useRouter } from 'next/navigation';
 
 const COLORS = {
   background: '#f3f4f6',
@@ -29,6 +30,7 @@ type Deal = {
 };
 
 export default function AdminPage() {
+  const router = useRouter();
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -76,19 +78,10 @@ export default function AdminPage() {
           }}
         >
           {/* HEADER */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'flex-start',
-              gap: 6,
-              marginBottom: 12,
-            }}
-          >
+          <div style={{ marginBottom: 12 }}>
             <div
               style={{
                 fontSize: 20,
-                letterSpacing: '-0.01em',
                 fontWeight: 600,
                 color: COLORS.text,
               }}
@@ -97,7 +90,9 @@ export default function AdminPage() {
             </div>
 
             <button
+              onClick={() => router.push('/admin/deals/create')}
               style={{
+                marginTop: 6,
                 background: COLORS.primary,
                 color: '#fff',
                 borderRadius: 6,
@@ -105,7 +100,6 @@ export default function AdminPage() {
                 fontSize: 12,
                 border: 'none',
                 cursor: 'pointer',
-                fontWeight: 500,
               }}
             >
               Create
@@ -139,6 +133,9 @@ export default function AdminPage() {
               return (
                 <div
                   key={d.id}
+                  onClick={() =>
+                    router.push(`/admin/deals/${d.id}/public`)
+                  }
                   style={{
                     padding: 12,
                     background: COLORS.surface,
@@ -147,6 +144,7 @@ export default function AdminPage() {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
+                    cursor: 'pointer',
                   }}
                 >
                   {/* LEFT */}
@@ -156,7 +154,6 @@ export default function AdminPage() {
                         fontSize: 14,
                         fontWeight: 600,
                         color: COLORS.text,
-                        marginBottom: 2,
                       }}
                     >
                       {d.name}
@@ -172,7 +169,7 @@ export default function AdminPage() {
                       {draftReadyCount} drafts
                     </div>
 
-                    {/* 🔥 Attention signal */}
+                    {/* Warning */}
                     {draftReadyCount > 0 && (
                       <div
                         style={{
@@ -186,20 +183,47 @@ export default function AdminPage() {
                         {draftReadyCount > 1 ? 's' : ''} not sent
                       </div>
                     )}
+
+                    {/* Status */}
+                    <div style={{ fontSize: 10, marginTop: 4 }}>
+                      {d.is_public ? '● Published' : '● Draft'}
+                    </div>
                   </div>
 
                   {/* RIGHT */}
                   <div style={{ display: 'flex', gap: 8 }}>
                     <Link href={`/admin/deals/${d.id}/investors`}>
-                      <button style={btnStyle}>Investors</button>
-                    </Link>
-
-                    <Link href={`/admin/deals/${d.id}/public`}>
-                      <button style={btnStyle}>Preview</button>
+                      <button
+                        style={btnStyle}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Investors
+                      </button>
                     </Link>
 
                     <button
-                      onClick={async () => {
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/admin/deals/${d.id}/edit`);
+                      }}
+                      style={btnStyle}
+                    >
+                      Edit
+                    </button>
+
+                    <Link href={`/admin/deals/${d.id}/public`}>
+                      <button
+                        style={btnStyle}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Preview
+                      </button>
+                    </Link>
+
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+
                         setDeals((prev) =>
                           prev.map((x) =>
                             x.id === d.id
@@ -212,6 +236,7 @@ export default function AdminPage() {
                           `/api/deals/${d.id}/toggle-public`,
                           { method: 'POST' }
                         );
+
                         const json = await res.json();
 
                         if (!json?.ok) {
@@ -226,10 +251,12 @@ export default function AdminPage() {
                       }}
                       style={{
                         ...btnStyle,
-                        background: d.is_public ? '#e8eef4' : '#f1f2f4',
+                        background: d.is_public
+                          ? '#e8eef4'
+                          : '#f1f2f4',
                       }}
                     >
-                      {d.is_public ? 'Visible' : 'Hidden'}
+                      {d.is_public ? 'Published' : 'Draft'}
                     </button>
                   </div>
                 </div>
