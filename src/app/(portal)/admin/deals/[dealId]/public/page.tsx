@@ -1,9 +1,9 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import DealExecutiveSummaryView from '@/components/deals/DealExecutiveSummaryView';
+import AdminNav from '@/components/navigation/AdminNav';
 
 type Deal = {
   id: string;
@@ -14,7 +14,6 @@ type Deal = {
 type PublicDealResponse = {
   ok: boolean;
   deal?: Deal;
-  error?: string;
 };
 
 export default function AdminDealPreviewPage() {
@@ -36,11 +35,9 @@ export default function AdminDealPreviewPage() {
         if (res.ok && json?.ok && json.deal) {
           setDeal(json.deal);
         } else {
-          console.error('[ADMIN PREVIEW LOAD FAILED]', json?.error);
           setDeal(null);
         }
       } catch (e) {
-        console.error('[ADMIN PREVIEW FETCH ERROR]', e);
         setDeal(null);
       } finally {
         setLoading(false);
@@ -50,24 +47,25 @@ export default function AdminDealPreviewPage() {
     load();
   }, [dealId]);
 
-  // ✅ Loading state
-  if (loading) {
-    return <div style={{ padding: 40 }}>Loading preview…</div>;
-  }
+  if (loading) return <div style={{ padding: 40 }}>Loading preview…</div>;
 
-  // ✅ Not found state
   if (!deal) {
     return (
-      <div style={{ padding: 40 }}>
-        <h1>Deal Not Available</h1>
-        <p>This deal could not be loaded.</p>
-      </div>
+      <>
+        <AdminNav />
+        <div style={{ padding: 40 }}>
+          <h1>Deal Not Available</h1>
+        </div>
+      </>
     );
   }
 
   return (
     <>
-      {/* ✅ ADMIN CONTROL BAR */}
+      {/* ✅ NAVIGATION (THIS IS THE WIN) */}
+      <AdminNav />
+
+      {/* ✅ PREVIEW CONTROL BAR */}
       <div
         style={{
           padding: 16,
@@ -82,23 +80,42 @@ export default function AdminDealPreviewPage() {
           Admin Preview
         </div>
 
-        <button
-          onClick={() => router.push(`/admin/deals/${dealId}/edit`)}
-          style={{
-            padding: '6px 12px',
-            borderRadius: 6,
-            background: '#ffffff',
-            color: '#003a5d',
-            border: 'none',
-            cursor: 'pointer',
-            fontWeight: 600,
-          }}
-        >
-          Edit Deal
-        </button>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button
+            onClick={() =>
+              router.push(`/admin/deals/${dealId}/edit`)
+            }
+            style={{
+              padding: '6px 12px',
+              borderRadius: 6,
+              background: '#ffffff',
+              color: '#003a5d',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: 600,
+            }}
+          >
+            Edit Deal
+          </button>
+
+          <button
+            onClick={() => router.push('/admin')}
+            style={{
+              padding: '6px 12px',
+              borderRadius: 6,
+              background: '#ffffff',
+              color: '#003a5d',
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: 600,
+            }}
+          >
+            Back to Deals
+          </button>
+        </div>
       </div>
 
-      {/* ✅ SHARED VIEW COMPONENT */}
+      {/* ✅ SHARED VIEW */}
       <DealExecutiveSummaryView deal={deal} />
     </>
   );
