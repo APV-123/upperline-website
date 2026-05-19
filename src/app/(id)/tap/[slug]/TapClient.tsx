@@ -199,6 +199,7 @@ export function TapClient({
                 sizes="120px"
                 style={{
                   objectFit: "cover",
+                  objectPosition: "center top",
                   borderRadius: "50%",
                   border: "2px solid rgba(255,255,255,0.2)",
                   boxShadow: "0 10px 22px rgba(0,0,0,.30)",
@@ -372,8 +373,6 @@ export function TapClient({
             }}
           />
         )}
-
-
         {showQR && (
           <MotionImage
             src={`/qr/qr-${slug}.png`}
