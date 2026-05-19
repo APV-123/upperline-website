@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 
 type Deal = {
@@ -36,6 +36,27 @@ type Document = {
 
 export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
+  const images = useMemo(
+    () =>
+      [deal.image_1_url, deal.image_2_url, deal.image_3_url].filter(
+        (x): x is string => Boolean(x)
+      ),
+    [deal.image_1_url, deal.image_2_url, deal.image_3_url]
+  );
+
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const nextImage = () =>
+    setLightboxIndex((i) => (i + 1) % images.length);
+
+  const prevImage = () =>
+    setLightboxIndex((i) => (i - 1 + images.length) % images.length);
 
   useEffect(() => {
     const docs = buildDocuments(deal);
@@ -43,6 +64,19 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
       setSelectedDoc(docs[0]);
     }
   }, [deal]);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightboxOpen(false);
+      if (e.key === "ArrowRight") nextImage();
+      if (e.key === "ArrowLeft") prevImage();
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxOpen, images.length]);
 
 
   function buildDocuments(deal: Deal): Document[] {
@@ -108,15 +142,27 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         {/* IMAGE PLACEHOLDER */}
         <div style={imageGrid}>
           {deal.image_1_url && (
-            <img src={deal.image_1_url} style={mainImage} />
+            <img
+              src={deal.image_1_url}
+              style={{ ...mainImage, cursor: "zoom-in" }}
+              onClick={() => openLightbox(0)}
+            />
           )}
 
           <div style={sideImages}>
             {deal.image_2_url && (
-              <img src={deal.image_2_url} style={smallImage} />
+              <img
+                src={deal.image_2_url}
+                style={{ ...smallImage, cursor: "zoom-in" }}
+                onClick={() => openLightbox(1)}
+              />
             )}
             {deal.image_3_url && (
-              <img src={deal.image_3_url} style={smallImage} />
+              <img
+                src={deal.image_3_url}
+                style={{ ...smallImage, cursor: "zoom-in" }}
+                onClick={() => openLightbox(2)}
+              />
             )}
           </div>
         </div>
@@ -234,8 +280,47 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
 
           </div>
         </div>
-      </div>
+        {lightboxOpen && images.length > 0 && (
+          <div style={lbBackdrop} onClick={() => setLightboxOpen(false)}>
+            <div style={lbTop} onClick={(e) => e.stopPropagation()}>
+              <div style={{ opacity: 0.85 }}>
+                {lightboxIndex + 1} / {images.length}
+              </div>
+              <button style={lbClose} onClick={() => setLightboxOpen(false)}>
+                ✕
+              </button>
+            </div>
 
+            <button
+              style={lbArrowLeft}
+              onClick={(e) => {
+                e.stopPropagation();
+                prevImage();
+              }}
+              aria-label="Previous image"
+            >
+              ‹
+            </button>
+
+            <img
+              src={images[lightboxIndex]}
+              style={lbImage}
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            <button
+              style={lbArrowRight}
+              onClick={(e) => {
+                e.stopPropagation();
+                nextImage();
+              }}
+              aria-label="Next image"
+            >
+              ›
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -460,4 +545,67 @@ const downloadBtn = {
   border: '1px solid #e5e7eb',
   background: '#fff',
   cursor: 'pointer',
+};
+const lbBackdrop: React.CSSProperties = {
+  position: "fixed",
+  inset: 0,
+  background: "rgba(0,0,0,0.82)",
+  zIndex: 9999,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const lbImage: React.CSSProperties = {
+  maxWidth: "92vw",
+  maxHeight: "82vh",
+  objectFit: "contain",
+  borderRadius: 10,
+  boxShadow: "0 20px 60px rgba(0,0,0,0.55)",
+};
+
+const lbTop: React.CSSProperties = {
+  position: "fixed",
+  top: 16,
+  left: 16,
+  right: 16,
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  color: "#fff",
+  zIndex: 10000,
+};
+
+const lbClose: React.CSSProperties = {
+  background: "transparent",
+  border: "none",
+  color: "#fff",
+  fontSize: 22,
+  cursor: "pointer",
+};
+
+const lbArrowLeft: React.CSSProperties = {
+  position: "fixed",
+  left: 12,
+  top: "50%",
+  transform: "translateY(-50%)",
+  fontSize: 52,
+  color: "#fff",
+  background: "transparent",
+  border: "none",
+  cursor: "pointer",
+  zIndex: 10000,
+};
+
+const lbArrowRight: React.CSSProperties = {
+  position: "fixed",
+  right: 12,
+  top: "50%",
+  transform: "translateY(-50%)",
+  fontSize: 52,
+  color: "#fff",
+  background: "transparent",
+  border: "none",
+  cursor: "pointer",
+  zIndex: 10000,
 };
