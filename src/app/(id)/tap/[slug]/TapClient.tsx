@@ -273,14 +273,19 @@ export function TapClient({
                 className="mt-3 space-y-4"
                 style={{ textAlign: "left" }}
               >
-                {/* Row 1: First/Last */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Row 1: First / Last */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: 12,
+                  }}
+                >
                   <div>
-                    <label htmlFor="first" className={labelStyle}>
+                    <label className={labelStyle}>
                       First name <span className="text-white/50">*</span>
                     </label>
                     <input
-                      id="first"
                       ref={firstInputRef}
                       className={fieldStyle}
                       value={formData.firstname}
@@ -292,11 +297,10 @@ export function TapClient({
                   </div>
 
                   <div>
-                    <label htmlFor="last" className={labelStyle}>
+                    <label className={labelStyle}>
                       Last name <span className="text-white/50">*</span>
                     </label>
                     <input
-                      id="last"
                       className={fieldStyle}
                       value={formData.lastname}
                       onChange={(e) =>
@@ -307,12 +311,36 @@ export function TapClient({
                   </div>
                 </div>
 
+                {/* Company */}
                 <div>
-                  <label htmlFor="email" className={labelStyle}>
+                  <label className={labelStyle}>Company Name</label>
+                  <input
+                    className={fieldStyle}
+                    value={formData.company}
+                    onChange={(e) =>
+                      setFormData({ ...formData, company: e.target.value })
+                    }
+                  />
+                </div>
+
+                {/* Job Title */}
+                <div>
+                  <label className={labelStyle}>Job Title</label>
+                  <input
+                    className={fieldStyle}
+                    value={formData.jobtitle}
+                    onChange={(e) =>
+                      setFormData({ ...formData, jobtitle: e.target.value })
+                    }
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className={labelStyle}>
                     Email <span className="text-white/50">*</span>
                   </label>
                   <input
-                    id="email"
                     type="email"
                     className={fieldStyle}
                     value={formData.email}
@@ -323,11 +351,28 @@ export function TapClient({
                   />
                 </div>
 
-                <div className="flex items-center gap-4 pt-1">
+                {/* Phone */}
+                <div>
+                  <label className={labelStyle}>Phone Number</label>
+                  <input
+                    type="tel"
+                    className={fieldStyle}
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                  />
+                </div>
+
+                {/* Submit */}
+                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 rounded-xl px-5 py-3 font-semibold bg-[#31c8db] text-[#002333]"
+                    style={{
+                      ...btn(BRAND.turq, "#002333"),
+                      flex: 1,
+                    }}
                   >
                     {loading ? "Sending…" : "Share your info"}
                   </button>
@@ -335,20 +380,26 @@ export function TapClient({
                   <button
                     type="button"
                     onClick={() => setIsFormOpen(false)}
-                    className="text-white/80 underline"
+                    style={{
+                      background: "transparent",
+                      color: "#fff",
+                      border: "none",
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                    }}
                   >
                     Cancel
                   </button>
                 </div>
 
                 {ok === true && (
-                  <p className="text-emerald-400 text-sm">
+                  <p style={{ color: "#34d399", fontSize: 12 }}>
                     Thanks! We’ve got your info.
                   </p>
                 )}
 
                 {ok === false && (
-                  <p className="text-rose-400 text-sm">
+                  <p style={{ color: "#f87171", fontSize: 12 }}>
                     Something went wrong. Try again.
                   </p>
                 )}
