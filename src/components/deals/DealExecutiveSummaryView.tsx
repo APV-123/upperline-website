@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 
 type Deal = {
+  id: string;
   name: string;
   target_amount: number;
 
@@ -57,6 +58,13 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
 
   const prevImage = () =>
     setLightboxIndex((i) => (i - 1 + images.length) % images.length);
+  const [showCA, setShowCA] = useState(false);
+  const [caBusy, setCaBusy] = useState(false);
+  const [caName, setCaName] = useState('');
+  const [caEmail, setCaEmail] = useState('');
+  const [caCompany, setCaCompany] = useState('');
+  const [caAgree, setCaAgree] = useState(false);
+
 
   useEffect(() => {
     const docs = buildDocuments(deal);
@@ -241,10 +249,11 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                     key={doc.label}
                     onClick={() => {
                       if (doc.gated) {
-                        alert('Please sign confidentiality agreement to access this document.');
+                        setShowCA(true);
                         return;
                       }
                       setSelectedDoc(doc);
+
                     }}
                     style={{
                       ...docItem,
@@ -318,6 +327,64 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
             >
               ›
             </button>
+          </div>
+        )}
+        {showCA && (
+          <div style={caBackdrop} onClick={() => !caBusy && setShowCA(false)}>
+            <div style={caCard} onClick={(e) => e.stopPropagation()}>
+              <h3 style={{ margin: '0 0 6px' }}>Confidentiality Agreement</h3>
+              <p style={{ margin: '0 0 14px', fontSize: 13, color: '#475569' }}>
+                To access the full equity memo, please confirm acceptance of confidentiality terms.
+              </p>
+
+              <label style={caLabel}>Full name</label>
+              <input style={caInput} value={caName} onChange={(e) => setCaName(e.target.value)} />
+
+              <label style={caLabel}>Email</label>
+              <input style={caInput} value={caEmail} onChange={(e) => setCaEmail(e.target.value)} />
+
+              <label style={caLabel}>Company (optional)</label>
+              <input style={caInput} value={caCompany} onChange={(e) => setCaCompany(e.target.value)} />
+
+              <label style={{ display: 'flex', gap: 8, marginTop: 12, fontSize: 13 }}>
+                <input type="checkbox" checked={caAgree} onChange={(e) => setCaAgree(e.target.checked)} />
+                I agree to keep these materials confidential.
+              </label>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 16 }}>
+                <button style={caSecondaryBtn} disabled={caBusy} onClick={() => setShowCA(false)}>
+                  Cancel
+                </button>
+                <button
+                  style={caPrimaryBtn}
+                  disabled={caBusy || !caAgree || !caEmail.includes('@') || !caName.trim()}
+                  onClick={async () => {
+                    setCaBusy(true);
+                    try {
+                      const res = await fetch(`/api/deals/${deal.id}/ca/submit`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: caName, email: caEmail, company: caCompany }),
+                      });
+                      const json = await res.json().catch(() => null);
+
+                      if (!res.ok || !json?.ok || !json?.signedUrl) {
+                        alert(json?.error ?? 'Unable to grant access');
+                        return;
+                      }
+
+                      // ✅ unlock full memo by selecting it with the signed URL
+                      setSelectedDoc({ label: 'Full Equity Memo', url: json.signedUrl, gated: false });
+                      setShowCA(false);
+                    } finally {
+                      setCaBusy(false);
+                    }
+                  }}
+                >
+                  {caBusy ? 'Granting access…' : 'Access Full Memo'}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -608,4 +675,58 @@ const lbArrowRight: React.CSSProperties = {
   border: "none",
   cursor: "pointer",
   zIndex: 10000,
+};
+const caBackdrop: React.CSSProperties = {
+  position: 'fixed',
+  inset: 0,
+  background: 'rgba(0,0,0,0.55)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  zIndex: 10001,
+  padding: 20,
+};
+
+const caCard: React.CSSProperties = {
+  width: '100%',
+  maxWidth: 520,
+  background: '#fff',
+  borderRadius: 10,
+  padding: 18,
+  boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
+};
+
+const caLabel: React.CSSProperties = {
+  display: 'block',
+  fontSize: 12,
+  color: '#334155',
+  marginTop: 10,
+  marginBottom: 6,
+};
+
+const caInput: React.CSSProperties = {
+  width: '100%',
+  padding: 10,
+  borderRadius: 8,
+  border: '1px solid #e5e7eb',
+};
+
+const caPrimaryBtn: React.CSSProperties = {
+  background: '#1f3d36',
+  color: '#fff',
+  padding: '10px 14px',
+  borderRadius: 8,
+  border: 'none',
+  cursor: 'pointer',
+  fontWeight: 600,
+};
+
+const caSecondaryBtn: React.CSSProperties = {
+  background: '#f1f5f9',
+  color: '#0f172a',
+  padding: '10px 14px',
+  borderRadius: 8,
+  border: '1px solid #e5e7eb',
+  cursor: 'pointer',
+  fontWeight: 600,
 };
