@@ -372,7 +372,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
               {/* Header */}
               <div style={sheetHeader}>
                 <div style={{ fontWeight: 700 }}>
-                  {deal.name} LP Confidentiality Agreement
+                  {deal.name} Confidentiality Agreement
                 </div>
                 <button
                   style={sheetClose}
