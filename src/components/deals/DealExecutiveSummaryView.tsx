@@ -105,7 +105,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
       },
       {
         label: 'Full Equity Memo',
-        url: deal.full_memo_url || '',
+        url: '',
         gated: deal.full_memo_requires_ca ?? true,
       },
     ].filter((doc): doc is Document => Boolean(doc.url));
@@ -509,13 +509,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
 
                   <button
                     style={sheetPrimaryBtn}
-                    disabled={
-                      caBusy ||
-                      !caAgree ||
-                      !caEmail.includes("@") ||
-                      !caFirstName.trim() ||
-                      !caLastName.trim()
-                    }
+                    disabled={caBusy}
                     onClick={async () => {
 
                       // ✅ VALIDATION FIRST
