@@ -33,6 +33,7 @@ type Document = {
   label: string;
   url: string;
   gated: boolean;
+  alwaysShow?: boolean;
 };
 
 export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
@@ -71,6 +72,37 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
   const [hasAccess, setHasAccess] = useState(false);
 
   useEffect(() => {
+    if (!hasAccess) return;
+
+    const savedEmail = localStorage.getItem(`ca:${deal.id}`);
+    if (!savedEmail) return;
+
+    fetch(`/api/deals/${deal.id}/ca/submit`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        firstname: "Returning",
+        lastname: "User",
+        email: savedEmail,
+      }),
+    })
+      .then((r) => r.json())
+      .then((json) => {
+        if (json?.signedUrl) {
+          setSelectedDoc({
+            label: "Full Equity Memo",
+            url: json.signedUrl,
+            gated: false,
+          });
+        }
+      });
+
+  }, [hasAccess, deal.id]);
+
+
+  useEffect(() => {
     const savedEmail = localStorage.getItem(`ca:${deal.id}`);
     if (savedEmail) {
       setHasAccess(true);
@@ -96,6 +128,43 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [lightboxOpen, images.length]);
+  
+  async function openFullMemo() {
+    const savedEmail = localStorage.getItem(`ca:${deal.id}`);
+
+    // If we don't have an email saved, we can't mint the signed URL without asking again
+    if (!savedEmail) {
+      setShowCA(true);
+      return;
+    }
+
+    const res = await fetch(`/api/deals/${deal.id}/ca/submit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstname: "Returning",
+        lastname: "User",
+        email: savedEmail,
+        company: "",
+      }),
+    });
+
+    const json = await res.json().catch(() => null);
+
+    if (!res.ok || !json?.ok || !json?.signedUrl) {
+      setCaError(json?.error ?? "Unable to grant access.");
+      // If something went wrong, fall back to the modal
+      setShowCA(true);
+      return;
+    }
+
+    setSelectedDoc({
+      label: "Full Equity Memo",
+      url: json.signedUrl,
+      gated: false,
+    });
+  }
+
 
 
   function buildDocuments(deal: Deal): Document[] {
@@ -261,43 +330,46 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                   <div
                     key={doc.label}
                     onClick={() => {
-                      if (doc.gated) {
+                      // 🔥 SPECIAL CASE: FULL EQUITY MEMO
+                      if (doc.label === "Full Equity Memo") {
                         const savedEmail = localStorage.getItem(`ca:${deal.id}`);
 
-                        if (savedEmail) {
-                          // skip CA — already accepted
-                          fetch(`/api/deals/${deal.id}/ca/submit`, {
-                            method: "POST",
-                            headers: {
-                              "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
-                              firstname: "Returning",
-                              lastname: "User",
-                              email: savedEmail,
-                              company: "",
-                            }),
-                          })
-                            .then((r) => r.json())
-                            .then((json) => {
-                              if (json?.signedUrl) {
-                                setSelectedDoc({
-                                  label: "Full Equity Memo",
-                                  url: json.signedUrl,
-                                  gated: false,
-                                });
-                              }
-                            });
-
+                        // If user has not signed → show modal
+                        if (!savedEmail) {
+                          setShowCA(true);
                           return;
                         }
 
-                        setShowCA(true);
+                        // ✅ User HAS access → fetch signed URL
+                        fetch(`/api/deals/${deal.id}/ca/submit`, {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({
+                            firstname: "Returning",
+                            lastname: "User",
+                            email: savedEmail,
+                          }),
+                        })
+                          .then((r) => r.json())
+                          .then((json) => {
+                            if (json?.signedUrl) {
+                              setSelectedDoc({
+                                label: "Full Equity Memo",
+                                url: json.signedUrl,
+                                gated: false,
+                              });
+                            }
+                          });
+
                         return;
                       }
-                      setSelectedDoc(doc);
 
+                      // ✅ NORMAL DOCUMENTS
+                      setSelectedDoc(doc);
                     }}
+
                     style={{
                       ...docItem,
                       background: isActive ? '#eef2f7' : '#fff',
