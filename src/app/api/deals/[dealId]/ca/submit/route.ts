@@ -81,7 +81,7 @@ export async function POST(req: Request, context: { params: Promise<Params> }) {
   const body = (await req.json().catch(() => ({}))) as Body;
   const firstname = cleanText(body.firstname);
   const lastname = cleanText(body.lastname);
-  const name = `${firstname} ${lastname}`.trim();
+  const name = [firstname, lastname].filter(Boolean).join(" ");
   const email = cleanText(body.email).toLowerCase();
   const company = cleanText(body.company);
   const jobtitle = cleanText(body.jobtitle);
@@ -90,9 +90,14 @@ export async function POST(req: Request, context: { params: Promise<Params> }) {
   if (!dealId) {
     return NextResponse.json({ ok: false, error: "Missing dealId" }, { status: 400 });
   }
-  if (!name) {
-    return NextResponse.json({ ok: false, error: "Name required" }, { status: 400 });
+  
+  if (!firstname.trim() || !lastname.trim()) {
+    return NextResponse.json(
+      { ok: false, error: "First and last name required" },
+      { status: 400 }
+    );
   }
+
   if (!email || !email.includes("@")) {
     return NextResponse.json({ ok: false, error: "Valid email required" }, { status: 400 });
   }
