@@ -77,16 +77,8 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
     const savedEmail = localStorage.getItem(`ca:${deal.id}`);
     if (!savedEmail) return;
 
-    fetch(`/api/deals/${deal.id}/ca/submit`, {
+    fetch(`/api/deals/${deal.id}/ca/access`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        firstname: "Returning",
-        lastname: "User",
-        email: savedEmail,
-      }),
     })
       .then((r) => r.json())
       .then((json) => {
@@ -138,15 +130,8 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
       return;
     }
 
-    const res = await fetch(`/api/deals/${deal.id}/ca/submit`, {
+    const res = await fetch(`/api/deals/${deal.id}/ca/access`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        firstname: "Returning",
-        lastname: "User",
-        email: savedEmail,
-        company: "",
-      }),
     });
 
     const json = await res.json().catch(() => null);
@@ -341,16 +326,8 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                         }
 
                         // ✅ User HAS access → fetch signed URL
-                        fetch(`/api/deals/${deal.id}/ca/submit`, {
+                        fetch(`/api/deals/${deal.id}/ca/access`, {
                           method: "POST",
-                          headers: {
-                            "Content-Type": "application/json",
-                          },
-                          body: JSON.stringify({
-                            firstname: "Returning",
-                            lastname: "User",
-                            email: savedEmail,
-                          }),
                         })
                           .then((r) => r.json())
                           .then((json) => {
