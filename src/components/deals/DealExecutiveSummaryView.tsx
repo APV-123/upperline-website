@@ -68,7 +68,14 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
   const [caPhone, setCaPhone] = useState('');
   const [caAgree, setCaAgree] = useState(false);
   const [caError, setCaError] = useState('');
+  const [hasAccess, setHasAccess] = useState(false);
 
+  useEffect(() => {
+    const savedEmail = localStorage.getItem(`ca:${deal.id}`);
+    if (savedEmail) {
+      setHasAccess(true);
+    }
+  }, [deal.id]);
 
   useEffect(() => {
     const docs = buildDocuments(deal);
@@ -106,7 +113,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
       {
         label: 'Full Equity Memo',
         url: '',
-        gated: deal.full_memo_requires_ca ?? true,
+        gated: !hasAccess && (deal.full_memo_requires_ca ?? true),
       },
     ].filter((doc) => doc.gated || Boolean(doc.url));
   }
@@ -293,7 +300,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                       ...docItem,
                       background: isActive ? '#eef2f7' : '#fff',
                       opacity: doc.gated ? 0.6 : 1,
-                      cursor: doc.gated ? 'not-allowed' : 'pointer',
+                      cursor: 'pointer',
                     }}
                   >
                     {doc.gated ? '🔒 ' : '📄 '}
@@ -555,6 +562,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                         }
 
                         localStorage.setItem(`ca:${deal.id}`, caEmail);
+                        setHasAccess(true);
 
                         setSelectedDoc({
                           label: "Full Equity Memo",
