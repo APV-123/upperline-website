@@ -128,7 +128,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [lightboxOpen, images.length]);
-  
+
   async function openFullMemo() {
     const savedEmail = localStorage.getItem(`ca:${deal.id}`);
 
@@ -395,7 +395,16 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                     </a>
                   </div>
 
-                  <iframe src={selectedDoc.url} style={iframe} />
+                  {selectedDoc.url ? (
+                    <iframe src={selectedDoc.url} style={iframe} />
+                  ) : (
+                    <div style={{ padding: 20, color: "#64748b" }}>
+                      {selectedDoc.label === "Full Equity Memo"
+                        ? "Click to load full memo."
+                        : "Select a document to preview."}
+                    </div>
+                  )}
+
                 </>
               ) : (
                 <div style={{ padding: 20 }}>Select a document</div>
