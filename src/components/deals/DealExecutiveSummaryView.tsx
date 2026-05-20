@@ -67,6 +67,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
   const [caJobTitle, setCaJobTitle] = useState('');
   const [caPhone, setCaPhone] = useState('');
   const [caAgree, setCaAgree] = useState(false);
+  const [caError, setCaError] = useState('');
 
 
   useEffect(() => {
@@ -370,7 +371,9 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
 
               {/* Header */}
               <div style={sheetHeader}>
-                <div style={{ fontWeight: 700 }}>Confidentiality Agreement</div>
+                <div style={{ fontWeight: 700 }}>
+                  {deal.name} LP Confidentiality Agreement
+                </div>
                 <button
                   style={sheetClose}
                   onClick={() => setShowCA(false)}
@@ -490,7 +493,11 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                   />
                   I have read and accept the terms of the confidentiality agreement.
                 </label>
-
+                {caError && (
+                  <div style={caErrorStyle}>
+                    {caError}
+                  </div>
+                )}
                 <div style={sheetActions}>
                   <button
                     style={sheetSecondaryBtn}
@@ -510,13 +517,34 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                       !caLastName.trim()
                     }
                     onClick={async () => {
+
+                      // ✅ VALIDATION FIRST
+                      if (!caFirstName.trim() || !caLastName.trim()) {
+                        setCaError("First and last name are required.");
+                        return;
+                      }
+
+                      if (!caEmail.includes("@")) {
+                        setCaError("Valid email is required.");
+                        return;
+                      }
+
+                      if (!caAgree) {
+                        setCaError("You must accept the confidentiality agreement.");
+                        return;
+                      }
+
+                      // ✅ CLEAR ERROR
+                      setCaError('');
                       setCaBusy(true);
+
                       try {
                         const res = await fetch(`/api/deals/${deal.id}/ca/submit`, {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
-                            name: `${caFirstName} ${caLastName}`,
+                            firstname: caFirstName,
+                            lastname: caLastName,
                             email: caEmail,
                             company: caCompany,
                             jobtitle: caJobTitle,
@@ -527,11 +555,10 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                         const json = await res.json().catch(() => null);
 
                         if (!res.ok || !json?.ok || !json?.signedUrl) {
-                          alert(json?.error ?? "Unable to grant access");
+                          setCaError(json?.error ?? "Unable to grant access");
                           return;
                         }
 
-                        // ✅ THIS IS YOUR PERSISTENCE
                         localStorage.setItem(`ca:${deal.id}`, caEmail);
 
                         setSelectedDoc({
@@ -541,6 +568,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                         });
 
                         setShowCA(false);
+
                       } finally {
                         setCaBusy(false);
                       }
@@ -1028,4 +1056,10 @@ const agreementText: React.CSSProperties = {
   lineHeight: 1.5,
   marginBottom: 10,
   color: "#334155",
+};
+
+const caErrorStyle: React.CSSProperties = {
+  color: "#dc2626",
+  fontSize: 12,
+  marginTop: 8,
 };
