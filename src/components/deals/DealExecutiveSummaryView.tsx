@@ -263,7 +263,8 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                               "Content-Type": "application/json",
                             },
                             body: JSON.stringify({
-                              name: "Returning User",
+                              firstname: "Returning",
+                              lastname: "User",
                               email: savedEmail,
                               company: "",
                             }),
