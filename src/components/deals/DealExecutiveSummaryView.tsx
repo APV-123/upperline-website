@@ -108,7 +108,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         url: '',
         gated: deal.full_memo_requires_ca ?? true,
       },
-    ].filter((doc): doc is Document => Boolean(doc.url));
+    ].filter((doc) => doc.gated || Boolean(doc.url));
   }
   return (
     <div style={container}>
