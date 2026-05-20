@@ -115,7 +115,11 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         url: '',
         gated: !hasAccess && (deal.full_memo_requires_ca ?? true),
       },
-    ].filter((doc) => doc.gated || Boolean(doc.url));
+    ].filter((doc) => {
+      if (doc.label === 'Full Equity Memo') return true;
+      return Boolean(doc.url);
+    });
+
   }
   return (
     <div style={container}>
