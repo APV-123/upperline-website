@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/SupabaseServer';
-import { DEAL_SELECT } from '@/lib/deals/dealFields';
+import { DEAL_SELECT } from '../../../../lib/deals/dealFields';
 
 export async function GET(
   _req: Request,
