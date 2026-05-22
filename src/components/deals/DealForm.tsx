@@ -391,7 +391,9 @@ function ImageField({
             ) : (
                 <div style={{ marginTop: 8, color: '#888' }}>No image uploaded</div>
             )}
-
+            <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
+                {url ? 'Replace file' : 'Upload file'}
+            </div>
             <input
                 type="file"
                 accept="image/*"
@@ -413,14 +415,15 @@ function ImageField({
                     }
                 }}
             />
-
-            <input
-                value={url}
-                onChange={(e) => onChange(e.target.value)}
-                style={{ ...input, marginTop: 8 }}
-                placeholder="Paste image URL (optional)"
-                disabled={isDisabled}
-            />
+            {!url && (
+                <input
+                    value={url}
+                    onChange={(e) => onChange(e.target.value)}
+                    style={{ ...input, marginTop: 8 }}
+                    placeholder="Paste image URL (optional)"
+                    disabled={isDisabled}
+                />
+            )}
 
             {uploading && (
                 <div style={{ marginTop: 6, fontSize: 12, color: '#666' }}>Uploading…</div>
@@ -477,7 +480,9 @@ function DocumentField({
             ) : (
                 <div style={{ marginTop: 8, color: '#888' }}>No document uploaded</div>
             )}
-
+            <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
+                {url ? 'Replace file' : 'Upload file'}
+            </div>
             <input
                 type="file"
                 accept={accept}
@@ -500,13 +505,15 @@ function DocumentField({
                 }}
             />
 
-            <input
-                value={url}
-                onChange={(e) => onChange(e.target.value)}
-                style={{ ...input, marginTop: 8 }}
-                placeholder="Paste document URL (optional)"
-                disabled={isDisabled}
-            />
+            {!url && (
+                <input
+                    value={url}
+                    onChange={(e) => onChange(e.target.value)}
+                    style={{ ...input, marginTop: 8 }}
+                    placeholder="Paste document URL (optional)"
+                    disabled={isDisabled}
+                />
+            )}
 
             {uploading && (
                 <div style={{ marginTop: 6, fontSize: 12, color: '#666' }}>Uploading…</div>
