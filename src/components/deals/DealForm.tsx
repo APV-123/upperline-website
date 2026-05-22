@@ -1,6 +1,26 @@
 'use client';
 
 import React, { useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+let _supabase: ReturnType<typeof createClient> | null = null;
+
+function getSupabase() {
+    // These must exist in the browser build
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!url || !key) {
+        // This error is MUCH clearer than “supabaseKey required”
+        throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY');
+    }
+
+    if (!_supabase) {
+        _supabase = createClient(url, key);
+    }
+
+    return _supabase;
+}
 
 export type DealFormValues = {
     name: string;
@@ -74,26 +94,8 @@ export default function DealForm({ initialDeal, onSave, loading }: Props) {
             setSaving(false);
         }
     }
-    type CheckboxProps = {
-        label: string;
-        checked: boolean;
-        onChange: (value: boolean) => void;
-    };
 
-    function Checkbox({ label, checked, onChange }: CheckboxProps) {
-        return (
-            <div style={{ marginTop: 12 }}>
-                <label style={{ ...labelStyle, display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={(e) => onChange(e.target.checked)}
-                    />
-                    {label}
-                </label>
-            </div>
-        );
-    }
+
     return (
         <div style={container}>
             <div style={content}>
@@ -150,18 +152,21 @@ export default function DealForm({ initialDeal, onSave, loading }: Props) {
                     <ImageField
                         label="Primary Image"
                         url={deal.image_1_url}
+                        disabled={saving || !!loading}
                         onChange={(v) => setDeal(p => ({ ...p, image_1_url: v }))}
                     />
 
                     <ImageField
                         label="Secondary Image"
                         url={deal.image_2_url}
+                        disabled={saving || !!loading}
                         onChange={(v) => setDeal(p => ({ ...p, image_2_url: v }))}
                     />
 
                     <ImageField
                         label="Tertiary Image"
                         url={deal.image_3_url}
+                        disabled={saving || !!loading}
                         onChange={(v) => setDeal(p => ({ ...p, image_3_url: v }))}
                     />
 
@@ -253,22 +258,27 @@ export default function DealForm({ initialDeal, onSave, loading }: Props) {
 
                 </Section>
                 <Section title="Documents">
-
                     <DocumentField
                         label="Pitch Book"
                         url={deal.pitch_book_url}
+                        bucket="deal-documents-public"
+                        disabled={saving || !!loading}
                         onChange={(v) => setDeal(p => ({ ...p, pitch_book_url: v }))}
                     />
 
                     <DocumentField
                         label="Abridged Memo"
                         url={deal.abridged_memo_url}
+                        bucket="deal-documents-public"
+                        disabled={saving || !!loading}
                         onChange={(v) => setDeal(p => ({ ...p, abridged_memo_url: v }))}
                     />
 
                     <DocumentField
                         label="Full Memo"
                         url={deal.full_memo_url}
+                        bucket="deal-documents-private"
+                        disabled={saving || !!loading}
                         onChange={(v) => setDeal(p => ({ ...p, full_memo_url: v }))}
                     />
 
@@ -277,13 +287,12 @@ export default function DealForm({ initialDeal, onSave, loading }: Props) {
                         checked={deal.full_memo_requires_ca}
                         onChange={(v) => setDeal(p => ({ ...p, full_memo_requires_ca: v }))}
                     />
-
                 </Section>
 
                 <button
                     onClick={handleSubmit}
                     style={primaryBtn}
-                    disabled={saving}
+                    disabled={saving || !!loading}
                 >
                     {saving ? 'Saving…' : 'Save'}
                 </button>
@@ -317,16 +326,50 @@ function Field({
         </div>
     );
 }
+type CheckboxProps = {
+    label: string;
+    checked: boolean;
+    onChange: (value: boolean) => void;
+};
+async function uploadFile(file: File, bucket: string, path: string) {
+    const supabase = getSupabase();
+
+    const { error } = await supabase.storage
+        .from(bucket)
+        .upload(path, file, { upsert: true });
+
+    if (error) {
+        console.error('[UPLOAD ERROR]', error);
+        alert(error.message || 'Upload failed');
+        return null;
+    }
+
+    // ✅ Public buckets: return public URL
+    if (bucket !== 'deal-documents-private') {
+        const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+        return data.publicUrl;
+    }
+
+    // ✅ Private bucket: store the path (signed URL later)
+    return path;
+}
 
 function ImageField({
     label,
     url,
     onChange,
+    disabled,
+    bucket = 'deal-images',
 }: {
     label: string;
     url: string;
     onChange: (value: string) => void;
+    disabled?: boolean;
+    bucket?: 'deal-images';
 }) {
+    const [uploading, setUploading] = React.useState(false);
+    const isDisabled = !!disabled || uploading;
+
     return (
         <div style={{ marginTop: 12 }}>
             <label style={labelStyle}>{label}</label>
@@ -341,22 +384,62 @@ function ImageField({
                             maxHeight: 180,
                             objectFit: 'cover',
                             borderRadius: 6,
-                            border: '1px solid #e5e7eb'
+                            border: '1px solid #e5e7eb',
                         }}
                     />
                 </div>
             ) : (
-                <div style={{ marginTop: 8, color: '#888' }}>
-                    No image uploaded
-                </div>
+                <div style={{ marginTop: 8, color: '#888' }}>No image uploaded</div>
             )}
+
+            <input
+                type="file"
+                accept="image/*"
+                style={{ marginTop: 8 }}
+                disabled={isDisabled}
+                onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    setUploading(true);
+                    try {
+                        const safeName = file.name.replace(/\s+/g, '-');
+                        const path = `deals/${Date.now()}-${safeName}`;
+                        const result = await uploadFile(file, bucket, path);
+                        if (result) onChange(result);
+                    } finally {
+                        setUploading(false);
+                        e.currentTarget.value = '';
+                    }
+                }}
+            />
 
             <input
                 value={url}
                 onChange={(e) => onChange(e.target.value)}
                 style={{ ...input, marginTop: 8 }}
-                placeholder="Paste image URL"
+                placeholder="Paste image URL (optional)"
+                disabled={isDisabled}
             />
+
+            {uploading && (
+                <div style={{ marginTop: 6, fontSize: 12, color: '#666' }}>Uploading…</div>
+            )}
+        </div>
+    );
+}
+
+function Checkbox({ label, checked, onChange }: CheckboxProps) {
+    return (
+        <div style={{ marginTop: 12 }}>
+            <label style={{ ...labelStyle, display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={(e) => onChange(e.target.checked)}
+                />
+                {label}
+            </label>
         </div>
     );
 }
@@ -364,33 +447,70 @@ function DocumentField({
     label,
     url,
     onChange,
+    bucket,
+    disabled,
+    accept = '.pdf,.doc,.docx,.ppt,.pptx',
 }: {
     label: string;
     url: string;
     onChange: (value: string) => void;
+    bucket: 'deal-documents-public' | 'deal-documents-private';
+    disabled?: boolean;
+    accept?: string;
 }) {
+    const [uploading, setUploading] = React.useState(false);
+    const isDisabled = !!disabled || uploading;
+    const isHttp = /^https?:\/\//i.test(url);
+
     return (
         <div style={{ marginTop: 12 }}>
             <label style={labelStyle}>{label}</label>
 
             {url ? (
                 <div style={{ marginTop: 8 }}>
-                    <a href={url} target="_blank" rel="noopener noreferrer">
-                        View Document
-                    </a>
+                    {isHttp ? (
+                        <a href={url} target="_blank" rel="noopener noreferrer">View Document</a>
+                    ) : (
+                        <span style={{ color: '#666', fontSize: 12 }}>Saved path: {url}</span>
+                    )}
                 </div>
             ) : (
-                <div style={{ marginTop: 8, color: '#888' }}>
-                    No document uploaded
-                </div>
+                <div style={{ marginTop: 8, color: '#888' }}>No document uploaded</div>
             )}
+
+            <input
+                type="file"
+                accept={accept}
+                style={{ marginTop: 8 }}
+                disabled={isDisabled}
+                onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    setUploading(true);
+                    try {
+                        const safeName = file.name.replace(/\s+/g, '-');
+                        const path = `deals/${Date.now()}-${safeName}`;
+                        const result = await uploadFile(file, bucket, path);
+                        if (result) onChange(result);
+                    } finally {
+                        setUploading(false);
+                        e.currentTarget.value = '';
+                    }
+                }}
+            />
 
             <input
                 value={url}
                 onChange={(e) => onChange(e.target.value)}
                 style={{ ...input, marginTop: 8 }}
-                placeholder="Paste document URL"
+                placeholder="Paste document URL (optional)"
+                disabled={isDisabled}
             />
+
+            {uploading && (
+                <div style={{ marginTop: 6, fontSize: 12, color: '#666' }}>Uploading…</div>
+            )}
         </div>
     );
 }
