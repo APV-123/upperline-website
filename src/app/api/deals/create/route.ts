@@ -23,6 +23,14 @@ type CreateBody = {
   image_1_url?: unknown;
   image_2_url?: unknown;
   image_3_url?: unknown;
+
+  
+  // ✅ documents
+  pitch_book_url?: unknown;
+  abridged_memo_url?: unknown;
+  full_memo_url?: unknown;
+  full_memo_requires_ca?: unknown;
+
 };
 
 function cleanText(value: unknown) {
@@ -77,6 +85,14 @@ export async function POST(req: Request) {
     const image_2_url = cleanText(body.image_2_url);
     const image_3_url = cleanText(body.image_3_url);
 
+      
+    // ✅ documents
+    const pitch_book_url = cleanText(body.pitch_book_url);
+    const abridged_memo_url = cleanText(body.abridged_memo_url);
+    const full_memo_url = cleanText(body.full_memo_url);
+    const full_memo_requires_ca = Boolean(body.full_memo_requires_ca ?? false);
+
+
     if (!name) {
       return NextResponse.json(
         { ok: false, error: 'Invalid name' },
@@ -119,6 +135,12 @@ export async function POST(req: Request) {
         image_2_url,
         image_3_url,
 
+        // ✅ documents
+        pitch_book_url,
+        abridged_memo_url,
+        full_memo_url,
+        full_memo_requires_ca,
+
         is_public: false,
       })
       .select(`
@@ -143,6 +165,11 @@ export async function POST(req: Request) {
         image_1_url,
         image_2_url,
         image_3_url,
+
+        pitch_book_url,
+        abridged_memo_url,
+        full_memo_url,
+        full_memo_requires_ca,
 
         is_public,
         created_at

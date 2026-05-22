@@ -52,6 +52,33 @@ function cleanBool(value: unknown): boolean | null {
   }
   return null;
 }
+type DealUpdatePayload = {
+  name: string;
+  target_amount: number;
+  location: string | null;
+  estimated_closing_date: string | null;
+  overview_text: string | null;
+
+  project_unlevered_irr: string | null;
+  project_levered_irr: string | null;
+  target_lp_equity_multiple: string | null;
+  target_lp_levered_irr: string | null;
+  untrended_return_on_cost: string | null;
+  stabilized_return_on_cost: string | null;
+  total_equity_requirement: string | null;
+  construction_loan: string | null;
+  total_project_cost: string | null;
+
+  image_1_url: string | null;
+  image_2_url: string | null;
+  image_3_url: string | null;
+
+  // docs are optional on update (only set if provided)
+  pitch_book_url?: string | null;
+  abridged_memo_url?: string | null;
+  full_memo_url?: string | null;
+  full_memo_requires_ca?: boolean | null;
+};
 
 export async function POST(
   req: Request,
@@ -82,11 +109,6 @@ export async function POST(
     const image_1_url = cleanText(body.image_1_url);
     const image_2_url = cleanText(body.image_2_url);
     const image_3_url = cleanText(body.image_3_url);    
-    const pitch_book_url = cleanText(body.pitch_book_url);
-    const abridged_memo_url = cleanText(body.abridged_memo_url);
-    const full_memo_url = cleanText(body.full_memo_url);
-    const full_memo_requires_ca = cleanBool(body.full_memo_requires_ca);
-
 
     if (!dealId) {
       return NextResponse.json(
@@ -108,17 +130,13 @@ export async function POST(
         { status: 400 }
       );
     }
-
-    const { data, error } = await supabaseServer
-      .from('deals')
-      .update({
+      const updatePayload: DealUpdatePayload = {
         name,
         target_amount,
         location,
         estimated_closing_date,
         overview_text,
 
-        // ✅ metrics
         project_unlevered_irr,
         project_levered_irr,
         target_lp_equity_multiple,
@@ -132,15 +150,32 @@ export async function POST(
         image_1_url,
         image_2_url,
         image_3_url,
+      };
 
-        pitch_book_url,
-        abridged_memo_url,
-        full_memo_url,
-        full_memo_requires_ca,
-      })
-      .eq('id', dealId)
-      .select()
-      .single();
+      // ✅ only include docs if actually provided (prevents wipes)
+      if (body.pitch_book_url !== undefined) {
+        updatePayload.pitch_book_url = cleanText(body.pitch_book_url);
+      }
+
+      if (body.abridged_memo_url !== undefined) {
+        updatePayload.abridged_memo_url = cleanText(body.abridged_memo_url);
+      }
+
+      if (body.full_memo_url !== undefined) {
+        updatePayload.full_memo_url = cleanText(body.full_memo_url);
+      }
+
+      if (body.full_memo_requires_ca !== undefined) {
+        updatePayload.full_memo_requires_ca = cleanBool(body.full_memo_requires_ca);
+      }
+
+      const { data, error } = await supabaseServer
+        .from('deals')
+        .update(updatePayload)
+        .eq('id', dealId)
+        .select()
+        .single();
+
 
     if (error) {
       console.error('[DEAL UPDATE ERROR]', error);
@@ -150,7 +185,7 @@ export async function POST(
       );
     }
 
-    if (!data || data.length === 0) {
+    if (!data) {
       return NextResponse.json(
         { ok: false, error: 'No rows updated (bad dealId?)' },
         { status: 400 }
