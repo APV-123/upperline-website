@@ -146,28 +146,23 @@ export default function DealForm({ initialDeal, onSave, loading }: Props) {
 
                 </Section>
                 <Section title="Images">
-                    <Field
+
+                    <ImageField
                         label="Primary Image"
-                        value={deal.image_1_url}
-                        onChange={(v) =>
-                            setDeal((p) => ({ ...p, image_1_url: v }))
-                        }
+                        url={deal.image_1_url}
+                        onChange={(v) => setDeal(p => ({ ...p, image_1_url: v }))}
                     />
 
-                    <Field
+                    <ImageField
                         label="Secondary Image"
-                        value={deal.image_2_url}
-                        onChange={(v) =>
-                            setDeal((p) => ({ ...p, image_2_url: v }))
-                        }
+                        url={deal.image_2_url}
+                        onChange={(v) => setDeal(p => ({ ...p, image_2_url: v }))}
                     />
 
-                    <Field
+                    <ImageField
                         label="Tertiary Image"
-                        value={deal.image_3_url}
-                        onChange={(v) =>
-                            setDeal((p) => ({ ...p, image_3_url: v }))
-                        }
+                        url={deal.image_3_url}
+                        onChange={(v) => setDeal(p => ({ ...p, image_3_url: v }))}
                     />
 
                 </Section>
@@ -258,21 +253,22 @@ export default function DealForm({ initialDeal, onSave, loading }: Props) {
 
                 </Section>
                 <Section title="Documents">
-                    <Field
+
+                    <DocumentField
                         label="Pitch Book"
-                        value={deal.pitch_book_url}
+                        url={deal.pitch_book_url}
                         onChange={(v) => setDeal(p => ({ ...p, pitch_book_url: v }))}
                     />
 
-                    <Field
+                    <DocumentField
                         label="Abridged Memo"
-                        value={deal.abridged_memo_url}
+                        url={deal.abridged_memo_url}
                         onChange={(v) => setDeal(p => ({ ...p, abridged_memo_url: v }))}
                     />
 
-                    <Field
+                    <DocumentField
                         label="Full Memo"
-                        value={deal.full_memo_url}
+                        url={deal.full_memo_url}
                         onChange={(v) => setDeal(p => ({ ...p, full_memo_url: v }))}
                     />
 
@@ -283,11 +279,12 @@ export default function DealForm({ initialDeal, onSave, loading }: Props) {
                     />
 
                 </Section>
-                <button 
+
+                <button
                     onClick={handleSubmit}
                     style={primaryBtn}
                     disabled={saving}
-                    >
+                >
                     {saving ? 'Saving…' : 'Save'}
                 </button>
             </div>
@@ -321,6 +318,82 @@ function Field({
     );
 }
 
+function ImageField({
+    label,
+    url,
+    onChange,
+}: {
+    label: string;
+    url: string;
+    onChange: (value: string) => void;
+}) {
+    return (
+        <div style={{ marginTop: 12 }}>
+            <label style={labelStyle}>{label}</label>
+
+            {url ? (
+                <div style={{ marginTop: 8 }}>
+                    <img
+                        src={url}
+                        alt={label}
+                        style={{
+                            width: '100%',
+                            maxHeight: 180,
+                            objectFit: 'cover',
+                            borderRadius: 6,
+                            border: '1px solid #e5e7eb'
+                        }}
+                    />
+                </div>
+            ) : (
+                <div style={{ marginTop: 8, color: '#888' }}>
+                    No image uploaded
+                </div>
+            )}
+
+            <input
+                value={url}
+                onChange={(e) => onChange(e.target.value)}
+                style={{ ...input, marginTop: 8 }}
+                placeholder="Paste image URL"
+            />
+        </div>
+    );
+}
+function DocumentField({
+    label,
+    url,
+    onChange,
+}: {
+    label: string;
+    url: string;
+    onChange: (value: string) => void;
+}) {
+    return (
+        <div style={{ marginTop: 12 }}>
+            <label style={labelStyle}>{label}</label>
+
+            {url ? (
+                <div style={{ marginTop: 8 }}>
+                    <a href={url} target="_blank" rel="noopener noreferrer">
+                        View Document
+                    </a>
+                </div>
+            ) : (
+                <div style={{ marginTop: 8, color: '#888' }}>
+                    No document uploaded
+                </div>
+            )}
+
+            <input
+                value={url}
+                onChange={(e) => onChange(e.target.value)}
+                style={{ ...input, marginTop: 8 }}
+                placeholder="Paste document URL"
+            />
+        </div>
+    );
+}
 
 type TextAreaProps = {
     label: string;
