@@ -355,111 +355,111 @@ async function uploadFile(file: File, bucket: string, path: string) {
 }
 
 function ImageField({
-  label,
-  url,
-  onChange,
-  disabled,
-  bucket = 'deal-images',
+    label,
+    url,
+    onChange,
+    disabled,
+    bucket = 'deal-images',
 }: {
-  label: string;
-  url: string;
-  onChange: (value: string) => void;
-  disabled?: boolean;
-  bucket?: 'deal-images';
+    label: string;
+    url: string;
+    onChange: (value: string) => void;
+    disabled?: boolean;
+    bucket?: 'deal-images';
 }) {
-  const [uploading, setUploading] = React.useState(false);
-  const isDisabled = !!disabled || uploading;
+    const [uploading, setUploading] = React.useState(false);
+    const isDisabled = !!disabled || uploading;
 
-  // ✅ MUST be declared here (not inside JSX)
-  const inputId = `img-upload-${label.replace(/\s+/g, '-').toLowerCase()}`;
+    // ✅ MUST be declared here (not inside JSX)
+    const inputId = `img-upload-${label.replace(/\s+/g, '-').toLowerCase()}`;
 
-  return (
-    <div style={{ marginTop: 12 }}>
-      <label style={labelStyle}>{label}</label>
+    return (
+        <div style={{ marginTop: 12 }}>
+            <label style={labelStyle}>{label}</label>
 
-      {url ? (
-        <div style={{ marginTop: 8 }}>
-          <img
-            src={url}
-            alt={label}
-            style={{
-              width: '100%',
-              maxHeight: 180,
-              objectFit: 'cover',
-              borderRadius: 6,
-              border: '1px solid #e5e7eb',
-            }}
-          />
+            {url ? (
+                <div style={{ marginTop: 8 }}>
+                    <img
+                        src={url}
+                        alt={label}
+                        style={{
+                            width: '100%',
+                            maxHeight: 180,
+                            objectFit: 'cover',
+                            borderRadius: 6,
+                            border: '1px solid #e5e7eb',
+                        }}
+                    />
+                </div>
+            ) : (
+                <div style={{ marginTop: 8, color: '#888' }}>No image uploaded</div>
+            )}
+
+            <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
+                {url ? 'Replace image' : 'Upload image'}
+            </div>
+
+            {/* ✅ Button triggers hidden file input */}
+            <div style={{ marginTop: 8 }}>
+                <button
+                    type="button"
+                    disabled={isDisabled}
+                    onClick={() => document.getElementById(inputId)?.click()}
+                    style={{
+                        padding: '8px 12px',
+                        background: isDisabled ? '#94a3b8' : '#003a5d',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 6,
+                        cursor: isDisabled ? 'not-allowed' : 'pointer',
+                        fontSize: 13,
+                    }}
+                >
+                    {url ? 'Replace image' : 'Upload image'}
+                </button>
+
+                <input
+                    id={inputId}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    disabled={isDisabled}
+                    onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+
+                        setUploading(true);
+                        try {
+                            const safeName = file.name.replace(/\s+/g, '-');
+                            const path = `deals/${Date.now()}-${safeName}`;
+                            const result = await uploadFile(file, bucket, path);
+                            if (result) onChange(result);
+                        } finally {
+                            setUploading(false);
+                            e.currentTarget.value = '';
+                        }
+                    }}
+                />
+            </div>
+
+            {/* ✅ Hide raw URL input when image exists */}
+            {!url && (
+                <input
+                    value={url}
+                    onChange={(e) => onChange(e.target.value)}
+                    style={{ ...input, marginTop: 8 }}
+                    placeholder="Paste image URL (optional)"
+                    disabled={isDisabled}
+                />
+            )}
+
+            {uploading && (
+                <div style={{ marginTop: 6, fontSize: 12, color: '#666' }}>
+                    Uploading…
+                </div>
+            )}
         </div>
-      ) : (
-        <div style={{ marginTop: 8, color: '#888' }}>No image uploaded</div>
-      )}
-
-      <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
-        {url ? 'Replace image' : 'Upload image'}
-      </div>
-
-      {/* ✅ Button triggers hidden file input */}
-      <div style={{ marginTop: 8 }}>
-        <button
-          type="button"
-          disabled={isDisabled}
-          onClick={() => document.getElementById(inputId)?.click()}
-          style={{
-            padding: '8px 12px',
-            background: isDisabled ? '#94a3b8' : '#003a5d',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 6,
-            cursor: isDisabled ? 'not-allowed' : 'pointer',
-            fontSize: 13,
-          }}
-        >
-          {url ? 'Replace image' : 'Upload image'}
-        </button>
-
-        <input
-          id={inputId}
-          type="file"
-          accept="image/*"
-          style={{ display: 'none' }}
-          disabled={isDisabled}
-          onChange={async (e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-
-            setUploading(true);
-            try {
-              const safeName = file.name.replace(/\s+/g, '-');
-              const path = `deals/${Date.now()}-${safeName}`;
-              const result = await uploadFile(file, bucket, path);
-              if (result) onChange(result);
-            } finally {
-              setUploading(false);
-              e.currentTarget.value = '';
-            }
-          }}
-        />
-      </div>
-
-      {/* ✅ Hide raw URL input when image exists */}
-      {!url && (
-        <input
-          value={url}
-          onChange={(e) => onChange(e.target.value)}
-          style={{ ...input, marginTop: 8 }}
-          placeholder="Paste image URL (optional)"
-          disabled={isDisabled}
-        />
-      )}
-
-      {uploading && (
-        <div style={{ marginTop: 6, fontSize: 12, color: '#666' }}>
-          Uploading…
-        </div>
-      )}
-    </div>
-  );
+    );
 }
 
 
@@ -478,113 +478,131 @@ function Checkbox({ label, checked, onChange }: CheckboxProps) {
     );
 }
 function DocumentField({
-  label,
-  url,
-  onChange,
-  bucket,
-  disabled,
-  accept = '.pdf,.doc,.docx,.ppt,.pptx',
+    label,
+    url,
+    onChange,
+    bucket,
+    disabled,
+    accept = '.pdf,.doc,.docx,.ppt,.pptx',
 }: {
-  label: string;
-  url: string;
-  onChange: (value: string) => void;
-  bucket: 'deal-documents-public' | 'deal-documents-private';
-  disabled?: boolean;
-  accept?: string;
+    label: string;
+    url: string;
+    onChange: (value: string) => void;
+    bucket: 'deal-documents-public' | 'deal-documents-private';
+    disabled?: boolean;
+    accept?: string;
 }) {
-  const [uploading, setUploading] = React.useState(false);
-  const isDisabled = !!disabled || uploading;
-  const isHttp = /^https?:\/\//i.test(url);
+    const [uploading, setUploading] = React.useState(false);
+    const isDisabled = !!disabled || uploading;
 
-  // ✅ MUST be declared here (not inside JSX)
-  const inputId = `doc-upload-${label.replace(/\s+/g, '-').toLowerCase()}`;
+    const isHttp = /^https?:\/\//i.test(url);
+    const fileName = url ? url.split('/').pop() : '';
+    const inputId = `doc-upload-${label.replace(/\s+/g, '-').toLowerCase()}`;
 
-  return (
-    <div style={{ marginTop: 12 }}>
-      <label style={labelStyle}>{label}</label>
+    return (
+        <div style={{ marginTop: 12 }}>
+            <label style={labelStyle}>
+                {label}
+                {label === 'Full Memo' && (
+                    <span style={{ marginLeft: 6, color: '#888', fontSize: 11 }}>
+                        (private)
+                    </span>
+                )}
+            </label>
 
-      {url ? (
-        <div style={{ marginTop: 8 }}>
-          {isHttp ? (
-            <a href={url} target="_blank" rel="noopener noreferrer">
-              Open {label}
-            </a>
-          ) : (
-            <span style={{ color: '#666', fontSize: 12 }}>
-              Saved path: {url}
-            </span>
-          )}
+            {/* ✅ Display existing doc nicely */}
+            <div style={{ marginTop: 8 }}>
+
+                {url ? (
+                    <div style={{ marginBottom: 6 }}>
+                        {isHttp ? (
+                            <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ fontWeight: 500 }}
+                            >
+                                View {label}
+                            </a>
+                        ) : (
+                            <div style={{ fontSize: 14, fontWeight: 600, color: '#003a5d' }}>
+                                {fileName}
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div style={{ marginBottom: 6, color: '#888' }}>
+                        No document uploaded
+                    </div>
+                )}
+
+                <button
+                    type="button"
+                    disabled={isDisabled}
+                    onClick={() => document.getElementById(inputId)?.click()}
+                    style={{
+                        padding: '8px 12px',
+                        background: isDisabled ? '#94a3b8' : '#003a5d',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 6,
+                        cursor: isDisabled ? 'not-allowed' : 'pointer',
+                        fontSize: 13,
+                    }}
+                >
+                    {url ? 'Replace document' : 'Upload document'}
+                </button>
+
+            </div>
+
+            <input
+                id={inputId}
+                type="file"
+                accept={accept}
+                style={{ display: 'none' }}
+                disabled={isDisabled}
+                onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    setUploading(true);
+                    try {
+                        const safeName = file.name.replace(/\s+/g, '-');
+                        const path = `deals/${Date.now()}-${safeName}`;
+                        const result = await uploadFile(file, bucket, path);
+                        if (result) onChange(result);
+                    } finally {
+                        setUploading(false);
+                        e.currentTarget.value = '';
+                    }
+                }}
+            />
         </div>
-      ) : (
-        <div style={{ marginTop: 8, color: '#888' }}>No document uploaded</div>
-      )}
 
-      <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
-        {url ? 'Replace document' : 'Upload document'}
-      </div>
+      {/* ✅ Only show manual URL input when empty */ }
+    {
+        !url && (
+            <input
+                value={url}
+                onChange={(e) => onChange(e.target.value)}
+                style={{ ...input, marginTop: 8 }}
+                placeholder="Paste document URL (optional)"
+                disabled={isDisabled}
+            />
+        )
+    }
 
-      {/* ✅ Button triggers hidden file input */}
-      <div style={{ marginTop: 8 }}>
-        <button
-          type="button"
-          disabled={isDisabled}
-          onClick={() => document.getElementById(inputId)?.click()}
-          style={{
-            padding: '8px 12px',
-            background: isDisabled ? '#94a3b8' : '#003a5d',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 6,
-            cursor: isDisabled ? 'not-allowed' : 'pointer',
-            fontSize: 13,
-          }}
-        >
-          {url ? 'Replace document' : 'Upload document'}
-        </button>
-
-        <input
-          id={inputId}
-          type="file"
-          accept={accept}
-          style={{ display: 'none' }}
-          disabled={isDisabled}
-          onChange={async (e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-
-            setUploading(true);
-            try {
-              const safeName = file.name.replace(/\s+/g, '-');
-              const path = `deals/${Date.now()}-${safeName}`;
-              const result = await uploadFile(file, bucket, path);
-              if (result) onChange(result);
-            } finally {
-              setUploading(false);
-              e.currentTarget.value = '';
-            }
-          }}
-        />
-      </div>
-
-      {/* ✅ Hide raw URL input when doc exists */}
-      {!url && (
-        <input
-          value={url}
-          onChange={(e) => onChange(e.target.value)}
-          style={{ ...input, marginTop: 8 }}
-          placeholder="Paste document URL (optional)"
-          disabled={isDisabled}
-        />
-      )}
-
-      {uploading && (
-        <div style={{ marginTop: 6, fontSize: 12, color: '#666' }}>
-          Uploading…
-        </div>
-      )}
-    </div>
+    {
+        uploading && (
+            <div style={{ marginTop: 6, fontSize: 12, color: '#666' }}>
+                Uploading…
+            </div>
+        )
+    }
+    </div >
   );
 }
+
 
 type TextAreaProps = {
     label: string;
