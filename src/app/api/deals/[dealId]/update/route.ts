@@ -25,16 +25,32 @@ type UpdateBody = {
   image_1_url?: unknown;
   image_2_url?: unknown;
   image_3_url?: unknown;
+  pitch_book_url?: unknown;
+  abridged_memo_url?: unknown;
+  full_memo_url?: unknown;
+  full_memo_requires_ca?: unknown;
 };
 
-function cleanText(value: unknown) {
-  return typeof value === 'string' ? value.trim() : null;
+function cleanText(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  const v = value.trim();
+  return v.length ? v : null;
 }
 
 function cleanDate(value: unknown): string | null {
   if (typeof value !== 'string') return null;
   const v = value.trim();
   return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null;
+}
+
+function cleanBool(value: unknown): boolean | null {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'string') {
+    const v = value.trim().toLowerCase();
+    if (v === 'true') return true;
+    if (v === 'false') return false;
+  }
+  return null;
 }
 
 export async function POST(
@@ -65,7 +81,11 @@ export async function POST(
     const total_project_cost = cleanText(body.total_project_cost);
     const image_1_url = cleanText(body.image_1_url);
     const image_2_url = cleanText(body.image_2_url);
-    const image_3_url = cleanText(body.image_3_url);
+    const image_3_url = cleanText(body.image_3_url);    
+    const pitch_book_url = cleanText(body.pitch_book_url);
+    const abridged_memo_url = cleanText(body.abridged_memo_url);
+    const full_memo_url = cleanText(body.full_memo_url);
+    const full_memo_requires_ca = cleanBool(body.full_memo_requires_ca);
 
 
     if (!dealId) {
@@ -112,9 +132,15 @@ export async function POST(
         image_1_url,
         image_2_url,
         image_3_url,
+
+        pitch_book_url,
+        abridged_memo_url,
+        full_memo_url,
+        full_memo_requires_ca,
       })
       .eq('id', dealId)
-      .select();
+      .select()
+      .single();
 
     if (error) {
       console.error('[DEAL UPDATE ERROR]', error);
@@ -131,7 +157,7 @@ export async function POST(
       );
     }
 
-    return NextResponse.json({ ok: true, deal: data[0] });
+    return NextResponse.json({ ok: true, deal: data });
   } catch (e) {
     console.error('[DEAL UPDATE CRASH]', e);
     return NextResponse.json(

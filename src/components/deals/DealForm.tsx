@@ -23,6 +23,11 @@ export type DealFormValues = {
     image_1_url: string;
     image_2_url: string;
     image_3_url: string;
+
+    pitch_book_url: string;
+    abridged_memo_url: string;
+    full_memo_url: string;
+    full_memo_requires_ca: boolean;
 };
 
 type Props = {
@@ -34,11 +39,10 @@ type Props = {
 export default function DealForm({ initialDeal, onSave, loading }: Props) {
     const [deal, setDeal] = useState<DealFormValues>({
         name: initialDeal?.name ?? '',
-        target_amount: Number(initialDeal?.target_amount ?? 0),
+        target_amount: Number(initialDeal?.target_amount ?? 0) || 0,
         location: initialDeal?.location ?? '',
         estimated_closing_date: initialDeal?.estimated_closing_date ?? '',
         overview_text: initialDeal?.overview_text ?? '',
-
         project_unlevered_irr: initialDeal?.project_unlevered_irr ?? '',
         project_levered_irr: initialDeal?.project_levered_irr ?? '',
         target_lp_equity_multiple: initialDeal?.target_lp_equity_multiple ?? '',
@@ -51,6 +55,10 @@ export default function DealForm({ initialDeal, onSave, loading }: Props) {
         image_1_url: initialDeal?.image_1_url ?? '',
         image_2_url: initialDeal?.image_2_url ?? '',
         image_3_url: initialDeal?.image_3_url ?? '',
+        pitch_book_url: initialDeal?.pitch_book_url ?? '',
+        abridged_memo_url: initialDeal?.abridged_memo_url ?? '',
+        full_memo_url: initialDeal?.full_memo_url ?? '',
+        full_memo_requires_ca: Boolean(initialDeal?.full_memo_requires_ca ?? false),
     });
 
     const [saving, setSaving] = useState(false);
@@ -66,7 +74,26 @@ export default function DealForm({ initialDeal, onSave, loading }: Props) {
             setSaving(false);
         }
     }
+    type CheckboxProps = {
+        label: string;
+        checked: boolean;
+        onChange: (value: boolean) => void;
+    };
 
+    function Checkbox({ label, checked, onChange }: CheckboxProps) {
+        return (
+            <div style={{ marginTop: 12 }}>
+                <label style={{ ...labelStyle, display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={(e) => onChange(e.target.checked)}
+                    />
+                    {label}
+                </label>
+            </div>
+        );
+    }
     return (
         <div style={container}>
             <div style={content}>
@@ -86,8 +113,12 @@ export default function DealForm({ initialDeal, onSave, loading }: Props) {
                         type="number"
                         value={deal.target_amount}
                         onChange={(v) =>
-                            setDeal((p) => ({ ...p, target_amount: Number(v) }))
+                            setDeal(p => ({
+                                ...p,
+                                target_amount: v === '' ? 0 : Number(v)
+                            }))
                         }
+
                     />
 
                     <Field
@@ -226,8 +257,37 @@ export default function DealForm({ initialDeal, onSave, loading }: Props) {
                     />
 
                 </Section>
+                <Section title="Documents">
+                    <Field
+                        label="Pitch Book"
+                        value={deal.pitch_book_url}
+                        onChange={(v) => setDeal(p => ({ ...p, pitch_book_url: v }))}
+                    />
 
-                <button onClick={handleSubmit} style={primaryBtn}>
+                    <Field
+                        label="Abridged Memo"
+                        value={deal.abridged_memo_url}
+                        onChange={(v) => setDeal(p => ({ ...p, abridged_memo_url: v }))}
+                    />
+
+                    <Field
+                        label="Full Memo"
+                        value={deal.full_memo_url}
+                        onChange={(v) => setDeal(p => ({ ...p, full_memo_url: v }))}
+                    />
+
+                    <Checkbox
+                        label="Full Memo Requires CA"
+                        checked={deal.full_memo_requires_ca}
+                        onChange={(v) => setDeal(p => ({ ...p, full_memo_requires_ca: v }))}
+                    />
+
+                </Section>
+                <button 
+                    onClick={handleSubmit}
+                    style={primaryBtn}
+                    disabled={saving}
+                    >
                     {saving ? 'Saving…' : 'Save'}
                 </button>
             </div>

@@ -4,11 +4,10 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import DealForm from '@/components/deals/DealForm';
 import AdminNav from '@/components/navigation/AdminNav';
+import type { DealFormValues } from '@/components/deals/DealForm';
 
-type Deal = {
+type Deal = Partial<DealFormValues>& {
   id: string;
-  name: string;
-  target_amount: number;
 };
 
 export default function DealEditPage() {
@@ -22,7 +21,7 @@ export default function DealEditPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch(`/api/public/deals/${dealId}`, {
+        const res = await fetch(`/api/deals/${dealId}`, {
           cache: 'no-store',
         });
 

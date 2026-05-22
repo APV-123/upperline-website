@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/SupabaseServer';
+import { PUBLIC_DEAL_SELECT } from '@/lib/deals/publicDealFields';
 
 type Params = { dealId: string };
 
@@ -27,12 +28,10 @@ type PublicDeal = {
   image_2_url?: string;
   image_3_url?: string;
 
-  
   pitch_book_url?: string;
   abridged_memo_url?: string;
   full_memo_url?: string;
   full_memo_requires_ca?: boolean;
-
 };
 
 export async function GET(
@@ -49,41 +48,11 @@ export async function GET(
   }
 
   try {
-    const supabase = supabaseServer;
-
-    const { data, error } = await supabase
+    const { data, error } = await supabaseServer
       .from('deals')
-      .select(`
-        id,
-        name,
-        target_amount,
-        location,
-        estimated_closing_date,
-        overview_text,
-        raise_id,
-        created_at,
-
-        project_unlevered_irr,
-        project_levered_irr,
-        target_lp_equity_multiple,
-        target_lp_levered_irr,
-        untrended_return_on_cost,
-        stabilized_return_on_cost,
-        total_equity_requirement,
-        construction_loan,
-        total_project_cost,
-              
-        image_1_url,
-        image_2_url,
-        image_3_url,
-
-        pitch_book_url,
-        abridged_memo_url,
-        full_memo_url,
-        full_memo_requires_ca
-      `)
+      .select(PUBLIC_DEAL_SELECT) // ✅ CENTRALIZED FIELD LIST
       .eq('id', dealId)
-      .eq('is_public', true) // ✅ CRITICAL: enforce visibility
+      .eq('is_public', true) // ✅ VISIBILITY ENFORCED
       .single<PublicDeal>();
 
     if (error || !data) {
