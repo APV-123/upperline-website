@@ -40,10 +40,7 @@ async function readJsonOrText<T>(res: Response): Promise<{
 
 const PIPELINE_ID = '2243555049';
 const INTRODUCED_STAGE_ID = '3604434673';
-
-// put the real Docs / IC Review stage id in env
-const DOCS_STAGE_ID =
-  process.env.HUBSPOT_DOCS_STAGE_ID ?? 'REPLACE_WITH_REAL_DOCS_STAGE_ID';
+const DOCS_STAGE_ID = '3604434676';
 
 export async function POST(
   req: NextRequest,
@@ -81,6 +78,21 @@ export async function POST(
         ? stageOverride.trim()
         : INTRODUCED_STAGE_ID;
 
+    if (
+      !selectedStage ||
+      selectedStage === 'REPLACE_WITH_REAL_DOCS_STAGE_ID'
+    ) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'Invalid HubSpot stage override',
+          details: 'Docs / IC Review stage is not configured correctly',
+          usedStage: selectedStage,
+        },
+        { status: 500 }
+      );
+    }
+
     /**
      * 1. Create deal
      */
@@ -117,6 +129,7 @@ export async function POST(
           error: 'Deal creation failed',
           status: dealRead.status,
           details: dealRead.raw.slice(0, 500),
+          usedStage: selectedStage,
         },
         { status: 502 }
       );
@@ -152,6 +165,7 @@ export async function POST(
           dealId,
           status: assocRead.status,
           details: assocRead.raw.slice(0, 500),
+          usedStage: selectedStage,
         },
         { status: 502 }
       );
@@ -161,9 +175,9 @@ export async function POST(
       ok: true,
       dealId,
       usedStage: selectedStage,
+      introducedStageDefault: INTRODUCED_STAGE_ID,
       docsStageDefault: DOCS_STAGE_ID,
     });
-
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unhandled error';
 

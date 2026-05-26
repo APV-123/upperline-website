@@ -326,8 +326,7 @@ export async function POST(req: Request, context: { params: Promise<Params> }) {
               },
               body: JSON.stringify({
                 contactId,
-                stageOverride:
-                  process.env.HUBSPOT_DOCS_STAGE_ID ?? "REPLACE_WITH_REAL_DOCS_STAGE_ID",
+                stageOverride: "3604434676",
               }),
               cache: "no-store",
             }
