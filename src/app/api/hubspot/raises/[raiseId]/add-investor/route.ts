@@ -41,6 +41,10 @@ async function readJsonOrText<T>(res: Response): Promise<{
 const PIPELINE_ID = '2243555049';
 const INTRODUCED_STAGE_ID = '3604434673';
 
+// put the real Docs / IC Review stage id in env
+const DOCS_STAGE_ID =
+  process.env.HUBSPOT_DOCS_STAGE_ID ?? 'REPLACE_WITH_REAL_DOCS_STAGE_ID';
+
 export async function POST(
   req: NextRequest,
   context: { params: Params | Promise<Params> }
@@ -56,7 +60,7 @@ export async function POST(
   }
 
   try {
-    const { contactId, amount } = await req.json();
+    const { contactId, amount, stageOverride } = await req.json();
 
     if (!contactId) {
       return NextResponse.json(
@@ -72,6 +76,11 @@ export async function POST(
         ? DEFAULT_INVITE_AMOUNT
         : amount;
 
+    const selectedStage =
+      typeof stageOverride === 'string' && stageOverride.trim()
+        ? stageOverride.trim()
+        : INTRODUCED_STAGE_ID;
+
     /**
      * 1. Create deal
      */
@@ -85,7 +94,7 @@ export async function POST(
             dealname: `Investor – ${raiseId}`,
             amount: String(normalizedAmount),
             pipeline: PIPELINE_ID,
-            dealstage: INTRODUCED_STAGE_ID,
+            dealstage: selectedStage,
             raise_id: raiseId,
           },
         }),
@@ -151,6 +160,8 @@ export async function POST(
     return NextResponse.json({
       ok: true,
       dealId,
+      usedStage: selectedStage,
+      docsStageDefault: DOCS_STAGE_ID,
     });
 
   } catch (err: unknown) {
