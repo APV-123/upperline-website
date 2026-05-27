@@ -538,111 +538,115 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
               </div>
 
               {/* FORM FIRST */}
-              <div style={sheetFooter}>
 
-                {/* FIRST / LAST ROW */}
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                    gap: 12,
-                  }}
-                >
+              <div style={{
+                flex: 1,
+                overflowY: "auto",
+              }}>
+                <div style={sheetFooter}>
 
 
-                  <div>
-                    <label style={sheetLabel}>First Name</label>
+                  {/* FIRST / LAST ROW */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                      gap: 12,
+                    }}
+                  >
+                    <div>
+                      <label style={sheetLabel}>First Name</label>
+                      <input
+                        style={sheetInput}
+                        value={caFirstName}
+                        onChange={(e) => setCaFirstName(e.target.value)}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={sheetLabel}>Last Name</label>
+                      <input
+                        style={sheetInput}
+                        value={caLastName}
+                        onChange={(e) => setCaLastName(e.target.value)}
+                      />
+                    </div>
+
+                  </div>
+
+                  <div style={sheetFormRow}>
+                    <label style={sheetLabel}>Email</label>
                     <input
                       style={sheetInput}
-                      value={caFirstName}
-                      onChange={(e) => setCaFirstName(e.target.value)}
+                      value={caEmail}
+                      onChange={(e) => setCaEmail(e.target.value)}
                     />
                   </div>
 
-                  <div>
-                    <label style={sheetLabel}>Last Name</label>
+                  <div style={sheetFormRow}>
+                    <label style={sheetLabel}>Company (optional)</label>
                     <input
                       style={sheetInput}
-                      value={caLastName}
-                      onChange={(e) => setCaLastName(e.target.value)}
+                      value={caCompany}
+                      onChange={(e) => setCaCompany(e.target.value)}
+                    />
+                  </div>
+                  {/* Job Title */}
+                  <div style={sheetFormRow}>
+                    <label style={sheetLabel}>Job Title (optional)</label>
+                    <input
+                      style={sheetInput}
+                      value={caJobTitle}
+                      onChange={(e) => setCaJobTitle(e.target.value)}
                     />
                   </div>
 
+                  {/* Phone */}
+                  <div style={sheetFormRow}>
+                    <label style={sheetLabel}>Phone Number (optional)</label>
+                    <input
+                      style={sheetInput}
+                      value={caPhone}
+                      onChange={(e) => setCaPhone(e.target.value)}
+                    />
+                  </div>
                 </div>
 
-                <div style={sheetFormRow}>
-                  <label style={sheetLabel}>Email</label>
-                  <input
-                    style={sheetInput}
-                    value={caEmail}
-                    onChange={(e) => setCaEmail(e.target.value)}
-                  />
-                </div>
+                {/* LEGAL AGREEMENT SCROLLER */}
+                <div style={agreementScroll}>
 
-                <div style={sheetFormRow}>
-                  <label style={sheetLabel}>Company (optional)</label>
-                  <input
-                    style={sheetInput}
-                    value={caCompany}
-                    onChange={(e) => setCaCompany(e.target.value)}
-                  />
-                </div>
-                {/* Job Title */}
-                <div style={sheetFormRow}>
-                  <label style={sheetLabel}>Job Title (optional)</label>
-                  <input
-                    style={sheetInput}
-                    value={caJobTitle}
-                    onChange={(e) => setCaJobTitle(e.target.value)}
-                  />
-                </div>
+                  <h4 style={agreementTitle}>Confidentiality Agreement</h4>
 
-                {/* Phone */}
-                <div style={sheetFormRow}>
-                  <label style={sheetLabel}>Phone Number (optional)</label>
-                  <input
-                    style={sheetInput}
-                    value={caPhone}
-                    onChange={(e) => setCaPhone(e.target.value)}
-                  />
+                  <p style={agreementText}>
+                    This Confidentiality and Non-Disclosure Agreement (“Agreement”) governs access to proprietary and non-public information for the purpose of evaluating a potential investment opportunity.
+                  </p>
+
+                  <p style={agreementText}>
+                    By accessing these materials, you acknowledge that all information provided constitutes confidential information, including but not limited to financial statements, projections, ownership structures, investment models, and all documents made available through this deal portal.
+                  </p>
+
+                  <p style={agreementText}>
+                    You agree that such information shall be used solely for the purpose of evaluating a potential investment and shall not be disclosed, reproduced, or distributed to any third party without prior written consent.
+                  </p>
+
+                  <p style={agreementText}>
+                    You further agree not to contact any tenants, lenders, investors, brokers, or other parties identified within the materials without explicit authorization from Upperline.
+                  </p>
+
+                  <p style={agreementText}>
+                    All confidential information remains the exclusive property of Upperline. No license or ownership rights are granted by access to these materials.
+                  </p>
+
+                  <p style={agreementText}>
+                    This Agreement shall remain in effect for a period of five (5) years from the date of acceptance. Unauthorized use or disclosure may result in legal action and injunctive relief.
+                  </p>
+
+                  <p style={agreementText}>
+                    Acceptance of this Agreement electronically constitutes a legally binding agreement enforceable to the same extent as a manually executed agreement.
+                  </p>
+
                 </div>
               </div>
-
-              {/* LEGAL AGREEMENT SCROLLER */}
-              <div style={agreementScroll}>
-
-                <h4 style={agreementTitle}>Confidentiality Agreement</h4>
-
-                <p style={agreementText}>
-                  This Confidentiality and Non-Disclosure Agreement (“Agreement”) governs access to proprietary and non-public information for the purpose of evaluating a potential investment opportunity.
-                </p>
-
-                <p style={agreementText}>
-                  By accessing these materials, you acknowledge that all information provided constitutes confidential information, including but not limited to financial statements, projections, ownership structures, investment models, and all documents made available through this deal portal.
-                </p>
-
-                <p style={agreementText}>
-                  You agree that such information shall be used solely for the purpose of evaluating a potential investment and shall not be disclosed, reproduced, or distributed to any third party without prior written consent.
-                </p>
-
-                <p style={agreementText}>
-                  You further agree not to contact any tenants, lenders, investors, brokers, or other parties identified within the materials without explicit authorization from Upperline.
-                </p>
-
-                <p style={agreementText}>
-                  All confidential information remains the exclusive property of Upperline. No license or ownership rights are granted by access to these materials.
-                </p>
-
-                <p style={agreementText}>
-                  This Agreement shall remain in effect for a period of five (5) years from the date of acceptance. Unauthorized use or disclosure may result in legal action and injunctive relief.
-                </p>
-
-                <p style={agreementText}>
-                  Acceptance of this Agreement electronically constitutes a legally binding agreement enforceable to the same extent as a manually executed agreement.
-                </p>
-
-              </div>
-
               {/* ACCEPTANCE + ACTIONS */}
               <div style={sheetFooter}>
 
@@ -1105,14 +1109,16 @@ const sheetBackdrop: React.CSSProperties = {
   alignItems: "flex-end",
 };
 
-const sheet: React.CSSProperties = {
+const sheet = {
   width: "100%",
   maxWidth: 720,
+  height: "90vh",
   background: "#fff",
   borderTopLeftRadius: 16,
   borderTopRightRadius: 16,
   boxShadow: "0 -20px 60px rgba(0,0,0,0.35)",
-  overflow: "hidden",
+  display: "flex",
+  flexDirection: "column",
 };
 
 const sheetHandle: React.CSSProperties = {
