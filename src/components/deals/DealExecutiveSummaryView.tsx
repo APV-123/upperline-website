@@ -70,6 +70,14 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
   const [caAgree, setCaAgree] = useState(false);
   const [caError, setCaError] = useState('');
   const [hasAccess, setHasAccess] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     if (!hasAccess) return;
@@ -174,11 +182,23 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
 
   }
   return (
-    <div style={container}>
-      <div style={content}>
-
+    <div style={{
+      ...container,
+      padding: isMobile ? "20px 12px" : "40px 20px"
+    }}>
+      <div
+        style={{
+          ...content,
+          padding: isMobile ? 20 : 40,
+        }}
+      >
         {/* HEADER */}
-        <div style={headerRow}>
+        <div style={{
+          ...headerRow,
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "flex-start" : "center",
+          gap: isMobile ? 12 : 0,
+        }}>
 
           <Image
             src="/upperline-logo.png"
@@ -189,7 +209,11 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
 
 
           <button
-            style={ctaBtn}
+            style={{
+              ...ctaBtn,
+              width: isMobile ? "100%" : "auto",
+            }}
+
             onClick={() => window.location.href = 'mailto:bh@upperline.com'}
           >
             Discuss Further
@@ -200,7 +224,14 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         <p style={subtitle}>LP Equity Opportunity</p>
 
         {/* LOCATION + DATE */}
-        <div style={metaRow}>
+        <div
+          style={{
+            ...metaRow,
+            flexDirection: isMobile ? "column" : "row",
+            gap: isMobile ? 8 : 12,
+          }}
+        >
+
           <div>
             <strong>Location:</strong>{" "}
             {deal.location || "Not provided"}
@@ -215,27 +246,51 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         </div>
 
         {/* IMAGE PLACEHOLDER */}
-        <div style={imageGrid}>
+        <div style={{
+          ...imageGrid,
+          gridTemplateColumns: isMobile ? "1fr" : "2fr 1fr",
+        }}>
           {deal.image_1_url && (
             <img
               src={deal.image_1_url}
-              style={{ ...mainImage, cursor: "zoom-in" }}
+              style={{
+                ...mainImage,
+                height: isMobile ? 220 : 400,
+                cursor: "zoom-in",
+              }}
               onClick={() => openLightbox(0)}
             />
           )}
 
-          <div style={sideImages}>
+          <div
+            style={{
+              ...sideImages,
+              flexDirection: isMobile ? 'row' : 'column',
+            }}
+          >
             {deal.image_2_url && (
               <img
                 src={deal.image_2_url}
-                style={{ ...smallImage, cursor: "zoom-in" }}
+
+                style={{
+                  ...smallImage,
+                  height: isMobile ? 140 : 194,
+                  cursor: "zoom-in",
+                }}
+
                 onClick={() => openLightbox(1)}
               />
             )}
             {deal.image_3_url && (
               <img
                 src={deal.image_3_url}
-                style={{ ...smallImage, cursor: "zoom-in" }}
+
+                style={{
+                  ...smallImage,
+                  height: isMobile ? 140 : 194,
+                  cursor: "zoom-in",
+                }}
+
                 onClick={() => openLightbox(2)}
               />
             )}
@@ -247,7 +302,11 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         <div style={section}>
           <h2 style={sectionTitle}>Investment Metrics</h2>
 
-          <div style={metricsGrid}>
+          <div style={{
+            ...metricsGrid,
+            gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
+          }}
+          >
 
             <Metric label="Target Raise">
               {formatCurrency(String(deal.target_amount))}
@@ -304,7 +363,11 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         <div style={section}>
           <h2 style={sectionTitle}>Documents</h2>
 
-          <div style={docContainer}>
+          <div style={{
+            ...docContainer,
+            gridTemplateColumns: isMobile ? "1fr" : "250px 1fr",
+            height: isMobile ? "auto" : 500,
+          }}>
 
             {/* LEFT: DOCUMENT LIST */}
             <div style={docList}>
@@ -362,18 +425,41 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
             </div>
 
             {/* RIGHT: PREVIEW */}
-            <div style={docPreview}>
+            <div
+              style={{
+                ...docPreview,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
               {selectedDoc ? (
                 <>
-                  <div style={docHeader}>
+                  <div
+                    style={{
+                      ...docHeader,
+                      flexDirection: isMobile ? 'column' : 'row',
+                      alignItems: isMobile ? 'flex-start' : 'center',
+                      gap: isMobile ? 8 : 0,
+                    }}
+                  >
                     <div>{selectedDoc.label}</div>
                     <a href={selectedDoc.url} target="_blank">
-                      <button style={downloadBtn}>Download</button>
+                      <button
+                        style={{
+                          ...downloadBtn,
+                          width: isMobile ? '100%' : 'auto',
+                        }}
+                      >Download</button>
                     </a>
                   </div>
 
                   {selectedDoc.url ? (
-                    <iframe src={selectedDoc.url} style={iframe} />
+                    <iframe src={selectedDoc.url}
+                      style={{
+                        ...iframe,
+                        minHeight: isMobile ? 300 : undefined,
+                      }}
+                    />
                   ) : (
                     <div style={{ padding: 20, color: "#64748b" }}>
                       {selectedDoc.label === "Full Equity Memo"
@@ -455,7 +541,14 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
               <div style={sheetFooter}>
 
                 {/* FIRST / LAST ROW */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                    gap: 12,
+                  }}
+                >
+
 
                   <div>
                     <label style={sheetLabel}>First Name</label>
@@ -566,9 +659,18 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                     {caError}
                   </div>
                 )}
-                <div style={sheetActions}>
+                <div
+                  style={{
+                    ...sheetActions,
+                    flexDirection: isMobile ? 'column' : 'row',
+                    gap: 12,
+                  }}
+                >
                   <button
-                    style={sheetSecondaryBtn}
+                    style={{
+                      ...sheetSecondaryBtn,
+                      width: isMobile ? '100%' : 'auto',
+                    }}
                     onClick={() => setShowCA(false)}
                     disabled={caBusy}
                   >
@@ -576,7 +678,10 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                   </button>
 
                   <button
-                    style={sheetPrimaryBtn}
+                    style={{
+                      ...sheetPrimaryBtn,
+                      width: isMobile ? '100%' : 'auto',
+                    }}
                     disabled={caBusy}
                     onClick={async () => {
 
@@ -647,7 +752,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 }
 
@@ -786,10 +891,10 @@ const imageGrid = {
 
 const mainImage = {
   width: '100%',
-  height: 400,
   objectFit: 'cover' as const,
   borderRadius: 8,
 };
+
 
 const sideImages = {
   display: 'flex',
@@ -799,10 +904,10 @@ const sideImages = {
 
 const smallImage = {
   width: '100%',
-  height: 194,
   objectFit: 'cover' as const,
   borderRadius: 8,
 };
+
 const headerRow: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
@@ -849,6 +954,7 @@ const docPreview = {
   overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column' as const,
+  minHeight: 300,
 };
 
 const iframe = {
