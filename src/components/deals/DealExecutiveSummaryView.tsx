@@ -1118,7 +1118,7 @@ const sheet = {
   borderTopRightRadius: 16,
   boxShadow: "0 -20px 60px rgba(0,0,0,0.35)",
   display: "flex",
-  flexDirection: "column",
+  flexDirection: "column" as const,
 };
 
 const sheetHandle: React.CSSProperties = {
