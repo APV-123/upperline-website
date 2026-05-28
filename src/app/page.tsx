@@ -139,14 +139,13 @@ export default function DealIndexPage() {
 
         <div className={styles.footerNote}>
           <span className={styles.footerDot} />
-          For{""}
-          <a
+          For<a
             href="https://www.sec.gov/resources-small-businesses/capital-raising-building-blocks/accredited-investors"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.plainLink}
             >accredited investors
-               </a>{""}only. Information provided is for preliminary review and is not an offer to sell securities.
+               </a>only. Information provided is for preliminary review and is not an offer to sell securities.
         </div>
       </main>
     </div>
