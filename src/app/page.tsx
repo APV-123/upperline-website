@@ -144,9 +144,9 @@ export default function DealIndexPage() {
             target="_blank"
             rel="noopener noreferrer"
             className={styles.plainLink}
-            >
-              accredited investors
-               </a> only. Information provided is for preliminary review and is not an offer to sell securities.
+          >
+            accredited investors
+          </a> only. Information provided is for preliminary review and is not an offer to sell securities.
         </div>
       </main>
     </div>
