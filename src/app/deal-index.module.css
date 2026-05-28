@@ -319,10 +319,14 @@
 }
 
 .footerDot {
+  display: inline-block;
   width: 8px;
   height: 8px;
   border-radius: 999px;
   background: #0b6f8c;
+  margin-right: 10px;
+  position: relative;
+  top: -1px;
 }
 
 /* RESPONSIVE */
