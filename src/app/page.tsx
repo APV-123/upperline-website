@@ -82,11 +82,11 @@ export default function DealIndexPage() {
       <section className={styles.navySection}>
         <div className={styles.navyInner}>
           <h1 className={styles.navyTitle}>
-            Current Opportunities
+            Investment Opportunities
           </h1>
 
           <p className={styles.navySub}>
-            Select an opportunity below to review details and indicate interest.
+            Select an active opportunity below to review details and indicate interest.
           </p>
         </div>
       </section>
@@ -139,7 +139,16 @@ export default function DealIndexPage() {
 
         <div className={styles.footerNote}>
           <span className={styles.footerDot} />
-          For accredited investors only. Information provided is for preliminary review and is not an offer to sell securities.
+          For{" "}
+          <a
+            href="https://www.sec.gov/resources-small-businesses/capital-raising-building-blocks/accredited-investors"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.plainLink}
+            >
+               accredited investors
+               </a>{" "}
+               only. Information provided is for preliminary review and is not an offer to sell securities.
         </div>
       </main>
     </div>
