@@ -17,7 +17,7 @@ export async function GET(
 
   const { data, error } = await supabaseServer
     .from('deals')
-    .select(DEAL_SELECT) // ✅ REPLACED
+    .select(DEAL_SELECT)
     .eq('id', dealId)
     .single();
 
@@ -28,8 +28,17 @@ export async function GET(
     );
   }
 
+  const { deal_metrics, ...rest } = data;
+
+  const deal = {
+    ...rest,
+    metrics: (deal_metrics ?? [])
+      .filter(m => m.is_visible !== false)
+      .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)),
+  };
+
   return NextResponse.json({
     ok: true,
-    deal: data,
+    deal,
   });
 }

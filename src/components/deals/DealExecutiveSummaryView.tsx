@@ -1,24 +1,29 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 
+type DealMetric = {
+  key: string;
+  value?: string;
+  section: string;
+  display_order: number;
+  is_visible?: boolean;
+};
+
 type Deal = {
   id: string;
   name: string;
   target_amount: number;
 
   location?: string;
-  estimated_closing_date?: string;
-  overview_text?: string;
+  asset_class?: string;
+  strategy?: string;
 
-  project_unlevered_irr?: string;
-  project_levered_irr?: string;
-  target_lp_equity_multiple?: string;
-  target_lp_levered_irr?: string;
-  untrended_return_on_cost?: string;
-  stabilized_return_on_cost?: string;
-  total_equity_requirement?: string;
-  construction_loan?: string;
-  total_project_cost?: string;
+  estimated_closing_date?: string;
+
+  overview_text?: string;
+  business_plan_text?: string;
+
+  metrics?: DealMetric[];
 
   image_1_url?: string;
   image_2_url?: string;
@@ -29,6 +34,7 @@ type Deal = {
   full_memo_url?: string;
   full_memo_requires_ca?: boolean;
 };
+
 type Document = {
   label: string;
   url: string;
@@ -181,6 +187,13 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
     ].filter((doc) => doc.alwaysShow || Boolean(doc.url));
 
   }
+
+  function getSection(section: string) {
+    return (deal.metrics ?? [])
+      .filter((m) => m.section === section && m.is_visible !== false)
+      .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
+  }
+
   return (
     <div style={{
       ...container,
@@ -221,7 +234,13 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         </div>
 
         <h1 style={title}>{deal.name}</h1>
-        <p style={subtitle}>LP Equity Opportunity</p>
+        {(deal.asset_class || deal.strategy) && (
+          <p style={subtitle}>
+            {deal.asset_class || ""}
+            {deal.asset_class && deal.strategy ? " · " : ""}
+            {deal.strategy || ""}
+          </p>
+        )}
 
         {/* LOCATION + DATE */}
         <div
@@ -244,7 +263,12 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
               : "Not provided"}
           </div>
         </div>
-
+        <div style={section}>
+          <h2 style={sectionTitle}>Overview</h2>
+          <p style={paragraph}>
+            {deal.overview_text || "No overview provided."}
+          </p>
+        </div>
         {/* IMAGE PLACEHOLDER */}
         <div style={{
           ...imageGrid,
@@ -296,69 +320,56 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
             )}
           </div>
         </div>
-
-
-        {/* INVESTMENT METRICS */}
         <div style={section}>
-          <h2 style={sectionTitle}>Investment Metrics</h2>
+          <h2 style={sectionTitle}>LP Return Summary</h2>
 
-          <div style={{
-            ...metricsGrid,
-            gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
-          }}
-          >
-
-            <Metric label="Target Raise">
+          <div style={metricsGrid}>
+            <Metric label="LP Equity Total">
               {formatCurrency(String(deal.target_amount))}
             </Metric>
 
-            <Metric label="Project Unlevered IRR">
-              {formatPercent(deal.project_unlevered_irr)}
-            </Metric>
-
-            <Metric label="Project Levered IRR">
-              {formatPercent(deal.project_levered_irr)}
-            </Metric>
-
-            <Metric label="Target LP Equity Multiple">
-              {formatMultiple(deal.target_lp_equity_multiple)}
-            </Metric>
-
-            <Metric label="Target LP Levered IRR">
-              {formatPercent(deal.target_lp_levered_irr)}
-            </Metric>
-
-            <Metric label="Un-Trended Return on Cost">
-              {formatPercent(deal.untrended_return_on_cost)}
-            </Metric>
-
-            <Metric label="Stabilized Return on Cost">
-              {formatPercent(deal.stabilized_return_on_cost)}
-            </Metric>
-
-            <Metric label="Total Equity Requirement">
-              {formatCurrency(deal.total_equity_requirement)}
-            </Metric>
-
-            <Metric label="Construction Loan">
-              {deal.construction_loan || "—"}
-              {/* leave raw since it may include text like "(65% LTC)" */}
-            </Metric>
-
-            <Metric label="Total Project Cost">
-              {deal.total_project_cost || "—"}
-            </Metric>
-
+            {getSection('lp_summary').map(m => (
+              <Metric key={m.key} label={formatKey(m.key)}>
+                {formatValue(m.value)}
+              </Metric>
+            ))}
           </div>
         </div>
-
-        {/* OVERVIEW */}
         <div style={section}>
-          <h2 style={sectionTitle}>About This Offering</h2>
+          <h2 style={sectionTitle}>Project Returns</h2>
+
+          <div style={metricsGrid}>
+            {getSection('project_returns').map(m => (
+              <Metric key={m.key} label={formatKey(m.key)}>
+                {formatValue(m.value)}
+              </Metric>
+            ))}
+          </div>
+        </div>
+        <div style={section}>
+          <h2 style={sectionTitle}>Equity Capital Stack</h2>
+
+          <div style={metricsGrid}>
+            <Metric label="LP Equity">
+              {formatCurrency(String(deal.target_amount))}
+            </Metric>
+
+            {getSection('capital_stack').map(m => (
+              <Metric key={m.key} label={formatKey(m.key)}>
+                {formatValue(m.value)}
+              </Metric>
+            ))}
+          </div>
+        </div>
+        {/* OVERVIEW */}
+
+        <div style={section}>
+          <h2 style={sectionTitle}>Business Plan</h2>
           <p style={paragraph}>
-            {deal.overview_text || "No overview provided."}
+            {deal.business_plan_text || "No business plan provided."}
           </p>
         </div>
+
         {/* DOCUMENTS */}
         <div style={section}>
           <h2 style={sectionTitle}>Documents</h2>
@@ -812,6 +823,42 @@ function formatCurrency(value?: string) {
 
   return `$${num}`;
 }
+function formatKey(key: string) {
+  const map: Record<string, string> = {
+    lp_irr: "LP IRR",
+    lp_moic: "LP Equity Multiple (MOIC)",
+    lp_cash_on_cash: "Cash-on-Cash Return",
+    minimum_investment: "Minimum Investment",
+
+    project_unlevered_irr: "Project Unlevered IRR",
+    project_levered_irr: "Project Levered IRR",
+    untrended_return_on_cost: "Un-Trended Return on Cost",
+    stabilized_return_on_cost: "Stabilized Return on Cost",
+
+    gp_equity: "GP Equity",
+    total_equity: "Total Equity",
+  };
+
+  return map[key] || key;
+}
+
+function formatValue(value?: string, key?: string) {
+  if (!value) return "—";
+
+  if (key?.includes('irr') || key?.includes('cost')) {
+    return formatPercent(value);
+  }
+
+  if (key?.includes('moic') || key?.includes('multiple')) {
+    return formatMultiple(value);
+  }
+
+  if (value.toLowerCase().includes('$')) {
+    return formatCurrency(value);
+  }
+
+  return value;
+}
 
 /* ✅ Styles */
 
@@ -852,7 +899,7 @@ const metaRow: React.CSSProperties = {
 };
 
 const section: React.CSSProperties = {
-  marginBottom: 30,
+  marginBottom: 28,
 };
 
 const sectionTitle: React.CSSProperties = {
@@ -890,7 +937,8 @@ const imageGrid = {
   display: 'grid',
   gridTemplateColumns: '2fr 1fr',
   gap: 12,
-  marginBottom: 30,
+  marginTop: 4,
+  marginBottom: 32,
 };
 
 const mainImage = {

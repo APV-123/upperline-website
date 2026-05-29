@@ -10,7 +10,35 @@ type Deal = {
   id: string;
   name: string;
   target_amount: number;
+
+  location?: string;
+  asset_class?: string;
+  strategy?: string;
+  estimated_closing_date?: string;
 };
+
+function getCityState(location?: string) {
+  if (!location) return "";
+
+  const parts = location.split(",");
+  if (parts.length < 3) return location;
+
+  const city = parts[1]?.trim();
+  const state = parts[2]?.trim();
+
+  return `${city}, ${state}`;
+}
+
+function formatClosingDate(value?: string) {
+  if (!value) return "";
+
+  const d = new Date(value);
+
+  return d.toLocaleDateString(undefined, {
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export default function DealIndexPage() {
   const router = useRouter();
@@ -109,26 +137,34 @@ export default function DealIndexPage() {
           {deals.map((deal) => (
             <Link
               key={deal.id}
-              href={`/deals/${deal.id}`}   // ✅ dynamic routing
+              href={`/deals/${deal.id}`}
               className={styles.card}
             >
               <div className={styles.cardTop}>
                 <div className={styles.cardTitle}>{deal.name}</div>
 
                 <div className={styles.cardMeta}>
-                  Houston, TX · Opportunity
+                  {getCityState(deal.location)}
+                </div>
+
+                <div className={styles.cardAttributes}>
+                  {deal.asset_class || "—"}
+                  <span className={styles.dot}>·</span>
+                  {deal.strategy || "—"}
                 </div>
               </div>
 
-              <div className={styles.cardBlurb}>
-                Investment opportunity overview coming soon.
+              <div className={styles.cardFinancials}>
+                <div className={styles.cardRaise}>
+                  ${deal.target_amount.toLocaleString()}
+                </div>
+
+                <div className={styles.cardClosing}>
+                  Closing: {formatClosingDate(deal.estimated_closing_date)}
+                </div>
               </div>
 
               <div className={styles.cardBottom}>
-                <div className={styles.cardRaise}>
-                  ${deal.target_amount.toLocaleString()} Target
-                </div>
-
                 <div className={styles.cardCta}>
                   View Investment →
                 </div>

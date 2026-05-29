@@ -7,18 +7,11 @@ export const DEAL_SELECT = `
   is_public,
 
   location,
+  asset_class,
+  strategy,
   estimated_closing_date,
   overview_text,
-
-  project_unlevered_irr,
-  project_levered_irr,
-  target_lp_equity_multiple,
-  target_lp_levered_irr,
-  untrended_return_on_cost,
-  stabilized_return_on_cost,
-  total_equity_requirement,
-  construction_loan,
-  total_project_cost,
+  business_plan_text,
 
   image_1_url,
   image_2_url,
@@ -27,5 +20,13 @@ export const DEAL_SELECT = `
   pitch_book_url,
   abridged_memo_url,
   full_memo_url,
-  full_memo_requires_ca
+  full_memo_requires_ca,
+
+  deal_metrics (
+    key,
+    value,
+    section,
+    display_order,
+    is_visible
+  )
 `;
