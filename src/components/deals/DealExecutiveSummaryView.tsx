@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
 
 type DealMetric = {
@@ -60,11 +60,15 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
     setLightboxOpen(true);
   };
 
-  const nextImage = () =>
-    setLightboxIndex((i) => (i + 1) % images.length);
+  const nextImage = useCallback(
+    () => setLightboxIndex((i) => (i + 1) % images.length),
+    [images.length]
+  );
 
-  const prevImage = () =>
-    setLightboxIndex((i) => (i - 1 + images.length) % images.length);
+  const prevImage = useCallback(
+    () => setLightboxIndex((i) => (i - 1 + images.length) % images.length),
+    [images.length]
+  );
   const [showCA, setShowCA] = useState(false);
   const [caBusy, setCaBusy] = useState(false);
   const [caFirstName, setCaFirstName] = useState('');
@@ -330,7 +334,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
 
             {getSection('lp_summary').map(m => (
               <Metric key={m.key} label={formatKey(m.key)}>
-                {formatValue(m.value)}
+                {formatValue(m.value, m.key)}
               </Metric>
             ))}
           </div>
@@ -341,7 +345,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
           <div style={metricsGrid}>
             {getSection('project_returns').map(m => (
               <Metric key={m.key} label={formatKey(m.key)}>
-                {formatValue(m.value)}
+                {formatValue(m.value, m.key)}
               </Metric>
             ))}
           </div>
@@ -356,7 +360,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
 
             {getSection('capital_stack').map(m => (
               <Metric key={m.key} label={formatKey(m.key)}>
-                {formatValue(m.value)}
+                {formatValue(m.value, m.key)}
               </Metric>
             ))}
           </div>

@@ -37,7 +37,7 @@ export default function AdminDealPreviewPage() {
         } else {
           setDeal(null);
         }
-      } catch (e) {
+      } catch {
         setDeal(null);
       } finally {
         setLoading(false);

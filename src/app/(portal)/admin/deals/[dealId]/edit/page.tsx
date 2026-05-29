@@ -5,11 +5,17 @@ import { useParams, useRouter } from 'next/navigation';
 import DealForm from '@/components/deals/DealForm';
 import AdminNav from '@/components/navigation/AdminNav';
 import type { DealFormValues } from '@/components/deals/DealForm';
+import MetricsEditor, { type DealMetric } from '@/components/deals/MetricsEditor';
 
 type DealApiResponse = {
   id: string;
 } & DealFormValues & {
   metrics?: unknown; // explicitly ignored
+};
+
+type SaveResponse = {
+  ok: boolean;
+  error?: string;
 };
 
 export default function DealEditPage() {
@@ -20,6 +26,7 @@ export default function DealEditPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [metrics, setMetrics] = useState<DealMetric[]>([]);
 
 
   // ✅ Load deal
@@ -48,8 +55,9 @@ export default function DealEditPage() {
         if (!mounted) return;
 
         if (res.ok && json?.ok && json.deal) {
-          const { metrics, ...formDeal } = json.deal;
+          const { metrics: loadedMetrics = [], ...formDeal } = json.deal;
           setDeal(formDeal);
+          setMetrics(loadedMetrics);
         } else {
           console.error('[EDIT LOAD FAILED]', json?.error);
           setError(json?.error || 'Failed to load deal');
@@ -92,52 +100,62 @@ export default function DealEditPage() {
 
   return (
     <>
-      {/* ✅ NAV */}
       <AdminNav />
 
-      {/* ✅ FORM */}
-      <DealForm
-        initialDeal={deal}
-        saving={saving}
-        onSave={async (updatedDeal) => {
-          try {
-            setSaving(true);
+      <div style={{ padding: 24 }}>
+        {deal ? (
+          <>
+            <DealForm
+              initialDeal={deal}
+              saving={saving}
+              onSave={async (updatedDeal) => {
+                try {
+                  setSaving(true);
 
-            const res = await fetch(`/api/deals/${dealId}/update`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(updatedDeal),
-            });
+                  const res = await fetch(`/api/deals/${dealId}/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedDeal),
+                  });
 
-            const text = await res.text();
+                  const text = await res.text();
 
-            let json: any = null;
-            try {
-              json = JSON.parse(text);
-            } catch {
-              console.error('[NON JSON RESPONSE]', text);
-              setSaving(false);
-              alert('Unexpected server response');
-              return;
-            }
+                  let json: SaveResponse | null = null;
 
-            if (!res.ok || !json?.ok) {
-              console.error('[SAVE FAILED]', json);
-              setSaving(false);
-              alert(json?.error || 'Failed to save changes');
-              return;
-            }
+                  try {
+                    json = JSON.parse(text) as SaveResponse;
+                  } catch {
+                    console.error('[NON JSON RESPONSE]', text);
+                    alert('Unexpected server response');
+                    setSaving(false);
+                    return;
+                  }
 
-            // ✅ success → redirect
-            router.push(`/admin/deals/${dealId}/public`);
+                  if (!res.ok || !json || !json.ok) {
+                    console.error('[SAVE FAILED]', json);
+                    alert(json?.error || 'Failed to save changes');
+                    setSaving(false);
+                    return;
+                  }
 
-          } catch (err) {
-            console.error('[SAVE ERROR]', err);
-            alert('Network error while saving');
-            setSaving(false);
-          }
-        }}
-      />
+                  router.push(`/admin/deals/${dealId}/public`);
+                } catch (err) {
+                  console.error('[SAVE ERROR]', err);
+                  alert('Network error while saving');
+                  setSaving(false);
+                }
+              }}
+            />
+
+            <MetricsEditor
+              dealId={dealId}
+              initialMetrics={metrics}
+            />
+          </>
+        ) : (
+          <div style={{ padding: 40 }}>Loading deal…</div>
+        )}
+      </div>
     </>
   );
 }
