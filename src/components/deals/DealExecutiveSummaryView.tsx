@@ -192,12 +192,18 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
           gap: isMobile ? 12 : 0,
         }}>
 
-          <Image
-            src="/upperline-logo.png"
-            alt="Upperline"
-            width={120}
-            height={32}
-          />
+          <div
+            style={{ cursor: 'pointer', display: 'inline-block' }}
+            onClick={() => window.location.href = 'https://portal.upperlineco.com'}
+          >
+            <Image
+              src="/upperline-logo.png"
+              alt="Upperline"
+              width={180}
+              height={48}
+              priority
+            />
+          </div>
 
 
           <button
@@ -1052,7 +1058,7 @@ const headerRow: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  marginBottom: 20,
+  marginBottom: 24,
 };
 
 const ctaBtn: React.CSSProperties = {
