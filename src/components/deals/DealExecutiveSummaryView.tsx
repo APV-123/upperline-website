@@ -302,9 +302,15 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         <div style={section}>
           <div style={sectionHeader} onClick={() => setOpenLP(v => !v)}>
             <h2 style={sectionTitle}>LP Return Summary</h2>
-            <span style={{ fontSize: 14 }}>
-              {openLP ? '▼' : '▶'}
-            </span>
+            <button
+              style={sectionToggleBtn}
+              onClick={(e) => {
+                e.stopPropagation(); // prevents double-trigger from header click
+                // toggle happens via header anyway
+              }}
+            >
+              {openLP ? 'Collapse' : 'Expand'}
+            </button>
 
           </div>
 
@@ -326,9 +332,15 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         <div style={section}>
           <div style={sectionHeader} onClick={() => setOpenProject(v => !v)}>
             <h2 style={sectionTitle}>Project Returns</h2>
-            <span style={{ fontSize: 14 }}>
-              {openProject ? '▼' : '▶'}
-            </span>
+            <button
+              style={sectionToggleBtn}
+              onClick={(e) => {
+                e.stopPropagation(); // prevents double-trigger from header click
+                // toggle happens via header anyway
+              }}
+            >
+              {openProject ? 'Collapse' : 'Expand'}
+            </button>
 
           </div>
 
@@ -345,9 +357,15 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         <div style={section}>
           <div style={sectionHeader} onClick={() => setOpenCapital(v => !v)}>
             <h2 style={sectionTitle}>Equity Capital Stack</h2>
-            <span style={{ fontSize: 14 }}>
-              {openCapital ? '▼' : '▶'}
-            </span>
+            <button
+              style={sectionToggleBtn}
+              onClick={(e) => {
+                e.stopPropagation(); // prevents double-trigger from header click
+                // toggle happens via header anyway
+              }}
+            >
+              {openCapital ? 'Collapse' : 'Expand'}
+            </button>
 
           </div>
 
@@ -922,6 +940,20 @@ const sectionTitle: React.CSSProperties = {
   fontWeight: 600,
   marginBottom: 10,
 };
+
+
+const sectionToggleBtn: React.CSSProperties = {
+  fontSize: 12,
+  color: '#1f3d36',
+  background: '#f1f5f9',
+  padding: '4px 10px',
+  borderRadius: 6,
+  border: '1px solid #e5e7eb',
+  cursor: 'pointer',
+  fontWeight: 600,
+};
+
+
 
 const paragraph: React.CSSProperties = {
   lineHeight: 1.6,
