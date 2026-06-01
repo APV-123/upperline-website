@@ -85,6 +85,27 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
   const [openProject, setOpenProject] = useState(false);
   const [openCapital, setOpenCapital] = useState(false);
 
+  const buildDocuments = useCallback((deal: Deal): Document[] => {
+    return [
+      {
+        label: 'Upperline Pitch Book',
+        url: deal.pitch_book_url || '',
+        gated: false,
+      },
+      {
+        label: 'Deal Preview Memo',
+        url: deal.abridged_memo_url || '',
+        gated: false,
+      },
+      {
+        label: 'Full Equity Memo',
+        url: '',
+        gated: !hasAccess && (deal.full_memo_requires_ca ?? true),
+        alwaysShow: true,
+      },
+    ].filter((doc) => doc.alwaysShow || Boolean(doc.url));
+  }, [hasAccess]);
+
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
@@ -143,26 +164,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [lightboxOpen, nextImage, prevImage]);
 
-  const buildDocuments = useCallback((deal: Deal): Document[] => {
-    return [
-      {
-        label: 'Upperline Pitch Book',
-        url: deal.pitch_book_url || '',
-        gated: false,
-      },
-      {
-        label: 'Deal Preview Memo',
-        url: deal.abridged_memo_url || '',
-        gated: false,
-      },
-      {
-        label: 'Full Equity Memo',
-        url: '',
-        gated: !hasAccess && (deal.full_memo_requires_ca ?? true),
-        alwaysShow: true,
-      },
-    ].filter((doc) => doc.alwaysShow || Boolean(doc.url));
-  }, [hasAccess]);
+
 
 
   function getSection(section: string) {
@@ -301,7 +303,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
           <div style={sectionHeader} onClick={() => setOpenLP(v => !v)}>
             <h2 style={sectionTitle}>LP Return Summary</h2>
             <span style={{ fontSize: 14 }}>
-              {openProject ? '▼' : '▶'}
+              {openLP ? '▼' : '▶'}
             </span>
 
           </div>
@@ -344,7 +346,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
           <div style={sectionHeader} onClick={() => setOpenCapital(v => !v)}>
             <h2 style={sectionTitle}>Equity Capital Stack</h2>
             <span style={{ fontSize: 14 }}>
-              {openProject ? '▼' : '▶'}
+              {openCapital ? '▼' : '▶'}
             </span>
 
           </div>
@@ -911,6 +913,8 @@ const sectionHeader: React.CSSProperties = {
   alignItems: 'center',
   cursor: 'pointer',
   userSelect: 'none',
+  paddingBottom: 6,
+  borderBottom: '1px solid #e5e7eb',
 };
 
 const sectionTitle: React.CSSProperties = {
