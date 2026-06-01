@@ -97,13 +97,19 @@ export default function DealIndexPage() {
         />
 
         <div className={styles.heroContent}>
-          <Image
-            src="/upperline-mark.png"
-            alt="Upperline mark"
-            width={120}
-            height={40}
-            className={styles.heroMark}
-          />
+          <a
+            href="https://upperlineco.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image
+              src="/upperline-mark.png"
+              alt="Upperline mark"
+              width={120}
+              height={40}
+              className={styles.heroMark}
+            />
+          </a>
         </div>
       </section>
 
@@ -146,7 +152,6 @@ export default function DealIndexPage() {
                 <div className={styles.cardMeta}>
                   {getCityState(deal.location)}
                 </div>
-                console.log(deal.asset_class, deal.strategy);
                 {(deal.asset_class || deal.strategy) && (
                   <div className={styles.cardAttributes}>
                     {deal.asset_class || ''}
