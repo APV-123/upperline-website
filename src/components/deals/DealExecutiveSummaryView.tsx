@@ -81,6 +81,9 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
   const [caError, setCaError] = useState('');
   const [hasAccess, setHasAccess] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [openLP, setOpenLP] = useState(true);
+  const [openProject, setOpenProject] = useState(false);
+  const [openCapital, setOpenCapital] = useState(false);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -124,7 +127,8 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
     if (docs.length > 0 && !selectedDoc) {
       setSelectedDoc(docs[0]);
     }
-  }, [deal]);
+  }, [deal, selectedDoc, buildDocuments]);
+
 
   useEffect(() => {
     if (!lightboxOpen) return;
@@ -137,40 +141,9 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [lightboxOpen, images.length]);
+  }, [lightboxOpen, nextImage, prevImage]);
 
-  async function openFullMemo() {
-    const savedEmail = localStorage.getItem(`ca:${deal.id}`);
-
-    // If we don't have an email saved, we can't mint the signed URL without asking again
-    if (!savedEmail) {
-      setShowCA(true);
-      return;
-    }
-
-    const res = await fetch(`/api/deals/${deal.id}/ca/access`, {
-      method: "POST",
-    });
-
-    const json = await res.json().catch(() => null);
-
-    if (!res.ok || !json?.ok || !json?.signedUrl) {
-      setCaError(json?.error ?? "Unable to grant access.");
-      // If something went wrong, fall back to the modal
-      setShowCA(true);
-      return;
-    }
-
-    setSelectedDoc({
-      label: "Full Equity Memo",
-      url: json.signedUrl,
-      gated: false,
-    });
-  }
-
-
-
-  function buildDocuments(deal: Deal): Document[] {
+  const buildDocuments = useCallback((deal: Deal): Document[] => {
     return [
       {
         label: 'Upperline Pitch Book',
@@ -189,8 +162,8 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         alwaysShow: true,
       },
     ].filter((doc) => doc.alwaysShow || Boolean(doc.url));
+  }, [hasAccess]);
 
-  }
 
   function getSection(section: string) {
     return (deal.metrics ?? [])
@@ -325,45 +298,71 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
           </div>
         </div>
         <div style={section}>
-          <h2 style={sectionTitle}>LP Return Summary</h2>
+          <div style={sectionHeader} onClick={() => setOpenLP(v => !v)}>
+            <h2 style={sectionTitle}>LP Return Summary</h2>
+            <span style={{ fontSize: 14 }}>
+              {openProject ? '▼' : '▶'}
+            </span>
 
-          <div style={metricsGrid}>
-            <Metric label="LP Equity Total">
-              {formatCurrency(String(deal.target_amount))}
-            </Metric>
-
-            {getSection('lp_summary').map(m => (
-              <Metric key={m.key} label={formatKey(m.key)}>
-                {formatValue(m.value, m.key)}
-              </Metric>
-            ))}
           </div>
+
+          {openLP && (
+            <div style={metricsGrid}>
+
+              <Metric label="LP Equity Total">
+                {formatCurrency(String(deal.target_amount))}
+              </Metric>
+
+              {getSection('lp_summary').map(m => (
+                <Metric key={m.key} label={formatKey(m.key)}>
+                  {formatValue(m.value, m.key)}
+                </Metric>
+              ))}
+            </div>
+          )}
         </div>
         <div style={section}>
-          <h2 style={sectionTitle}>Project Returns</h2>
+          <div style={sectionHeader} onClick={() => setOpenProject(v => !v)}>
+            <h2 style={sectionTitle}>Project Returns</h2>
+            <span style={{ fontSize: 14 }}>
+              {openProject ? '▼' : '▶'}
+            </span>
 
-          <div style={metricsGrid}>
-            {getSection('project_returns').map(m => (
-              <Metric key={m.key} label={formatKey(m.key)}>
-                {formatValue(m.value, m.key)}
-              </Metric>
-            ))}
           </div>
+
+          {openProject && (
+            <div style={metricsGrid}>
+              {getSection('project_returns').map(m => (
+                <Metric key={m.key} label={formatKey(m.key)}>
+                  {formatValue(m.value, m.key)}
+                </Metric>
+              ))}
+            </div>
+          )}
         </div>
         <div style={section}>
-          <h2 style={sectionTitle}>Equity Capital Stack</h2>
+          <div style={sectionHeader} onClick={() => setOpenCapital(v => !v)}>
+            <h2 style={sectionTitle}>Equity Capital Stack</h2>
+            <span style={{ fontSize: 14 }}>
+              {openProject ? '▼' : '▶'}
+            </span>
 
-          <div style={metricsGrid}>
-            <Metric label="LP Equity">
-              {formatCurrency(String(deal.target_amount))}
-            </Metric>
-
-            {getSection('capital_stack').map(m => (
-              <Metric key={m.key} label={formatKey(m.key)}>
-                {formatValue(m.value, m.key)}
-              </Metric>
-            ))}
           </div>
+
+          {openCapital && (
+            <div style={metricsGrid}>
+
+              <Metric label="LP Equity">
+                {formatCurrency(String(deal.target_amount))}
+              </Metric>
+
+              {getSection('capital_stack').map(m => (
+                <Metric key={m.key} label={formatKey(m.key)}>
+                  {formatValue(m.value, m.key)}
+                </Metric>
+              ))}
+            </div>
+          )}
         </div>
         {/* OVERVIEW */}
 
@@ -906,6 +905,14 @@ const section: React.CSSProperties = {
   marginBottom: 28,
 };
 
+const sectionHeader: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  cursor: 'pointer',
+  userSelect: 'none',
+};
+
 const sectionTitle: React.CSSProperties = {
   fontSize: 18,
   fontWeight: 600,
@@ -969,10 +976,6 @@ const headerRow: React.CSSProperties = {
   justifyContent: 'space-between',
   alignItems: 'center',
   marginBottom: 20,
-};
-
-const logo: React.CSSProperties = {
-  height: 32,
 };
 
 const ctaBtn: React.CSSProperties = {
@@ -1097,60 +1100,7 @@ const lbArrowRight: React.CSSProperties = {
   cursor: "pointer",
   zIndex: 10000,
 };
-const caBackdrop: React.CSSProperties = {
-  position: 'fixed',
-  inset: 0,
-  background: 'rgba(0,0,0,0.55)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  zIndex: 10001,
-  padding: 20,
-};
 
-const caCard: React.CSSProperties = {
-  width: '100%',
-  maxWidth: 520,
-  background: '#fff',
-  borderRadius: 10,
-  padding: 18,
-  boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
-};
-
-const caLabel: React.CSSProperties = {
-  display: 'block',
-  fontSize: 12,
-  color: '#334155',
-  marginTop: 10,
-  marginBottom: 6,
-};
-
-const caInput: React.CSSProperties = {
-  width: '100%',
-  padding: 10,
-  borderRadius: 8,
-  border: '1px solid #e5e7eb',
-};
-
-const caPrimaryBtn: React.CSSProperties = {
-  background: '#1f3d36',
-  color: '#fff',
-  padding: '10px 14px',
-  borderRadius: 8,
-  border: 'none',
-  cursor: 'pointer',
-  fontWeight: 600,
-};
-
-const caSecondaryBtn: React.CSSProperties = {
-  background: '#f1f5f9',
-  color: '#0f172a',
-  padding: '10px 14px',
-  borderRadius: 8,
-  border: '1px solid #e5e7eb',
-  cursor: 'pointer',
-  fontWeight: 600,
-};
 const sheetBackdrop: React.CSSProperties = {
   position: "fixed",
   inset: 0,
@@ -1194,20 +1144,6 @@ const sheetClose: React.CSSProperties = {
   border: "none",
   fontSize: 18,
   cursor: "pointer",
-};
-
-const sheetScroll: React.CSSProperties = {
-  maxHeight: "32vh",
-  overflowY: "auto",
-  padding: "12px 16px",
-  background: "#f8fafc",
-};
-
-const sheetP: React.CSSProperties = {
-  fontSize: 13,
-  marginBottom: 10,
-  color: "#334155",
-  lineHeight: 1.4,
 };
 
 const sheetFooter: React.CSSProperties = {
