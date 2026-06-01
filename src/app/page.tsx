@@ -146,12 +146,17 @@ export default function DealIndexPage() {
                 <div className={styles.cardMeta}>
                   {getCityState(deal.location)}
                 </div>
+                console.log(deal.asset_class, deal.strategy);
+                {(deal.asset_class || deal.strategy) && (
+                  <div className={styles.cardAttributes}>
+                    {deal.asset_class || ''}
+                    {deal.asset_class && deal.strategy ? (
+                      <span className={styles.dot}>·</span>
+                    ) : null}
+                    {deal.strategy || ''}
+                  </div>
+                )}
 
-                <div className={styles.cardAttributes}>
-                  {deal.asset_class || "—"}
-                  <span className={styles.dot}>·</span>
-                  {deal.strategy || "—"}
-                </div>
               </div>
 
               <div className={styles.cardFinancials}>
