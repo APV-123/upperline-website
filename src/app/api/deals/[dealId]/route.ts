@@ -32,9 +32,9 @@ export async function GET(
 
   const deal = {
     ...rest,
-    metrics: (deal_metrics ?? [])
-      .filter(m => m.is_visible !== false)
-      .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)),
+    metrics: (deal_metrics ?? []).sort(
+      (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)
+    ),
   };
 
   return NextResponse.json({
