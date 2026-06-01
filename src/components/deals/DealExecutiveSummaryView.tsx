@@ -300,89 +300,123 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
           </div>
         </div>
         <div style={section}>
-          <div style={sectionHeader} onClick={() => setOpenLP(v => !v)}>
+          <div
+            style={sectionHeader}
+            onClick={() => setOpenLP((v) => !v)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setOpenLP((v) => !v);
+              }
+            }}
+          >
             <h2 style={sectionTitle}>LP Return Summary</h2>
+
             <button
+              type="button"
               style={sectionToggleBtn}
               onClick={(e) => {
-                e.stopPropagation(); // prevents double-trigger from header click
-                // toggle happens via header anyway
+                e.stopPropagation();
+                setOpenLP((v) => !v);
               }}
             >
               {openLP ? 'Collapse' : 'Expand'}
             </button>
-
           </div>
 
-          {openLP && (
+          <div style={getCollapseStyle(openLP, 700)}>
             <div style={metricsGrid}>
-
               <Metric label="LP Equity Total">
                 {formatCurrency(String(deal.target_amount))}
               </Metric>
 
-              {getSection('lp_summary').map(m => (
+              {getSection('lp_summary').map((m) => (
                 <Metric key={m.key} label={formatKey(m.key)}>
                   {formatValue(m.value, m.key)}
                 </Metric>
               ))}
             </div>
-          )}
+          </div>
         </div>
         <div style={section}>
-          <div style={sectionHeader} onClick={() => setOpenProject(v => !v)}>
+          <div
+            style={sectionHeader}
+            onClick={() => setOpenProject((v) => !v)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setOpenProject((v) => !v);
+              }
+            }}
+          >
             <h2 style={sectionTitle}>Project Returns</h2>
+
             <button
+              type="button"
               style={sectionToggleBtn}
               onClick={(e) => {
-                e.stopPropagation(); // prevents double-trigger from header click
-                // toggle happens via header anyway
+                e.stopPropagation();
+                setOpenProject((v) => !v);
               }}
             >
               {openProject ? 'Collapse' : 'Expand'}
             </button>
-
           </div>
 
-          {openProject && (
+          <div style={getCollapseStyle(openProject, 400)}>
             <div style={metricsGrid}>
-              {getSection('project_returns').map(m => (
+              {getSection('project_returns').map((m) => (
                 <Metric key={m.key} label={formatKey(m.key)}>
                   {formatValue(m.value, m.key)}
                 </Metric>
               ))}
             </div>
-          )}
+          </div>
         </div>
         <div style={section}>
-          <div style={sectionHeader} onClick={() => setOpenCapital(v => !v)}>
+          <div
+            style={sectionHeader}
+            onClick={() => setOpenCapital((v) => !v)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setOpenCapital((v) => !v);
+              }
+            }}
+          >
             <h2 style={sectionTitle}>Equity Capital Stack</h2>
+
             <button
+              type="button"
               style={sectionToggleBtn}
               onClick={(e) => {
-                e.stopPropagation(); // prevents double-trigger from header click
-                // toggle happens via header anyway
+                e.stopPropagation();
+                setOpenCapital((v) => !v);
               }}
             >
               {openCapital ? 'Collapse' : 'Expand'}
             </button>
-
           </div>
 
-          {openCapital && (
+          <div style={getCollapseStyle(openCapital, 400)}>
             <div style={metricsGrid}>
-
               <Metric label="LP Equity">
                 {formatCurrency(String(deal.target_amount))}
               </Metric>
 
-              {getSection('capital_stack').map(m => (
+              {getSection('capital_stack').map((m) => (
                 <Metric key={m.key} label={formatKey(m.key)}>
                   {formatValue(m.value, m.key)}
                 </Metric>
               ))}
             </div>
-          )}
+          </div>
         </div>
         {/* OVERVIEW */}
 
@@ -882,6 +916,14 @@ function formatValue(value?: string, key?: string) {
 
   return value;
 }
+function getCollapseStyle(isOpen: boolean, maxHeight: number): React.CSSProperties {
+  return {
+    maxHeight: isOpen ? maxHeight : 0,
+    opacity: isOpen ? 1 : 0,
+    overflow: 'hidden',
+    transition: 'max-height 0.28s ease, opacity 0.2s ease',
+  };
+}
 
 /* ✅ Styles */
 
@@ -931,8 +973,9 @@ const sectionHeader: React.CSSProperties = {
   alignItems: 'center',
   cursor: 'pointer',
   userSelect: 'none',
-  paddingBottom: 6,
+  padding: '6px 0 10px 0',
   borderBottom: '1px solid #e5e7eb',
+  marginBottom: 12,
 };
 
 const sectionTitle: React.CSSProperties = {
@@ -941,19 +984,17 @@ const sectionTitle: React.CSSProperties = {
   marginBottom: 10,
 };
 
-
 const sectionToggleBtn: React.CSSProperties = {
   fontSize: 12,
   color: '#1f3d36',
   background: '#f1f5f9',
-  padding: '4px 10px',
+  padding: '6px 12px',
   borderRadius: 6,
   border: '1px solid #e5e7eb',
   cursor: 'pointer',
   fontWeight: 600,
+  lineHeight: 1,
 };
-
-
 
 const paragraph: React.CSSProperties = {
   lineHeight: 1.6,
