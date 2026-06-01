@@ -1,6 +1,7 @@
 export const PUBLIC_DEAL_SELECT = `
   id,
   name,
+  raise_id,
   target_amount,
   location,
   asset_class,
@@ -8,7 +9,6 @@ export const PUBLIC_DEAL_SELECT = `
   estimated_closing_date,
   overview_text,
   business_plan_text,
-  raise_id,
   created_at,
 
   image_1_url,
@@ -18,5 +18,13 @@ export const PUBLIC_DEAL_SELECT = `
   pitch_book_url,
   abridged_memo_url,
   full_memo_url,
-  full_memo_requires_ca
+  full_memo_requires_ca,
+
+  deal_metrics (
+    key,
+    value,
+    section,
+    display_order,
+    is_visible
+  )
 `;

@@ -4,26 +4,27 @@ import { PUBLIC_DEAL_SELECT } from '@/lib/deals/publicDealFields';
 
 type Params = { dealId: string };
 
+type PublicDealMetric = {
+  key: string;
+  value?: string | null;
+  section: string;
+  display_order: number;
+  is_visible?: boolean;
+};
+
 type PublicDeal = {
   id: string;
   name: string;
   raise_id: string;
   target_amount: number;
   location?: string;
+  asset_class?: string;
+  strategy?: string;
   estimated_closing_date?: string;
   overview_text?: string;
+  business_plan_text?: string;
   created_at: string | null;
 
-  project_unlevered_irr?: string;
-  project_levered_irr?: string;
-  target_lp_equity_multiple?: string;
-  target_lp_levered_irr?: string;
-  untrended_return_on_cost?: string;
-  stabilized_return_on_cost?: string;
-  total_equity_requirement?: string;
-  construction_loan?: string;
-  total_project_cost?: string;
-  
   image_1_url?: string;
   image_2_url?: string;
   image_3_url?: string;
@@ -32,6 +33,8 @@ type PublicDeal = {
   abridged_memo_url?: string;
   full_memo_url?: string;
   full_memo_requires_ca?: boolean;
+
+  deal_metrics?: PublicDealMetric[];
 };
 
 export async function GET(
@@ -50,9 +53,9 @@ export async function GET(
   try {
     const { data, error } = await supabaseServer
       .from('deals')
-      .select(PUBLIC_DEAL_SELECT) // ✅ CENTRALIZED FIELD LIST
+      .select(PUBLIC_DEAL_SELECT)
       .eq('id', dealId)
-      .eq('is_public', true) // ✅ VISIBILITY ENFORCED
+      .eq('is_public', true)
       .single<PublicDeal>();
 
     if (error || !data) {
@@ -62,9 +65,18 @@ export async function GET(
       );
     }
 
+    const { deal_metrics, ...rest } = data;
+
+    const deal = {
+      ...rest,
+      metrics: (deal_metrics ?? []).sort(
+        (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)
+      ),
+    };
+
     return NextResponse.json({
       ok: true,
-      deal: data,
+      deal,
     });
 
   } catch (e) {
