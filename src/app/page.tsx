@@ -5,7 +5,7 @@ import Image from "next/image";
 import styles from "./deal-index.module.css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { button } from "framer-motion/client";
+
 
 type Deal = {
   id: string;
@@ -88,50 +88,87 @@ export default function DealIndexPage() {
   }, [router]);
 
   return (
-    <div className={ `${styles.page} ${isDark}? styles.dark : ""}`}>
+    <div className={`${styles.page} ${isDark ? styles.dark : ""}`}>
       <div className={styles.navWrap}>
-          <div className={styles.navInner}>
+        <div className={styles.navInner}>
 
-            {/* LEFT: Brand */}
+          {/* LEFT: Brand */}
+          <a
+            href="https://upperlineco.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.brand}
+          >
+            <Image
+              src="/upperline-mark.png"
+              alt="Upperline mark"
+              width={120}
+              height={40}
+              className={styles.logo}
+            />
+          </a>
+
+          {/* RIGHT: Actions */}
+          <div className={styles.navActions}>
+
+            {/* Dark mode toggle */}
+            <button
+              type="button"
+              className={styles.navButton}
+              onClick={() => setIsDark((prev) => !prev)}
+            >
+              {isDark ? "LIGHT" : "DARK"}
+            </button>
+
+            {/* Hamburger */}
+            <button
+              type="button"
+              className={styles.hamburger}
+              onClick={() => setMenuOpen((prev) => !prev)}
+            >
+              <span className={styles.hamburgerIcon} />
+            </button>
+          </div>
+
+        </div>
+        {menuOpen && (
+          <div className={styles.menuPanel}>
+
             <a
-              href="https://upperlineco.com"
+              href="https://upperlineco.com/who-we-are"
               target="_blank"
               rel="noopener noreferrer"
-              className={styles.brand}
+              className={styles.menuItem}
+              onClick={() => setMenuOpen(false)}
             >
-              <Image
-                src="/upperline-mark.png"
-                alt="Upperline mark"
-                width={120}
-                height={40}
-                className={styles.logo}
-              />
+              Who We Are
             </a>
 
-            {/* RIGHT: Actions */}
-            <div className={styles.navActions}>
+            <a
+              href="https://upperlineco.com/strategy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.menuItem}
+              onClick={() => setMenuOpen(false)}
+            >
+              Strategy
+            </a>
 
-              {/* Dark mode toggle */}
-              <button
-                type="button"
-                className={styles.navButton}
-                onClick={() => setIsDark((prev) => !prev)}
-              >
-                {isDark ? "LIGHT" : "DARK"}
-              </button>
-
-              {/* Hamburger */}
-              <button
-                type= "button"
-                className={styles.hamburger}
-                onClick={() => setMenuOpen((prev) => !prev)}
-              >
-                <span className={styles.hamburgerIcon} />
-              </button>
-            </div>
+            <a
+              href="https://upperlineco.com/approach"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.menuItem}
+              onClick={() => setMenuOpen(false)}
+            >
+              Approach
+            </a>
 
           </div>
-        </div>
+        )}
+
+
+      </div>
       {/* Hero */}
       <section className={styles.hero}>
         <Image
