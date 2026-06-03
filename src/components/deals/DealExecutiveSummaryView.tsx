@@ -181,7 +181,6 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           padding: isMobile ? 20 : 40,
         }}
       >
-
         {/* HEADER */}
         <div style={{
           ...headerRow,
@@ -241,7 +240,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(deal.location)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="locationLinkStyle"
+                style={isDark ? locationLinkStyleDark : locationLinkStyle}
               >
                 {deal.location}
               </a>
@@ -1333,8 +1332,13 @@ const caErrorStyle: React.CSSProperties = {
   fontSize: 12,
   marginTop: 8,
 };
+
 const locationLinkStyle: React.CSSProperties = {
   color: "#2f6fed",
+  textDecoration: "underline",
+};
+const locationLinkStyleDark: React.CSSProperties = {
+  color: "#7da2ff",
   textDecoration: "underline",
 };
 const websiteLinkContainer: React.CSSProperties = {
