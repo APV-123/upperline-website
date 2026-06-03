@@ -238,7 +238,18 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
 
           <div>
             <strong>Location:</strong>{" "}
-            {deal.location || "Not provided"}
+            {deal.location ? (
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(deal.location)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#2f6fed", textDecoration: "none" }}
+              >
+                {deal.location}
+              </a>
+            ) : (
+              "Not provided"
+            )}
           </div>
 
           <div>
@@ -712,7 +723,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                   </p>
 
                   <p style={agreementText}>
-                    This Agreement shall remain in effect for a period of five (5) years from the date of acceptance. Unauthorized use or disclosure may result in legal action and injunctive relief.
+                    This Agreement shall remain in effect for a period of two (2) years from the date of acceptance. Unauthorized use or disclosure may result in legal action and injunctive relief.
                   </p>
 
                   <p style={agreementText}>
