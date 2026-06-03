@@ -64,5 +64,5 @@ export default function DealPage() {
   }
 
   // ✅ SINGLE SOURCE OF UI
-  return <DealExecutiveSummaryView deal={deal} />;
+  return <DealExecutiveSummaryView deal={deal} isDark={isDark} />;
 }
