@@ -1536,11 +1536,3 @@ const inputDark: React.CSSProperties = {
   border: "1px solid rgba(255,255,255,0.12)",
 };
 
-const websiteLinkStyleDark: React.CSSProperties = {
-  color: "#7da2ff",
-  textDecoration: "none",
-  fontSize: 14,
-  display: "flex",
-  alignItems: "center",
-  gap: 6,
-};
