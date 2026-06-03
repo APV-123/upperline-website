@@ -393,7 +393,11 @@
   color: #ffffff;
 }
 .dark .navySection {
-  background: #2349e5;
+background: linear-gradient(
+    to bottom,
+    #2349e5 0%,
+    #1f3fd1 100%
+  );
 }
 
 .dark .navyTitle {
@@ -405,15 +409,16 @@
 }
 
 .dark .main {
-  background: #2349e5;
+  background: #1f3fd1;
 }
 
 .dark .card {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  box-shadow: none;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
 
-  backdrop-filter: blur(6px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+
+  backdrop-filter: blur(8px);
 }
 .dark .card:hover {
   box-shadow: 0 18px 40px rgba(0,0,0,0.4);
