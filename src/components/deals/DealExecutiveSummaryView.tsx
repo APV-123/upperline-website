@@ -42,7 +42,7 @@ type Document = {
   alwaysShow?: boolean;
 };
 
-export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
+export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal; isDark?: boolean }) {
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const images = useMemo(
     () =>
@@ -174,16 +174,14 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
   }
 
   return (
-    <div style={{
-      ...container,
-      padding: isMobile ? "20px 12px" : "40px 20px"
-    }}>
+    <div style={isDark ? containerDark : container}>
       <div
         style={{
-          ...content,
+          ...(isDark ? contentDark : content),
           padding: isMobile ? 20 : 40,
         }}
       >
+
         {/* HEADER */}
         <div style={{
           ...headerRow,
@@ -1354,4 +1352,18 @@ const websiteLinkStyle: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: 6,
+};
+const containerDark: React.CSSProperties = {
+  background: "#05070a",
+  minHeight: "100vh",
+  padding: "40px 20px",
+  display: "flex",
+  justifyContent: "center",
+};
+const contentDark: React.CSSProperties = {
+  maxWidth: 1000,
+  width: "100%",
+  background: "#05070a",
+  padding: 40,
+  borderRadius: 8,
 };
