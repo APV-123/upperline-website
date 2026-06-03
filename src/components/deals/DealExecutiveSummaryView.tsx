@@ -209,6 +209,11 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
             style={{
               ...ctaBtn,
               width: isMobile ? "100%" : "auto",
+              background: isDark ? "#2f6fed" : "#2e6d5f",
+              boxShadow: isDark
+                ? "0 6px 20px rgba(47,111,237,0.25)"
+                : undefined
+
             }}
             onMouseOver={(e) =>
               (e.currentTarget.style.background = isDark ? "#3b82ff" : "#3a7f70")
@@ -1213,8 +1218,6 @@ const ctaBtn: React.CSSProperties = {
   fontWeight: 600,
   transition: 'background 0.15s ease', // 🔥 nice polish
 };
-
-
 
 const docContainer = {
   display: 'grid',
