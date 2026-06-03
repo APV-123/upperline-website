@@ -74,6 +74,10 @@ export default function DealIndexPage() {
     loadDeals();
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }, [isDark]);
+  
   // ✅ Keep your keyboard shortcut EXACTLY as-is
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {

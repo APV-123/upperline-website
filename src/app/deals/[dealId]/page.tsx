@@ -15,6 +15,7 @@ export default function DealPage() {
 
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -41,6 +42,13 @@ export default function DealPage() {
 
     load();
   }, [dealId]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("theme");
+    if (saved === "dark") {
+      setIsDark(true);
+    }
+  }, []);
 
   if (loading) {
     return <div style={{ padding: 40 }}>Loading…</div>;
