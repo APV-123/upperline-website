@@ -197,8 +197,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               ...(isDark
                 ? {
                   background: "#ffffff",
-                  padding: "10px 14px",
-                  borderRadius: 10,
+                  padding: "6px 10px",
+                  borderRadius: 6,
                 }
                 : {}),
             }}
@@ -1208,7 +1208,7 @@ const headerRow: React.CSSProperties = {
 };
 
 const ctaBtn: React.CSSProperties = {
-  background: '#1f3d36',
+  background: '#2e6d5f',
   color: '#fff',
   padding: '10px 18px',
   borderRadius: 6,
