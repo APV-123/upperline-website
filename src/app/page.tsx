@@ -99,13 +99,12 @@ export default function DealIndexPage() {
             rel="noopener noreferrer"
             className={styles.brand}
           >
+            <div className={styles.logoWrap}>
             <Image
               src="/upperline-mark.png"
               alt="Upperline mark"
-              width={72}
-              height={72}
               className={styles.logo}
-            />
+            /></div>
           </a>
 
           {/* RIGHT: Actions */}
