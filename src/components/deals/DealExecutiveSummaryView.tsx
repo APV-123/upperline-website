@@ -189,10 +189,22 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           gap: isMobile ? 12 : 0,
         }}>
 
+
           <div
-            style={{ cursor: 'pointer', display: 'inline-block' }}
-            onClick={() => window.location.href = 'https://portal.upperlineco.com'}
+            style={{
+              cursor: "pointer",
+              display: "inline-block",
+              ...(isDark
+                ? {
+                  background: "#ffffff",
+                  padding: "10px 14px",
+                  borderRadius: 10,
+                }
+                : {}),
+            }}
+            onClick={() => (window.location.href = "https://portal.upperlineco.com")}
           >
+
             <Image
               src="/upperline-logo.png"
               alt="Upperline"
@@ -215,9 +227,11 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           </button>
         </div>
 
-        <h1 style={title}>{deal.name}</h1>
+        <h1 style={isDark ? { ...title, ...textPrimaryDark } : title}>
+          {deal.name}
+        </h1>
         {(deal.asset_class || deal.strategy) && (
-          <p style={subtitle}>
+          <p style={isDark ? { ...subtitle, ...textSecondaryDark } : subtitle}>
             {deal.asset_class || ""}
             {deal.asset_class && deal.strategy ? " · " : ""}
             {deal.strategy || ""}
@@ -225,11 +239,14 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
         )}
 
         {/* LOCATION + DATE */}
+
         <div
           style={{
             ...metaRow,
+            ...(isDark ? textSecondaryDark : {}),
             flexDirection: isMobile ? "column" : "row",
-            gap: isMobile ? 8 : 12,
+            gap: isMobile ?
+              8 : 12,
           }}
         >
 
@@ -257,10 +274,11 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           </div>
         </div>
         <div style={section}>
-          <h2 style={sectionTitle}>Overview</h2>
-          <p style={paragraph}>
+          <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Overview</h2>
+          <p style={isDark ? { ...paragraph, ...textSecondaryDark } : paragraph}>
             {deal.overview_text || "No overview provided."}
           </p>
+
         </div>
         {/* IMAGE PLACEHOLDER */}
         <div style={{
@@ -315,7 +333,16 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
         </div>
         <div style={section}>
           <div
-            style={sectionHeader}
+
+            style={
+              isDark
+                ? {
+                  ...sectionHeader,
+                  borderBottom: "1px solid rgba(255,255,255,0.08)",
+                }
+                : sectionHeader
+            }
+
             onClick={() => setOpenLP((v) => !v)}
             role="button"
             tabIndex={0}
@@ -326,11 +353,11 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               }
             }}
           >
-            <h2 style={sectionTitle}>LP Return Summary</h2>
+            <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>LP Return Summary</h2>
 
             <button
               type="button"
-              style={sectionToggleBtn}
+              style={isDark ? { ...sectionToggleBtn, ...buttonDark } : sectionToggleBtn}
               onClick={(e) => {
                 e.stopPropagation();
                 setOpenLP((v) => !v);
@@ -342,12 +369,12 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 
           <div style={getCollapseStyle(openLP, 700)}>
             <div style={metricsGrid}>
-              <Metric label="LP Equity Total">
+              <Metric label="LP Equity Total" isDark={isDark}>
                 {formatCurrency(String(deal.target_amount))}
               </Metric>
 
               {getSection('lp_summary').map((m) => (
-                <Metric key={m.key} label={formatKey(m.key)}>
+                <Metric key={m.key} label={formatKey(m.key)} isDark={isDark}>
                   {formatValue(m.value, m.key)}
                 </Metric>
               ))}
@@ -356,7 +383,16 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
         </div>
         <div style={section}>
           <div
-            style={sectionHeader}
+
+            style={
+              isDark
+                ? {
+                  ...sectionHeader,
+                  borderBottom: "1px solid rgba(255,255,255,0.08)",
+                }
+                : sectionHeader
+            }
+
             onClick={() => setOpenProject((v) => !v)}
             role="button"
             tabIndex={0}
@@ -367,11 +403,15 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               }
             }}
           >
-            <h2 style={sectionTitle}>Project Returns</h2>
+
+            <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>
+              Project Returns
+            </h2>
+
 
             <button
               type="button"
-              style={sectionToggleBtn}
+              style={isDark ? { ...sectionToggleBtn, ...buttonDark } : sectionToggleBtn}
               onClick={(e) => {
                 e.stopPropagation();
                 setOpenProject((v) => !v);
@@ -384,7 +424,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           <div style={getCollapseStyle(openProject, 400)}>
             <div style={metricsGrid}>
               {getSection('project_returns').map((m) => (
-                <Metric key={m.key} label={formatKey(m.key)}>
+                <Metric key={m.key} label={formatKey(m.key)} isDark={isDark}>
                   {formatValue(m.value, m.key)}
                 </Metric>
               ))}
@@ -393,7 +433,16 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
         </div>
         <div style={section}>
           <div
-            style={sectionHeader}
+
+            style={
+              isDark
+                ? {
+                  ...sectionHeader,
+                  borderBottom: "1px solid rgba(255,255,255,0.08)",
+                }
+                : sectionHeader
+            }
+
             onClick={() => setOpenCapital((v) => !v)}
             role="button"
             tabIndex={0}
@@ -404,11 +453,11 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               }
             }}
           >
-            <h2 style={sectionTitle}>Equity Capital Stack</h2>
+            <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Equity Capital Stack</h2>
 
             <button
               type="button"
-              style={sectionToggleBtn}
+              style={isDark ? { ...sectionToggleBtn, ...buttonDark } : sectionToggleBtn}
               onClick={(e) => {
                 e.stopPropagation();
                 setOpenCapital((v) => !v);
@@ -420,12 +469,12 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 
           <div style={getCollapseStyle(openCapital, 400)}>
             <div style={metricsGrid}>
-              <Metric label="LP Equity">
+              <Metric label="LP Equity" isDark={isDark}>
                 {formatCurrency(String(deal.target_amount))}
               </Metric>
 
               {getSection('capital_stack').map((m) => (
-                <Metric key={m.key} label={formatKey(m.key)}>
+                <Metric key={m.key} label={formatKey(m.key)} isDark={isDark}>
                   {formatValue(m.value, m.key)}
                 </Metric>
               ))}
@@ -435,12 +484,12 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
         {/* BUSINESS PLAN */}
 
         <div style={section}>
-          <h2 style={sectionTitle}>Business Plan</h2>
-          <p style={paragraph}>
+          <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Business Plan</h2>
+          <p style={isDark ? { ...paragraph, ...textSecondaryDark } : paragraph}>
             {deal.business_plan_text || "No business plan provided."}
           </p>
         </div>
-        <div style={websiteLinkContainer}>
+        <div style={isDark ? websiteLinkStyleDark : websiteLinkStyle}>
           <a
             href="https://www.upperlineco.com"
             target="_blank"
@@ -458,7 +507,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
         </div>
         {/* DOCUMENTS */}
         <div style={section}>
-          <h2 style={sectionTitle}>Documents</h2>
+          <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Documents</h2>
 
           <div style={{
             ...docContainer,
@@ -467,7 +516,19 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           }}>
 
             {/* LEFT: DOCUMENT LIST */}
-            <div style={docList}>
+
+            <div
+              style={
+                isDark
+                  ? {
+                    ...docList,
+                    background: "#05070a",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                  }
+                  : docList
+              }
+            >
+
               {buildDocuments(deal).map((doc) => {
                 const isActive = selectedDoc?.label === doc.label;
 
@@ -507,12 +568,20 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                       setSelectedDoc(doc);
                     }}
 
+
                     style={{
                       ...docItem,
-                      background: isActive ? '#eef2f7' : '#fff',
+                      background: isDark
+                        ? (isActive ? "#0f172a" : "#05070a")
+                        : (isActive ? "#eef2f7" : "#fff"),
+                      color: isDark ? "#ffffff" : "#0f172a",
+                      borderBottom: isDark
+                        ? "1px solid rgba(255,255,255,0.08)"
+                        : "1px solid #e5e7eb",
                       opacity: doc.gated ? 0.6 : 1,
-                      cursor: 'pointer',
+                      cursor: "pointer",
                     }}
+
                   >
                     {doc.gated ? '🔒 ' : '📄 '}
                     {doc.label}
@@ -522,20 +591,29 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
             </div>
 
             {/* RIGHT: PREVIEW */}
+
             <div
               style={{
                 ...docPreview,
+                ...(isDark ? panelDarkAlt : {}),
                 display: "flex",
                 flexDirection: "column",
               }}
             >
+
               {selectedDoc ? (
                 <>
                   <div
                     style={{
                       ...docHeader,
-                      flexDirection: isMobile ? 'column' : 'row',
-                      alignItems: isMobile ? 'flex-start' : 'center',
+                      ...(isDark
+                        ? {
+                          color: "#ffffff",
+                          borderBottom: "1px solid rgba(255,255,255,0.08)",
+                        }
+                        : {}),
+                      flexDirection: isMobile ? "column" : "row",
+                      alignItems: isMobile ? "flex-start" : "center",
                       gap: isMobile ? 8 : 0,
                     }}
                   >
@@ -543,8 +621,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     <a href={selectedDoc.url} target="_blank">
                       <button
                         style={{
-                          ...downloadBtn,
-                          width: isMobile ? '100%' : 'auto',
+                          ...(isDark ? { ...downloadBtn, ...buttonDark } : downloadBtn),
+                          width: isMobile ? "100%" : "auto",
                         }}
                       >Download</button>
                     </a>
@@ -615,13 +693,34 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
         )}
         {showCA && (
           <div style={sheetBackdrop} onClick={() => !caBusy && setShowCA(false)}>
-            <div style={sheet} onClick={(e) => e.stopPropagation()}>
+            <div
+              style={
+                isDark
+                  ? {
+                    ...sheet,
+                    background: "#0f172a",
+                    color: "#ffffff",
+                  }
+                  : sheet
+              }
+              onClick={(e) => e.stopPropagation()}
+            >
+
 
               {/* Handle */}
               <div style={sheetHandle} />
 
               {/* Header */}
-              <div style={sheetHeader}>
+              <div
+                style={
+                  isDark
+                    ? {
+                      ...sheetHeader,
+                      borderBottom: "1px solid rgba(255,255,255,0.08)",
+                    }
+                    : sheetHeader
+                }
+              >
                 <div style={{ fontWeight: 700 }}>
                   {deal.name} Confidentiality Agreement
                 </div>
@@ -652,18 +751,20 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     }}
                   >
                     <div>
-                      <label style={sheetLabel}>First Name</label>
+                      <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>First Name</label>
                       <input
-                        style={sheetInput}
+                        style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
                         value={caFirstName}
                         onChange={(e) => setCaFirstName(e.target.value)}
                       />
                     </div>
 
                     <div>
-                      <label style={sheetLabel}>Last Name</label>
+                      <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Last Name</label>
                       <input
-                        style={sheetInput}
+                        style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
                         value={caLastName}
                         onChange={(e) => setCaLastName(e.target.value)}
                       />
@@ -672,27 +773,30 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   </div>
 
                   <div style={sheetFormRow}>
-                    <label style={sheetLabel}>Email</label>
+                    <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Email</label>
                     <input
-                      style={sheetInput}
+                      style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
                       value={caEmail}
                       onChange={(e) => setCaEmail(e.target.value)}
                     />
                   </div>
 
                   <div style={sheetFormRow}>
-                    <label style={sheetLabel}>Company (optional)</label>
+                    <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Company (optional)</label>
                     <input
-                      style={sheetInput}
+                      style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
                       value={caCompany}
                       onChange={(e) => setCaCompany(e.target.value)}
                     />
                   </div>
                   {/* Job Title */}
                   <div style={sheetFormRow}>
-                    <label style={sheetLabel}>Job Title (optional)</label>
+                    <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Job Title (optional)</label>
                     <input
-                      style={sheetInput}
+                      style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
                       value={caJobTitle}
                       onChange={(e) => setCaJobTitle(e.target.value)}
                     />
@@ -700,9 +804,10 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 
                   {/* Phone */}
                   <div style={sheetFormRow}>
-                    <label style={sheetLabel}>Phone Number (optional)</label>
+                    <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Phone Number (optional)</label>
                     <input
-                      style={sheetInput}
+                      style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
                       value={caPhone}
                       onChange={(e) => setCaPhone(e.target.value)}
                     />
@@ -710,35 +815,47 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 </div>
 
                 {/* LEGAL AGREEMENT SCROLLER */}
-                <div style={agreementScroll}>
+
+                <div
+                  style={
+                    isDark
+                      ? {
+                        ...agreementScroll,
+                        background: "#0b1220",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                      }
+                      : agreementScroll
+                  }
+                >
+
 
                   <h4 style={agreementTitle}>Confidentiality Agreement</h4>
 
-                  <p style={agreementText}>
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
                     This Confidentiality and Non-Disclosure Agreement (“Agreement”) governs access to proprietary and non-public information for the purpose of evaluating a potential investment opportunity.
                   </p>
 
-                  <p style={agreementText}>
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
                     By accessing these materials, you acknowledge that all information provided constitutes confidential information, including but not limited to financial statements, projections, ownership structures, investment models, and all documents made available through this deal portal.
                   </p>
 
-                  <p style={agreementText}>
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
                     You agree that such information shall be used solely for the purpose of evaluating a potential investment and shall not be disclosed, reproduced, or distributed to any third party without prior written consent.
                   </p>
 
-                  <p style={agreementText}>
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
                     You further agree not to contact any tenants, lenders, investors, brokers, or other parties identified within the materials without explicit authorization from Upperline.
                   </p>
 
-                  <p style={agreementText}>
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
                     All confidential information remains the exclusive property of Upperline. No license or ownership rights are granted by access to these materials.
                   </p>
 
-                  <p style={agreementText}>
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
                     This Agreement shall remain in effect for a period of two (2) years from the date of acceptance. Unauthorized use or disclosure may result in legal action and injunctive relief.
                   </p>
 
-                  <p style={agreementText}>
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
                     Acceptance of this Agreement electronically constitutes a legally binding agreement enforceable to the same extent as a manually executed agreement.
                   </p>
 
@@ -861,14 +978,20 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 function Metric({
   label,
   children,
+  isDark,
 }: {
   label: string;
   children: React.ReactNode;
+  isDark?: boolean;
 }) {
   return (
-    <div style={metricCard}>
-      <div style={metricLabel}>{label}</div>
-      <div style={metricValue}>{children}</div>
+    <div style={isDark ? { ...metricCard, ...panelDark } : metricCard}>
+      <div style={isDark ? { ...metricLabel, ...mutedTextDark } : metricLabel}>
+        {label}
+      </div>
+      <div style={isDark ? { ...metricValue, ...textPrimaryDark } : metricValue}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -1370,4 +1493,54 @@ const contentDark: React.CSSProperties = {
   background: "#05070a",
   padding: 40,
   borderRadius: 8,
+};
+const websiteLinkStyleDark: React.CSSProperties = {
+  color: "#7da2ff",
+  textDecoration: "none",
+  fontSize: 14,
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+};
+const textPrimaryDark: React.CSSProperties = {
+  color: "#ffffff",
+};
+
+const textSecondaryDark: React.CSSProperties = {
+  color: "rgba(255,255,255,0.78)",
+};
+
+const mutedTextDark: React.CSSProperties = {
+  color: "rgba(255,255,255,0.72)",
+};
+
+const panelDark: React.CSSProperties = {
+  background: "#0f172a",
+  border: "1px solid rgba(255,255,255,0.08)",
+};
+
+const panelDarkAlt: React.CSSProperties = {
+  background: "#0c1426",
+  border: "1px solid rgba(255,255,255,0.08)",
+};
+
+const buttonDark: React.CSSProperties = {
+  background: "#0f172a",
+  color: "#ffffff",
+  border: "1px solid rgba(255,255,255,0.10)",
+};
+
+const inputDark: React.CSSProperties = {
+  background: "#0b1220",
+  color: "#ffffff",
+  border: "1px solid rgba(255,255,255,0.12)",
+};
+
+const websiteLinkStyleDark: React.CSSProperties = {
+  color: "#7da2ff",
+  textDecoration: "none",
+  fontSize: 14,
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
 };
