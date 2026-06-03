@@ -191,22 +191,11 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 
 
           <div
-            style={{
-              cursor: "pointer",
-              display: "inline-block",
-              ...(isDark
-                ? {
-                  background: "#ffffff",
-                  padding: "6px 10px",
-                  borderRadius: 6,
-                }
-                : {}),
-            }}
+            style={{ cursor: "pointer", display: "inline-block" }}
             onClick={() => (window.location.href = "https://portal.upperlineco.com")}
           >
-
             <Image
-              src="/upperline-logo.png"
+              src={isDark ? "/Upperline-logo-inverted.png" : "/upperline-logo.png"}
               alt="Upperline"
               width={180}
               height={48}
@@ -292,6 +281,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 ...mainImage,
                 height: isMobile ? 220 : 400,
                 cursor: "zoom-in",
+                filter: isDark ? "brightness(0.92)" : "none",
               }}
               onClick={() => openLightbox(0)}
             />
@@ -311,6 +301,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   ...smallImage,
                   height: isMobile ? 140 : 194,
                   cursor: "zoom-in",
+                  filter: isDark ? "brightness(0.92)" : "none",
                 }}
 
                 onClick={() => openLightbox(1)}
@@ -324,6 +315,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   ...smallImage,
                   height: isMobile ? 140 : 194,
                   cursor: "zoom-in",
+                  filter: isDark ? "brightness(0.92)" : "none",
                 }}
 
                 onClick={() => openLightbox(2)}
@@ -489,22 +481,20 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
             {deal.business_plan_text || "No business plan provided."}
           </p>
         </div>
-        <div style={isDark ? websiteLinkStyleDark : websiteLinkStyle}>
+
+        <div style={websiteLinkContainer}>
           <a
             href="https://www.upperlineco.com"
             target="_blank"
             rel="noopener noreferrer"
-            style={websiteLinkStyle}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.textDecoration = "underline")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.textDecoration = "none")
-            }
+            style={isDark ? websiteLinkStyleDark : websiteLinkStyle}
+            onMouseOver={(e) => (e.currentTarget.style.textDecoration = "underline")}
+            onMouseOut={(e) => (e.currentTarget.style.textDecoration = "none")}
           >
             🌐 Visit Upperline Website
           </a>
         </div>
+
         {/* DOCUMENTS */}
         <div style={section}>
           <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Documents</h2>
@@ -576,7 +566,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                         : (isActive ? "#eef2f7" : "#fff"),
                       color: isDark ? "#ffffff" : "#0f172a",
                       borderBottom: isDark
-                        ? "1px solid rgba(255,255,255,0.08)"
+                        ? "1px solid rgba(255,255,255,0.12)"
                         : "1px solid #e5e7eb",
                       opacity: doc.gated ? 0.6 : 1,
                       cursor: "pointer",
