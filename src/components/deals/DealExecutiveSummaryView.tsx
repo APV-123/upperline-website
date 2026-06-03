@@ -204,16 +204,23 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           </div>
 
 
+
           <button
             style={{
               ...ctaBtn,
               width: isMobile ? "100%" : "auto",
             }}
-
-            onClick={() => window.location.href = 'mailto:bh@upperline.com'}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.background = isDark ? "#3b82ff" : "#3a7f70")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.background = isDark ? "#2f6fed" : "#2e6d5f")
+            }
+            onClick={() => (window.location.href = "mailto:bh@upperline.com")}
           >
             Discuss Further
           </button>
+
         </div>
 
         <h1 style={isDark ? { ...title, ...textPrimaryDark } : title}>
@@ -1198,7 +1205,7 @@ const headerRow: React.CSSProperties = {
 };
 
 const ctaBtn: React.CSSProperties = {
-  background: '#2e6d5f',
+  background: isDark ? '#2f6fed' : '#2e6d5f',
   color: '#fff',
   padding: '10px 18px',
   borderRadius: 6,
@@ -1206,6 +1213,9 @@ const ctaBtn: React.CSSProperties = {
   cursor: 'pointer',
   fontWeight: 600,
 };
+
+
+
 const docContainer = {
   display: 'grid',
   gridTemplateColumns: '250px 1fr',
