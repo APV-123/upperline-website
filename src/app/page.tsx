@@ -102,8 +102,8 @@ export default function DealIndexPage() {
             <Image
               src="/upperline-mark.png"
               alt="Upperline mark"
-              width={120}
-              height={40}
+              width={72}
+              height={72}
               className={styles.logo}
             />
           </a>
