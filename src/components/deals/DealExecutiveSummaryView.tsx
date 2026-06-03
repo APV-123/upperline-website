@@ -445,7 +445,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
         </div>
         <div style={websiteLinkContainer}>
           <a
-            href="https://www.upperline.com"
+            href="https://www.upperlineco.com"
             target="_blank"
             rel="noopener noreferrer"
             style={websiteLinkStyle}
