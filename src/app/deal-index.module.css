@@ -23,6 +23,7 @@
 
   max-width: 1200px;
   margin: 0 auto;
+  position: relative;
 }
 
 
@@ -73,7 +74,11 @@
   display: grid;
   place-items: center;
 }
-
+.hamburger:hover {
+  background: rgba(255,255,255,0.18);
+  transform: translateY(-1px);
+  transition: all 140ms ease;
+}
 .hamburgerIcon {
   width: 16px;
   height: 2px;
@@ -373,4 +378,62 @@
 }
 .plainLink:hover {
   text-decoration: underline;
+}
+.dark {
+  background: #0b0f14;
+  color: #e5e7eb;
+}
+
+.dark .main {
+  background: #0b0f14;
+}
+
+.dark .card {
+  background: #111827;
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: none;
+}
+
+.dark .cardClosing,
+.dark .cardMeta,
+.dark .cardAttributes {
+  opacity: 0.6;
+}
+
+.dark .navButton {
+  color: #e5e7eb;
+  border-color: rgba(255,255,255,0.25);
+}
+.dark .hamburger {
+  border-color: rgba(255,255,255,0.25);
+}
+
+.dark .menuPanel {
+  background: rgba(10, 15, 20, 0.95);
+}
+
+.menuPanel {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 12px;
+  min-width: 200px;
+  border: 1px solid rgba(255,255,255,0.1);
+  z-index: 60;
+}
+
+.menuItem {
+  display: block;
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.menuItem:hover {
+  background: rgba(255,255,255,0.08);
 }

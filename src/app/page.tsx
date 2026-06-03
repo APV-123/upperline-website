@@ -5,6 +5,7 @@ import Image from "next/image";
 import styles from "./deal-index.module.css";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { button } from "framer-motion/client";
 
 type Deal = {
   id: string;
@@ -45,6 +46,8 @@ export default function DealIndexPage() {
 
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDark, setIsDark] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // ✅ Fetch PUBLIC deals (this is the key change)
   useEffect(() => {
@@ -85,7 +88,50 @@ export default function DealIndexPage() {
   }, [router]);
 
   return (
-    <div className={styles.page}>
+    <div className={ `${styles.page} ${isDark}? styles.dark : ""}`}>
+      <div className={styles.navWrap}>
+          <div className={styles.navInner}>
+
+            {/* LEFT: Brand */}
+            <a
+              href="https://upperlineco.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.brand}
+            >
+              <Image
+                src="/upperline-mark.png"
+                alt="Upperline mark"
+                width={120}
+                height={40}
+                className={styles.logo}
+              />
+            </a>
+
+            {/* RIGHT: Actions */}
+            <div className={styles.navActions}>
+
+              {/* Dark mode toggle */}
+              <button
+                type="button"
+                className={styles.navButton}
+                onClick={() => setIsDark((prev) => !prev)}
+              >
+                {isDark ? "LIGHT" : "DARK"}
+              </button>
+
+              {/* Hamburger */}
+              <button
+                type= "button"
+                className={styles.hamburger}
+                onClick={() => setMenuOpen((prev) => !prev)}
+              >
+                <span className={styles.hamburgerIcon} />
+              </button>
+            </div>
+
+          </div>
+        </div>
       {/* Hero */}
       <section className={styles.hero}>
         <Image
@@ -95,24 +141,7 @@ export default function DealIndexPage() {
           priority
           className={styles.heroImage}
         />
-
-        <div className={styles.heroContent}>
-          <a
-            href="https://upperlineco.com"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              src="/upperline-mark.png"
-              alt="Upperline mark"
-              width={120}
-              height={40}
-              className={styles.heroMark}
-            />
-          </a>
-        </div>
       </section>
-
       <section className={styles.navySection}>
         <div className={styles.navyInner}>
           <h1 className={styles.navyTitle}>
