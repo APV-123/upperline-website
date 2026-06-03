@@ -1205,13 +1205,13 @@ const headerRow: React.CSSProperties = {
 };
 
 const ctaBtn: React.CSSProperties = {
-  background: isDark ? '#2f6fed' : '#2e6d5f',
   color: '#fff',
   padding: '10px 18px',
   borderRadius: 6,
   border: 'none',
   cursor: 'pointer',
   fontWeight: 600,
+  transition: 'background 0.15s ease', // 🔥 nice polish
 };
 
 
