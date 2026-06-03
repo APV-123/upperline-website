@@ -243,7 +243,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(deal.location)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: "#2f6fed", textDecoration: "none" }}
+                className="locationLinkStyle"
               >
                 {deal.location}
               </a>
@@ -435,7 +435,7 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
             </div>
           </div>
         </div>
-        {/* OVERVIEW */}
+        {/* BUSINESS PLAN */}
 
         <div style={section}>
           <h2 style={sectionTitle}>Business Plan</h2>
@@ -443,7 +443,22 @@ export default function DealExecutiveSummaryView({ deal }: { deal: Deal }) {
             {deal.business_plan_text || "No business plan provided."}
           </p>
         </div>
-
+        <div style={websiteLinkContainer}>
+          <a
+            href="https://www.upperline.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={websiteLinkStyle}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.textDecoration = "underline")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.textDecoration = "none")
+            }
+          >
+            🌐 Visit Upperline Website
+          </a>
+        </div>
         {/* DOCUMENTS */}
         <div style={section}>
           <h2 style={sectionTitle}>Documents</h2>
@@ -1319,4 +1334,24 @@ const caErrorStyle: React.CSSProperties = {
   color: "#dc2626",
   fontSize: 12,
   marginTop: 8,
+};
+const locationLinkStyle: React.CSSProperties = {
+  color: "#2f6fed",
+  textDecoration: "underline",
+};
+const websiteLinkContainer: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  marginTop: 24,
+  marginBottom: 24,
+};
+
+const websiteLinkStyle: React.CSSProperties = {
+  color: "#2f6fed",
+  textDecoration: "none",
+  fontSize: 14,
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
 };
