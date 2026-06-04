@@ -28,12 +28,25 @@ export async function GET(
     );
   }
 
-  const { deal_metrics, ...rest } = data;
+  const { 
+    deal_highlights,
+    deal_metrics,
+    ...rest 
+  } = data;
 
   const deal = {
     ...rest,
+    highlights: (deal_highlights ?? [])
+      .sort(
+        (a,b) =>
+        (a.display_order ?? 0)
+        (b.display_order ?? 0)
+      ),
+
     metrics: (deal_metrics ?? []).sort(
-      (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)
+      (a, b) => 
+        (a.display_order ?? 0)
+      (b.display_order ?? 0)
     ),
   };
 

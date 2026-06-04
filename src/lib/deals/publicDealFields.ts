@@ -21,6 +21,14 @@ export const PUBLIC_DEAL_SELECT = `
   full_memo_url,
   full_memo_requires_ca,
 
+  deal_highlights (
+    id,
+    title,
+    description,
+    display_order,
+    is_visible
+  ),
+
   deal_metrics (
     key,
     value,
