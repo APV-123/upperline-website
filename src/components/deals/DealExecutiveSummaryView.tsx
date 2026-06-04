@@ -1,6 +1,14 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
 
+type DealHighlight = {
+  id: string;
+  title: string;
+  description: string;
+  display_order: number;
+  is_visible: boolean;
+};
+
 type DealMetric = {
   key: string;
   value?: string;
@@ -20,9 +28,11 @@ type Deal = {
 
   estimated_closing_date?: string;
 
+  why_we_like_it?: string;
   overview_text?: string;
   business_plan_text?: string;
 
+  deal_highlights?: DealHighlight[];
   metrics?: DealMetric[];
 
   image_1_url?: string;
@@ -87,28 +97,28 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
   const [openCapital, setOpenCapital] = useState(false);
 
   const buildDocuments = useCallback((deal: Deal): Document[] => {
-  return [
-    {
-      id: 'snapshot',
-      label: 'Deal Snapshot',
-      url: deal.abridged_memo_url || '',
-      gated: false,
-    },
-    {
-      id: 'full_memo',
-      label: 'Full Investment Memorandum',
-      url: '',
-      gated: !hasAccess && (deal.full_memo_requires_ca ?? true),
-      alwaysShow: true,
-    },
-    {
-      id: 'about_upperline',
-      label: 'About Upperline',
-      url: deal.pitch_book_url || '',
-      gated: false,
-    },
-  ].filter((doc) => doc.alwaysShow || Boolean(doc.url));
-}, [hasAccess]);
+    return [
+      {
+        id: 'snapshot',
+        label: 'Deal Snapshot',
+        url: deal.abridged_memo_url || '',
+        gated: false,
+      },
+      {
+        id: 'full_memo',
+        label: 'Full Investment Memorandum',
+        url: '',
+        gated: !hasAccess && (deal.full_memo_requires_ca ?? true),
+        alwaysShow: true,
+      },
+      {
+        id: 'about_upperline',
+        label: 'About Upperline',
+        url: deal.pitch_book_url || '',
+        gated: false,
+      },
+    ].filter((doc) => doc.alwaysShow || Boolean(doc.url));
+  }, [hasAccess]);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -286,6 +296,29 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           </p>
 
         </div>
+        {deal.why_we_like_it && (
+          <div style={section}>
+            <h2
+              style={
+                isDark
+                  ? { ...sectionTitle, ...textPrimaryDark }
+                  : sectionTitle
+              }
+            >
+              Why We Like It
+            </h2>
+
+            <p
+              style={
+                isDark
+                  ? { ...paragraph, ...textSecondaryDark }
+                  : paragraph
+              }
+            >
+              {deal.why_we_like_it}
+            </p>
+          </div>
+        )}
         {/* IMAGE PLACEHOLDER */}
         <div style={{
           ...imageGrid,
@@ -340,6 +373,58 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
             )}
           </div>
         </div>
+        {/* INVESTMENT HIGHLIGHTS */}
+
+        {deal.deal_highlights?.length ? (
+          <div style={section}>
+            <h2
+              style={
+                isDark
+                  ? { ...sectionTitle, ...textPrimaryDark }
+                  : sectionTitle
+              }
+            >
+              Investment Highlights
+            </h2>
+
+            <div style={highlightsGrid}>
+              {deal.deal_highlights
+                .filter((h) => h.is_visible)
+                .sort(
+                  (a, b) =>
+                    (a.display_order ?? 0) -
+                    (b.display_order ?? 0)
+                )
+                .map((h) => (
+                  <div
+                    key={h.id}
+                    style={
+                      isDark
+                        ? { ...highlightCard, ...panelDark }
+                        : highlightCard
+                    }
+                  >
+                    <div style={highlightTitle}>
+                      {h.title}
+                    </div>
+
+                    <div
+                      style={
+                        isDark
+                          ? {
+                            ...highlightDescription,
+                            ...textSecondaryDark,
+                          }
+                          : highlightDescription
+                      }
+                    >
+                      {h.description}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        ) : null}
         <div style={section}>
           <div
 
