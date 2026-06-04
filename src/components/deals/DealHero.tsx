@@ -9,6 +9,8 @@ type Deal = {
   name: string;
   location?: string;
   image_1_url?: string;
+  estimated_closing_date?: string;
+  why_we_like_it?: string;
   metrics?: Metric[];
 };
 
@@ -57,8 +59,8 @@ export default function DealHero({
   const lpRaise =
     deal.metrics?.find(
       (m) =>
-        m.key === 'lp_equity_total' ||
-        m.key === 'lp_equity'
+        m.key === 'lp_equity' ||
+        m.key === 'total_equity'
     )?.value ?? null;
 
   return (
@@ -76,16 +78,35 @@ export default function DealHero({
           {deal.name}
         </h1>
 
-        <div style={location}>
-          {deal.location}
+        <div style={metaRow}>
+          {deal.location && (
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                deal.location
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={locationLink}
+            >
+              📍 {deal.location}
+            </a>
+          )}
+
+          {deal.estimated_closing_date && (
+            <div style={closingBadge}>
+              Closing:{' '}
+              {new Date(
+                deal.estimated_closing_date
+              ).toLocaleDateString()}
+            </div>
+          )}
         </div>
 
-        <p style={thesis}>
-          Acquire a well-located retail asset
-          with meaningful value-add potential
-          through lease-up, tenant upgrades,
-          and mark-to-market rent growth.
-        </p>
+        {deal.why_we_like_it && (
+          <p style={thesis}>
+            {deal.why_we_like_it}
+          </p>
+        )}
 
         <div style={metricGrid}>
           <MetricCard
@@ -114,52 +135,70 @@ export default function DealHero({
 }
 
 const container: React.CSSProperties = {
-  marginBottom: 40,
+  marginBottom: 48,
 };
 
 const heroImage: React.CSSProperties = {
   width: '100%',
-  height: 420,
+  height: 500,
   objectFit: 'cover',
   borderRadius: 16,
-  marginBottom: 24,
+  marginBottom: 28,
 };
 
 const content: React.CSSProperties = {
-  maxWidth: 1100,
+  maxWidth: 1200,
 };
 
 const title: React.CSSProperties = {
-  fontSize: 48,
+  fontSize: 56,
   fontWeight: 800,
   lineHeight: 1.1,
-  marginBottom: 12,
+  marginBottom: 16,
   color: '#0f172a',
 };
 
-const location: React.CSSProperties = {
-  fontSize: 18,
-  color: '#64748b',
-  marginBottom: 20,
+const metaRow: React.CSSProperties = {
+  display: 'flex',
+  gap: 12,
+  alignItems: 'center',
+  flexWrap: 'wrap',
+  marginBottom: 24,
+};
+
+const locationLink: React.CSSProperties = {
+  color: '#2563eb',
+  textDecoration: 'none',
+  fontSize: 16,
+  fontWeight: 500,
+};
+
+const closingBadge: React.CSSProperties = {
+  padding: '8px 14px',
+  background: '#f1f5f9',
+  borderRadius: 999,
+  fontSize: 14,
+  fontWeight: 600,
+  color: '#334155',
 };
 
 const thesis: React.CSSProperties = {
-  fontSize: 20,
+  fontSize: 22,
   lineHeight: 1.6,
-  maxWidth: 900,
   color: '#334155',
+  maxWidth: 900,
   marginBottom: 28,
 };
 
 const metricGrid: React.CSSProperties = {
   display: 'grid',
   gridTemplateColumns:
-    'repeat(auto-fit,minmax(180px,1fr))',
+    'repeat(auto-fit,minmax(200px,1fr))',
   gap: 16,
 };
 
 const metricCard: React.CSSProperties = {
-  background: '#ffffff',
+  background: '#fff',
   border: '1px solid #e2e8f0',
   borderRadius: 12,
   padding: 20,
@@ -173,8 +212,8 @@ const metricValue: React.CSSProperties = {
 };
 
 const metricLabel: React.CSSProperties = {
-  fontSize: 13,
+  fontSize: 12,
   textTransform: 'uppercase',
-  letterSpacing: '.05em',
+  letterSpacing: '.08em',
   color: '#64748b',
 };
