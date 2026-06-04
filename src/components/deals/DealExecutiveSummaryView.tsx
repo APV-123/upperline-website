@@ -36,6 +36,7 @@ type Deal = {
 };
 
 type Document = {
+  id: string;
   label: string;
   url: string;
   gated: boolean;
@@ -86,25 +87,28 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
   const [openCapital, setOpenCapital] = useState(false);
 
   const buildDocuments = useCallback((deal: Deal): Document[] => {
-    return [
-      {
-        label: 'Upperline Pitch Book',
-        url: deal.pitch_book_url || '',
-        gated: false,
-      },
-      {
-        label: 'Deal Preview Memo',
-        url: deal.abridged_memo_url || '',
-        gated: false,
-      },
-      {
-        label: 'Full Equity Memo',
-        url: '',
-        gated: !hasAccess && (deal.full_memo_requires_ca ?? true),
-        alwaysShow: true,
-      },
-    ].filter((doc) => doc.alwaysShow || Boolean(doc.url));
-  }, [hasAccess]);
+  return [
+    {
+      id: 'snapshot',
+      label: 'Deal Snapshot',
+      url: deal.abridged_memo_url || '',
+      gated: false,
+    },
+    {
+      id: 'full_memo',
+      label: 'Full Investment Memorandum',
+      url: '',
+      gated: !hasAccess && (deal.full_memo_requires_ca ?? true),
+      alwaysShow: true,
+    },
+    {
+      id: 'about_upperline',
+      label: 'About Upperline',
+      url: deal.pitch_book_url || '',
+      gated: false,
+    },
+  ].filter((doc) => doc.alwaysShow || Boolean(doc.url));
+}, [hasAccess]);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -126,7 +130,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
       .then((json) => {
         if (json?.signedUrl) {
           setSelectedDoc({
-            label: "Full Equity Memo",
+            id: 'full_memo',
+            label: "Full Investment Memorandum",
             url: json.signedUrl,
             gated: false,
           });
@@ -539,7 +544,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     key={doc.label}
                     onClick={() => {
                       // 🔥 SPECIAL CASE: FULL EQUITY MEMO
-                      if (doc.label === "Full Equity Memo") {
+                      if (doc.id === "full_memo") {
                         const savedEmail = localStorage.getItem(`ca:${deal.id}`);
 
                         // If user has not signed → show modal
@@ -556,7 +561,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                           .then((json) => {
                             if (json?.signedUrl) {
                               setSelectedDoc({
-                                label: "Full Equity Memo",
+                                id: 'full_memo',
+                                label: "Full Investment Memorandum",
                                 url: json.signedUrl,
                                 gated: false,
                               });
@@ -639,7 +645,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     />
                   ) : (
                     <div style={{ padding: 20, color: "#64748b" }}>
-                      {selectedDoc.label === "Full Equity Memo"
+                      {selectedDoc.id === "full_memo"
                         ? "Click to load full memo."
                         : "Select a document to preview."}
                     </div>
@@ -950,7 +956,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                         setHasAccess(true);
 
                         setSelectedDoc({
-                          label: "Full Equity Memo",
+                          id: 'full_memo',
+                          label: "Full Investment Memorandum",
                           url: json.signedUrl,
                           gated: false,
                         });
