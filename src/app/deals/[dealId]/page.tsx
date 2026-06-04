@@ -64,5 +64,6 @@ export default function DealPage() {
   }
 
   // ✅ SINGLE SOURCE OF UI
+  console.log('[PUBLIC DEAL]', deal)
   return <DealExecutiveSummaryView deal={deal} isDark={isDark} />;
 }
