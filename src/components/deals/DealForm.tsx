@@ -27,6 +27,9 @@ export type DealFormValues = {
   asset_class: string;
   strategy: string;
   estimated_closing_date: string;
+
+  why_we_like_it: string;
+
   overview_text: string;
   business_plan_text: string;
 
@@ -60,6 +63,7 @@ export default function DealForm({
     asset_class: initialDeal?.asset_class ?? '',
     strategy: initialDeal?.strategy ?? '',
     estimated_closing_date: initialDeal?.estimated_closing_date ?? '',
+    why_we_like_it: initialDeal?.why_we_like_it ?? '',
     overview_text: initialDeal?.overview_text ?? '',
     business_plan_text: initialDeal?.business_plan_text ?? '',
     image_1_url: initialDeal?.image_1_url ?? '',
@@ -130,7 +134,13 @@ export default function DealForm({
               setDeal((p) => ({ ...p, estimated_closing_date: v }))
             }
           />
-
+          <TextArea
+            label="Why We Like This Opportunity"
+            value={deal.why_we_like_it}
+            onChange={(v) =>
+              setDeal((p) => ({ ...p, why_we_like_it: v }))
+            }
+          />
           <TextArea
             label="Overview"
             value={deal.overview_text}
@@ -172,30 +182,28 @@ export default function DealForm({
         </Section>
 
         <Section title="Documents">
-          <DocumentField
-            label="Pitch Book"
-            url={deal.pitch_book_url}
-            bucket="deal-documents-public"
-            disabled={saving || loading}
-            onChange={(v) => setDeal((p) => ({ ...p, pitch_book_url: v }))}
-          />
 
           <DocumentField
-            label="Abridged Memo"
+            label="Deal Snapshot"
             url={deal.abridged_memo_url}
             bucket="deal-documents-public"
             disabled={saving || loading}
             onChange={(v) => setDeal((p) => ({ ...p, abridged_memo_url: v }))}
           />
-
           <DocumentField
-            label="Full Memo"
+            label="Full Investment Memorandum"
             url={deal.full_memo_url}
             bucket="deal-documents-private"
             disabled={saving || loading}
             onChange={(v) => setDeal((p) => ({ ...p, full_memo_url: v }))}
           />
-
+          <DocumentField
+            label="About Upperline"
+            url={deal.pitch_book_url}
+            bucket="deal-documents-public"
+            disabled={saving || loading}
+            onChange={(v) => setDeal((p) => ({ ...p, pitch_book_url: v }))}
+          />
           <Checkbox
             label="Full Memo Requires CA"
             checked={deal.full_memo_requires_ca}
