@@ -39,13 +39,13 @@ export async function GET(
     highlights: (deal_highlights ?? [])
       .sort(
         (a,b) =>
-        (a.display_order ?? 0)
+        (a.display_order ?? 0)-
         (b.display_order ?? 0)
       ),
 
     metrics: (deal_metrics ?? []).sort(
       (a, b) => 
-        (a.display_order ?? 0)
+        (a.display_order ?? 0)-
       (b.display_order ?? 0)
     ),
   };
