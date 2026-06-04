@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
+import DealHero from "./DealHero";
 
 type DealHighlight = {
   id: string;
@@ -203,8 +204,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           alignItems: isMobile ? "flex-start" : "center",
           gap: isMobile ? 12 : 0,
         }}>
-
-
+          
+          <DealHero deal={deal} />
           <div
             style={{ cursor: "pointer", display: "inline-block" }}
             onClick={() => (window.location.href = "https://portal.upperlineco.com")}
