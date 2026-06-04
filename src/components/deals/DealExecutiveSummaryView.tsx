@@ -1630,4 +1630,27 @@ const inputDark: React.CSSProperties = {
   color: "#ffffff",
   border: "1px solid rgba(255,255,255,0.12)",
 };
+const highlightsGrid: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+  gap: 16,
+};
 
+const highlightCard: React.CSSProperties = {
+  border: '1px solid #e5e7eb',
+  borderRadius: 8,
+  padding: 16,
+  background: '#ffffff',
+};
+
+const highlightTitle: React.CSSProperties = {
+  fontSize: 16,
+  fontWeight: 600,
+  marginBottom: 8,
+};
+
+const highlightDescription: React.CSSProperties = {
+  fontSize: 14,
+  lineHeight: 1.5,
+  color: '#64748b',
+};
