@@ -12,6 +12,14 @@ type PublicDealMetric = {
   is_visible?: boolean;
 };
 
+type PublicDealHighlight ={
+  id: string;
+  title: string;
+  description: string;
+  display_order: number;
+  is_visible: boolean;
+};
+
 type PublicDeal = {
   id: string;
   name: string;
@@ -21,6 +29,7 @@ type PublicDeal = {
   asset_class?: string;
   strategy?: string;
   estimated_closing_date?: string;
+  why_we_like_it?: string;
   overview_text?: string;
   business_plan_text?: string;
   created_at: string | null;
@@ -33,7 +42,8 @@ type PublicDeal = {
   abridged_memo_url?: string;
   full_memo_url?: string;
   full_memo_requires_ca?: boolean;
-
+  
+  deal_highlights?: PublicDealHighlight[];
   deal_metrics?: PublicDealMetric[];
 };
 
@@ -65,12 +75,27 @@ export async function GET(
       );
     }
 
-    const { deal_metrics, ...rest } = data;
+    const { 
+      deal_highlights,
+      deal_metrics,
+      ...rest 
+    } = data;
 
     const deal = {
       ...rest,
+
+      deal_highlights: (deal_highlights ?? [])
+        .filter((h) => h.is_visible !== false)
+        .sort(
+          (a, b) =>
+            (a.display_order ?? 0) -
+            (b.display_order ?? 0)
+        ),
+
       metrics: (deal_metrics ?? []).sort(
-        (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)
+        (a, b) =>
+          (a.display_order ?? 0) -
+          (b.display_order ?? 0)
       ),
     };
 
