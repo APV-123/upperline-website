@@ -6,6 +6,7 @@ import DealForm from '@/components/deals/DealForm';
 import AdminNav from '@/components/navigation/AdminNav';
 import type { DealFormValues } from '@/components/deals/DealForm';
 import MetricsEditor, { type DealMetric } from '@/components/deals/MetricsEditor';
+import DealHighlightsEditor from '@/components/deals/DealHighlightsEditor';
 
 type DealApiResponse = {
   id: string;
@@ -146,7 +147,10 @@ export default function DealEditPage() {
                 }
               }}
             />
-
+            <DealHighlightsEditor
+              dealId={dealId}
+              />
+              
             <MetricsEditor
               dealId={dealId}
               initialMetrics={metrics}
