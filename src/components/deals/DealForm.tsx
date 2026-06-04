@@ -148,7 +148,6 @@ export default function DealForm({
               setDeal((p) => ({ ...p, overview_text: v }))
             }
           />
-
           <TextArea
             label="Business Plan"
             value={deal.business_plan_text}
@@ -449,7 +448,7 @@ function DocumentField({
     <div style={{ marginTop: 12 }}>
       <label style={labelStyle}>
         {label}
-        {label === 'Full Memo' && (
+        {bucket === 'deal-documents-private' && (
           <span style={{ marginLeft: 6, color: '#888', fontSize: 11 }}>
             (private)
           </span>

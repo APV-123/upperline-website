@@ -7,6 +7,7 @@ export const PUBLIC_DEAL_SELECT = `
   asset_class,
   strategy,
   estimated_closing_date,
+  why_we_like_it,
   overview_text,
   business_plan_text,
   created_at,
