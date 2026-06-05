@@ -133,25 +133,27 @@ export default function DealHero({
                 <div style={{
                     ...heroOverlay,
                     padding: isMobile ? '24px' : '64px',
-                    border: '4px solid red',
                     justifyContent: isMobile
                         ? 'flex-end'
                         : 'flex-end'
                 }}>
                     <div style={{
                         ...heroContent,
-                        border: '4px solid lime',
-
                     }}>
                         <h1 style={{
                             ...heroTitle,
-                            fontSize: isMobile ? 18 : 64,
+                            fontSize: isMobile ? 32 : 64,
                             lineHeight: 1.05,
                         }}>
                             {deal.name}
                         </h1>
 
-                        <div style={heroMeta}>
+                        <div style={{
+                            ...heroMeta,
+                            flexDirection: isMobile ? 'column' : 'row',
+                            alignItems: isMobile ? 'flex-start' : 'center',
+                            gap: isMobile ? 8 : 16,
+                        }}>
                             {deal.location && (
                                 <a
                                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
@@ -192,7 +194,8 @@ export default function DealHero({
 
                         <div style={{
                             ...heroMetricGrid,
-                            gridTemplateColumns: 'repeat(2, 1fr)'
+                            gridTemplateColumns: 'repeat(2, 1fr)',
+                            gap: isMobile ? 10 : 16
                             }}>
                             {heroMetrics.map((metric) => (
                                 <MetricCard
@@ -334,7 +337,7 @@ const metricLabel: React.CSSProperties = {
 
 const thesisWrapper: React.CSSProperties = {
     maxWidth: 1100,
-    margin: '0 auto 16px auto',
+    margin: '24px auto 16px auto',
 };
 
 const thesis: React.CSSProperties = {
