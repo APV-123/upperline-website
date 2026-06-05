@@ -120,7 +120,7 @@ export default function DealHero({
         <div style={container}>
             <div style={{
                 ...heroSection,
-                height: isMobile ? 600 : 620,
+                height: isMobile ? 450 : 620,
             }}>
                 {deal.image_1_url && (
                     <img
@@ -133,7 +133,10 @@ export default function DealHero({
                 <div style={{
                     ...heroOverlay,
                     padding: isMobile ? '24px' : '64px',
-                    border: '4px solid red'
+                    border: '4px solid red',
+                    justifyContent: isMobile
+                        ? 'flex-end'
+                        : 'flex-end'
                 }}>
                     <div style={{
                         ...heroContent,
