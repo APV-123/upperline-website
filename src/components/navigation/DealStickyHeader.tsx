@@ -63,6 +63,58 @@ export default function DealStickyHeader({
                     </a>
                 )}
             </div>
+            {isMobile && menuOpen && (
+                <div style={mobileMenu}>
+                    <a
+                        href="#overview"
+                        style={mobileLink}
+                        onClick={() => setMenuOpen(false)}
+                    >
+                        Overview
+                    </a>
+
+                    <a
+                        href="#highlights"
+                        style={mobileLink}
+                        onClick={() => setMenuOpen(false)}
+                    >
+                        Highlights
+                    </a>
+
+                    <a
+                        href="#returns"
+                        style={mobileLink}
+                        onClick={() => setMenuOpen(false)}
+                    >
+                        Returns
+                    </a>
+
+                    <a
+                        href="#business-plan"
+                        style={mobileLink}
+                        onClick={() => setMenuOpen(false)}
+                    >
+                        Business Plan
+                    </a>
+
+                    <a
+                        href="#documents"
+                        style={mobileLink}
+                        onClick={() => setMenuOpen(false)}
+                    >
+                        Documents
+                    </a>
+
+                    <a
+                        href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
+                            `Interest in ${dealName}`
+                        )}`}
+                        style={mobileCTA}
+                    >
+                        Request Full Memorandum
+                    </a>
+                </div>
+            )}
         </header>
     );
 }
@@ -128,4 +180,31 @@ const menuButton: React.CSSProperties = {
     cursor: 'pointer',
     color: '#003a5d',
     padding: 4,
+};
+const mobileMenu: React.CSSProperties = {
+    background: 'white',
+    borderTop: '1px solid #e5e7eb',
+
+    display: 'flex',
+    flexDirection: 'column',
+
+    padding: 20,
+    gap: 16,
+};
+const mobileLink: React.CSSProperties = {
+    textDecoration: 'none',
+    color: '#334155',
+    fontWeight: 600,
+};
+const mobileCTA: React.CSSProperties = {
+    background: '#31c8db',
+    color: '#003a5d',
+
+    padding: '12px 16px',
+    borderRadius: 10,
+
+    textDecoration: 'none',
+    textAlign: 'center',
+
+    fontWeight: 700,
 };
