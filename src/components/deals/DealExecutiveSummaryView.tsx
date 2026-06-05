@@ -95,6 +95,14 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
   const [caError, setCaError] = useState('');
   const [hasAccess, setHasAccess] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  console.log(
+  'window width',
+  typeof window !== 'undefined'
+    ? window.innerWidth
+    : 'server',
+  'isMobile',
+  isMobile
+);
   const [openLP, setOpenLP] = useState(true);
   const [openProject, setOpenProject] = useState(false);
   const [openCapital, setOpenCapital] = useState(false);
@@ -204,7 +212,10 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
             padding: isMobile ? 20 : 40,
           }}
         >
-          <DealHero deal={deal} />
+          <DealHero 
+            deal={deal}
+            isMobile={isMobile}
+            />
 
           <div style={memoBody}>
             {/* INVESTMENT HIGHLIGHTS */}
