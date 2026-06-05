@@ -52,18 +52,15 @@ export default function DealStickyHeader({
 }
 
 const header: React.CSSProperties = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 999999,
-    background: 'red',
-    height: 80,
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  zIndex: 999999,
 
-    //background: 'rgba(255,255,255,.90)',
-    //backdropFilter: 'blur(12px)',
-
-    //borderBottom: '1px solid #e5e7eb',
+  background: 'rgba(0,0,0,.20)',
+  backdropFilter: 'blur(12px)',
+  borderBottom: '1px solid rgba(255,255,255,.15)',
 };
 
 const inner: React.CSSProperties = {
@@ -95,8 +92,8 @@ const link: React.CSSProperties = {
 };
 
 const cta: React.CSSProperties = {
-    background: '#003a5d',
-    color: '#fff',
+    background: '#31c8db',
+    color: '#003a5d',
     padding: '10px 18px',
     borderRadius: 10,
     textDecoration: 'none',
