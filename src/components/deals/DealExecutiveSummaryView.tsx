@@ -207,95 +207,6 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           <DealHero deal={deal} />
 
           <div style={memoBody}>
-            <section
-              id="overview"
-              style={{
-                ...section,
-                scrollMarginTop: 90,
-              }}>
-              <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Overview</h2>
-              <p style={isDark ? { ...paragraph, ...textSecondaryDark } : paragraph}>
-                {deal.overview_text || "No overview provided."}
-              </p>
-
-            </section>
-            {deal.why_we_like_it && (
-              <div style={section}>
-                <h2
-                  style={
-                    isDark
-                      ? { ...sectionTitle, ...textPrimaryDark }
-                      : sectionTitle
-                  }
-                >
-                  Why We Like It
-                </h2>
-
-                <p
-                  style={
-                    isDark
-                      ? { ...paragraph, ...textSecondaryDark }
-                      : paragraph
-                  }
-                >
-                  {deal.why_we_like_it}
-                </p>
-              </div>
-            )}
-            {/* IMAGE PLACEHOLDER */}
-            <div style={{
-              ...imageGrid,
-              gridTemplateColumns: isMobile ? "1fr" : "2fr 1fr",
-            }}>
-              {deal.image_1_url && (
-                <img
-                  src={deal.image_1_url}
-                  style={{
-                    ...mainImage,
-                    height: isMobile ? 220 : 400,
-                    cursor: "zoom-in",
-                    filter: isDark ? "brightness(0.92)" : "none",
-                  }}
-                  onClick={() => openLightbox(0)}
-                />
-              )}
-
-              <div
-                style={{
-                  ...sideImages,
-                  flexDirection: isMobile ? 'row' : 'column',
-                }}
-              >
-                {deal.image_2_url && (
-                  <img
-                    src={deal.image_2_url}
-
-                    style={{
-                      ...smallImage,
-                      height: isMobile ? 140 : 194,
-                      cursor: "zoom-in",
-                      filter: isDark ? "brightness(0.92)" : "none",
-                    }}
-
-                    onClick={() => openLightbox(1)}
-                  />
-                )}
-                {deal.image_3_url && (
-                  <img
-                    src={deal.image_3_url}
-
-                    style={{
-                      ...smallImage,
-                      height: isMobile ? 140 : 194,
-                      cursor: "zoom-in",
-                      filter: isDark ? "brightness(0.92)" : "none",
-                    }}
-
-                    onClick={() => openLightbox(2)}
-                  />
-                )}
-              </div>
-            </div>
             {/* INVESTMENT HIGHLIGHTS */}
 
             {deal.deal_highlights?.length ? (
@@ -353,6 +264,98 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 </div>
               </section>
             ) : null}
+
+            {/* IMAGE PLACEHOLDER */}
+            <div style={{
+              ...imageGrid,
+              gridTemplateColumns: isMobile ? "1fr" : "2fr 1fr",
+            }}>
+              {deal.image_1_url && (
+                <img
+                  src={deal.image_1_url}
+                  style={{
+                    ...mainImage,
+                    height: isMobile ? 220 : 400,
+                    cursor: "zoom-in",
+                    filter: isDark ? "brightness(0.92)" : "none",
+                  }}
+                  onClick={() => openLightbox(0)}
+                />
+              )}
+
+              <div
+                style={{
+                  ...sideImages,
+                  flexDirection: isMobile ? 'row' : 'column',
+                }}
+              >
+                {deal.image_2_url && (
+                  <img
+                    src={deal.image_2_url}
+
+                    style={{
+                      ...smallImage,
+                      height: isMobile ? 140 : 194,
+                      cursor: "zoom-in",
+                      filter: isDark ? "brightness(0.92)" : "none",
+                    }}
+
+                    onClick={() => openLightbox(1)}
+                  />
+                )}
+                {deal.image_3_url && (
+                  <img
+                    src={deal.image_3_url}
+
+                    style={{
+                      ...smallImage,
+                      height: isMobile ? 140 : 194,
+                      cursor: "zoom-in",
+                      filter: isDark ? "brightness(0.92)" : "none",
+                    }}
+
+                    onClick={() => openLightbox(2)}
+                  />
+                )}
+              </div>
+            </div>
+            <section
+              id="overview"
+              style={{
+                ...section,
+                scrollMarginTop: 90,
+              }}>
+              <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Overview</h2>
+              <p style={isDark ? { ...paragraph, ...textSecondaryDark } : paragraph}>
+                {deal.overview_text || "No overview provided."}
+              </p>
+
+            </section>
+            {deal.why_we_like_it && (
+              <div style={section}>
+                <h2
+                  style={
+                    isDark
+                      ? { ...sectionTitle, ...textPrimaryDark }
+                      : sectionTitle
+                  }
+                >
+                  Why We Like It
+                </h2>
+
+                <p
+                  style={
+                    isDark
+                      ? { ...paragraph, ...textSecondaryDark }
+                      : paragraph
+                  }
+                >
+                  {deal.why_we_like_it}
+                </p>
+              </div>
+            )}
+            
+
             <section
               id="returns"
               style={{
