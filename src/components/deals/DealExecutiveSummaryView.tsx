@@ -547,8 +547,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 <div>
                   <h3
                     style={{
-                      fontSize: 36,
-                      fontWeight: 800,
+                      fontSize: 24,
+                      fontWeight: 700,
                       margin: '0 0 20px 0',
                       color: isDark ? '#fff' : '#0f172a',
                     }}
@@ -649,6 +649,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
+                    padding: '32px',
                   }}
                 >
                   <img
@@ -656,8 +657,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     alt="Upperline"
                     style={{
                       width: '100%',
-                      maxWidth: 280,
-                      opacity: 0.95,
+                      maxWidth: 220,
+                      opacity: 0.9,
                     }}
                   />
                 </div>
