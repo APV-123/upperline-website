@@ -8,6 +8,7 @@ export type DealMetric = {
     label: string;
     value?: string;
     section: string;
+    icon?: string;
     display_order: number;
     is_visible?: boolean;
 };
@@ -65,6 +66,7 @@ export default function MetricsEditor({ dealId, initialMetrics }: Props) {
             const payload = rows.map((row) => ({
                 key: row.key,
                 label: row.label,
+                icon: row.icon,
                 value: row.value?.trim() || null,
                 section: row.section,
                 display_order: row.display_order,
@@ -235,6 +237,17 @@ export default function MetricsEditor({ dealId, initialMetrics }: Props) {
         </div>
     );
 }
+const ICON_OPTIONS = [
+    '',
+    'building',
+    'percent',
+    'vacancy',
+    'car',
+    'map',
+    'users',
+    'dollar',
+    'warehouse',
+];
 
 function MetricSection({
     heading,
@@ -264,6 +277,24 @@ function MetricSection({
             <div style={table}>
                 {rows.map((row) => (
                     <div key={row.key} style={rowWrap}>
+                        <select
+                            value={row.icon || ''}
+                            onChange={(e) =>
+                                onChange(row.key, {
+                                    icon: e.target.value,
+                                })
+                            }
+                            style={select}
+                        >
+                            {ICON_OPTIONS.map((icon) => (
+                                <option
+                                    key={icon}
+                                    value={icon}
+                                >
+                                    {icon || 'No Icon'}
+                                </option>
+                            ))}
+                        </select>
                         <input
                             value={row.label}
                             onChange={(e) =>
