@@ -182,7 +182,7 @@ const heroSection: React.CSSProperties = {
     height: 620,
 
     overflow: 'hidden',
-    marginBottom: 48,
+    marginBottom: 16,
 };
 const heroContent: React.CSSProperties = {
     maxWidth: 1200,
@@ -283,7 +283,7 @@ const metricLabel: React.CSSProperties = {
 
 const thesisWrapper: React.CSSProperties = {
     maxWidth: 1100,
-    margin: '0 auto 40px auto',
+    margin: '0 auto 16px auto',
 };
 
 const thesis: React.CSSProperties = {
