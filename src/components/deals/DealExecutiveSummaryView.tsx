@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
 import DealHero from "./DealHero";
+import DealStickyHeader from "../navigation/DealStickyHeader";
 
 type DealHighlight = {
   id: string;
@@ -190,6 +191,9 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
   }
 
   return (
+    <>
+    <DealStickyHeader
+      dealName={deal.name} />
     <div style={isDark ? containerDark : container}>
       <div
         style={{
@@ -198,13 +202,18 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
         }}
       >
         <DealHero deal={deal} />
-        <div style={section}>
+        <section
+          id="overview"
+          style={{
+            ...section,
+            scrollMarginTop: 90,
+          }}>
           <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Overview</h2>
           <p style={isDark ? { ...paragraph, ...textSecondaryDark } : paragraph}>
             {deal.overview_text || "No overview provided."}
           </p>
 
-        </div>
+        </section>
         {deal.why_we_like_it && (
           <div style={section}>
             <h2
@@ -285,7 +294,12 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
         {/* INVESTMENT HIGHLIGHTS */}
 
         {deal.deal_highlights?.length ? (
-          <div style={section}>
+          <section
+            id="highlights"
+            style={{
+              ...section,
+              scrollMarginTop: 90,
+            }}>
             <h2
               style={
                 isDark
@@ -332,9 +346,14 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   </div>
                 ))}
             </div>
-          </div>
+          </section>
         ) : null}
-        <div style={section}>
+        <section
+          id="returns"
+          style={{
+            ...section,
+            scrollMarginTop: 90,
+          }}>
           <div
 
             style={
@@ -383,7 +402,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               ))}
             </div>
           </div>
-        </div>
+        </section>
         <div style={section}>
           <div
 
@@ -486,12 +505,17 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
         </div>
         {/* BUSINESS PLAN */}
 
-        <div style={section}>
+        <section
+          id="business-plan"
+          style={{
+            ...section,
+            scrollMarginTop:90,
+          }}>
           <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Business Plan</h2>
           <p style={isDark ? { ...paragraph, ...textSecondaryDark } : paragraph}>
             {deal.business_plan_text || "No business plan provided."}
           </p>
-        </div>
+        </section>
 
         <div style={websiteLinkContainer}>
           <a
@@ -507,7 +531,12 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
         </div>
 
         {/* DOCUMENTS */}
-        <div style={section}>
+        <section
+          id="documents"
+          style={{
+            ...section,
+            scrollMarginTop: 90,
+          }}>
           <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Documents</h2>
 
           <div style={{
@@ -652,7 +681,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
             </div>
 
           </div>
-        </div>
+        </section>
         {lightboxOpen && images.length > 0 && (
           <div style={lbBackdrop} onClick={() => setLightboxOpen(false)}>
             <div style={lbTop} onClick={(e) => e.stopPropagation()}>
@@ -974,6 +1003,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
         )}
       </div>
     </div >
+    </>
   );
 }
 
@@ -1088,6 +1118,7 @@ const container: React.CSSProperties = {
   padding: "40px 20px",
   display: "flex",
   justifyContent: "center",
+  paddingTop:72,
 };
 
 const content: React.CSSProperties = {
