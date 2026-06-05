@@ -516,6 +516,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 border: isDark
                   ? '1px solid #1f2937'
                   : '1px solid #e2e8f0',
+                maxWidth: 1000,
+                margin: '0 auto',
               }}
             >
               {/* Top Accent */}
@@ -529,6 +531,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   background: '#31c8db',
                 }}
               />
+
               {/* Pattern Background */}
               <div
                 style={{
@@ -548,55 +551,52 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 style={{
                   position: 'relative',
                   zIndex: 2,
-                  maxWidth: 900,
+                  maxWidth: 800,
                 }}
               >
-                {/* Left Column */}
-                <div>
-                  <img
-                    src="/upperline-logo.png"
-                    alt="Upperline"
-                    style={{
-                      height: 48,
-                      width: 'auto',
-                      marginBottom: 28,
-                    }}
-                  />
+                <img
+                  src="/upperline-logo.png"
+                  alt="Upperline"
+                  style={{
+                    height: 56,
+                    width: 'auto',
+                    marginBottom: 32,
+                  }}
+                />
 
-                  <p
-                    style={{
-                      ...(isDark
-                        ? { ...paragraph, ...textSecondaryDark }
-                        : paragraph),
-                      marginBottom: 28,
-                      fontSize: 18,
-                      lineHeight: 1.7,
-                      maxWidth: 800,
-                    }}
-                  >
-                    Upperline is a vertically integrated real estate investment,
-                    development, and asset management firm focused on acquiring,
-                    developing, and operating assets throughout high-growth Texas
-                    markets. By combining investment expertise, development execution,
-                    and active asset management, we seek to create long-term value for
-                    our investors through disciplined capital allocation and operational
-                    excellence.
-                  </p>
+                <p
+                  style={{
+                    ...(isDark
+                      ? { ...paragraph, ...textSecondaryDark }
+                      : paragraph),
+                    marginBottom: 24,
+                    fontSize: 18,
+                    lineHeight: 1.7,
+                    maxWidth: 700,
+                  }}
+                >
+                  Upperline is a vertically integrated real estate investment,
+                  development, and asset management firm focused on acquiring,
+                  developing, and operating assets throughout high-growth Texas
+                  markets. By combining investment expertise, development execution,
+                  and active asset management, we seek to create long-term value for
+                  our investors through disciplined capital allocation and operational
+                  excellence.
+                </p>
 
-                  <a
-                    href="https://www.upperlineco.com/who-we-are"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      color: '#31c8db',
-                      textDecoration: 'none',
-                      fontWeight: 700,
-                      fontSize: 16,
-                    }}
-                  >
-                    Learn More About Upperline →
-                  </a>
-                </div>
+                <a
+                  href="https://www.upperlineco.com/who-we-are"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: '#31c8db',
+                    textDecoration: 'none',
+                    fontWeight: 700,
+                    fontSize: 16,
+                  }}
+                >
+                  View Company Profile →
+                </a>
               </div>
             </section>
 
