@@ -652,7 +652,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   }}
                 >
                   <img
-                    src="/Upperline-mark.png"
+                    src="/upperline-mark.png"
                     alt="Upperline"
                     style={{
                       width: '100%',
