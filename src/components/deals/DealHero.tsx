@@ -2,7 +2,11 @@
 
 type Metric = {
     key: string;
+    label: string;
     value?: string | null;
+    section: string;
+    is_visible?: boolean;
+    display_order?: number;
 };
 
 type Deal = {
@@ -41,27 +45,19 @@ function MetricCard({
 export default function DealHero({
     deal,
 }: Props) {
-    const lpIrr =
-        deal.metrics?.find(
-            (m) => m.key === 'lp_irr'
-        )?.value ?? null;
-
-    const moic =
-        deal.metrics?.find(
-            (m) => m.key === 'lp_moic'
-        )?.value ?? null;
-
-    const minimumInvestment =
-        deal.metrics?.find(
-            (m) => m.key === 'minimum_investment'
-        )?.value ?? null;
-
-    const lpRaise =
-        deal.metrics?.find(
-            (m) =>
-                m.key === 'lp_equity' ||
-                m.key === 'total_equity'
-        )?.value ?? null;
+    const heroMetrics =
+        deal.metrics
+            ?.filter(
+                (m) =>
+                    m.section === 'hero' &&
+                    m.is_visible !== false
+            )
+            .sort(
+                (a, b) =>
+                    (a.display_order ?? 0) -
+                    (b.display_order ?? 0)
+            )
+            .slice(0, 4) ?? [];
 
     return (
         <div style={container}>
@@ -104,25 +100,13 @@ export default function DealHero({
                     </div>
 
                     <div style={heroMetricGrid}>
-                        <MetricCard
-                            value={lpIrr}
-                            label="LP IRR"
-                        />
-
-                        <MetricCard
-                            value={moic}
-                            label="MOIC"
-                        />
-
-                        <MetricCard
-                            value={lpRaise}
-                            label="LP Raise"
-                        />
-
-                        <MetricCard
-                            value={minimumInvestment}
-                            label="Minimum Investment"
-                        />
+                        {heroMetrics.map((metric) => (
+                            <MetricCard
+                                key={metric.key}
+                                value={metric.value}
+                                label={metric.label}
+                            />
+                        ))}
                     </div>
                 </div>
             </div>
@@ -211,7 +195,7 @@ const heroClosing: React.CSSProperties = {
 const heroMetricGrid: React.CSSProperties = {
     display: 'grid',
     gridTemplateColumns:
-        'repeat(4,minmax(180px,1fr))',
+        'repeat(aut-fit,minmax(180px,1fr))',
     gap: 16,
     marginTop: 28,
     maxWidth: 1000,
