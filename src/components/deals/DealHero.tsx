@@ -37,6 +37,7 @@ type Deal = {
     location?: string;
     image_1_url?: string;
     estimated_closing_date?: string;
+    thesis?: string;
     why_we_like_it?: string;
     metrics?: Metric[];
 };
@@ -156,10 +157,10 @@ export default function DealHero({
                 </div>
             </div>
 
-            {deal.why_we_like_it && (
+            {deal.thesis && (
                 <div style={thesisWrapper}>
                     <p style={thesis}>
-                        {deal.why_we_like_it}
+                        {deal.thesis}
                     </p>
                 </div>
             )}
