@@ -58,8 +58,8 @@ const header: React.CSSProperties = {
   right: 0,
   zIndex: 999999,
 
-  background: 'rgba(0,0,0,.20)',
-  backdropFilter: 'blur(12px)',
+  background: 'rgba(255,255,255,.75)',
+  backdropFilter: 'blur(16px)',
   borderBottom: '1px solid rgba(255,255,255,.15)',
 };
 
