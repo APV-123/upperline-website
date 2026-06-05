@@ -28,6 +28,8 @@ export type DealFormValues = {
   strategy: string;
   estimated_closing_date: string;
 
+  thesis: string;
+
   why_we_like_it: string;
 
   overview_text: string;
@@ -63,6 +65,7 @@ export default function DealForm({
     asset_class: initialDeal?.asset_class ?? '',
     strategy: initialDeal?.strategy ?? '',
     estimated_closing_date: initialDeal?.estimated_closing_date ?? '',
+    thesis: initialDeal?.thesis ?? '',
     why_we_like_it: initialDeal?.why_we_like_it ?? '',
     overview_text: initialDeal?.overview_text ?? '',
     business_plan_text: initialDeal?.business_plan_text ?? '',
@@ -132,6 +135,16 @@ export default function DealForm({
             value={deal.estimated_closing_date}
             onChange={(v) =>
               setDeal((p) => ({ ...p, estimated_closing_date: v }))
+            }
+          />
+          <TextArea
+            label="Hero Thesis"
+            value={deal.thesis}
+            onChange={(v) =>
+              setDeal((p) => ({
+                ...p,
+                thesis: v,
+              }))
             }
           />
           <TextArea
