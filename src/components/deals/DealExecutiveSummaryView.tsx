@@ -506,39 +506,108 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               style={{
                 ...section,
                 scrollMarginTop: 90,
+                padding: '48px',
+                borderRadius: 16,
+                background: isDark ? '#111827' : '#f8fafc',
+                border: isDark
+                  ? '1px solid #1f2937'
+                  : '1px solid #e2e8f0',
               }}
             >
-              <h2
-                style={
-                  isDark
-                    ? { ...sectionTitle, ...textPrimaryDark }
-                    : sectionTitle
-                }
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  letterSpacing: '.12em',
+                  textTransform: 'uppercase',
+                  color: '#31c8db',
+                  marginBottom: 12,
+                }}
               >
-                About Upperline
+                About the Sponsor
+              </div>
+
+              <h2
+                style={{
+                  fontSize: 36,
+                  fontWeight: 700,
+                  margin: '0 0 12px 0',
+                  color: isDark ? '#fff' : '#0f172a',
+                }}
+              >
+                Upperline
               </h2>
 
-              <p
-                style={
-                  isDark
-                    ? { ...paragraph, ...textSecondaryDark }
-                    : paragraph
-                }
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 12,
+                  flexWrap: 'wrap',
+                  marginBottom: 24,
+                }}
               >
-                Upperline is a Houston-based real estate investment and development firm focused on acquiring, developing, and operating assets across high-growth markets throughout Texas. Through an integrated platform spanning acquisitions, development, asset management, and investor relations, Upperline seeks to create long-term value through disciplined execution, operational expertise, and thoughtful capital allocation.
+                {[
+                  'Investment Management',
+                  'Development Management',
+                  'Asset Management',
+                ].map((pillar) => (
+                  <div
+                    key={pillar}
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: 999,
+                      background: isDark
+                        ? 'rgba(49,200,219,.12)'
+                        : 'rgba(49,200,219,.10)',
+                      color: '#31c8db',
+                      fontWeight: 600,
+                      fontSize: 13,
+                    }}
+                  >
+                    {pillar}
+                  </div>
+                ))}
+              </div>
+
+              <p
+                style={{
+                  ...(isDark
+                    ? { ...paragraph, ...textSecondaryDark }
+                    : paragraph),
+                  maxWidth: 900,
+                  marginBottom: 32,
+                }}
+              >
+                Upperline is a vertically integrated real estate
+                investment, development, and asset management firm
+                focused on creating long-term value across
+                high-growth Texas markets. By combining disciplined
+                acquisitions, hands-on development expertise, and
+                active asset management, our team seeks to unlock
+                value through execution rather than speculation,
+                creating alignment between our investors, partners,
+                and the communities we serve.
               </p>
 
               <a
                 href="https://www.upperlineco.com/who-we-are"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={
-                  isDark
-                    ? websiteLinkStyleDark
-                    : websiteLinkStyle
-                }
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '14px 24px',
+                  borderRadius: 10,
+                  background: '#31c8db',
+                  color: '#003a5d',
+                  textDecoration: 'none',
+                  fontWeight: 700,
+                  fontSize: 15,
+                  transition: 'all .2s ease',
+                }}
               >
-                Learn More About Upperline →
+                Learn More About Upperline
               </a>
             </section>
 
