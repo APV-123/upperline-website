@@ -523,7 +523,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 style={{
                   position: 'absolute',
                   inset: 0,
-                  opacity: 0.06,
+                  opacity: 0.02,
                   backgroundImage:
                     'url("/Upperline_IconPattern3Outline_Navy_RGB.png")',
                   backgroundRepeat: 'repeat',
@@ -538,8 +538,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   position: 'relative',
                   zIndex: 2,
                   display: 'grid',
-                  gridTemplateColumns: '1.7fr 1fr',
-                  gap: 56,
+                  gridTemplateColumns: '2fr 1fr',
+                  gap: 40,
                   alignItems: 'center',
                 }}
               >
@@ -556,43 +556,14 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     Upperline
                   </h3>
 
-                  <div
-                    style={{
-                      display: 'flex',
-                      gap: 12,
-                      flexWrap: 'wrap',
-                      marginBottom: 28,
-                    }}
-                  >
-                    {[
-                      'Investment',
-                      'Development',
-                      'Asset Management',
-                    ].map((pillar) => (
-                      <div
-                        key={pillar}
-                        style={{
-                          padding: '10px 18px',
-                          borderRadius: 999,
-                          background: 'rgba(49,200,219,.10)',
-                          color: '#31c8db',
-                          fontWeight: 600,
-                          fontSize: 14,
-                        }}
-                      >
-                        {pillar}
-                      </div>
-                    ))}
-                  </div>
-
                   <p
                     style={{
                       ...(isDark
                         ? { ...paragraph, ...textSecondaryDark }
                         : paragraph),
-                      marginBottom: 32,
-                      fontSize: 20,
-                      lineHeight: 1.8,
+                      marginBottom: 28,
+                      fontSize: 18,
+                      lineHeight: 1.7,
                       maxWidth: 800,
                     }}
                   >
@@ -604,21 +575,6 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     returns by unlocking value through execution rather than
                     speculation.
                   </p>
-
-                  <div
-                    style={{
-                      display: 'flex',
-                      gap: 28,
-                      flexWrap: 'wrap',
-                      marginBottom: 36,
-                      fontWeight: 700,
-                      color: isDark ? '#fff' : '#0f172a',
-                    }}
-                  >
-                    <span>Disciplined Execution</span>
-                    <span>Operational Expertise</span>
-                    <span>Aligned Capital</span>
-                  </div>
 
                   <a
                     href="https://www.upperlineco.com/who-we-are"
@@ -639,7 +595,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                         '0 10px 25px rgba(49,200,219,.20)',
                     }}
                   >
-                    View Upperline Company Profile
+                    Learn More About Upperline
                   </a>
                 </div>
 
@@ -657,7 +613,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     alt="Upperline"
                     style={{
                       width: '100%',
-                      maxWidth: 220,
+                      maxWidth: 180,
                       opacity: 0.9,
                     }}
                   />
