@@ -90,6 +90,7 @@ export default function DealHero({
     deal,
     isMobile = false,
 }: Props) {
+    console.log('DealHero isMobile:', isMobile);
     const heroMetrics =
         deal.metrics
             ?.filter(
