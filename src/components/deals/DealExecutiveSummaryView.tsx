@@ -330,7 +330,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 {deal.overview_text || "No overview provided."}
               </p>
 
-            </section>            
+            </section>
 
             <section
               id="returns"
@@ -501,18 +501,46 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               </p>
             </section>
 
-            <div style={websiteLinkContainer}>
+            <section
+              id="about-upperline"
+              style={{
+                ...section,
+                scrollMarginTop: 90,
+              }}
+            >
+              <h2
+                style={
+                  isDark
+                    ? { ...sectionTitle, ...textPrimaryDark }
+                    : sectionTitle
+                }
+              >
+                About Upperline
+              </h2>
+
+              <p
+                style={
+                  isDark
+                    ? { ...paragraph, ...textSecondaryDark }
+                    : paragraph
+                }
+              >
+                Upperline is a Houston-based real estate investment and development firm focused on acquiring, developing, and operating assets across high-growth markets throughout Texas. Through an integrated platform spanning acquisitions, development, asset management, and investor relations, Upperline seeks to create long-term value through disciplined execution, operational expertise, and thoughtful capital allocation.
+              </p>
+
               <a
-                href="https://www.upperlineco.com"
+                href="https://www.upperlineco.com/who-we-are"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={isDark ? websiteLinkStyleDark : websiteLinkStyle}
-                onMouseOver={(e) => (e.currentTarget.style.textDecoration = "underline")}
-                onMouseOut={(e) => (e.currentTarget.style.textDecoration = "none")}
+                style={
+                  isDark
+                    ? websiteLinkStyleDark
+                    : websiteLinkStyle
+                }
               >
-                🌐 Visit Upperline Website
+                Learn More About Upperline →
               </a>
-            </div>
+            </section>
 
             {/* DOCUMENTS */}
             <section
