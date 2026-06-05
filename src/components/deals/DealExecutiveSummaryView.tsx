@@ -223,7 +223,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                       : sectionTitle
                   }
                 >
-                  Investment Highlights
+                  Why We Like It
                 </h2>
 
                 <div style={highlightsGrid}>
@@ -330,31 +330,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 {deal.overview_text || "No overview provided."}
               </p>
 
-            </section>
-            {deal.why_we_like_it && (
-              <div style={section}>
-                <h2
-                  style={
-                    isDark
-                      ? { ...sectionTitle, ...textPrimaryDark }
-                      : sectionTitle
-                  }
-                >
-                  Why We Like It
-                </h2>
-
-                <p
-                  style={
-                    isDark
-                      ? { ...paragraph, ...textSecondaryDark }
-                      : paragraph
-                  }
-                >
-                  {deal.why_we_like_it}
-                </p>
-              </div>
-            )}
-            
+            </section>            
 
             <section
               id="returns"
