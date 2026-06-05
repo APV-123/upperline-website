@@ -64,7 +64,8 @@ export default function DealHero({
     )?.value ?? null;
 
   return (
-    <div style={container}>
+  <div style={container}>
+    <div style={heroSection}>
       {deal.image_1_url && (
         <img
           src={deal.image_1_url}
@@ -73,12 +74,12 @@ export default function DealHero({
         />
       )}
 
-      <div style={content}>
-        <h1 style={title}>
+      <div style={heroOverlay}>
+        <h1 style={heroTitle}>
           {deal.name}
         </h1>
 
-        <div style={metaRow}>
+        <div style={heroMeta}>
           {deal.location && (
             <a
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
@@ -86,64 +87,59 @@ export default function DealHero({
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              style={locationLink}
+              style={heroLocation}
             >
               📍 {deal.location}
             </a>
           )}
 
           {deal.estimated_closing_date && (
-            <div style={closingBadge}>
-              Closing:{' '}
+            <div style={heroClosing}>
+              Closing{' '}
               {new Date(
                 deal.estimated_closing_date
               ).toLocaleDateString()}
             </div>
           )}
         </div>
-
-        {deal.why_we_like_it && (
-          <p style={thesis}>
-            {deal.why_we_like_it}
-          </p>
-        )}
-
-        <div style={metricGrid}>
-          <MetricCard
-            value={lpIrr}
-            label="LP IRR"
-          />
-
-          <MetricCard
-            value={moic}
-            label="MOIC"
-          />
-
-          <MetricCard
-            value={lpRaise}
-            label="LP Raise"
-          />
-
-          <MetricCard
-            value={minimumInvestment}
-            label="Minimum Investment"
-          />
-        </div>
       </div>
     </div>
-  );
+
+    {deal.why_we_like_it && (
+      <div style={thesisWrapper}>
+        <p style={thesis}>
+          {deal.why_we_like_it}
+        </p>
+      </div>
+    )}
+
+    <div style={metricGrid}>
+      <MetricCard
+        value={lpIrr}
+        label="LP IRR"
+      />
+
+      <MetricCard
+        value={moic}
+        label="MOIC"
+      />
+
+      <MetricCard
+        value={lpRaise}
+        label="LP Raise"
+      />
+
+      <MetricCard
+        value={minimumInvestment}
+        label="Minimum Investment"
+      />
+    </div>
+  </div>
+);
 }
 
 const container: React.CSSProperties = {
   marginBottom: 48,
-};
-
-const heroImage: React.CSSProperties = {
-  width: '100%',
-  height: 500,
-  objectFit: 'cover',
-  borderRadius: 16,
-  marginBottom: 28,
 };
 
 const content: React.CSSProperties = {
@@ -216,4 +212,73 @@ const metricLabel: React.CSSProperties = {
   textTransform: 'uppercase',
   letterSpacing: '.08em',
   color: '#64748b',
+};
+
+const heroSection: React.CSSProperties = {
+  position: 'relative',
+
+  width: '100vw',
+  marginLeft: 'calc(50% - 50vw)',
+  marginRight: 'calc(50% - 50vw)',
+
+  height: 650,
+  overflow: 'hidden',
+  marginBottom: 48,
+};
+
+const heroImage: React.CSSProperties = {
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+};
+
+const heroOverlay: React.CSSProperties = {
+  position: 'absolute',
+  inset: 0,
+
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'flex-end',
+
+  padding: '64px',
+
+  background:
+    'linear-gradient(to top, rgba(0,0,0,.70), rgba(0,0,0,.20), transparent)',
+};
+
+const heroTitle: React.CSSProperties = {
+  color: '#fff',
+  fontSize: 72,
+  fontWeight: 800,
+  margin: 0,
+  marginBottom: 16,
+};
+
+const heroMeta: React.CSSProperties = {
+  display: 'flex',
+  gap: 16,
+  flexWrap: 'wrap',
+  alignItems: 'center',
+};
+
+const heroLocation: React.CSSProperties = {
+  color: '#fff',
+  textDecoration: 'none',
+  fontSize: 18,
+  fontWeight: 500,
+};
+
+const heroClosing: React.CSSProperties = {
+  background: 'rgba(255,255,255,.15)',
+  backdropFilter: 'blur(10px)',
+
+  color: '#fff',
+  padding: '10px 16px',
+  borderRadius: 999,
+  fontWeight: 600,
+};
+
+const thesisWrapper: React.CSSProperties = {
+  maxWidth: 1100,
+  margin: '0 auto 40px auto',
 };
