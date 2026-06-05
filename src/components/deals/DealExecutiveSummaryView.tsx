@@ -193,819 +193,822 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 
   return (
     <>
-    <DealStickyHeader
-      dealName={deal.name} />
-      
-    <div style={isDark ? containerDark : container}>
-      <DealHero deal={deal} />
-      <div
-        style={{
-          ...(isDark ? contentDark : content),
-          padding: isMobile ? 20 : 40,
-        }}
-      >
-        
-        <section
-          id="overview"
+      <DealStickyHeader
+        dealName={deal.name} />
+
+      <div style={isDark ? containerDark : container}>
+
+        <div
           style={{
-            ...section,
-            scrollMarginTop: 90,
-          }}>
-          <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Overview</h2>
-          <p style={isDark ? { ...paragraph, ...textSecondaryDark } : paragraph}>
-            {deal.overview_text || "No overview provided."}
-          </p>
+            ...(isDark ? contentDark : content),
+            padding: isMobile ? 20 : 40,
+          }}
+        >
+          <DealHero deal={deal} />
 
-        </section>
-        {deal.why_we_like_it && (
-          <div style={section}>
-            <h2
-              style={
-                isDark
-                  ? { ...sectionTitle, ...textPrimaryDark }
-                  : sectionTitle
-              }
-            >
-              Why We Like It
-            </h2>
-
-            <p
-              style={
-                isDark
-                  ? { ...paragraph, ...textSecondaryDark }
-                  : paragraph
-              }
-            >
-              {deal.why_we_like_it}
-            </p>
-          </div>
-        )}
-        {/* IMAGE PLACEHOLDER */}
-        <div style={{
-          ...imageGrid,
-          gridTemplateColumns: isMobile ? "1fr" : "2fr 1fr",
-        }}>
-          {deal.image_1_url && (
-            <img
-              src={deal.image_1_url}
+          <div style={memoBody}>
+            <section
+              id="overview"
               style={{
-                ...mainImage,
-                height: isMobile ? 220 : 400,
-                cursor: "zoom-in",
-                filter: isDark ? "brightness(0.92)" : "none",
-              }}
-              onClick={() => openLightbox(0)}
-            />
-          )}
+                ...section,
+                scrollMarginTop: 90,
+              }}>
+              <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Overview</h2>
+              <p style={isDark ? { ...paragraph, ...textSecondaryDark } : paragraph}>
+                {deal.overview_text || "No overview provided."}
+              </p>
 
-          <div
-            style={{
-              ...sideImages,
-              flexDirection: isMobile ? 'row' : 'column',
-            }}
-          >
-            {deal.image_2_url && (
-              <img
-                src={deal.image_2_url}
-
-                style={{
-                  ...smallImage,
-                  height: isMobile ? 140 : 194,
-                  cursor: "zoom-in",
-                  filter: isDark ? "brightness(0.92)" : "none",
-                }}
-
-                onClick={() => openLightbox(1)}
-              />
-            )}
-            {deal.image_3_url && (
-              <img
-                src={deal.image_3_url}
-
-                style={{
-                  ...smallImage,
-                  height: isMobile ? 140 : 194,
-                  cursor: "zoom-in",
-                  filter: isDark ? "brightness(0.92)" : "none",
-                }}
-
-                onClick={() => openLightbox(2)}
-              />
-            )}
-          </div>
-        </div>
-        {/* INVESTMENT HIGHLIGHTS */}
-
-        {deal.deal_highlights?.length ? (
-          <section
-            id="highlights"
-            style={{
-              ...section,
-              scrollMarginTop: 90,
-            }}>
-            <h2
-              style={
-                isDark
-                  ? { ...sectionTitle, ...textPrimaryDark }
-                  : sectionTitle
-              }
-            >
-              Investment Highlights
-            </h2>
-
-            <div style={highlightsGrid}>
-              {deal.deal_highlights
-                .filter((h) => h.is_visible)
-                .sort(
-                  (a, b) =>
-                    (a.display_order ?? 0) -
-                    (b.display_order ?? 0)
-                )
-                .map((h) => (
-                  <div
-                    key={h.id}
-                    style={
-                      isDark
-                        ? { ...highlightCard, ...panelDark }
-                        : highlightCard
-                    }
-                  >
-                    <div style={highlightTitle}>
-                      {h.title}
-                    </div>
-
-                    <div
-                      style={
-                        isDark
-                          ? {
-                            ...highlightDescription,
-                            ...textSecondaryDark,
-                          }
-                          : highlightDescription
-                      }
-                    >
-                      {h.description}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </section>
-        ) : null}
-        <section
-          id="returns"
-          style={{
-            ...section,
-            scrollMarginTop: 90,
-          }}>
-          <div
-
-            style={
-              isDark
-                ? {
-                  ...sectionHeader,
-                  borderBottom: "1px solid rgba(255,255,255,0.08)",
-                }
-                : sectionHeader
-            }
-
-            onClick={() => setOpenLP((v) => !v)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setOpenLP((v) => !v);
-              }
-            }}
-          >
-            <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>LP Return Summary</h2>
-
-            <button
-              type="button"
-              style={isDark ? { ...sectionToggleBtn, ...buttonDark } : sectionToggleBtn}
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenLP((v) => !v);
-              }}
-            >
-              {openLP ? 'Collapse' : 'Expand'}
-            </button>
-          </div>
-
-          <div style={getCollapseStyle(openLP, 700)}>
-            <div style={metricsGrid}>
-              <Metric label="LP Equity Total" isDark={isDark}>
-                {formatCurrency(String(deal.target_amount))}
-              </Metric>
-
-              {getSection('lp_summary').map((m) => (
-                <Metric key={m.key} label={formatKey(m.key)} isDark={isDark}>
-                  {formatValue(m.value, m.key)}
-                </Metric>
-              ))}
-            </div>
-          </div>
-        </section>
-        <div style={section}>
-          <div
-
-            style={
-              isDark
-                ? {
-                  ...sectionHeader,
-                  borderBottom: "1px solid rgba(255,255,255,0.08)",
-                }
-                : sectionHeader
-            }
-
-            onClick={() => setOpenProject((v) => !v)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setOpenProject((v) => !v);
-              }
-            }}
-          >
-
-            <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>
-              Project Returns
-            </h2>
-
-
-            <button
-              type="button"
-              style={isDark ? { ...sectionToggleBtn, ...buttonDark } : sectionToggleBtn}
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenProject((v) => !v);
-              }}
-            >
-              {openProject ? 'Collapse' : 'Expand'}
-            </button>
-          </div>
-
-          <div style={getCollapseStyle(openProject, 400)}>
-            <div style={metricsGrid}>
-              {getSection('project_returns').map((m) => (
-                <Metric key={m.key} label={formatKey(m.key)} isDark={isDark}>
-                  {formatValue(m.value, m.key)}
-                </Metric>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div style={section}>
-          <div
-
-            style={
-              isDark
-                ? {
-                  ...sectionHeader,
-                  borderBottom: "1px solid rgba(255,255,255,0.08)",
-                }
-                : sectionHeader
-            }
-
-            onClick={() => setOpenCapital((v) => !v)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setOpenCapital((v) => !v);
-              }
-            }}
-          >
-            <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Equity Capital Stack</h2>
-
-            <button
-              type="button"
-              style={isDark ? { ...sectionToggleBtn, ...buttonDark } : sectionToggleBtn}
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenCapital((v) => !v);
-              }}
-            >
-              {openCapital ? 'Collapse' : 'Expand'}
-            </button>
-          </div>
-
-          <div style={getCollapseStyle(openCapital, 400)}>
-            <div style={metricsGrid}>
-              <Metric label="LP Equity" isDark={isDark}>
-                {formatCurrency(String(deal.target_amount))}
-              </Metric>
-
-              {getSection('capital_stack').map((m) => (
-                <Metric key={m.key} label={formatKey(m.key)} isDark={isDark}>
-                  {formatValue(m.value, m.key)}
-                </Metric>
-              ))}
-            </div>
-          </div>
-        </div>
-        {/* BUSINESS PLAN */}
-
-        <section
-          id="business-plan"
-          style={{
-            ...section,
-            scrollMarginTop:90,
-          }}>
-          <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Business Plan</h2>
-          <p style={isDark ? { ...paragraph, ...textSecondaryDark } : paragraph}>
-            {deal.business_plan_text || "No business plan provided."}
-          </p>
-        </section>
-
-        <div style={websiteLinkContainer}>
-          <a
-            href="https://www.upperlineco.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={isDark ? websiteLinkStyleDark : websiteLinkStyle}
-            onMouseOver={(e) => (e.currentTarget.style.textDecoration = "underline")}
-            onMouseOut={(e) => (e.currentTarget.style.textDecoration = "none")}
-          >
-            🌐 Visit Upperline Website
-          </a>
-        </div>
-
-        {/* DOCUMENTS */}
-        <section
-          id="documents"
-          style={{
-            ...section,
-            scrollMarginTop: 90,
-          }}>
-          <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Documents</h2>
-
-          <div style={{
-            ...docContainer,
-            gridTemplateColumns: isMobile ? "1fr" : "250px 1fr",
-            height: isMobile ? "auto" : 500,
-          }}>
-
-            {/* LEFT: DOCUMENT LIST */}
-
-            <div
-              style={
-                isDark
-                  ? {
-                    ...docList,
-                    background: "#05070a",
-                    border: "1px solid rgba(255,255,255,0.08)",
+            </section>
+            {deal.why_we_like_it && (
+              <div style={section}>
+                <h2
+                  style={
+                    isDark
+                      ? { ...sectionTitle, ...textPrimaryDark }
+                      : sectionTitle
                   }
-                  : docList
-              }
-            >
+                >
+                  Why We Like It
+                </h2>
 
-              {buildDocuments(deal).map((doc) => {
-                const isActive = selectedDoc?.label === doc.label;
-
-                return (
-                  <div
-                    key={doc.label}
-                    onClick={() => {
-                      // 🔥 SPECIAL CASE: FULL EQUITY MEMO
-                      if (doc.id === "full_memo") {
-                        const savedEmail = localStorage.getItem(`ca:${deal.id}`);
-
-                        // If user has not signed → show modal
-                        if (!savedEmail) {
-                          setShowCA(true);
-                          return;
-                        }
-
-                        // ✅ User HAS access → fetch signed URL
-                        fetch(`/api/deals/${deal.id}/ca/access`, {
-                          method: "POST",
-                        })
-                          .then((r) => r.json())
-                          .then((json) => {
-                            if (json?.signedUrl) {
-                              setSelectedDoc({
-                                id: 'full_memo',
-                                label: "Full Investment Memorandum",
-                                url: json.signedUrl,
-                                gated: false,
-                              });
-                            }
-                          });
-
-                        return;
-                      }
-
-                      // ✅ NORMAL DOCUMENTS
-                      setSelectedDoc(doc);
-                    }}
-
-
-                    style={{
-                      ...docItem,
-                      background: isDark
-                        ? (isActive ? "#0f172a" : "#05070a")
-                        : (isActive ? "#eef2f7" : "#fff"),
-                      color: isDark ? "#ffffff" : "#0f172a",
-                      borderBottom: isDark
-                        ? "1px solid rgba(255,255,255,0.12)"
-                        : "1px solid #e5e7eb",
-                      opacity: doc.gated ? 0.6 : 1,
-                      cursor: "pointer",
-                    }}
-
-                  >
-                    {doc.gated ? '🔒 ' : '📄 '}
-                    {doc.label}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* RIGHT: PREVIEW */}
-
-            <div
-              style={{
-                ...docPreview,
-                ...(isDark ? panelDarkAlt : {}),
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-
-              {selectedDoc ? (
-                <>
-                  <div
-                    style={{
-                      ...docHeader,
-                      ...(isDark
-                        ? {
-                          color: "#ffffff",
-                          borderBottom: "1px solid rgba(255,255,255,0.08)",
-                        }
-                        : {}),
-                      flexDirection: isMobile ? "column" : "row",
-                      alignItems: isMobile ? "flex-start" : "center",
-                      gap: isMobile ? 8 : 0,
-                    }}
-                  >
-                    <div>{selectedDoc.label}</div>
-                    <a href={selectedDoc.url} target="_blank">
-                      <button
-                        style={{
-                          ...(isDark ? { ...downloadBtn, ...buttonDark } : downloadBtn),
-                          width: isMobile ? "100%" : "auto",
-                        }}
-                      >Download</button>
-                    </a>
-                  </div>
-
-                  {selectedDoc.url ? (
-                    <iframe src={selectedDoc.url}
-                      style={{
-                        ...iframe,
-                        minHeight: isMobile ? 300 : undefined,
-                      }}
-                    />
-                  ) : (
-                    <div style={{ padding: 20, color: "#64748b" }}>
-                      {selectedDoc.id === "full_memo"
-                        ? "Click to load full memo."
-                        : "Select a document to preview."}
-                    </div>
-                  )}
-
-                </>
-              ) : (
-                <div style={{ padding: 20 }}>Select a document</div>
-              )}
-            </div>
-
-          </div>
-        </section>
-        {lightboxOpen && images.length > 0 && (
-          <div style={lbBackdrop} onClick={() => setLightboxOpen(false)}>
-            <div style={lbTop} onClick={(e) => e.stopPropagation()}>
-              <div style={{ opacity: 0.85 }}>
-                {lightboxIndex + 1} / {images.length}
+                <p
+                  style={
+                    isDark
+                      ? { ...paragraph, ...textSecondaryDark }
+                      : paragraph
+                  }
+                >
+                  {deal.why_we_like_it}
+                </p>
               </div>
-              <button style={lbClose} onClick={() => setLightboxOpen(false)}>
-                ✕
-              </button>
-            </div>
+            )}
+            {/* IMAGE PLACEHOLDER */}
+            <div style={{
+              ...imageGrid,
+              gridTemplateColumns: isMobile ? "1fr" : "2fr 1fr",
+            }}>
+              {deal.image_1_url && (
+                <img
+                  src={deal.image_1_url}
+                  style={{
+                    ...mainImage,
+                    height: isMobile ? 220 : 400,
+                    cursor: "zoom-in",
+                    filter: isDark ? "brightness(0.92)" : "none",
+                  }}
+                  onClick={() => openLightbox(0)}
+                />
+              )}
 
-            <button
-              style={lbArrowLeft}
-              onClick={(e) => {
-                e.stopPropagation();
-                prevImage();
-              }}
-              aria-label="Previous image"
-            >
-              ‹
-            </button>
-
-            <img
-              src={images[lightboxIndex]}
-              style={lbImage}
-              onClick={(e) => e.stopPropagation()}
-            />
-
-            <button
-              style={lbArrowRight}
-              onClick={(e) => {
-                e.stopPropagation();
-                nextImage();
-              }}
-              aria-label="Next image"
-            >
-              ›
-            </button>
-          </div>
-        )}
-        {showCA && (
-          <div style={sheetBackdrop} onClick={() => !caBusy && setShowCA(false)}>
-            <div
-              style={
-                isDark
-                  ? {
-                    ...sheet,
-                    background: "#0f172a",
-                    color: "#ffffff",
-                  }
-                  : sheet
-              }
-              onClick={(e) => e.stopPropagation()}
-            >
-
-
-              {/* Handle */}
-              <div style={sheetHandle} />
-
-              {/* Header */}
               <div
+                style={{
+                  ...sideImages,
+                  flexDirection: isMobile ? 'row' : 'column',
+                }}
+              >
+                {deal.image_2_url && (
+                  <img
+                    src={deal.image_2_url}
+
+                    style={{
+                      ...smallImage,
+                      height: isMobile ? 140 : 194,
+                      cursor: "zoom-in",
+                      filter: isDark ? "brightness(0.92)" : "none",
+                    }}
+
+                    onClick={() => openLightbox(1)}
+                  />
+                )}
+                {deal.image_3_url && (
+                  <img
+                    src={deal.image_3_url}
+
+                    style={{
+                      ...smallImage,
+                      height: isMobile ? 140 : 194,
+                      cursor: "zoom-in",
+                      filter: isDark ? "brightness(0.92)" : "none",
+                    }}
+
+                    onClick={() => openLightbox(2)}
+                  />
+                )}
+              </div>
+            </div>
+            {/* INVESTMENT HIGHLIGHTS */}
+
+            {deal.deal_highlights?.length ? (
+              <section
+                id="highlights"
+                style={{
+                  ...section,
+                  scrollMarginTop: 90,
+                }}>
+                <h2
+                  style={
+                    isDark
+                      ? { ...sectionTitle, ...textPrimaryDark }
+                      : sectionTitle
+                  }
+                >
+                  Investment Highlights
+                </h2>
+
+                <div style={highlightsGrid}>
+                  {deal.deal_highlights
+                    .filter((h) => h.is_visible)
+                    .sort(
+                      (a, b) =>
+                        (a.display_order ?? 0) -
+                        (b.display_order ?? 0)
+                    )
+                    .map((h) => (
+                      <div
+                        key={h.id}
+                        style={
+                          isDark
+                            ? { ...highlightCard, ...panelDark }
+                            : highlightCard
+                        }
+                      >
+                        <div style={highlightTitle}>
+                          {h.title}
+                        </div>
+
+                        <div
+                          style={
+                            isDark
+                              ? {
+                                ...highlightDescription,
+                                ...textSecondaryDark,
+                              }
+                              : highlightDescription
+                          }
+                        >
+                          {h.description}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </section>
+            ) : null}
+            <section
+              id="returns"
+              style={{
+                ...section,
+                scrollMarginTop: 90,
+              }}>
+              <div
+
                 style={
                   isDark
                     ? {
-                      ...sheetHeader,
+                      ...sectionHeader,
                       borderBottom: "1px solid rgba(255,255,255,0.08)",
                     }
-                    : sheetHeader
+                    : sectionHeader
                 }
+
+                onClick={() => setOpenLP((v) => !v)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setOpenLP((v) => !v);
+                  }
+                }}
               >
-                <div style={{ fontWeight: 700 }}>
-                  {deal.name} Confidentiality Agreement
-                </div>
+                <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>LP Return Summary</h2>
+
                 <button
-                  style={sheetClose}
-                  onClick={() => setShowCA(false)}
-                  disabled={caBusy}
+                  type="button"
+                  style={isDark ? { ...sectionToggleBtn, ...buttonDark } : sectionToggleBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenLP((v) => !v);
+                  }}
                 >
-                  ✕
+                  {openLP ? 'Collapse' : 'Expand'}
                 </button>
               </div>
 
-              {/* FORM FIRST */}
+              <div style={getCollapseStyle(openLP, 700)}>
+                <div style={metricsGrid}>
+                  <Metric label="LP Equity Total" isDark={isDark}>
+                    {formatCurrency(String(deal.target_amount))}
+                  </Metric>
+
+                  {getSection('lp_summary').map((m) => (
+                    <Metric key={m.key} label={formatKey(m.key)} isDark={isDark}>
+                      {formatValue(m.value, m.key)}
+                    </Metric>
+                  ))}
+                </div>
+              </div>
+            </section>
+            <div style={section}>
+              <div
+
+                style={
+                  isDark
+                    ? {
+                      ...sectionHeader,
+                      borderBottom: "1px solid rgba(255,255,255,0.08)",
+                    }
+                    : sectionHeader
+                }
+
+                onClick={() => setOpenProject((v) => !v)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setOpenProject((v) => !v);
+                  }
+                }}
+              >
+
+                <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>
+                  Project Returns
+                </h2>
+
+
+                <button
+                  type="button"
+                  style={isDark ? { ...sectionToggleBtn, ...buttonDark } : sectionToggleBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenProject((v) => !v);
+                  }}
+                >
+                  {openProject ? 'Collapse' : 'Expand'}
+                </button>
+              </div>
+
+              <div style={getCollapseStyle(openProject, 400)}>
+                <div style={metricsGrid}>
+                  {getSection('project_returns').map((m) => (
+                    <Metric key={m.key} label={formatKey(m.key)} isDark={isDark}>
+                      {formatValue(m.value, m.key)}
+                    </Metric>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div style={section}>
+              <div
+
+                style={
+                  isDark
+                    ? {
+                      ...sectionHeader,
+                      borderBottom: "1px solid rgba(255,255,255,0.08)",
+                    }
+                    : sectionHeader
+                }
+
+                onClick={() => setOpenCapital((v) => !v)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setOpenCapital((v) => !v);
+                  }
+                }}
+              >
+                <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Equity Capital Stack</h2>
+
+                <button
+                  type="button"
+                  style={isDark ? { ...sectionToggleBtn, ...buttonDark } : sectionToggleBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenCapital((v) => !v);
+                  }}
+                >
+                  {openCapital ? 'Collapse' : 'Expand'}
+                </button>
+              </div>
+
+              <div style={getCollapseStyle(openCapital, 400)}>
+                <div style={metricsGrid}>
+                  <Metric label="LP Equity" isDark={isDark}>
+                    {formatCurrency(String(deal.target_amount))}
+                  </Metric>
+
+                  {getSection('capital_stack').map((m) => (
+                    <Metric key={m.key} label={formatKey(m.key)} isDark={isDark}>
+                      {formatValue(m.value, m.key)}
+                    </Metric>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {/* BUSINESS PLAN */}
+
+            <section
+              id="business-plan"
+              style={{
+                ...section,
+                scrollMarginTop: 90,
+              }}>
+              <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Business Plan</h2>
+              <p style={isDark ? { ...paragraph, ...textSecondaryDark } : paragraph}>
+                {deal.business_plan_text || "No business plan provided."}
+              </p>
+            </section>
+
+            <div style={websiteLinkContainer}>
+              <a
+                href="https://www.upperlineco.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={isDark ? websiteLinkStyleDark : websiteLinkStyle}
+                onMouseOver={(e) => (e.currentTarget.style.textDecoration = "underline")}
+                onMouseOut={(e) => (e.currentTarget.style.textDecoration = "none")}
+              >
+                🌐 Visit Upperline Website
+              </a>
+            </div>
+
+            {/* DOCUMENTS */}
+            <section
+              id="documents"
+              style={{
+                ...section,
+                scrollMarginTop: 90,
+              }}>
+              <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Documents</h2>
 
               <div style={{
-                flex: 1,
-                overflowY: "auto",
+                ...docContainer,
+                gridTemplateColumns: isMobile ? "1fr" : "250px 1fr",
+                height: isMobile ? "auto" : 500,
               }}>
-                <div style={sheetFooter}>
 
-
-                  {/* FIRST / LAST ROW */}
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                      gap: 12,
-                    }}
-                  >
-                    <div>
-                      <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>First Name</label>
-                      <input
-                        style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                        value={caFirstName}
-                        onChange={(e) => setCaFirstName(e.target.value)}
-                      />
-                    </div>
-
-                    <div>
-                      <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Last Name</label>
-                      <input
-                        style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                        value={caLastName}
-                        onChange={(e) => setCaLastName(e.target.value)}
-                      />
-                    </div>
-
-                  </div>
-
-                  <div style={sheetFormRow}>
-                    <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Email</label>
-                    <input
-                      style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                      value={caEmail}
-                      onChange={(e) => setCaEmail(e.target.value)}
-                    />
-                  </div>
-
-                  <div style={sheetFormRow}>
-                    <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Company (optional)</label>
-                    <input
-                      style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                      value={caCompany}
-                      onChange={(e) => setCaCompany(e.target.value)}
-                    />
-                  </div>
-                  {/* Job Title */}
-                  <div style={sheetFormRow}>
-                    <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Job Title (optional)</label>
-                    <input
-                      style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                      value={caJobTitle}
-                      onChange={(e) => setCaJobTitle(e.target.value)}
-                    />
-                  </div>
-
-                  {/* Phone */}
-                  <div style={sheetFormRow}>
-                    <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Phone Number (optional)</label>
-                    <input
-                      style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                      value={caPhone}
-                      onChange={(e) => setCaPhone(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                {/* LEGAL AGREEMENT SCROLLER */}
+                {/* LEFT: DOCUMENT LIST */}
 
                 <div
                   style={
                     isDark
                       ? {
-                        ...agreementScroll,
-                        background: "#0b1220",
+                        ...docList,
+                        background: "#05070a",
                         border: "1px solid rgba(255,255,255,0.08)",
                       }
-                      : agreementScroll
+                      : docList
                   }
                 >
 
+                  {buildDocuments(deal).map((doc) => {
+                    const isActive = selectedDoc?.label === doc.label;
 
-                  <h4 style={agreementTitle}>Confidentiality Agreement</h4>
+                    return (
+                      <div
+                        key={doc.label}
+                        onClick={() => {
+                          // 🔥 SPECIAL CASE: FULL EQUITY MEMO
+                          if (doc.id === "full_memo") {
+                            const savedEmail = localStorage.getItem(`ca:${deal.id}`);
 
-                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                    This Confidentiality and Non-Disclosure Agreement (“Agreement”) governs access to proprietary and non-public information for the purpose of evaluating a potential investment opportunity.
-                  </p>
+                            // If user has not signed → show modal
+                            if (!savedEmail) {
+                              setShowCA(true);
+                              return;
+                            }
 
-                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                    By accessing these materials, you acknowledge that all information provided constitutes confidential information, including but not limited to financial statements, projections, ownership structures, investment models, and all documents made available through this deal portal.
-                  </p>
+                            // ✅ User HAS access → fetch signed URL
+                            fetch(`/api/deals/${deal.id}/ca/access`, {
+                              method: "POST",
+                            })
+                              .then((r) => r.json())
+                              .then((json) => {
+                                if (json?.signedUrl) {
+                                  setSelectedDoc({
+                                    id: 'full_memo',
+                                    label: "Full Investment Memorandum",
+                                    url: json.signedUrl,
+                                    gated: false,
+                                  });
+                                }
+                              });
 
-                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                    You agree that such information shall be used solely for the purpose of evaluating a potential investment and shall not be disclosed, reproduced, or distributed to any third party without prior written consent.
-                  </p>
+                            return;
+                          }
 
-                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                    You further agree not to contact any tenants, lenders, investors, brokers, or other parties identified within the materials without explicit authorization from Upperline.
-                  </p>
+                          // ✅ NORMAL DOCUMENTS
+                          setSelectedDoc(doc);
+                        }}
 
-                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                    All confidential information remains the exclusive property of Upperline. No license or ownership rights are granted by access to these materials.
-                  </p>
 
-                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                    This Agreement shall remain in effect for a period of two (2) years from the date of acceptance. Unauthorized use or disclosure may result in legal action and injunctive relief.
-                  </p>
+                        style={{
+                          ...docItem,
+                          background: isDark
+                            ? (isActive ? "#0f172a" : "#05070a")
+                            : (isActive ? "#eef2f7" : "#fff"),
+                          color: isDark ? "#ffffff" : "#0f172a",
+                          borderBottom: isDark
+                            ? "1px solid rgba(255,255,255,0.12)"
+                            : "1px solid #e5e7eb",
+                          opacity: doc.gated ? 0.6 : 1,
+                          cursor: "pointer",
+                        }}
 
-                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                    Acceptance of this Agreement electronically constitutes a legally binding agreement enforceable to the same extent as a manually executed agreement.
-                  </p>
-
+                      >
+                        {doc.gated ? '🔒 ' : '📄 '}
+                        {doc.label}
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
-              {/* ACCEPTANCE + ACTIONS */}
-              <div style={sheetFooter}>
 
-                <label style={sheetCheckboxRow}>
-                  <input
-                    type="checkbox"
-                    checked={caAgree}
-                    onChange={(e) => setCaAgree(e.target.checked)}
-                  />
-                  I have read and accept the terms of the confidentiality agreement.
-                </label>
-                {caError && (
-                  <div style={caErrorStyle}>
-                    {caError}
-                  </div>
-                )}
+                {/* RIGHT: PREVIEW */}
+
                 <div
                   style={{
-                    ...sheetActions,
-                    flexDirection: isMobile ? 'column' : 'row',
-                    gap: 12,
+                    ...docPreview,
+                    ...(isDark ? panelDarkAlt : {}),
+                    display: "flex",
+                    flexDirection: "column",
                   }}
                 >
-                  <button
-                    style={{
-                      ...sheetSecondaryBtn,
-                      width: isMobile ? '100%' : 'auto',
-                    }}
-                    onClick={() => setShowCA(false)}
-                    disabled={caBusy}
-                  >
-                    Cancel
-                  </button>
 
-                  <button
-                    style={{
-                      ...sheetPrimaryBtn,
-                      width: isMobile ? '100%' : 'auto',
-                    }}
-                    disabled={caBusy}
-                    onClick={async () => {
+                  {selectedDoc ? (
+                    <>
+                      <div
+                        style={{
+                          ...docHeader,
+                          ...(isDark
+                            ? {
+                              color: "#ffffff",
+                              borderBottom: "1px solid rgba(255,255,255,0.08)",
+                            }
+                            : {}),
+                          flexDirection: isMobile ? "column" : "row",
+                          alignItems: isMobile ? "flex-start" : "center",
+                          gap: isMobile ? 8 : 0,
+                        }}
+                      >
+                        <div>{selectedDoc.label}</div>
+                        <a href={selectedDoc.url} target="_blank">
+                          <button
+                            style={{
+                              ...(isDark ? { ...downloadBtn, ...buttonDark } : downloadBtn),
+                              width: isMobile ? "100%" : "auto",
+                            }}
+                          >Download</button>
+                        </a>
+                      </div>
 
-                      // ✅ VALIDATION FIRST
-                      if (!caFirstName.trim() || !caLastName.trim()) {
-                        setCaError("First and last name are required.");
-                        return;
-                      }
+                      {selectedDoc.url ? (
+                        <iframe src={selectedDoc.url}
+                          style={{
+                            ...iframe,
+                            minHeight: isMobile ? 300 : undefined,
+                          }}
+                        />
+                      ) : (
+                        <div style={{ padding: 20, color: "#64748b" }}>
+                          {selectedDoc.id === "full_memo"
+                            ? "Click to load full memo."
+                            : "Select a document to preview."}
+                        </div>
+                      )}
 
-                      if (!caEmail.includes("@")) {
-                        setCaError("Valid email is required.");
-                        return;
-                      }
-
-                      if (!caAgree) {
-                        setCaError("You must accept the confidentiality agreement.");
-                        return;
-                      }
-
-                      // ✅ CLEAR ERROR
-                      setCaError('');
-                      setCaBusy(true);
-
-                      try {
-                        const res = await fetch(`/api/deals/${deal.id}/ca/submit`, {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({
-                            firstname: caFirstName,
-                            lastname: caLastName,
-                            email: caEmail,
-                            company: caCompany,
-                            jobtitle: caJobTitle,
-                            phone: caPhone,
-                          }),
-                        });
-
-                        const json = await res.json().catch(() => null);
-
-                        if (!res.ok || !json?.ok || !json?.signedUrl) {
-                          setCaError(json?.error ?? "Unable to grant access");
-                          return;
-                        }
-
-                        localStorage.setItem(`ca:${deal.id}`, caEmail);
-                        setHasAccess(true);
-
-                        setSelectedDoc({
-                          id: 'full_memo',
-                          label: "Full Investment Memorandum",
-                          url: json.signedUrl,
-                          gated: false,
-                        });
-
-                        setShowCA(false);
-
-                      } finally {
-                        setCaBusy(false);
-                      }
-                    }}
-                  >
-                    {caBusy ? "Granting access…" : "Access Full Memo"}
-                  </button>
+                    </>
+                  ) : (
+                    <div style={{ padding: 20 }}>Select a document</div>
+                  )}
                 </div>
 
               </div>
+            </section>
+            {lightboxOpen && images.length > 0 && (
+              <div style={lbBackdrop} onClick={() => setLightboxOpen(false)}>
+                <div style={lbTop} onClick={(e) => e.stopPropagation()}>
+                  <div style={{ opacity: 0.85 }}>
+                    {lightboxIndex + 1} / {images.length}
+                  </div>
+                  <button style={lbClose} onClick={() => setLightboxOpen(false)}>
+                    ✕
+                  </button>
+                </div>
 
-            </div>
+                <button
+                  style={lbArrowLeft}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prevImage();
+                  }}
+                  aria-label="Previous image"
+                >
+                  ‹
+                </button>
+
+                <img
+                  src={images[lightboxIndex]}
+                  style={lbImage}
+                  onClick={(e) => e.stopPropagation()}
+                />
+
+                <button
+                  style={lbArrowRight}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nextImage();
+                  }}
+                  aria-label="Next image"
+                >
+                  ›
+                </button>
+              </div>
+            )}
+            {showCA && (
+              <div style={sheetBackdrop} onClick={() => !caBusy && setShowCA(false)}>
+                <div
+                  style={
+                    isDark
+                      ? {
+                        ...sheet,
+                        background: "#0f172a",
+                        color: "#ffffff",
+                      }
+                      : sheet
+                  }
+                  onClick={(e) => e.stopPropagation()}
+                >
+
+
+                  {/* Handle */}
+                  <div style={sheetHandle} />
+
+                  {/* Header */}
+                  <div
+                    style={
+                      isDark
+                        ? {
+                          ...sheetHeader,
+                          borderBottom: "1px solid rgba(255,255,255,0.08)",
+                        }
+                        : sheetHeader
+                    }
+                  >
+                    <div style={{ fontWeight: 700 }}>
+                      {deal.name} Confidentiality Agreement
+                    </div>
+                    <button
+                      style={sheetClose}
+                      onClick={() => setShowCA(false)}
+                      disabled={caBusy}
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* FORM FIRST */}
+
+                  <div style={{
+                    flex: 1,
+                    overflowY: "auto",
+                  }}>
+                    <div style={sheetFooter}>
+
+
+                      {/* FIRST / LAST ROW */}
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                          gap: 12,
+                        }}
+                      >
+                        <div>
+                          <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>First Name</label>
+                          <input
+                            style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                            value={caFirstName}
+                            onChange={(e) => setCaFirstName(e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Last Name</label>
+                          <input
+                            style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                            value={caLastName}
+                            onChange={(e) => setCaLastName(e.target.value)}
+                          />
+                        </div>
+
+                      </div>
+
+                      <div style={sheetFormRow}>
+                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Email</label>
+                        <input
+                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                          value={caEmail}
+                          onChange={(e) => setCaEmail(e.target.value)}
+                        />
+                      </div>
+
+                      <div style={sheetFormRow}>
+                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Company (optional)</label>
+                        <input
+                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                          value={caCompany}
+                          onChange={(e) => setCaCompany(e.target.value)}
+                        />
+                      </div>
+                      {/* Job Title */}
+                      <div style={sheetFormRow}>
+                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Job Title (optional)</label>
+                        <input
+                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                          value={caJobTitle}
+                          onChange={(e) => setCaJobTitle(e.target.value)}
+                        />
+                      </div>
+
+                      {/* Phone */}
+                      <div style={sheetFormRow}>
+                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Phone Number (optional)</label>
+                        <input
+                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                          value={caPhone}
+                          onChange={(e) => setCaPhone(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    {/* LEGAL AGREEMENT SCROLLER */}
+
+                    <div
+                      style={
+                        isDark
+                          ? {
+                            ...agreementScroll,
+                            background: "#0b1220",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                          }
+                          : agreementScroll
+                      }
+                    >
+
+
+                      <h4 style={agreementTitle}>Confidentiality Agreement</h4>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        This Confidentiality and Non-Disclosure Agreement (“Agreement”) governs access to proprietary and non-public information for the purpose of evaluating a potential investment opportunity.
+                      </p>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        By accessing these materials, you acknowledge that all information provided constitutes confidential information, including but not limited to financial statements, projections, ownership structures, investment models, and all documents made available through this deal portal.
+                      </p>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        You agree that such information shall be used solely for the purpose of evaluating a potential investment and shall not be disclosed, reproduced, or distributed to any third party without prior written consent.
+                      </p>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        You further agree not to contact any tenants, lenders, investors, brokers, or other parties identified within the materials without explicit authorization from Upperline.
+                      </p>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        All confidential information remains the exclusive property of Upperline. No license or ownership rights are granted by access to these materials.
+                      </p>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        This Agreement shall remain in effect for a period of two (2) years from the date of acceptance. Unauthorized use or disclosure may result in legal action and injunctive relief.
+                      </p>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        Acceptance of this Agreement electronically constitutes a legally binding agreement enforceable to the same extent as a manually executed agreement.
+                      </p>
+
+                    </div>
+                  </div>
+                  {/* ACCEPTANCE + ACTIONS */}
+                  <div style={sheetFooter}>
+
+                    <label style={sheetCheckboxRow}>
+                      <input
+                        type="checkbox"
+                        checked={caAgree}
+                        onChange={(e) => setCaAgree(e.target.checked)}
+                      />
+                      I have read and accept the terms of the confidentiality agreement.
+                    </label>
+                    {caError && (
+                      <div style={caErrorStyle}>
+                        {caError}
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        ...sheetActions,
+                        flexDirection: isMobile ? 'column' : 'row',
+                        gap: 12,
+                      }}
+                    >
+                      <button
+                        style={{
+                          ...sheetSecondaryBtn,
+                          width: isMobile ? '100%' : 'auto',
+                        }}
+                        onClick={() => setShowCA(false)}
+                        disabled={caBusy}
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        style={{
+                          ...sheetPrimaryBtn,
+                          width: isMobile ? '100%' : 'auto',
+                        }}
+                        disabled={caBusy}
+                        onClick={async () => {
+
+                          // ✅ VALIDATION FIRST
+                          if (!caFirstName.trim() || !caLastName.trim()) {
+                            setCaError("First and last name are required.");
+                            return;
+                          }
+
+                          if (!caEmail.includes("@")) {
+                            setCaError("Valid email is required.");
+                            return;
+                          }
+
+                          if (!caAgree) {
+                            setCaError("You must accept the confidentiality agreement.");
+                            return;
+                          }
+
+                          // ✅ CLEAR ERROR
+                          setCaError('');
+                          setCaBusy(true);
+
+                          try {
+                            const res = await fetch(`/api/deals/${deal.id}/ca/submit`, {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                firstname: caFirstName,
+                                lastname: caLastName,
+                                email: caEmail,
+                                company: caCompany,
+                                jobtitle: caJobTitle,
+                                phone: caPhone,
+                              }),
+                            });
+
+                            const json = await res.json().catch(() => null);
+
+                            if (!res.ok || !json?.ok || !json?.signedUrl) {
+                              setCaError(json?.error ?? "Unable to grant access");
+                              return;
+                            }
+
+                            localStorage.setItem(`ca:${deal.id}`, caEmail);
+                            setHasAccess(true);
+
+                            setSelectedDoc({
+                              id: 'full_memo',
+                              label: "Full Investment Memorandum",
+                              url: json.signedUrl,
+                              gated: false,
+                            });
+
+                            setShowCA(false);
+
+                          } finally {
+                            setCaBusy(false);
+                          }
+                        }}
+                      >
+                        {caBusy ? "Granting access…" : "Access Full Memo"}
+                      </button>
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </div >
+        </div>
+      </div >
     </>
   );
 }
@@ -1123,13 +1126,10 @@ const container: React.CSSProperties = {
 };
 
 const content: React.CSSProperties = {
-  maxWidth: 1000,
+  maxWidth: 1200,
   width: "100%",
-  background: "#ffffff",
-  padding: 40,
-  borderRadius: 8,
-  marginTop: 32,
-  marginBottom: 40,
+  padding: 0,
+  background: 'transparent',
 };
 
 const title: React.CSSProperties = {
