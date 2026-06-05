@@ -514,23 +514,27 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   : '1px solid #e2e8f0',
               }}
             >
+              <h2 style={sectionTitle}>
+                About the Sponsor
+              </h2>
               <div
                 style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  letterSpacing: '.14em',
-                  textTransform: 'uppercase',
-                  color: '#31c8db',
-                  marginBottom: 14,
+                  height: 120,
+                  borderRadius: 16,
+                  overflow: 'hidden',
+                  marginBottom: 32,
+                  backgroundColor: '#003a5d',
+                  backgroundImage:
+                    'url("/Upperline_IconPattern3Outline_Navy_RGB.png")',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
                 }}
-              >
-                About the Sponsor
-              </div>
-
+              />
               <h2
                 style={{
-                  fontSize: 48,
-                  fontWeight: 800,
+                  fontSize: 28,
+                  fontWeight: 700,
+                  marginBottom: 20,
                   margin: '0 0 20px 0',
                   color: isDark ? '#fff' : '#0f172a',
                   lineHeight: 1,
