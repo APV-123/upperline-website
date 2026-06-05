@@ -488,9 +488,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               </div>
             </div>
             {/* BUSINESS PLAN */}
-            <h2 style={sectionTitle}>
-              About the Sponsor
-            </h2>
+
             <section
               id="business-plan"
               style={{
@@ -502,7 +500,9 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 {deal.business_plan_text || "No business plan provided."}
               </p>
             </section>
-
+            <h2 style={sectionTitle}>
+              About the Sponsor
+            </h2>
             <section
               id="about-upperline"
               style={{
@@ -519,7 +519,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 
               <div
                 style={{
-                  height: 120,
+                  height: 80,
                   borderRadius: 16,
                   overflow: 'hidden',
                   marginBottom: 32,
