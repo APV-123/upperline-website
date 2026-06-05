@@ -71,6 +71,7 @@ export default function DealHero({
                 )}
 
                 <div style={heroOverlay}>
+                    <div style={heroContent}>
                     <h1 style={heroTitle}>
                         {deal.name}
                     </h1>
@@ -109,6 +110,7 @@ export default function DealHero({
                         ))}
                     </div>
                 </div>
+                </div>
             </div>
 
             {deal.why_we_like_it && (
@@ -133,12 +135,14 @@ const heroSection: React.CSSProperties = {
     marginLeft: 'calc(50% - 50vw)',
     marginRight: 'calc(50% - 50vw)',
 
-    height: 720,
+    height: 620,
 
     overflow: 'hidden',
     marginBottom: 48,
 };
-
+const heroContent: React.CSSProperties = {
+    maxWidth: 1200,
+};
 const heroImage: React.CSSProperties = {
     width: '100%',
     height: '100%',
@@ -161,7 +165,7 @@ const heroOverlay: React.CSSProperties = {
 
 const heroTitle: React.CSSProperties = {
     color: '#fff',
-    fontSize: 72,
+    fontSize: 64,
     fontWeight: 800,
     lineHeight: 1.05,
     margin: 0,
@@ -194,11 +198,10 @@ const heroClosing: React.CSSProperties = {
 
 const heroMetricGrid: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns:
-        'repeat(aut-fit,minmax(180px,1fr))',
+    gridTemplateColumns: 'repeat(4, 1fr)',
     gap: 16,
-    marginTop: 28,
-    maxWidth: 1000,
+    marginTop: 24,
+    maxWidth: 1200,
 };
 
 const metricCard: React.CSSProperties = {
@@ -209,14 +212,14 @@ const metricCard: React.CSSProperties = {
         '1px solid rgba(255,255,255,.18)',
     borderRadius: 12,
 
-    padding: 20,
+    padding: '16px 20px',
 };
 
 const metricValue: React.CSSProperties = {
-    fontSize: 36,
+    fontSize: 24,
     fontWeight: 700,
     color: '#fff',
-    marginBottom: 6,
+    marginBottom: 4,
 };
 
 const metricLabel: React.CSSProperties = {

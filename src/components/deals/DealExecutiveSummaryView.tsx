@@ -195,14 +195,16 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
     <>
     <DealStickyHeader
       dealName={deal.name} />
+      
     <div style={isDark ? containerDark : container}>
+      <DealHero deal={deal} />
       <div
         style={{
           ...(isDark ? contentDark : content),
           padding: isMobile ? 20 : 40,
         }}
       >
-        <DealHero deal={deal} />
+        
         <section
           id="overview"
           style={{
@@ -1116,10 +1118,8 @@ function getCollapseStyle(isOpen: boolean, maxHeight: number): React.CSSProperti
 const container: React.CSSProperties = {
   background: "#f8fafc",
   minHeight: "100vh",
-  padding: "40px 20px",
   display: "flex",
   justifyContent: "center",
-  paddingTop:72,
 };
 
 const content: React.CSSProperties = {
@@ -1128,6 +1128,8 @@ const content: React.CSSProperties = {
   background: "#ffffff",
   padding: 40,
   borderRadius: 8,
+  marginTop: 32,
+  marginBottom: 40,
 };
 
 const title: React.CSSProperties = {
