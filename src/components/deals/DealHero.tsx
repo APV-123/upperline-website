@@ -108,7 +108,7 @@ export default function DealHero({
         <div style={container}>
             <div style={{
                 ...heroSection,
-                height: isMobile ? 520 : 620,
+                height: isMobile ? 440 : 620,
             }}>
                 {deal.image_1_url && (
                     <img
@@ -125,7 +125,7 @@ export default function DealHero({
                     <div style={heroContent}>
                         <h1 style={{
                             ...heroTitle,
-                            fontSize: isMobile ? 42 : 64,
+                            fontSize: isMobile ? 28 : 64,
                         }}>
                             {deal.name}
                         </h1>
@@ -140,7 +140,14 @@ export default function DealHero({
                                     rel="noopener noreferrer"
                                     style={heroLocation}
                                 >
-                                    📍 {deal.location}
+                                    📍 {
+                                        isMobile
+                                            ? deal.location
+                                                ?.split(',')
+                                                .slice(1,3)
+                                                .join(',')
+                                                .trim()
+                                            :deal.location}
                                 </a>
                             )}
 
