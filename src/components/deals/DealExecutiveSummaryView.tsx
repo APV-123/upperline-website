@@ -537,24 +537,20 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 style={{
                   position: 'relative',
                   zIndex: 2,
-                  display: 'grid',
-                  gridTemplateColumns: '2fr 1fr',
-                  gap: 40,
-                  alignItems: 'center',
+                  maxWidth: 900,
                 }}
               >
                 {/* Left Column */}
                 <div>
-                  <h3
+                  <img
+                    src="/Upperline-logo.png"
+                    alt="Upperline"
                     style={{
-                      fontSize: 24,
-                      fontWeight: 700,
-                      margin: '0 0 20px 0',
-                      color: isDark ? '#fff' : '#0f172a',
+                      height: 48,
+                      width: 'auto',
+                      marginBottom: 28,
                     }}
-                  >
-                    Upperline
-                  </h3>
+                  />
 
                   <p
                     style={{
@@ -581,42 +577,14 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '16px 28px',
-                      borderRadius: 12,
                       background: '#31c8db',
-                      color: '#003a5d',
                       textDecoration: 'none',
                       fontWeight: 700,
                       fontSize: 16,
-                      boxShadow:
-                        '0 10px 25px rgba(49,200,219,.20)',
                     }}
                   >
-                    Learn More About Upperline
+                    Learn More About Upperline →
                   </a>
-                </div>
-
-                {/* Right Column */}
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    padding: '32px',
-                  }}
-                >
-                  <img
-                    src="/upperline-mark.png"
-                    alt="Upperline"
-                    style={{
-                      width: '100%',
-                      maxWidth: 180,
-                      opacity: 0.9,
-                    }}
-                  />
                 </div>
               </div>
             </section>
