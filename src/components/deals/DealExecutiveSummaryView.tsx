@@ -13,6 +13,7 @@ type DealHighlight = {
 
 type DealMetric = {
   key: string;
+  label: string;
   value?: string;
   section: string;
   display_order: number;
