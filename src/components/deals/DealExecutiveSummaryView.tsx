@@ -506,8 +506,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               style={{
                 ...section,
                 scrollMarginTop: 90,
-                padding: '48px',
-                borderRadius: 16,
+                padding: '56px',
+                borderRadius: 20,
                 background: isDark ? '#111827' : '#f8fafc',
                 border: isDark
                   ? '1px solid #1f2937'
@@ -518,10 +518,10 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 style={{
                   fontSize: 12,
                   fontWeight: 700,
-                  letterSpacing: '.12em',
+                  letterSpacing: '.14em',
                   textTransform: 'uppercase',
                   color: '#31c8db',
-                  marginBottom: 12,
+                  marginBottom: 14,
                 }}
               >
                 About the Sponsor
@@ -529,10 +529,11 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 
               <h2
                 style={{
-                  fontSize: 36,
-                  fontWeight: 700,
-                  margin: '0 0 12px 0',
+                  fontSize: 48,
+                  fontWeight: 800,
+                  margin: '0 0 20px 0',
                   color: isDark ? '#fff' : '#0f172a',
+                  lineHeight: 1,
                 }}
               >
                 Upperline
@@ -543,25 +544,25 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   display: 'flex',
                   gap: 12,
                   flexWrap: 'wrap',
-                  marginBottom: 24,
+                  marginBottom: 32,
                 }}
               >
                 {[
-                  'Investment Management',
-                  'Development Management',
+                  'Investment',
+                  'Development',
                   'Asset Management',
                 ].map((pillar) => (
                   <div
                     key={pillar}
                     style={{
-                      padding: '8px 14px',
+                      padding: '10px 18px',
                       borderRadius: 999,
                       background: isDark
                         ? 'rgba(49,200,219,.12)'
                         : 'rgba(49,200,219,.10)',
                       color: '#31c8db',
                       fontWeight: 600,
-                      fontSize: 13,
+                      fontSize: 14,
                     }}
                   >
                     {pillar}
@@ -574,20 +575,35 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   ...(isDark
                     ? { ...paragraph, ...textSecondaryDark }
                     : paragraph),
-                  maxWidth: 900,
-                  marginBottom: 32,
+                  maxWidth: 950,
+                  marginBottom: 28,
+                  fontSize: 22,
+                  lineHeight: 1.75,
                 }}
               >
-                Upperline is a vertically integrated real estate
-                investment, development, and asset management firm
-                focused on creating long-term value across
-                high-growth Texas markets. By combining disciplined
-                acquisitions, hands-on development expertise, and
-                active asset management, our team seeks to unlock
-                value through execution rather than speculation,
-                creating alignment between our investors, partners,
-                and the communities we serve.
+                Upperline is a vertically integrated real estate investment,
+                development, and asset management firm focused on creating
+                long-term value across high-growth Texas markets. By combining
+                disciplined acquisitions, hands-on development expertise, and
+                active asset management, we seek to unlock value through
+                execution rather than speculation.
               </p>
+
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 24,
+                  flexWrap: 'wrap',
+                  marginBottom: 36,
+                  color: isDark ? '#fff' : '#0f172a',
+                  fontWeight: 700,
+                  fontSize: 16,
+                }}
+              >
+                <span>Disciplined Execution</span>
+                <span>Operational Expertise</span>
+                <span>Aligned Capital</span>
+              </div>
 
               <a
                 href="https://www.upperlineco.com/who-we-are"
@@ -597,17 +613,18 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  padding: '14px 24px',
-                  borderRadius: 10,
+                  padding: '16px 28px',
+                  borderRadius: 12,
                   background: '#31c8db',
                   color: '#003a5d',
                   textDecoration: 'none',
                   fontWeight: 700,
-                  fontSize: 15,
-                  transition: 'all .2s ease',
+                  fontSize: 16,
+                  boxShadow:
+                    '0 10px 25px rgba(49,200,219,.20)',
                 }}
               >
-                Learn More About Upperline
+                View Upperline Company Profile
               </a>
             </section>
 
