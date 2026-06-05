@@ -488,7 +488,9 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               </div>
             </div>
             {/* BUSINESS PLAN */}
-
+            <h2 style={sectionTitle}>
+              About the Sponsor
+            </h2>
             <section
               id="business-plan"
               style={{
@@ -514,9 +516,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   : '1px solid #e2e8f0',
               }}
             >
-              <h2 style={sectionTitle}>
-                About the Sponsor
-              </h2>
+
               <div
                 style={{
                   height: 120,
