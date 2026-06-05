@@ -31,6 +31,7 @@ export const PUBLIC_DEAL_SELECT = `
 
   deal_metrics (
     key,
+    label,
     value,
     section,
     display_order,

@@ -3,6 +3,7 @@ import { supabaseServer } from '@/lib/SupabaseServer';
 
 type MetricPayload = {
   key: string;
+  label: string;
   value: string | null;
   section: string;
   display_order: number;
@@ -24,11 +25,17 @@ export async function POST(
 
   try {
     const body = await req.json();
-    const metrics = (body?.metrics ?? []) as MetricPayload[];
+
+    const metrics = (
+      body?.metrics ?? []
+    ) as MetricPayload[];
 
     if (!Array.isArray(metrics)) {
       return NextResponse.json(
-        { ok: false, error: 'Invalid metrics payload' },
+        {
+          ok: false,
+          error: 'Invalid metrics payload',
+        },
         { status: 400 }
       );
     }
@@ -36,31 +43,80 @@ export async function POST(
     const rows = metrics.map((m) => ({
       deal_id: dealId,
       key: m.key,
+      label: m.label,
       value: m.value,
       section: m.section,
       display_order: m.display_order,
       is_visible: m.is_visible,
     }));
 
-    const { error } = await supabaseServer
-      .from('deal_metrics')
-      .upsert(rows, {
-        onConflict: 'deal_id,key',
-      });
+    //
+    // STEP 1
+    // Remove all existing metrics
+    //
+    const { error: deleteError } =
+      await supabaseServer
+        .from('deal_metrics')
+        .delete()
+        .eq('deal_id', dealId);
 
-    if (error) {
-      console.error('[METRICS UPSERT ERROR]', error);
+    if (deleteError) {
+      console.error(
+        '[METRICS DELETE ERROR]',
+        deleteError
+      );
+
       return NextResponse.json(
-        { ok: false, error: error.message },
+        {
+          ok: false,
+          error: deleteError.message,
+        },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ ok: true });
+    //
+    // STEP 2
+    // Reinsert current editor state
+    //
+    if (rows.length > 0) {
+      const { error: insertError } =
+        await supabaseServer
+          .from('deal_metrics')
+          .insert(rows);
+
+      if (insertError) {
+        console.error(
+          '[METRICS INSERT ERROR]',
+          insertError
+        );
+
+        return NextResponse.json(
+          {
+            ok: false,
+            error: insertError.message,
+          },
+          { status: 500 }
+        );
+      }
+    }
+
+    return NextResponse.json({
+      ok: true,
+      count: rows.length,
+    });
+
   } catch (e) {
-    console.error('[METRICS UPSERT CRASH]', e);
+    console.error(
+      '[METRICS SAVE CRASH]',
+      e
+    );
+
     return NextResponse.json(
-      { ok: false, error: 'Server error' },
+      {
+        ok: false,
+        error: 'Server error',
+      },
       { status: 500 }
     );
   }

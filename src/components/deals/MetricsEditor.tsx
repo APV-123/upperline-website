@@ -5,17 +5,11 @@ import { useMemo, useState } from 'react';
 
 export type DealMetric = {
     key: string;
+    label: string;
     value?: string;
     section: string;
     display_order: number;
     is_visible?: boolean;
-};
-
-type MetricTemplate = {
-    key: string;
-    label: string;
-    section: string;
-    display_order: number;
 };
 
 type MetricsResponse = {
@@ -23,46 +17,21 @@ type MetricsResponse = {
     error?: string;
 };
 
-const METRIC_TEMPLATES: MetricTemplate[] = [
-    // LP Return Summary
-    { key: 'lp_irr', label: 'LP IRR', section: 'lp_summary', display_order: 1 },
-    { key: 'lp_moic', label: 'LP Equity Multiple (MOIC)', section: 'lp_summary', display_order: 2 },
-    { key: 'minimum_investment', label: 'Minimum Investment', section: 'lp_summary', display_order: 3 },
-    { key: 'lp_cash_on_cash', label: 'Cash-on-Cash Return', section: 'lp_summary', display_order: 4 },
-
-    // Project Returns
-    { key: 'project_unlevered_irr', label: 'Project Unlevered IRR', section: 'project_returns', display_order: 1 },
-    { key: 'project_levered_irr', label: 'Project Levered IRR', section: 'project_returns', display_order: 2 },
-    { key: 'untrended_return_on_cost', label: 'Un-Trended Return on Cost', section: 'project_returns', display_order: 3 },
-    { key: 'stabilized_return_on_cost', label: 'Stabilized Return on Cost', section: 'project_returns', display_order: 4 },
-
-    // Equity Capital Stack
-    { key: 'gp_equity', label: 'GP Equity', section: 'capital_stack', display_order: 2 },
-    { key: 'total_equity', label: 'Total Equity', section: 'capital_stack', display_order: 3 },
-];
-
-type Row = MetricTemplate & {
-    value: string;
-    is_visible: boolean;
-};
-
 type Props = {
     dealId: string;
     initialMetrics: DealMetric[];
 };
 
-function buildInitialRows(initialMetrics: DealMetric[]): Row[] {
-    const metricMap = new Map(initialMetrics.map((m) => [m.key, m]));
+type Row = DealMetric;
 
-    return METRIC_TEMPLATES.map((tpl) => {
-        const existing = metricMap.get(tpl.key);
-
-        return {
-            ...tpl,
-            value: existing?.value ?? '',
-            is_visible: existing?.is_visible !== false,
-        };
-    });
+function buildInitialRows(
+    initialMetrics: DealMetric[]
+): Row[] {
+    return [...initialMetrics].sort(
+        (a, b) =>
+            (a.display_order ?? 0) -
+            (b.display_order ?? 0)
+    );
 }
 
 export default function MetricsEditor({ dealId, initialMetrics }: Props) {
@@ -70,11 +39,17 @@ export default function MetricsEditor({ dealId, initialMetrics }: Props) {
     const [saving, setSaving] = useState(false);
 
     const grouped = useMemo(() => {
-        return {
-            lp_summary: rows.filter((r) => r.section === 'lp_summary'),
-            project_returns: rows.filter((r) => r.section === 'project_returns'),
-            capital_stack: rows.filter((r) => r.section === 'capital_stack'),
-        };
+        const groups: Record<string, Row[]> = {};
+
+        rows.forEach((row) => {
+            if (!groups[row.section]) {
+                groups[row.section] = [];
+            }
+
+            groups[row.section].push(row);
+        });
+
+        return groups;
     }, [rows]);
 
     function updateRow(key: string, patch: Partial<Row>) {
@@ -89,10 +64,11 @@ export default function MetricsEditor({ dealId, initialMetrics }: Props) {
 
             const payload = rows.map((row) => ({
                 key: row.key,
-                value: row.value.trim() || null,
+                label: row.label,
+                value: row.value?.trim() || null,
                 section: row.section,
                 display_order: row.display_order,
-                is_visible: row.is_visible,
+                is_visible: row.is_visible ?? true,
             }));
 
             const res = await fetch(`/api/deals/${dealId}/metrics/upsert`, {
@@ -132,7 +108,91 @@ export default function MetricsEditor({ dealId, initialMetrics }: Props) {
             setSaving(false);
         }
     }
+    function moveRowUp(key: string) {
+        setRows((prev) => {
+            const idx = prev.findIndex((r) => r.key === key);
 
+            if (idx <= 0) return prev;
+
+            const copy = [...prev];
+
+            [copy[idx - 1], copy[idx]] =
+                [copy[idx], copy[idx - 1]];
+
+            return copy.map((r, i) => ({
+                ...r,
+                display_order: i + 1,
+            }));
+        });
+    }
+
+    function moveRowDown(key: string) {
+        setRows((prev) => {
+            const idx = prev.findIndex((r) => r.key === key);
+
+            if (idx === prev.length - 1) return prev;
+
+            const copy = [...prev];
+
+            [copy[idx], copy[idx + 1]] =
+                [copy[idx + 1], copy[idx]];
+
+            return copy.map((r, i) => ({
+                ...r,
+                display_order: i + 1,
+            }));
+        });
+    }
+    function deleteRow(key: string) {
+        setRows((prev) =>
+            prev.filter((r) => r.key !== key)
+        );
+    }
+    function addMetric(section: string) {
+        const id = crypto.randomUUID();
+
+        setRows((prev) => [
+            ...prev,
+            {
+                key: id,
+                label: 'New Metric',
+                value: '',
+                section,
+                display_order: prev.length + 1,
+                is_visible: true,
+            },
+        ]);
+    }
+    const sectionOrder = [
+        'hero',
+        'property_facts',
+        'lp_summary',
+        'project_returns',
+        'capital_stack',
+    ];
+    function getSectionTitle(
+        section: string
+    ) {
+        switch (section) {
+            case 'hero':
+                return 'Hero Metrics';
+
+            case 'property_facts':
+                return 'Property Facts';
+
+            case 'lp_summary':
+                return 'LP Return Summary';
+
+            case 'project_returns':
+                return 'Project Returns';
+
+            case 'capital_stack':
+                return 'Capital Stack';
+
+            default:
+                return section;
+        }
+    }
     return (
         <div style={card}>
             <div style={cardHeader}>
@@ -156,23 +216,22 @@ export default function MetricsEditor({ dealId, initialMetrics }: Props) {
                 </button>
             </div>
 
-            <MetricSection
-                heading="LP Return Summary"
-                rows={grouped.lp_summary}
-                onChange={updateRow}
-            />
-
-            <MetricSection
-                heading="Project Returns"
-                rows={grouped.project_returns}
-                onChange={updateRow}
-            />
-
-            <MetricSection
-                heading="Equity Capital Stack"
-                rows={grouped.capital_stack}
-                onChange={updateRow}
-            />
+            {sectionOrder
+                .filter(
+                    (section) => grouped[section]
+                )
+                .map((section) => (
+                    <MetricSection
+                        key={section}
+                        heading={getSectionTitle(section)}
+                        rows={grouped[section]}
+                        onChange={updateRow}
+                        onMoveUp={moveRowUp}
+                        onMoveDown={moveRowDown}
+                        onDelete={deleteRow}
+                        onAdd={addMetric}
+                    />
+                ))}
         </div>
     );
 }
@@ -181,10 +240,22 @@ function MetricSection({
     heading,
     rows,
     onChange,
+    onMoveUp,
+    onMoveDown,
+    onDelete,
+    onAdd,
 }: {
     heading: string;
     rows: Row[];
-    onChange: (key: string, patch: Partial<Row>) => void;
+    onChange: (
+        key: string,
+        patch: Partial<Row>
+    ) => void;
+
+    onMoveUp: (key: string) => void;
+    onMoveDown: (key: string) => void;
+    onDelete: (key: string) => void;
+    onAdd: (section: string) => void;
 }) {
     return (
         <div style={section}>
@@ -193,7 +264,16 @@ function MetricSection({
             <div style={table}>
                 {rows.map((row) => (
                     <div key={row.key} style={rowWrap}>
-                        <div style={labelCell}>{row.label}</div>
+                        <input
+                            value={row.label}
+                            onChange={(e) =>
+                                onChange(row.key, {
+                                    label: e.target.value,
+                                })
+                            }
+                            placeholder="Metric Label"
+                            style={input}
+                        />
 
                         <input
                             value={row.value}
@@ -201,7 +281,35 @@ function MetricSection({
                             placeholder="Enter value"
                             style={input}
                         />
+                        <select
+                            value={row.section}
+                            onChange={(e) =>
+                                onChange(row.key, {
+                                    section: e.target.value,
+                                })
+                            }
+                            style={input}
+                        >
+                            <option value="hero">
+                                Hero Metrics
+                            </option>
 
+                            <option value="property_facts">
+                                Property Facts
+                            </option>
+
+                            <option value="lp_summary">
+                                LP Return Summary
+                            </option>
+
+                            <option value="project_returns">
+                                Project Returns
+                            </option>
+
+                            <option value="capital_stack">
+                                Capital Stack
+                            </option>
+                        </select>
                         <label style={checkboxWrap}>
                             <input
                                 type="checkbox"
@@ -210,9 +318,48 @@ function MetricSection({
                             />
                             Visible
                         </label>
+
+                        <div style={actionWrap}>
+                            <button
+                                onClick={() =>
+                                    onMoveUp(row.key)
+                                }
+                                style={miniBtn}
+                            >
+                                ↑
+                            </button>
+
+                            <button
+                                onClick={() =>
+                                    onMoveDown(row.key)
+                                }
+                                style={miniBtn}
+                            >
+                                ↓
+                            </button>
+
+                            <button
+                                onClick={() =>
+                                    onDelete(row.key)
+                                }
+                                style={deleteBtn}
+                            >
+                                Delete
+                            </button>
+                        </div>
                     </div>
                 ))}
             </div>
+            <button
+                onClick={() =>
+                    onAdd(
+                        rows[0]?.section ?? 'hero'
+                    )
+                }
+                style={secondaryBtn}
+            >
+                + Add Metric
+            </button>
         </div>
     );
 }
@@ -265,7 +412,7 @@ const table: React.CSSProperties = {
 
 const rowWrap: React.CSSProperties = {
     display: 'grid',
-    gridTemplateColumns: '240px 1fr 100px',
+    gridTemplateColumns: '240px 1fr 180px 110px 180px',
     gap: 12,
     alignItems: 'center',
 };
@@ -298,5 +445,36 @@ const primaryBtn: React.CSSProperties = {
     padding: '10px 14px',
     borderRadius: 8,
     border: 'none',
+    fontWeight: 600,
+};
+const actionWrap: React.CSSProperties = {
+    display: 'flex',
+    gap: 6,
+};
+
+const miniBtn: React.CSSProperties = {
+    padding: '6px 10px',
+    borderRadius: 6,
+    border: '1px solid #cbd5e1',
+    background: '#fff',
+    cursor: 'pointer',
+};
+
+const deleteBtn: React.CSSProperties = {
+    padding: '6px 10px',
+    borderRadius: 6,
+    border: '1px solid #fecaca',
+    background: '#fef2f2',
+    color: '#dc2626',
+    cursor: 'pointer',
+};
+
+const secondaryBtn: React.CSSProperties = {
+    marginTop: 12,
+    padding: '10px 14px',
+    borderRadius: 8,
+    border: '1px solid #cbd5e1',
+    background: '#fff',
+    cursor: 'pointer',
     fontWeight: 600,
 };
