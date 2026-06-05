@@ -1,8 +1,31 @@
 'use client';
 
+import{
+    Building2,
+    Percent,
+    Car,
+    Warehouse,
+    MapPinned,
+    Users,
+    DollarSign,
+    SquareDashed,
+} from 'lucide-react';
+
+const ICONS = {
+    building: Building2,
+    percent: Percent,
+    vacancy: SquareDashed,
+    car: Car,
+    warehouse: Warehouse,
+    map: MapPinned,
+    users: Users,
+    dollar: DollarSign,
+};
+
 type Metric = {
     key: string;
     label: string;
+    icon?: string;
     value?: string | null;
     section: string;
     is_visible?: boolean;
@@ -25,18 +48,37 @@ type Props = {
 function MetricCard({
     value,
     label,
+    icon,
 }: {
     value?: string | null;
     label: string;
+    icon?: string;
 }) {
+    const Icon =
+        icon &&
+        ICONS[
+            icon as keyof typeof ICONS
+        ];
+
     return (
         <div style={metricCard}>
-            <div style={metricValue}>
-                {value || '—'}
-            </div>
+            <div style={metricRow}>
+                {Icon && (
+                    <Icon
+                        size={28}
+                        color="#31c8db"
+                    />
+                )}
 
-            <div style={metricLabel}>
-                {label}
+                <div>
+                    <div style={metricValue}>
+                        {value || '—'}
+                    </div>
+
+                    <div style={metricLabel}>
+                        {label}
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -106,6 +148,7 @@ export default function DealHero({
                                 key={metric.key}
                                 value={metric.value}
                                 label={metric.label}
+                                icon={metric.icon}
                             />
                         ))}
                     </div>
@@ -142,6 +185,8 @@ const heroSection: React.CSSProperties = {
 };
 const heroContent: React.CSSProperties = {
     maxWidth: 1200,
+    width: '100%',
+    margin: '0 auto',
 };
 const heroImage: React.CSSProperties = {
     width: '100%',
@@ -213,6 +258,12 @@ const metricCard: React.CSSProperties = {
     borderRadius: 12,
 
     padding: '16px 20px',
+};
+
+const metricRow: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 16,
 };
 
 const metricValue: React.CSSProperties = {

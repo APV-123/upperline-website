@@ -4,6 +4,7 @@ import { supabaseServer } from '@/lib/SupabaseServer';
 type MetricPayload = {
   key: string;
   label: string;
+  icon?: string;
   value: string | null;
   section: string;
   display_order: number;
@@ -44,6 +45,7 @@ export async function POST(
       deal_id: dealId,
       key: m.key,
       label: m.label,
+      icon: m.icon,
       value: m.value,
       section: m.section,
       display_order: m.display_order,

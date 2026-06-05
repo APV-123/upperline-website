@@ -7,6 +7,7 @@ type Params = { dealId: string };
 type PublicDealMetric = {
   key: string;
   label: string;
+  icon?: string;
   value?: string | null;
   section: string;
   display_order: number;

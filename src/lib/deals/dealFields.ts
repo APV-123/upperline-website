@@ -34,6 +34,7 @@ export const DEAL_SELECT = `
   deal_metrics (
     key,
     label,
+    icon,
     value,
     section,
     display_order,
