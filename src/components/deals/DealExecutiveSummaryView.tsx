@@ -510,7 +510,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 scrollMarginTop: 90,
                 position: 'relative',
                 overflow: 'hidden',
-                padding: '56px',
+                padding: '48px',
                 borderRadius: 20,
                 background: isDark ? '#111827' : '#f8fafc',
                 border: isDark
@@ -518,6 +518,17 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   : '1px solid #e2e8f0',
               }}
             >
+              {/* Top Accent */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 4,
+                  background: '#31c8db',
+                }}
+              />
               {/* Pattern Background */}
               <div
                 style={{
@@ -577,7 +588,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{
-                      background: '#31c8db',
+                      color: '#31c8db',
                       textDecoration: 'none',
                       fontWeight: 700,
                       fontSize: 16,
