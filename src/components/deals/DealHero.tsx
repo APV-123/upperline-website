@@ -122,8 +122,13 @@ export default function DealHero({
                 <div style={{
                     ...heroOverlay,
                     padding: isMobile ? '24px' : '64px',
+                    border: '4px solid red'
                 }}>
-                    <div style={heroContent}>
+                    <div style={{
+                        ...heroContent,
+                        border: '4px solid lime',
+
+                    }}>
                         <h1 style={{
                             ...heroTitle,
                             fontSize: isMobile ? 18 : 64,
