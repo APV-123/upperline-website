@@ -508,6 +508,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               style={{
                 ...section,
                 scrollMarginTop: 90,
+                position: 'relative',
+                overflow: 'hidden',
                 padding: '56px',
                 borderRadius: 20,
                 background: isDark ? '#111827' : '#f8fafc',
@@ -516,120 +518,150 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   : '1px solid #e2e8f0',
               }}
             >
-
+              {/* Pattern Background */}
               <div
                 style={{
-                  height: 80,
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                  marginBottom: 32,
-                  backgroundColor: '#FFFFFF',
+                  position: 'absolute',
+                  inset: 0,
+                  opacity: 0.06,
                   backgroundImage:
                     'url("/Upperline_IconPattern3Outline_Navy_RGB.png")',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
+                  backgroundRepeat: 'repeat',
+                  backgroundSize: '420px',
+                  pointerEvents: 'none',
                 }}
               />
-              <h2
-                style={{
-                  fontSize: 28,
-                  fontWeight: 700,
-                  marginBottom: 20,
-                  margin: '0 0 20px 0',
-                  color: isDark ? '#fff' : '#0f172a',
-                  lineHeight: 1,
-                }}
-              >
-                Upperline
-              </h2>
 
+              {/* Content */}
               <div
                 style={{
-                  display: 'flex',
-                  gap: 12,
-                  flexWrap: 'wrap',
-                  marginBottom: 32,
+                  position: 'relative',
+                  zIndex: 2,
+                  display: 'grid',
+                  gridTemplateColumns: '1.7fr 1fr',
+                  gap: 56,
+                  alignItems: 'center',
                 }}
               >
-                {[
-                  'Investment',
-                  'Development',
-                  'Asset Management',
-                ].map((pillar) => (
-                  <div
-                    key={pillar}
+                {/* Left Column */}
+                <div>
+                  <h3
                     style={{
-                      padding: '10px 18px',
-                      borderRadius: 999,
-                      background: isDark
-                        ? 'rgba(49,200,219,.12)'
-                        : 'rgba(49,200,219,.10)',
-                      color: '#31c8db',
-                      fontWeight: 600,
-                      fontSize: 14,
+                      fontSize: 36,
+                      fontWeight: 800,
+                      margin: '0 0 20px 0',
+                      color: isDark ? '#fff' : '#0f172a',
                     }}
                   >
-                    {pillar}
+                    Upperline
+                  </h3>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 12,
+                      flexWrap: 'wrap',
+                      marginBottom: 28,
+                    }}
+                  >
+                    {[
+                      'Investment',
+                      'Development',
+                      'Asset Management',
+                    ].map((pillar) => (
+                      <div
+                        key={pillar}
+                        style={{
+                          padding: '10px 18px',
+                          borderRadius: 999,
+                          background: 'rgba(49,200,219,.10)',
+                          color: '#31c8db',
+                          fontWeight: 600,
+                          fontSize: 14,
+                        }}
+                      >
+                        {pillar}
+                      </div>
+                    ))}
                   </div>
-                ))}
+
+                  <p
+                    style={{
+                      ...(isDark
+                        ? { ...paragraph, ...textSecondaryDark }
+                        : paragraph),
+                      marginBottom: 32,
+                      fontSize: 20,
+                      lineHeight: 1.8,
+                      maxWidth: 800,
+                    }}
+                  >
+                    Upperline is a vertically integrated real estate investment,
+                    development, and asset management firm focused on creating
+                    long-term value across high-growth Texas markets. Through a
+                    disciplined approach to acquisitions, development, and active
+                    asset management, we seek to generate attractive risk-adjusted
+                    returns by unlocking value through execution rather than
+                    speculation.
+                  </p>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 28,
+                      flexWrap: 'wrap',
+                      marginBottom: 36,
+                      fontWeight: 700,
+                      color: isDark ? '#fff' : '#0f172a',
+                    }}
+                  >
+                    <span>Disciplined Execution</span>
+                    <span>Operational Expertise</span>
+                    <span>Aligned Capital</span>
+                  </div>
+
+                  <a
+                    href="https://www.upperlineco.com/who-we-are"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '16px 28px',
+                      borderRadius: 12,
+                      background: '#31c8db',
+                      color: '#003a5d',
+                      textDecoration: 'none',
+                      fontWeight: 700,
+                      fontSize: 16,
+                      boxShadow:
+                        '0 10px 25px rgba(49,200,219,.20)',
+                    }}
+                  >
+                    View Upperline Company Profile
+                  </a>
+                </div>
+
+                {/* Right Column */}
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <img
+                    src="/Upperline-mark.png"
+                    alt="Upperline"
+                    style={{
+                      width: '100%',
+                      maxWidth: 280,
+                      opacity: 0.95,
+                    }}
+                  />
+                </div>
               </div>
-
-              <p
-                style={{
-                  ...(isDark
-                    ? { ...paragraph, ...textSecondaryDark }
-                    : paragraph),
-                  maxWidth: 950,
-                  marginBottom: 28,
-                  fontSize: 22,
-                  lineHeight: 1.75,
-                }}
-              >
-                Upperline is a vertically integrated real estate investment,
-                development, and asset management firm focused on creating
-                long-term value across high-growth Texas markets. By combining
-                disciplined acquisitions, hands-on development expertise, and
-                active asset management, we seek to unlock value through
-                execution rather than speculation.
-              </p>
-
-              <div
-                style={{
-                  display: 'flex',
-                  gap: 24,
-                  flexWrap: 'wrap',
-                  marginBottom: 36,
-                  color: isDark ? '#fff' : '#0f172a',
-                  fontWeight: 700,
-                  fontSize: 16,
-                }}
-              >
-                <span>Disciplined Execution</span>
-                <span>Operational Expertise</span>
-                <span>Aligned Capital</span>
-              </div>
-
-              <a
-                href="https://www.upperlineco.com/who-we-are"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '16px 28px',
-                  borderRadius: 12,
-                  background: '#31c8db',
-                  color: '#003a5d',
-                  textDecoration: 'none',
-                  fontWeight: 700,
-                  fontSize: 16,
-                  boxShadow:
-                    '0 10px 25px rgba(49,200,219,.20)',
-                }}
-              >
-                View Upperline Company Profile
-              </a>
             </section>
 
             {/* DOCUMENTS */}
