@@ -543,7 +543,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 {/* Left Column */}
                 <div>
                   <img
-                    src="/Upperline-logo.png"
+                    src="/upperline-logo.png"
                     alt="Upperline"
                     style={{
                       height: 48,
@@ -564,12 +564,12 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     }}
                   >
                     Upperline is a vertically integrated real estate investment,
-                    development, and asset management firm focused on creating
-                    long-term value across high-growth Texas markets. Through a
-                    disciplined approach to acquisitions, development, and active
-                    asset management, we seek to generate attractive risk-adjusted
-                    returns by unlocking value through execution rather than
-                    speculation.
+                    development, and asset management firm focused on acquiring,
+                    developing, and operating assets throughout high-growth Texas
+                    markets. By combining investment expertise, development execution,
+                    and active asset management, we seek to create long-term value for
+                    our investors through disciplined capital allocation and operational
+                    excellence.
                   </p>
 
                   <a
