@@ -197,7 +197,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           padding: isMobile ? 20 : 40,
         }}
       >
-        
+        <DealHero deal={deal} />
         <div style={section}>
           <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Overview</h2>
           <p style={isDark ? { ...paragraph, ...textSecondaryDark } : paragraph}>
