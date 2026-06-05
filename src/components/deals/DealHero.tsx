@@ -51,10 +51,12 @@ function MetricCard({
     value,
     label,
     icon,
+    isMobile,
 }: {
     value?: string | null;
     label: string;
     icon?: string;
+    isMobile?: boolean;
 }) {
     const Icon =
         icon &&
@@ -63,21 +65,30 @@ function MetricCard({
         ];
 
     return (
-        <div style={metricCard}>
+        <div style={{
+            ...metricCard,
+            padding: isMobile ? '10px' : '16px 20px',
+            }}>
             <div style={metricRow}>
                 {Icon && (
                     <Icon
-                        size={28}
+                        size={isMobile ? 18 : 28}
                         color="#31c8db"
                     />
                 )}
 
                 <div>
-                    <div style={metricValue}>
+                    <div style={{
+                        ...metricValue,
+                        fontSize: isMobile ? 16 : 24,
+                        }}>
                         {value || '—'}
                     </div>
 
-                    <div style={metricLabel}>
+                    <div style={{
+                        ...metricLabel,
+                        fontSize: isMobile ? 10 : 12,
+                        }}>
                         {label}
                     </div>
                 </div>
@@ -178,9 +189,7 @@ export default function DealHero({
 
                         <div style={{
                             ...heroMetricGrid,
-                            gridTemplateColumns: isMobile
-                                ? 'repeat(2, 1fr)'
-                                : 'repeat(4, 1fr)',
+                            gridTemplateColumns: 'repeat(2, 1fr)'
                             }}>
                             {heroMetrics.map((metric) => (
                                 <MetricCard
@@ -188,6 +197,7 @@ export default function DealHero({
                                     value={metric.value}
                                     label={metric.label}
                                     icon={metric.icon}
+                                    isMobile={isMobile}
                                 />
                             ))}
                         </div>
