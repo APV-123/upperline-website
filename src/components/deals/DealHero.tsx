@@ -109,7 +109,7 @@ export default function DealHero({
         <div style={container}>
             <div style={{
                 ...heroSection,
-                height: isMobile ? 360 : 620,
+                height: isMobile ? 600 : 620,
             }}>
                 {deal.image_1_url && (
                     <img
