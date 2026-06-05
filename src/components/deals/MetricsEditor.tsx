@@ -284,7 +284,7 @@ function MetricSection({
                                     icon: e.target.value,
                                 })
                             }
-                            style={select}
+                            style={input}
                         >
                             {ICON_OPTIONS.map((icon) => (
                                 <option
