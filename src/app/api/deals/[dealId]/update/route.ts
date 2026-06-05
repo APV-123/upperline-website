@@ -12,6 +12,7 @@ type UpdateBody = {
   asset_class?: unknown;
   strategy?: unknown;
   estimated_closing_date?: unknown;
+  thesis?: unknown;
   why_we_like_it?: unknown;
   overview_text?: unknown;
   business_plan_text?: unknown;
@@ -55,6 +56,7 @@ type DealUpdatePayload = {
   asset_class: string | null;
   strategy: string | null;
   estimated_closing_date: string | null;
+  thesis: string;
   why_we_like_it: string | null;
   overview_text: string | null;
   business_plan_text: string | null;
@@ -92,6 +94,7 @@ export async function POST(
     const asset_class = cleanText(body.asset_class);
     const strategy = cleanText(body.strategy);
     const estimated_closing_date = cleanDate(body.estimated_closing_date);
+    const theis = cleanText(body.thesis);
     const why_we_like_it = cleanText(body.why_we_like_it);
     const overview_text = cleanText(body.overview_text);
     const business_plan_text = cleanText(body.business_plan_text);
