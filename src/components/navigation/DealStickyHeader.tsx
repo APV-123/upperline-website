@@ -56,12 +56,14 @@ const header: React.CSSProperties = {
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 1000,
+    zIndex: 999999,
+    background: 'red',
+    height: 80,
 
-    background: 'rgba(255,255,255,.90)',
-    backdropFilter: 'blur(12px)',
+    //background: 'rgba(255,255,255,.90)',
+    //backdropFilter: 'blur(12px)',
 
-    borderBottom: '1px solid #e5e7eb',
+    //borderBottom: '1px solid #e5e7eb',
 };
 
 const inner: React.CSSProperties = {
