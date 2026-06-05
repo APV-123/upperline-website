@@ -319,6 +319,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 
                     style={{
                       ...smallImage,
+                      width: isMobile ? 'calc(50% - 6px)' : '100%',
                       height: isMobile ? 140 : 194,
                       cursor: "zoom-in",
                       filter: isDark ? "brightness(0.92)" : "none",
