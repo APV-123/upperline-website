@@ -1,13 +1,18 @@
 'use client';
 import Image from 'next/image';
+import { useState } from 'react';
+import { Menu, X } from 'lucide-react';
 
 type Props = {
     dealName: string;
+    isMobile?: boolean;
 };
 
 export default function DealStickyHeader({
     dealName,
+    isMobile = false,
 }: Props) {
+    const [menuOpen, setMenuOpen] = useState(false);
     return (
         <header style={header}>
             <div style={inner}>
@@ -30,37 +35,48 @@ export default function DealStickyHeader({
                     />
                 </a>
 
-                <nav style={nav}>
-                    <a href="#overview" style={link}>Overview</a>
-                    <a href="#highlights" style={link}>Highlights</a>
-                    <a href="#returns" style={link}>Returns</a>
-                    <a href="#business-plan" style={link}>Business Plan</a>
-                    <a href="#documents" style={link}>Documents</a>
-                </nav>
+                {!isMobile && (
+                    <nav style={nav}>
+                        <a href="#overview" style={link}>Overview</a>
+                        <a href="#highlights" style={link}>Highlights</a>
+                        <a href="#returns" style={link}>Returns</a>
+                        <a href="#business-plan" style={link}>Business Plan</a>
+                        <a href="#documents" style={link}>Documents</a>
+                    </nav>
+                )}
 
-                <a
-                    href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
-                        `Interest in ${dealName}`
-                    )}`}
-                    style={cta}
-                >
-                    Requet Full Memorandum
-                </a>
+                {isMobile ? (
+                    <button
+                        onClick={() => setMenuOpen(!menuOpen)}
+                        style={menuButton}
+                    >
+                        {menuOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
+                ) : (
+                    <a
+                        href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
+                            `Interest in ${dealName}`
+                        )}`}
+                        style={cta}
+                    >
+                        Request Full Memorandum
+                    </a>
+                )}
             </div>
         </header>
     );
 }
 
 const header: React.CSSProperties = {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  right: 0,
-  zIndex: 999999,
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 999999,
 
-  background: 'rgba(255,255,255,.75)',
-  backdropFilter: 'blur(16px)',
-  borderBottom: '1px solid rgba(255,255,255,.15)',
+    background: 'rgba(255,255,255,.75)',
+    backdropFilter: 'blur(16px)',
+    borderBottom: '1px solid rgba(255,255,255,.15)',
 };
 
 const inner: React.CSSProperties = {
@@ -104,4 +120,12 @@ const brand: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     textDecoration: 'none',
+};
+
+const menuButton: React.CSSProperties = {
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    color: '#003a5d',
+    padding: 4,
 };
