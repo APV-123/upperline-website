@@ -108,7 +108,7 @@ export default function DealHero({
         <div style={container}>
             <div style={{
                 ...heroSection,
-                height: isMobile ? 440 : 620,
+                height: isMobile ? 360 : 620,
             }}>
                 {deal.image_1_url && (
                     <img
@@ -125,7 +125,8 @@ export default function DealHero({
                     <div style={heroContent}>
                         <h1 style={{
                             ...heroTitle,
-                            fontSize: isMobile ? 28 : 64,
+                            fontSize: isMobile ? 18 : 64,
+                            lineHeight: 1.05,
                         }}>
                             {deal.name}
                         </h1>
@@ -138,7 +139,11 @@ export default function DealHero({
                                     )}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    style={heroLocation}
+                                    style={{
+                                        ...heroLocation,
+                                        fontSize: isMobile ? 15 : 18,
+                                        maxWidth: isMobile ? '100%' : undefined,
+                                    }}
                                 >
                                     📍 {
                                         isMobile
@@ -152,7 +157,11 @@ export default function DealHero({
                             )}
 
                             {deal.estimated_closing_date && (
-                                <div style={heroClosing}>
+                                <div style={{
+                                    ...heroClosing,
+                                    padding: isMobile ? '8px 14px' : '10px 16px',
+                                    fontSize: isMobile ? 14 : 16,
+                                }}>
                                     Closing{' '}
                                     {new Date(
                                         deal.estimated_closing_date
