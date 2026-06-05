@@ -523,7 +523,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   borderRadius: 16,
                   overflow: 'hidden',
                   marginBottom: 32,
-                  backgroundColor: '#003a5d',
+                  backgroundColor: '#FFFFFF',
                   backgroundImage:
                     'url("/Upperline_IconPattern3Outline_Navy_RGB.png")',
                   backgroundSize: 'cover',
