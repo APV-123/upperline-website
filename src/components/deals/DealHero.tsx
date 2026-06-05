@@ -1,6 +1,6 @@
 'use client';
 
-import{
+import {
     Building2,
     Percent,
     Car,
@@ -44,6 +44,7 @@ type Deal = {
 
 type Props = {
     deal: Deal;
+    isMobile?: boolean;
 };
 
 function MetricCard({
@@ -58,7 +59,7 @@ function MetricCard({
     const Icon =
         icon &&
         ICONS[
-            icon as keyof typeof ICONS
+        icon as keyof typeof ICONS
         ];
 
     return (
@@ -87,6 +88,7 @@ function MetricCard({
 
 export default function DealHero({
     deal,
+    isMobile = false,
 }: Props) {
     const heroMetrics =
         deal.metrics
@@ -104,7 +106,10 @@ export default function DealHero({
 
     return (
         <div style={container}>
-            <div style={heroSection}>
+            <div style={{
+                ...heroSection,
+                height: isMobile ? 520 : 620,
+            }}>
                 {deal.image_1_url && (
                     <img
                         src={deal.image_1_url}
@@ -113,47 +118,58 @@ export default function DealHero({
                     />
                 )}
 
-                <div style={heroOverlay}>
+                <div style={{
+                    ...heroOverlay,
+                    padding: isMobile ? '24px' : '64px',
+                }}>
                     <div style={heroContent}>
-                    <h1 style={heroTitle}>
-                        {deal.name}
-                    </h1>
+                        <h1 style={{
+                            ...heroTitle,
+                            fontSize: isMobile ? 42 : 64,
+                        }}>
+                            {deal.name}
+                        </h1>
 
-                    <div style={heroMeta}>
-                        {deal.location && (
-                            <a
-                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                                    deal.location
-                                )}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={heroLocation}
-                            >
-                                📍 {deal.location}
-                            </a>
-                        )}
+                        <div style={heroMeta}>
+                            {deal.location && (
+                                <a
+                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                        deal.location
+                                    )}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={heroLocation}
+                                >
+                                    📍 {deal.location}
+                                </a>
+                            )}
 
-                        {deal.estimated_closing_date && (
-                            <div style={heroClosing}>
-                                Closing{' '}
-                                {new Date(
-                                    deal.estimated_closing_date
-                                ).toLocaleDateString()}
-                            </div>
-                        )}
+                            {deal.estimated_closing_date && (
+                                <div style={heroClosing}>
+                                    Closing{' '}
+                                    {new Date(
+                                        deal.estimated_closing_date
+                                    ).toLocaleDateString()}
+                                </div>
+                            )}
+                        </div>
+
+                        <div style={{
+                            ...heroMetricGrid,
+                            gridTemplateColumns: isMobile
+                                ? 'repeat(2, 1fr)'
+                                : 'repeat(4, 1fr)',
+                            }}>
+                            {heroMetrics.map((metric) => (
+                                <MetricCard
+                                    key={metric.key}
+                                    value={metric.value}
+                                    label={metric.label}
+                                    icon={metric.icon}
+                                />
+                            ))}
+                        </div>
                     </div>
-
-                    <div style={heroMetricGrid}>
-                        {heroMetrics.map((metric) => (
-                            <MetricCard
-                                key={metric.key}
-                                value={metric.value}
-                                label={metric.label}
-                                icon={metric.icon}
-                            />
-                        ))}
-                    </div>
-                </div>
                 </div>
             </div>
 
