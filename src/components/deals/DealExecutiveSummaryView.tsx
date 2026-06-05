@@ -219,7 +219,12 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
             isMobile={isMobile}
             />
 
-          <div style={memoBody}>
+          <div style={{
+            ...memoBody,
+            padding: isMobile
+              ? '16px'
+              : '16px 48px 56px'
+            }}>
             {/* INVESTMENT HIGHLIGHTS */}
 
             {deal.deal_highlights?.length ? (
@@ -239,7 +244,13 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   Why We Like It
                 </h2>
 
-                <div style={highlightsGrid}>
+                <div style={{
+                  ...highlightsGrid,
+                  gridTemplateColumns: isMobile
+                  ? '1fr'
+                  : 'repeat(auto-fit, minmax(260px, 1fr))'
+
+                }}>
                   {deal.deal_highlights
                     .filter((h) => h.is_visible)
                     .sort(
@@ -387,7 +398,12 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               </div>
 
               <div style={getCollapseStyle(openLP, 700)}>
-                <div style={metricsGrid}>
+                <div style={{
+                  ...metricsGrid,
+                  gridTemplateColumns: isMobile
+                  ? '1fr'
+                  : 'repeat(2, 1fr)'
+                  }}>
                   <Metric label="LP Equity Total" isDark={isDark}>
                     {formatCurrency(String(deal.target_amount))}
                   </Metric>
