@@ -1597,3 +1597,9 @@ const highlightDescription: React.CSSProperties = {
   lineHeight: 1.5,
   color: '#64748b',
 };
+
+const memoBody: React.CSSProperties = {
+  maxWidth: 1200,
+  margin: '0 auto',
+  padding: '56px 48px',
+};
