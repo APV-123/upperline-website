@@ -540,7 +540,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 scrollMarginTop: 90,
                 position: 'relative',
                 overflow: 'hidden',
-                padding: '48px',
+                padding: isMobile ? '24px' : '48px',
                 borderRadius: 20,
                 background: isDark ? '#111827' : '#f8fafc',
                 border: isDark
@@ -588,9 +588,9 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   src="/upperline-logo.png"
                   alt="Upperline"
                   style={{
-                    height: 56,
+                    height: isMobile ? 40 : 56,
                     width: 'auto',
-                    marginBottom: 32,
+                    marginBottom: isMobile ? 20 : 32,
                   }}
                 />
 
