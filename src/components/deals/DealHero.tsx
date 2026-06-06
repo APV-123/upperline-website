@@ -361,8 +361,8 @@ const thesisWrapper: React.CSSProperties = {
 };
 
 const thesis: React.CSSProperties = {
-    fontSize: 20,
+    fontSize: 22,
     lineHeight: 1.8,
-    fontWeight: 400,
+    fontWeight: 500,
     color: '#334155',
 };
