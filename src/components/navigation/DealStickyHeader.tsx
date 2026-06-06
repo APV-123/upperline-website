@@ -107,10 +107,7 @@ export default function DealStickyHeader({
             </div>
             {isMobile && menuOpen && (
                 <>
-                    <div
-                        style={backdrop}
-                        onClick={() => setMenuOpen(false)}
-                    />
+
                     <div style={{
                         ...mobileMenu,
                         background: isDark
@@ -120,78 +117,104 @@ export default function DealStickyHeader({
                             ? '1px solid rgba(255,255,255,.08)'
                             : '1px solid #e5e7eb',
                     }}>
-                        <div style={mobileNavLinks}>
-                        <a
-                            href="#overview"
-                            style={{
-                                ...mobileLink,
-                                color: isDark ? '#cbd5e1' : '#334155',
-                            }}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            Overview
-                        </a>
+                        <div style={mobileMenuHeader}>
+                            <Image
+                                src="/upperline-mark.png"
+                                alt="Upperline mark"
+                                width={180}
+                                height={40}
+                                priority
+                                style={{
+                                    width: 'auto',
+                                    height: '34px',
+                                    filter: 'drop-shadow(0 0 10px rgba(49,200,219,.25))',
+                                }}
+                            />
 
-                        <a
-                            href="#highlights"
-                            style={{
-                                ...mobileLink,
-                                color: isDark ? '#cbd5e1' : '#334155',
-                            }}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            Why We Like It
-                        </a>
-                        <a
-                            href="#business-plan"
-                            style={{
-                                ...mobileLink,
-                                color: isDark ? '#cbd5e1' : '#334155',
-                            }}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            Investment Strategy
-                        </a>
-                        <a
-                            href="#returns"
-                            style={{
-                                ...mobileLink,
-                                color: isDark ? '#cbd5e1' : '#334155',
-                            }}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            Returns
-                        </a>
-
-                        <a
-                            href="#documents"
-                            style={{
-                                ...mobileLink,
-                                color: isDark ? '#cbd5e1' : '#334155',
-                            }}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            Documents
-                        </a>
-                        <div style={{
-                            ...mobileDivider,
-                            background: isDark
-                                ? 'rgba(255,255,255,.08)'
-                                : '#e5e7eb'
-                        }} />
-                        <a
-                            href="https://upperlineco.com/who-we-are"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                                ...mobileLink,
-                                color: isDark ? '#cbd5e1' : '#334155',
-                            }}
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            About Upperline
-                        </a>
+                            <button
+                                onClick={() => setMenuOpen(false)}
+                                style={{
+                                    ...menuButton,
+                                    color: '#f8fafc',
+                                }}
+                            >
+                                <X size={28} />
+                            </button>
                         </div>
+
+                        <div style={mobileNavLinks}>
+                            <a
+                                href="#overview"
+                                style={{
+                                    ...mobileLink,
+                                    color: isDark ? '#cbd5e1' : '#334155',
+                                }}
+                                onClick={() => setMenuOpen(false)}
+                            >
+                                Overview
+                            </a>
+
+                            <a
+                                href="#highlights"
+                                style={{
+                                    ...mobileLink,
+                                    color: isDark ? '#cbd5e1' : '#334155',
+                                }}
+                                onClick={() => setMenuOpen(false)}
+                            >
+                                Why We Like It
+                            </a>
+                            <a
+                                href="#business-plan"
+                                style={{
+                                    ...mobileLink,
+                                    color: isDark ? '#cbd5e1' : '#334155',
+                                }}
+                                onClick={() => setMenuOpen(false)}
+                            >
+                                Investment Strategy
+                            </a>
+                            <a
+                                href="#returns"
+                                style={{
+                                    ...mobileLink,
+                                    color: isDark ? '#cbd5e1' : '#334155',
+                                }}
+                                onClick={() => setMenuOpen(false)}
+                            >
+                                Returns
+                            </a>
+
+                            <a
+                                href="#documents"
+                                style={{
+                                    ...mobileLink,
+                                    color: isDark ? '#cbd5e1' : '#334155',
+                                }}
+                                onClick={() => setMenuOpen(false)}
+                            >
+                                Documents
+                            </a>
+                            <div style={{
+                                ...mobileDivider,
+                                background: isDark
+                                    ? 'rgba(255,255,255,.08)'
+                                    : '#e5e7eb'
+                            }} />
+                            <a
+                                href="https://upperlineco.com/who-we-are"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                    ...mobileLink,
+                                    color: isDark ? '#cbd5e1' : '#334155',
+                                }}
+                                onClick={() => setMenuOpen(false)}
+                            >
+                                About Upperline
+                            </a>
+                        </div>
+                        <div style={{flex: 1}} />
                         <a
                             href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
                                 `Interest in ${dealName}`
@@ -271,24 +294,16 @@ const menuButton: React.CSSProperties = {
 };
 const mobileMenu: React.CSSProperties = {
     position: 'fixed',
+    inset: 0,
 
-    top: 0, // adjust to actual header height
-    left: 0,
-    right: 0,
-    bottom: 0,
-
-    zIndex: 3,
-
-    background: 'rgba(255,255,255,.98)',
-    backdropFilter: 'blur(16px)',
-
-    borderTop: '1px solid #e5e7eb',
-    boxShadow: '0 10px 30px rgba(0,0,0,.08)',
+    zIndex: 9999999,
 
     display: 'flex',
     flexDirection: 'column',
 
     padding: '32px 24px',
+
+    background: '#0f172a',
 };
 const mobileLink: React.CSSProperties = {
     textDecoration: 'none',
@@ -315,20 +330,18 @@ const mobileDivider: React.CSSProperties = {
     height: 1,
     margin: '12px 0',
 };
-const backdrop: React.CSSProperties = {
-    position: 'fixed',
-    inset: 0,
 
-    background: 'rgba(0,0,0,.72)',
-
-    backdropFilter: 'blur(4px)',
-
-    zIndex: 1,
-};
 const mobileNavLinks: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     gap: 28,
 
     flex: 1,
+};
+const mobileMenuHeader: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+
+    marginBottom: 48,
 };
