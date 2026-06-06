@@ -272,7 +272,7 @@ const menuButton: React.CSSProperties = {
 const mobileMenu: React.CSSProperties = {
     position: 'fixed',
 
-    top: 63, // adjust to actual header height
+    top: 0, // adjust to actual header height
     left: 0,
     right: 0,
     bottom: 0,
@@ -287,7 +287,6 @@ const mobileMenu: React.CSSProperties = {
 
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
 
     padding: '32px 24px',
 };
@@ -330,4 +329,6 @@ const mobileNavLinks: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
     gap: 28,
+
+    flex: 1,
 };
