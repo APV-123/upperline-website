@@ -6,15 +6,25 @@ import { Menu, X } from 'lucide-react';
 type Props = {
     dealName: string;
     isMobile?: boolean;
+    isDark?: boolean;
 };
 
 export default function DealStickyHeader({
     dealName,
     isMobile = false,
+    isDark = false,
 }: Props) {
     const [menuOpen, setMenuOpen] = useState(false);
     return (
-        <header style={header}>
+        <header style={{
+            ...header,
+            background: isDark
+                ? 'rgba(10,15,25,0.82)'
+                : 'rgba(255,255,255,0.75)',
+            borderBottom: isDark
+                ? '1px solid rgba(255,255,255,0.08)'
+                : '1pxx solid rgba(255,255,255,0.15)'
+        }}>
             <div style={inner}>
                 <a
                     href="https://portal.upperlineco.com"
@@ -37,16 +47,34 @@ export default function DealStickyHeader({
 
                 {!isMobile && (
                     <nav style={nav}>
-                        <a href="#overview" style={link}>Overview</a>
-                        <a href="#highlights" style={link}>Why We Like It</a>
-                        <a href="#business-plan" style={link}>Investment Strategy</a>
-                        <a href="#returns" style={link}>Returns</a>
-                        <a href="#documents" style={link}>Documents</a>
+                        <a href="#overview" style={{
+                            ...link,
+                            color: isDark ? '#cbd5e1' : '#334155',
+                        }}>Overview</a>
+                        <a href="#highlights" style={{
+                            ...link,
+                            color: isDark ? '#cbd5e1' : '#334155',
+                        }}>Why We Like It</a>
+                        <a href="#business-plan" style={{
+                            ...link,
+                            color: isDark ? '#cbd5e1' : '#334155',
+                        }}>Investment Strategy</a>
+                        <a href="#returns" style={{
+                            ...link,
+                            color: isDark ? '#cbd5e1' : '#334155',
+                        }}>Returns</a>
+                        <a href="#documents" style={{
+                            ...link,
+                            color: isDark ? '#cbd5e1' : '#334155',
+                        }}>Documents</a>
                         <a
                             href="https://upperlineco.com/who-we-are"
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={link}
+                            style={{
+                                ...link,
+                                color: isDark ? '#cbd5e1' : '#334155',
+                            }}
                         >
                             About Upperline
                         </a>
@@ -56,7 +84,10 @@ export default function DealStickyHeader({
                 {isMobile ? (
                     <button
                         onClick={() => setMenuOpen(!menuOpen)}
-                        style={menuButton}
+                        style={{
+                            ...menuButton,
+                            color: isDark ? '#f8fafc' : '#003a5d',
+                        }}
                     >
                         {menuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
@@ -72,10 +103,21 @@ export default function DealStickyHeader({
                 )}
             </div>
             {isMobile && menuOpen && (
-                <div style={mobileMenu}>
+                <div style={{
+                    ...mobileMenu,
+                    background: isDark
+                        ? 'rgba(15,23,42,.98)'
+                        : 'rgba(255,255,255,.98)',
+                    borderTop: isDark
+                        ? '1px solid rgba(255,255,255,.08)'
+                        : '1px solid #e5e7eb',
+                }}>
                     <a
                         href="#overview"
-                        style={mobileLink}
+                        style={{
+                            ...mobileLink,
+                            color: isDark ? '#cbd5e1' : '#334155',
+                        }}
                         onClick={() => setMenuOpen(false)}
                     >
                         Overview
@@ -83,21 +125,30 @@ export default function DealStickyHeader({
 
                     <a
                         href="#highlights"
-                        style={mobileLink}
+                        style={{
+                            ...mobileLink,
+                            color: isDark ? '#cbd5e1' : '#334155',
+                        }}
                         onClick={() => setMenuOpen(false)}
                     >
                         Why We Like It
                     </a>
                     <a
                         href="#business-plan"
-                        style={mobileLink}
+                        style={{
+                            ...mobileLink,
+                            color: isDark ? '#cbd5e1' : '#334155',
+                        }}
                         onClick={() => setMenuOpen(false)}
                     >
                         Investment Strategy
                     </a>
                     <a
                         href="#returns"
-                        style={mobileLink}
+                        style={{
+                            ...mobileLink,
+                            color: isDark ? '#cbd5e1' : '#334155',
+                        }}
                         onClick={() => setMenuOpen(false)}
                     >
                         Returns
@@ -105,7 +156,10 @@ export default function DealStickyHeader({
 
                     <a
                         href="#documents"
-                        style={mobileLink}
+                        style={{
+                            ...mobileLink,
+                            color: isDark ? '#cbd5e1' : '#334155',
+                        }}
                         onClick={() => setMenuOpen(false)}
                     >
                         Documents
@@ -114,7 +168,10 @@ export default function DealStickyHeader({
                         href="https://upperlineco.com/who-we-are"
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={mobileLink}
+                        style={{
+                            ...mobileLink,
+                            color: isDark ? '#cbd5e1' : '#334155',
+                        }}
                         onClick={() => setMenuOpen(false)}
                     >
                         About Upperline
