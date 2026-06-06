@@ -19,11 +19,14 @@ export default function DealStickyHeader({
         <header style={{
             ...header,
             background: isDark
-                ? 'rgba(10,15,25,0.82)'
+                ? 'rgba(10,15,25,0.92)'
                 : 'rgba(255,255,255,0.75)',
             borderBottom: isDark
                 ? '1px solid rgba(255,255,255,0.08)'
-                : '1pxx solid rgba(255,255,255,0.15)'
+                : '1px solid rgba(255,255,255,0.15)',
+            boxShadow: isDark
+                ? '0 4px 24px rgba(0,0,0,0.35)'
+                : 'none',
         }}>
             <div style={inner}>
                 <a
@@ -164,6 +167,7 @@ export default function DealStickyHeader({
                     >
                         Documents
                     </a>
+                    <div style={mobileDivider} />
                     <a
                         href="https://upperlineco.com/who-we-are"
                         target="_blank"
@@ -227,7 +231,7 @@ const nav: React.CSSProperties = {
 const link: React.CSSProperties = {
     textDecoration: 'none',
     color: '#334155',
-    fontWeight: 500,
+    fontWeight: 400,
 };
 
 const cta: React.CSSProperties = {
@@ -273,7 +277,7 @@ const mobileMenu: React.CSSProperties = {
 const mobileLink: React.CSSProperties = {
     textDecoration: 'none',
     color: '#334155',
-    fontWeight: 600,
+    fontWeight: 500,
 };
 const mobileCTA: React.CSSProperties = {
     background: '#31c8db',
@@ -286,4 +290,9 @@ const mobileCTA: React.CSSProperties = {
     textAlign: 'center',
 
     fontWeight: 700,
+};
+const mobileDivider: React.CSSProperties = {
+    height: 1,
+    background: 'rgba(255,255,255,.08)',
+    margin: '4px 0',
 };
