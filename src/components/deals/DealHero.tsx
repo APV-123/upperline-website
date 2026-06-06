@@ -356,7 +356,7 @@ const metricLabel: React.CSSProperties = {
 };
 
 const thesisWrapper: React.CSSProperties = {
-    maxWidth: 1100,
+    maxWidth: 900,
     margin: '32px auto 24px auto',
 };
 
