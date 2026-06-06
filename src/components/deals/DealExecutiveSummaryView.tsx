@@ -236,6 +236,13 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   ...section,
                   scrollMarginTop: 90,
                 }}>
+                <div
+                  style={{
+                    height: 1,
+                    background: 'rgba(255,255,255,.08)',
+                    marginBottom: 32,
+                  }}
+                />
                 <h2
                   style={
                     isDark
