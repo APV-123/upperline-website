@@ -68,7 +68,7 @@ function MetricCard({
         <div style={{
             ...metricCard,
             padding: isMobile ? '10px' : '16px 20px',
-            }}>
+        }}>
             <div style={metricRow}>
                 {Icon && (
                     <Icon
@@ -81,14 +81,14 @@ function MetricCard({
                     <div style={{
                         ...metricValue,
                         fontSize: isMobile ? 16 : 24,
-                        }}>
+                    }}>
                         {value || '—'}
                     </div>
 
                     <div style={{
                         ...metricLabel,
                         fontSize: isMobile ? 10 : 12,
-                        }}>
+                    }}>
                         {label}
                     </div>
                 </div>
@@ -171,10 +171,10 @@ export default function DealHero({
                                         isMobile
                                             ? deal.location
                                                 ?.split(',')
-                                                .slice(1,3)
+                                                .slice(1, 3)
                                                 .join(',')
                                                 .trim()
-                                            :deal.location}
+                                            : deal.location}
                                 </a>
                             )}
 
@@ -196,7 +196,7 @@ export default function DealHero({
                             ...heroMetricGrid,
                             gridTemplateColumns: 'repeat(2, 1fr)',
                             gap: isMobile ? 10 : 16
-                            }}>
+                        }}>
                             {heroMetrics.map((metric) => (
                                 <MetricCard
                                     key={metric.key}
@@ -260,13 +260,15 @@ const heroOverlay: React.CSSProperties = {
     padding: '64px',
 
     background:
-        'linear-gradient(to top, rgba(0,0,0,.82), rgba(0,0,0,.35), rgba(0,0,0,.08))',
+        'linear-gradient(180deg, rgba(5,7,10,.15) 0%, rgba(5,7,10,.35) 45%, rgba(5,7,10,.82) 100%)',
 };
 
 const heroTitle: React.CSSProperties = {
     color: '#fff',
     fontSize: 64,
     fontWeight: 800,
+    textShadow: '0 0 24px rgba(49,200,219,.12)',
+
     lineHeight: 1.05,
     margin: 0,
     marginBottom: 16,
