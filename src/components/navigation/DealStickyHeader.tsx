@@ -18,15 +18,27 @@ export default function DealStickyHeader({
     return (
         <header style={{
             ...header,
-            background: isDark
-                ? 'rgba(10,15,25,0.92)'
-                : 'rgba(255,255,255,0.75)',
-            borderBottom: isDark
-                ? '1px solid rgba(255,255,255,0.08)'
-                : '1px solid rgba(255,255,255,0.15)',
-            boxShadow: isDark
-                ? '0 4px 24px rgba(0,0,0,0.35)'
-                : 'none',
+
+            background:
+                menuOpen && isMobile
+                    ? 'transparent'
+                    : isDark
+                        ? 'rgba(10,15,25,0.92)'
+                        : 'rgba(255,255,255,0.75)',
+
+            borderBottom:
+                menuOpen && isMobile
+                    ? 'none'
+                    : isDark
+                        ? '1px solid rgba(255,255,255,0.08)'
+                        : '1px solid rgba(255,255,255,0.15)',
+
+            boxShadow:
+                menuOpen && isMobile
+                    ? 'none'
+                    : isDark
+                        ? '0 4px 24px rgba(0,0,0,0.35)'
+                        : 'none',
         }}>
             <div style={inner}>
                 <a
@@ -214,7 +226,7 @@ export default function DealStickyHeader({
                                 About Upperline
                             </a>
                         </div>
-                        <div style={{flex: 1}} />
+                        <div style={{ flex: 1 }} />
                         <a
                             href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
                                 `Interest in ${dealName}`
@@ -296,14 +308,18 @@ const mobileMenu: React.CSSProperties = {
     position: 'fixed',
     inset: 0,
 
+    minHeight: '100vh',
+
     zIndex: 9999999,
 
     display: 'flex',
     flexDirection: 'column',
 
-    padding: '32px 24px',
+    padding: '24px',
 
     background: '#0f172a',
+
+    overflowY: 'auto',
 };
 const mobileLink: React.CSSProperties = {
     textDecoration: 'none',
@@ -317,7 +333,6 @@ const mobileCTA: React.CSSProperties = {
     background: '#31c8db',
     color: '#003a5d',
 
-    marginTop: 40,
     padding: '12px 16px',
     borderRadius: 10,
 
@@ -336,12 +351,14 @@ const mobileNavLinks: React.CSSProperties = {
     flexDirection: 'column',
     gap: 28,
 
-    flex: 1,
+    flex: '0 0 auto',
 };
 const mobileMenuHeader: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
 
-    marginBottom: 48,
+    paddingTop: 8,
+
+    marginBottom: 64,
 };
