@@ -39,8 +39,9 @@ export default function DealStickyHeader({
                     <nav style={nav}>
                         <a href="#overview" style={link}>Overview</a>
                         <a href="#highlights" style={link}>Why We Like It</a>
+                        <a href="#business-plan" style={link}>Investment Strategy</a>
                         <a href="#returns" style={link}>Returns</a>
-                        <a href="#business-plan" style={link}>Business Plan</a>
+                        <a href="#documents" style={link}>Documents</a>
                         <a
                             href="https://upperlineco.com/who-we-are"
                             target="_blank"
@@ -49,7 +50,6 @@ export default function DealStickyHeader({
                         >
                             About Upperline
                         </a>
-                        <a href="#documents" style={link}>Documents</a>
                     </nav>
                 )}
 
@@ -88,7 +88,13 @@ export default function DealStickyHeader({
                     >
                         Why We Like It
                     </a>
-
+                    <a
+                        href="#business-plan"
+                        style={mobileLink}
+                        onClick={() => setMenuOpen(false)}
+                    >
+                        Investment Strategy
+                    </a>
                     <a
                         href="#returns"
                         style={mobileLink}
@@ -98,11 +104,11 @@ export default function DealStickyHeader({
                     </a>
 
                     <a
-                        href="#business-plan"
+                        href="#documents"
                         style={mobileLink}
                         onClick={() => setMenuOpen(false)}
                     >
-                        Investment Strategy
+                        Documents
                     </a>
                     <a
                         href="https://upperlineco.com/who-we-are"
@@ -113,14 +119,6 @@ export default function DealStickyHeader({
                     >
                         About Upperline
                     </a>
-                    <a
-                        href="#documents"
-                        style={mobileLink}
-                        onClick={() => setMenuOpen(false)}
-                    >
-                        Documents
-                    </a>
-
                     <a
                         href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
                             `Interest in ${dealName}`
