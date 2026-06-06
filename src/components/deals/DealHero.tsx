@@ -45,6 +45,7 @@ type Deal = {
 type Props = {
     deal: Deal;
     isMobile?: boolean;
+    isDark?: boolean;
 };
 
 function MetricCard({
@@ -100,6 +101,7 @@ function MetricCard({
 export default function DealHero({
     deal,
     isMobile = false,
+    isDark = false,
 }: Props) {
     console.log('DealHero isMobile:', isMobile);
     const heroMetrics =
@@ -213,7 +215,14 @@ export default function DealHero({
 
             {deal.thesis && (
                 <div style={thesisWrapper}>
-                    <p style={thesis}>
+                    <p
+                        style={{
+                            ...thesis,
+                            color: isDark
+                                ? 'rgba(255,255,255,.90)'
+                                : '#334155',
+                        }}
+                    >
                         {deal.thesis}
                     </p>
                 </div>

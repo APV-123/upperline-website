@@ -218,6 +218,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           <DealHero 
             deal={deal}
             isMobile={isMobile}
+            isDark={isDark}
             />
 
           <div style={{
