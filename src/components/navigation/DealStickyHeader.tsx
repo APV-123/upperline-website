@@ -38,9 +38,17 @@ export default function DealStickyHeader({
                 {!isMobile && (
                     <nav style={nav}>
                         <a href="#overview" style={link}>Overview</a>
-                        <a href="#highlights" style={link}>Highlights</a>
+                        <a href="#highlights" style={link}>Why We Like It</a>
                         <a href="#returns" style={link}>Returns</a>
                         <a href="#business-plan" style={link}>Business Plan</a>
+                        <a
+                            href="https://upperlineco.com/who-we-are"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={link}
+                        >
+                            About Upperline
+                        </a>
                         <a href="#documents" style={link}>Documents</a>
                     </nav>
                 )}
@@ -78,7 +86,7 @@ export default function DealStickyHeader({
                         style={mobileLink}
                         onClick={() => setMenuOpen(false)}
                     >
-                        Highlights
+                        Why We Like It
                     </a>
 
                     <a
@@ -94,9 +102,17 @@ export default function DealStickyHeader({
                         style={mobileLink}
                         onClick={() => setMenuOpen(false)}
                     >
-                        Business Plan
+                        Investment Strategy
                     </a>
-
+                    <a
+                        href="https://upperlineco.com/who-we-are"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={mobileLink}
+                        onClick={() => setMenuOpen(false)}
+                    >
+                        About Upperline
+                    </a>
                     <a
                         href="#documents"
                         style={mobileLink}
@@ -182,8 +198,16 @@ const menuButton: React.CSSProperties = {
     padding: 4,
 };
 const mobileMenu: React.CSSProperties = {
-    background: 'white',
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+
+    background: 'rgba(255,255,255,.98)',
+    backdropFilter: 'blur(16px)',
+
     borderTop: '1px solid #e5e7eb',
+    boxShadow: '0 10px 30px rgba(0,0,0,.08)',
 
     display: 'flex',
     flexDirection: 'column',
