@@ -226,6 +226,10 @@ export default function DealHero({
                             color: isDark
                                 ? 'rgba(255,255,255,.90)'
                                 : '#334155',
+
+                            maxWidth: isMobile ? '100%' : 920,
+                            fontSize: isMobile ? 18 : 20,
+                            lineHeight: 1.8,
                         }}
                     >
                         {deal.thesis}
@@ -353,11 +357,12 @@ const metricLabel: React.CSSProperties = {
 
 const thesisWrapper: React.CSSProperties = {
     maxWidth: 1100,
-    margin: '24px auto 16px auto',
+    margin: '32px auto 24px auto',
 };
 
 const thesis: React.CSSProperties = {
-    fontSize: 22,
-    lineHeight: 1.7,
+    fontSize: 20,
+    lineHeight: 1.8,
+    fontWeight: 400,
     color: '#334155',
 };
