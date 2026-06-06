@@ -316,8 +316,8 @@ const mobileMenu: React.CSSProperties = {
 
     padding: '0 24px 24px',
 
-    background: 'rgba(15,23,42,.92)',
-    backdropFilter: 'blur(20px)',
+    background: 'rgba(10,15,25,.78)',
+    backdropFilter: 'blur(24px)',
 
     overflowY: 'auto',
 };
