@@ -1617,16 +1617,17 @@ const websiteLinkStyle: React.CSSProperties = {
   gap: 6,
 };
 const containerDark: React.CSSProperties = {
-  background: "#05070a",
-  minHeight: "100vh",
-  padding: "40px 20px",
-  display: "flex",
-  justifyContent: "center",
+  background: '#081628',
+  minHeight: '100vh',
+  padding: '40px 20px',
+  display: 'flex',
+  justifyContent: 'center',
 };
+
 const contentDark: React.CSSProperties = {
   maxWidth: 1000,
-  width: "100%",
-  background: "#05070a",
+  width: '100%',
+  background: '#081628',
   padding: 40,
   borderRadius: 8,
 };
