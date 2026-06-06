@@ -114,7 +114,7 @@ export default function DealStickyHeader({
                     <div style={{
                         ...mobileMenu,
                         background: isDark
-                            ? 'rgba(15,23,42,.98)'
+                            ? '#0f172a'
                             : 'rgba(255,255,255,.98)',
                         borderTop: isDark
                             ? '1px solid rgba(255,255,255,.08)'
@@ -273,7 +273,7 @@ const mobileMenu: React.CSSProperties = {
     left: 0,
     right: 0,
 
-    zIndex: 1,
+    zIndex: 2,
 
     background: 'rgba(255,255,255,.98)',
     backdropFilter: 'blur(16px)',
@@ -306,13 +306,13 @@ const mobileCTA: React.CSSProperties = {
 };
 const mobileDivider: React.CSSProperties = {
     height: 1,
-    margin: '8px 0',
+    margin: '12px 0',
 };
 const backdrop: React.CSSProperties = {
     position: 'fixed',
     inset: 0,
 
-    background: 'rgba(0,0,0,.45)',
+    background: 'rgba(0,0,0,.55)',
 
-    zIndex: -1,
+    zIndex: 0,
 };
