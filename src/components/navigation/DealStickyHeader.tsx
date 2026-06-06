@@ -225,7 +225,7 @@ export default function DealStickyHeader({
                                 About Upperline
                             </a>
                         </div>
-                        <div style={{ flex: 0.5 }} />
+                        <div style={{ flex: 0.75 }} />
                         <a
                             href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
                                 `Interest in ${dealName}`
