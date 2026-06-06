@@ -96,13 +96,13 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
   const [hasAccess, setHasAccess] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   console.log(
-  'window width',
-  typeof window !== 'undefined'
-    ? window.innerWidth
-    : 'server',
-  'isMobile',
-  isMobile
-);
+    'window width',
+    typeof window !== 'undefined'
+      ? window.innerWidth
+      : 'server',
+    'isMobile',
+    isMobile
+  );
   const [openLP, setOpenLP] = useState(true);
   const [openProject, setOpenProject] = useState(false);
   const [openCapital, setOpenCapital] = useState(false);
@@ -205,7 +205,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
         dealName={deal.name}
         isMobile={isMobile}
         isDark={isDark}
-        />
+      />
 
       <div style={isDark ? containerDark : container}>
 
@@ -215,18 +215,18 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
             padding: isMobile ? 20 : 40,
           }}
         >
-          <DealHero 
+          <DealHero
             deal={deal}
             isMobile={isMobile}
             isDark={isDark}
-            />
+          />
 
           <div style={{
             ...memoBody,
             padding: isMobile
               ? '16px'
               : '16px 48px 56px'
-            }}>
+          }}>
             {/* INVESTMENT HIGHLIGHTS */}
 
             {deal.deal_highlights?.length ? (
@@ -249,8 +249,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 <div style={{
                   ...highlightsGrid,
                   gridTemplateColumns: isMobile
-                  ? '1fr'
-                  : 'repeat(auto-fit, minmax(260px, 1fr))'
+                    ? '1fr'
+                    : 'repeat(auto-fit, minmax(260px, 1fr))'
 
                 }}>
                   {deal.deal_highlights
@@ -269,7 +269,25 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                             : highlightCard
                         }
                       >
-                        <div style={highlightTitle}>
+                        <div
+                          style={{
+                            width: 28,
+                            height: 3,
+                            borderRadius: 999,
+                            background: '#31c8db',
+                            marginBottom: 12,
+                          }}
+                        />
+                        <div
+                          style={
+                            isDark
+                              ? {
+                                ...highlightTitle,
+                                color: '#ffffff',
+                              }
+                              : highlightTitle
+                          }
+                        >
                           {h.title}
                         </div>
 
@@ -404,9 +422,9 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 <div style={{
                   ...metricsGrid,
                   gridTemplateColumns: isMobile
-                  ? '1fr'
-                  : 'repeat(2, 1fr)'
-                  }}>
+                    ? '1fr'
+                    : 'repeat(2, 1fr)'
+                }}>
                   <Metric label="LP Equity Total" isDark={isDark}>
                     {formatCurrency(String(deal.target_amount))}
                   </Metric>
@@ -1631,14 +1649,7 @@ const contentDark: React.CSSProperties = {
   padding: 40,
   borderRadius: 8,
 };
-const websiteLinkStyleDark: React.CSSProperties = {
-  color: "#7da2ff",
-  textDecoration: "none",
-  fontSize: 14,
-  display: "flex",
-  alignItems: "center",
-  gap: 6,
-};
+
 const textPrimaryDark: React.CSSProperties = {
   color: "#ffffff",
 };
@@ -1652,8 +1663,8 @@ const mutedTextDark: React.CSSProperties = {
 };
 
 const panelDark: React.CSSProperties = {
-  background: "#0f172a",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "#10213d",
+  border: "1px solid rgba(49,200,219,.15)",
 };
 
 const panelDarkAlt: React.CSSProperties = {
