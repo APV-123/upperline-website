@@ -582,6 +582,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   position: 'relative',
                   zIndex: 2,
                   maxWidth: 800,
+                  textAlign: isMobile ? 'center' : 'left',
                 }}
               >
                 <img
