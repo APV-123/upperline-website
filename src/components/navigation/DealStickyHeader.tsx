@@ -209,7 +209,7 @@ export default function DealStickyHeader({
                             <div style={{
                                 ...mobileDivider,
                                 background: isDark
-                                    ? 'rgba(255,255,255,.08)'
+                                    ? 'rgba(255,255,255,.12)'
                                     : '#e5e7eb'
                             }} />
                             <a
