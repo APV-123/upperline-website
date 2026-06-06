@@ -106,89 +106,100 @@ export default function DealStickyHeader({
                 )}
             </div>
             {isMobile && menuOpen && (
-                <div style={{
-                    ...mobileMenu,
-                    background: isDark
-                        ? 'rgba(15,23,42,.98)'
-                        : 'rgba(255,255,255,.98)',
-                    borderTop: isDark
-                        ? '1px solid rgba(255,255,255,.08)'
-                        : '1px solid #e5e7eb',
-                }}>
-                    <a
-                        href="#overview"
-                        style={{
-                            ...mobileLink,
-                            color: isDark ? '#cbd5e1' : '#334155',
-                        }}
+                <>
+                    <div
+                        style={backdrop}
                         onClick={() => setMenuOpen(false)}
-                    >
-                        Overview
-                    </a>
+                    />
+                    <div style={{
+                        ...mobileMenu,
+                        background: isDark
+                            ? 'rgba(15,23,42,.98)'
+                            : 'rgba(255,255,255,.98)',
+                        borderTop: isDark
+                            ? '1px solid rgba(255,255,255,.08)'
+                            : '1px solid #e5e7eb',
+                    }}>
+                        <a
+                            href="#overview"
+                            style={{
+                                ...mobileLink,
+                                color: isDark ? '#cbd5e1' : '#334155',
+                            }}
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            Overview
+                        </a>
 
-                    <a
-                        href="#highlights"
-                        style={{
-                            ...mobileLink,
-                            color: isDark ? '#cbd5e1' : '#334155',
-                        }}
-                        onClick={() => setMenuOpen(false)}
-                    >
-                        Why We Like It
-                    </a>
-                    <a
-                        href="#business-plan"
-                        style={{
-                            ...mobileLink,
-                            color: isDark ? '#cbd5e1' : '#334155',
-                        }}
-                        onClick={() => setMenuOpen(false)}
-                    >
-                        Investment Strategy
-                    </a>
-                    <a
-                        href="#returns"
-                        style={{
-                            ...mobileLink,
-                            color: isDark ? '#cbd5e1' : '#334155',
-                        }}
-                        onClick={() => setMenuOpen(false)}
-                    >
-                        Returns
-                    </a>
+                        <a
+                            href="#highlights"
+                            style={{
+                                ...mobileLink,
+                                color: isDark ? '#cbd5e1' : '#334155',
+                            }}
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            Why We Like It
+                        </a>
+                        <a
+                            href="#business-plan"
+                            style={{
+                                ...mobileLink,
+                                color: isDark ? '#cbd5e1' : '#334155',
+                            }}
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            Investment Strategy
+                        </a>
+                        <a
+                            href="#returns"
+                            style={{
+                                ...mobileLink,
+                                color: isDark ? '#cbd5e1' : '#334155',
+                            }}
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            Returns
+                        </a>
 
-                    <a
-                        href="#documents"
-                        style={{
-                            ...mobileLink,
-                            color: isDark ? '#cbd5e1' : '#334155',
-                        }}
-                        onClick={() => setMenuOpen(false)}
-                    >
-                        Documents
-                    </a>
-                    <div style={mobileDivider} />
-                    <a
-                        href="https://upperlineco.com/who-we-are"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                            ...mobileLink,
-                            color: isDark ? '#cbd5e1' : '#334155',
-                        }}
-                        onClick={() => setMenuOpen(false)}
-                    >
-                        About Upperline
-                    </a>
-                    <a
-                        href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
-                            `Interest in ${dealName}`
-                        )}`}
-                        style={mobileCTA}
-                    >
-                        Request Full Memorandum
-                    </a>
-                </div>
+                        <a
+                            href="#documents"
+                            style={{
+                                ...mobileLink,
+                                color: isDark ? '#cbd5e1' : '#334155',
+                            }}
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            Documents
+                        </a>
+                        <div style={{
+                            ...mobileDivider,
+                            background: isDark 
+                                ? 'rgba(255,255,255,.08)'
+                                :'#e5e7eb'
+                        }} />
+                        <a
+                            href="https://upperlineco.com/who-we-are"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                ...mobileLink,
+                                color: isDark ? '#cbd5e1' : '#334155',
+                            }}
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            About Upperline
+                        </a>
+                        <a
+                            href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
+                                `Interest in ${dealName}`
+                            )}`}
+                            style={mobileCTA}
+                        >
+                            Request Full Memorandum
+                        </a>
+                    </div>
+                </>
             )}
         </header>
     );
@@ -262,6 +273,8 @@ const mobileMenu: React.CSSProperties = {
     left: 0,
     right: 0,
 
+    zIndex: 1,
+
     background: 'rgba(255,255,255,.98)',
     backdropFilter: 'blur(16px)',
 
@@ -293,6 +306,13 @@ const mobileCTA: React.CSSProperties = {
 };
 const mobileDivider: React.CSSProperties = {
     height: 1,
-    background: 'rgba(255,255,255,.08)',
-    margin: '4px 0',
+    margin: '8px 0',
+};
+const backdrop: React.CSSProperties = {
+    position: 'fixed',
+    inset: 0,
+
+    background: 'rgba(0,0,0,.45)',
+
+    zIndex: -1,
 };
