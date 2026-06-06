@@ -120,6 +120,7 @@ export default function DealStickyHeader({
                             ? '1px solid rgba(255,255,255,.08)'
                             : '1px solid #e5e7eb',
                     }}>
+                        <div style={mobileNavLinks}>
                         <a
                             href="#overview"
                             style={{
@@ -174,9 +175,9 @@ export default function DealStickyHeader({
                         </a>
                         <div style={{
                             ...mobileDivider,
-                            background: isDark 
+                            background: isDark
                                 ? 'rgba(255,255,255,.08)'
-                                :'#e5e7eb'
+                                : '#e5e7eb'
                         }} />
                         <a
                             href="https://upperlineco.com/who-we-are"
@@ -190,6 +191,7 @@ export default function DealStickyHeader({
                         >
                             About Upperline
                         </a>
+                        </div>
                         <a
                             href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
                                 `Interest in ${dealName}`
@@ -268,12 +270,14 @@ const menuButton: React.CSSProperties = {
     padding: 4,
 };
 const mobileMenu: React.CSSProperties = {
-    position: 'absolute',
-    top: '100%',
+    position: 'fixed',
+
+    top: 63, // adjust to actual header height
     left: 0,
     right: 0,
+    bottom: 0,
 
-    zIndex: 2,
+    zIndex: 3,
 
     background: 'rgba(255,255,255,.98)',
     backdropFilter: 'blur(16px)',
@@ -283,19 +287,23 @@ const mobileMenu: React.CSSProperties = {
 
     display: 'flex',
     flexDirection: 'column',
+    justifyContent: 'space-between',
 
-    padding: 20,
-    gap: 16,
+    padding: '32px 24px',
 };
 const mobileLink: React.CSSProperties = {
     textDecoration: 'none',
     color: '#334155',
-    fontWeight: 500,
+
+    fontWeight: 400,
+    fontSize: 18,
+    letterSpacing: '-0.01em',
 };
 const mobileCTA: React.CSSProperties = {
     background: '#31c8db',
     color: '#003a5d',
 
+    marginTop: 40,
     padding: '12px 16px',
     borderRadius: 10,
 
@@ -312,7 +320,14 @@ const backdrop: React.CSSProperties = {
     position: 'fixed',
     inset: 0,
 
-    background: 'rgba(0,0,0,.55)',
+    background: 'rgba(0,0,0,.72)',
 
-    zIndex: 0,
+    backdropFilter: 'blur(4px)',
+
+    zIndex: 1,
+};
+const mobileNavLinks: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 28,
 };
