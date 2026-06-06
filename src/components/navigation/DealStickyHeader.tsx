@@ -139,7 +139,6 @@ export default function DealStickyHeader({
                                 style={{
                                     width: 'auto',
                                     height: '34px',
-                                    filter: 'drop-shadow(0 0 10px rgba(49,200,219,.25))',
                                 }}
                             />
 
@@ -226,7 +225,7 @@ export default function DealStickyHeader({
                                 About Upperline
                             </a>
                         </div>
-                        <div style={{ flex: 1 }} />
+                        <div style={{ flex: 0.5 }} />
                         <a
                             href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
                                 `Interest in ${dealName}`
@@ -315,9 +314,10 @@ const mobileMenu: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
 
-    padding: '24px',
+    padding: '0 24px 24px',
 
-    background: '#0f172a',
+    background: 'rgba(15,23,42,.92)',
+    backdropFilter: 'blur(20px)',
 
     overflowY: 'auto',
 };
@@ -358,7 +358,7 @@ const mobileMenuHeader: React.CSSProperties = {
     justifyContent: 'space-between',
     alignItems: 'center',
 
-    paddingTop: 8,
+    paddingTop: 14,
 
-    marginBottom: 64,
+    marginBottom: 72,
 };
