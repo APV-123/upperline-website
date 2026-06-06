@@ -239,72 +239,89 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 <h2
                   style={
                     isDark
-                      ? { ...sectionTitle, ...textPrimaryDark }
-                      : sectionTitle
+                      ? {
+                        ...sectionTitle,
+                        ...textPrimaryDark,
+                        fontSize: isMobile ? 28 : 34,
+                        fontWeight: 700,
+                        marginBottom: 32,
+                      }
+                      : {
+                        ...sectionTitle,
+                        fontSize: isMobile ? 28 : 34,
+                        fontWeight: 700,
+                        marginBottom: 32,
+                      }
                   }
                 >
                   Why We Like It
                 </h2>
+                <div
+                  style={{
+                    maxWidth: 980,
+                    margin: '0 auto',
+                  }}
+                >
+                  <div style={{
+                    ...highlightsGrid,
+                    gridTemplateColumns: isMobile
+                      ? '1fr'
+                      : 'repeat(auto-fit, minmax(320px, 1fr))'
 
-                <div style={{
-                  ...highlightsGrid,
-                  gridTemplateColumns: isMobile
-                    ? '1fr'
-                    : 'repeat(auto-fit, minmax(260px, 1fr))'
-
-                }}>
-                  {deal.deal_highlights
-                    .filter((h) => h.is_visible)
-                    .sort(
-                      (a, b) =>
-                        (a.display_order ?? 0) -
-                        (b.display_order ?? 0)
-                    )
-                    .map((h) => (
-                      <div
-                        key={h.id}
-                        style={
-                          isDark
-                            ? { ...highlightCard, ...panelDark }
-                            : highlightCard
-                        }
-                      >
+                  }}>
+                    {deal.deal_highlights
+                      .filter((h) => h.is_visible)
+                      .sort(
+                        (a, b) =>
+                          (a.display_order ?? 0) -
+                          (b.display_order ?? 0)
+                      )
+                      .map((h) => (
                         <div
-                          style={{
-                            width: 28,
-                            height: 3,
-                            borderRadius: 999,
-                            background: '#31c8db',
-                            marginBottom: 12,
-                          }}
-                        />
-                        <div
+                          key={h.id}
                           style={
                             isDark
-                              ? {
-                                ...highlightTitle,
-                                color: '#ffffff',
-                              }
-                              : highlightTitle
+                              ? { ...highlightCard, ...panelDark }
+                              : highlightCard
                           }
                         >
-                          {h.title}
-                        </div>
+                          <div
+                            style={{
+                              width: 42,
+                              height: 4,
+                              borderRadius: 999,
+                              background: '#31c8db',
+                              marginBottom: 12,
+                            }}
+                          />
+                          <div
+                            style={
+                              isDark
+                                ? {
+                                  ...highlightTitle,
+                                  color: '#ffffff',
+                                }
+                                : highlightTitle
+                            }
+                          >
+                            {h.title}
+                          </div>
 
-                        <div
-                          style={
-                            isDark
-                              ? {
-                                ...highlightDescription,
-                                ...textSecondaryDark,
-                              }
-                              : highlightDescription
-                          }
-                        >
-                          {h.description}
+                          <div
+                            style={
+                              isDark
+                                ? {
+                                  ...highlightDescription,
+                                  ...textSecondaryDark,
+                                }
+                                : highlightDescription
+                            }
+                          >
+                            {h.description}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                  </div>
                 </div>
               </section>
             ) : null}
