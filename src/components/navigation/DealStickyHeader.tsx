@@ -23,7 +23,7 @@ export default function DealStickyHeader({
                 menuOpen && isMobile
                     ? 'transparent'
                     : isDark
-                        ? 'rgba(10,15,25,0.92)'
+                        ? 'rgba(4,22,54,0.94)'
                         : 'rgba(255,255,255,0.75)',
 
             borderBottom:

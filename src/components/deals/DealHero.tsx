@@ -194,11 +194,16 @@ export default function DealHero({
                             )}
                         </div>
 
-                        <div style={{
-                            ...heroMetricGrid,
-                            gridTemplateColumns: 'repeat(2, 1fr)',
-                            gap: isMobile ? 10 : 16
-                        }}>
+                        <div
+                            style={{
+                                ...heroMetricGrid,
+                                gridTemplateColumns: isMobile
+                                    ? 'repeat(2, 1fr)'
+                                    : 'repeat(4, minmax(220px, 260px))',
+                                justifyContent: 'start',
+                                gap: 16,
+                            }}
+                        >
                             {heroMetrics.map((metric) => (
                                 <MetricCard
                                     key={metric.key}
