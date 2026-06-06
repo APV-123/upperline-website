@@ -204,6 +204,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
       <DealStickyHeader
         dealName={deal.name}
         isMobile={isMobile}
+        isDark={isDark}
         />
 
       <div style={isDark ? containerDark : container}>
