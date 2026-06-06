@@ -242,15 +242,15 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                       ? {
                         ...sectionTitle,
                         ...textPrimaryDark,
-                        fontSize: isMobile ? 26 : 30,
+                        fontSize: isMobile ? 26 : 28,
                         fontWeight: 700,
-                        marginBottom: 28,
+                        marginBottom: 24,
                       }
                       : {
                         ...sectionTitle,
-                        fontSize: isMobile ? 26 : 30,
+                        fontSize: isMobile ? 26 : 28,
                         fontWeight: 700,
-                        marginBottom: 28,
+                        marginBottom: 24,
                       }
                   }
                 >
