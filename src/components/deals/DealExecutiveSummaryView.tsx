@@ -242,15 +242,15 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                       ? {
                         ...sectionTitle,
                         ...textPrimaryDark,
-                        fontSize: isMobile ? 26 : 28,
+                        fontSize: isMobile ? 22 : 24,
                         fontWeight: 700,
-                        marginBottom: 24,
+                        marginBottom: 20,
                       }
                       : {
                         ...sectionTitle,
-                        fontSize: isMobile ? 26 : 28,
+                        fontSize: isMobile ? 22 : 24,
                         fontWeight: 700,
-                        marginBottom: 24,
+                        marginBottom: 20,
                       }
                   }
                 >
@@ -258,7 +258,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 </h2>
                 <div
                   style={{
-                    maxWidth: 980,
+                    maxWidth: 900,
                     margin: '0 auto',
                   }}
                 >
@@ -1370,23 +1370,6 @@ const smallImage = {
   borderRadius: 8,
 };
 
-const headerRow: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 24,
-};
-
-const ctaBtn: React.CSSProperties = {
-  color: '#fff',
-  padding: '10px 18px',
-  borderRadius: 6,
-  border: 'none',
-  cursor: 'pointer',
-  fontWeight: 600,
-  transition: 'background 0.15s ease', // 🔥 nice polish
-};
-
 const docContainer = {
   display: 'grid',
   gridTemplateColumns: '250px 1fr',
@@ -1627,30 +1610,6 @@ const caErrorStyle: React.CSSProperties = {
   marginTop: 8,
 };
 
-const locationLinkStyle: React.CSSProperties = {
-  color: "#2f6fed",
-  textDecoration: "underline",
-};
-const locationLinkStyleDark: React.CSSProperties = {
-  color: "#7da2ff",
-  textDecoration: "underline",
-};
-const websiteLinkContainer: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-  marginTop: 24,
-  marginBottom: 24,
-};
-
-const websiteLinkStyle: React.CSSProperties = {
-  color: "#2f6fed",
-  textDecoration: "none",
-  fontSize: 14,
-  display: "flex",
-  alignItems: "center",
-  gap: 6,
-};
 const containerDark: React.CSSProperties = {
   background: '#081628',
   minHeight: '100vh',
@@ -1709,8 +1668,9 @@ const highlightsGrid: React.CSSProperties = {
 const highlightCard: React.CSSProperties = {
   border: '1px solid #e5e7eb',
   borderRadius: 8,
-  padding: 16,
+  padding: '20px 18px',
   background: '#ffffff',
+  minHeight: 140,
 };
 
 const highlightTitle: React.CSSProperties = {
