@@ -325,7 +325,7 @@ const mobileLink: React.CSSProperties = {
     textDecoration: 'none',
     color: '#334155',
 
-    fontWeight: 400,
+    fontWeight: 500,
     fontSize: 18,
     letterSpacing: '-0.01em',
 };
@@ -339,7 +339,7 @@ const mobileCTA: React.CSSProperties = {
     textDecoration: 'none',
     textAlign: 'center',
 
-    fontWeight: 700,
+    fontWeight: 600,
 };
 const mobileDivider: React.CSSProperties = {
     height: 1,
