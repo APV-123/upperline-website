@@ -667,595 +667,595 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 
               </div>
             </div>
-          </div>
-          {/* BUSINESS PLAN */}
 
-          <section
-            id="business-plan"
-            style={{
-              ...section,
-              scrollMarginTop: 90,
-            }}>
-            <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Business Plan</h2>
-            <p style={isDark ? { ...paragraph, ...textSecondaryDark } : paragraph}>
-              {deal.business_plan_text || "No business plan provided."}
-            </p>
-          </section>
-          <h2 style={sectionTitle}>
-            About the Sponsor
-          </h2>
-          <section
-            id="about-upperline"
-            style={{
-              ...section,
-              scrollMarginTop: 90,
-              position: 'relative',
-              overflow: 'hidden',
-              padding: isMobile ? '24px' : '48px',
-              borderRadius: 20,
-              background: isDark ? '#111827' : '#f8fafc',
-              border: isDark
-                ? '1px solid #1f2937'
-                : '1px solid #e2e8f0',
-              maxWidth: 1000,
-              margin: '0 auto',
-            }}
-          >
-            {/* Top Accent */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 4,
-                background: '#31c8db',
-              }}
-            />
+            {/* BUSINESS PLAN */}
 
-            {/* Pattern Background */}
-            <div
+            <section
+              id="business-plan"
               style={{
-                position: 'absolute',
-                inset: 0,
-                opacity: 0.02,
-                backgroundImage:
-                  'url("/Upperline_IconPattern3Outline_Navy_RGB.png")',
-                backgroundRepeat: 'repeat',
-                backgroundSize: '420px',
-                pointerEvents: 'none',
-              }}
-            />
-
-            {/* Content */}
-            <div
+                ...section,
+                scrollMarginTop: 90,
+              }}>
+              <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Business Plan</h2>
+              <p style={isDark ? { ...paragraph, ...textSecondaryDark } : paragraph}>
+                {deal.business_plan_text || "No business plan provided."}
+              </p>
+            </section>
+            <h2 style={sectionTitle}>
+              About the Sponsor
+            </h2>
+            <section
+              id="about-upperline"
               style={{
+                ...section,
+                scrollMarginTop: 90,
                 position: 'relative',
-                zIndex: 2,
-                maxWidth: 800,
-                textAlign: isMobile ? 'center' : 'left',
+                overflow: 'hidden',
+                padding: isMobile ? '24px' : '48px',
+                borderRadius: 20,
+                background: isDark ? '#111827' : '#f8fafc',
+                border: isDark
+                  ? '1px solid #1f2937'
+                  : '1px solid #e2e8f0',
+                maxWidth: 1000,
+                margin: '0 auto',
               }}
             >
-              <img
-                src="/upperline-logo.png"
-                alt="Upperline"
+              {/* Top Accent */}
+              <div
                 style={{
-                  height: isMobile ? 40 : 56,
-                  width: 'auto',
-                  marginBottom: isMobile ? 20 : 32,
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: 4,
+                  background: '#31c8db',
                 }}
               />
 
-              <p
-                style={{
-                  ...(isDark
-                    ? { ...paragraph, ...textSecondaryDark }
-                    : paragraph),
-                  marginBottom: 24,
-                  fontSize: 18,
-                  lineHeight: 1.7,
-                  maxWidth: 700,
-                }}
-              >
-                Upperline is a vertically integrated real estate investment,
-                development, and asset management firm focused on acquiring,
-                developing, and operating assets throughout high-growth Texas
-                markets. By combining investment expertise, development execution,
-                and active asset management, we seek to create long-term value for
-                our investors through disciplined capital allocation and operational
-                excellence.
-              </p>
-
-              <a
-                href="https://www.upperlineco.com/who-we-are"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  color: '#31c8db',
-                  textDecoration: 'none',
-                  fontWeight: 700,
-                  fontSize: 16,
-                }}
-              >
-                View Company Profile →
-              </a>
-            </div>
-          </section>
-
-          {/* DOCUMENTS */}
-          <section
-            id="documents"
-            style={{
-              ...section,
-              scrollMarginTop: 90,
-            }}>
-            <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Documents</h2>
-
-            <div style={{
-              ...docContainer,
-              gridTemplateColumns: isMobile ? "1fr" : "250px 1fr",
-              height: isMobile ? "auto" : 500,
-            }}>
-
-              {/* LEFT: DOCUMENT LIST */}
-
-              <div
-                style={
-                  isDark
-                    ? {
-                      ...docList,
-                      background: "#05070a",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                    }
-                    : docList
-                }
-              >
-
-                {buildDocuments(deal).map((doc) => {
-                  const isActive = selectedDoc?.label === doc.label;
-
-                  return (
-                    <div
-                      key={doc.label}
-                      onClick={() => {
-                        // 🔥 SPECIAL CASE: FULL EQUITY MEMO
-                        if (doc.id === "full_memo") {
-                          const savedEmail = localStorage.getItem(`ca:${deal.id}`);
-
-                          // If user has not signed → show modal
-                          if (!savedEmail) {
-                            setShowCA(true);
-                            return;
-                          }
-
-                          // ✅ User HAS access → fetch signed URL
-                          fetch(`/api/deals/${deal.id}/ca/access`, {
-                            method: "POST",
-                          })
-                            .then((r) => r.json())
-                            .then((json) => {
-                              if (json?.signedUrl) {
-                                setSelectedDoc({
-                                  id: 'full_memo',
-                                  label: "Full Investment Memorandum",
-                                  url: json.signedUrl,
-                                  gated: false,
-                                });
-                              }
-                            });
-
-                          return;
-                        }
-
-                        // ✅ NORMAL DOCUMENTS
-                        setSelectedDoc(doc);
-                      }}
-
-
-                      style={{
-                        ...docItem,
-                        background: isDark
-                          ? (isActive ? "#0f172a" : "#05070a")
-                          : (isActive ? "#eef2f7" : "#fff"),
-                        color: isDark ? "#ffffff" : "#0f172a",
-                        borderBottom: isDark
-                          ? "1px solid rgba(255,255,255,0.12)"
-                          : "1px solid #e5e7eb",
-                        opacity: doc.gated ? 0.6 : 1,
-                        cursor: "pointer",
-                      }}
-
-                    >
-                      {doc.gated ? '🔒 ' : '📄 '}
-                      {doc.label}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* RIGHT: PREVIEW */}
-
+              {/* Pattern Background */}
               <div
                 style={{
-                  ...docPreview,
-                  ...(isDark ? panelDarkAlt : {}),
-                  display: "flex",
-                  flexDirection: "column",
+                  position: 'absolute',
+                  inset: 0,
+                  opacity: 0.02,
+                  backgroundImage:
+                    'url("/Upperline_IconPattern3Outline_Navy_RGB.png")',
+                  backgroundRepeat: 'repeat',
+                  backgroundSize: '420px',
+                  pointerEvents: 'none',
                 }}
-              >
-
-                {selectedDoc ? (
-                  <>
-                    <div
-                      style={{
-                        ...docHeader,
-                        ...(isDark
-                          ? {
-                            color: "#ffffff",
-                            borderBottom: "1px solid rgba(255,255,255,0.08)",
-                          }
-                          : {}),
-                        flexDirection: isMobile ? "column" : "row",
-                        alignItems: isMobile ? "flex-start" : "center",
-                        gap: isMobile ? 8 : 0,
-                      }}
-                    >
-                      <div>{selectedDoc.label}</div>
-                      <a href={selectedDoc.url} target="_blank">
-                        <button
-                          style={{
-                            ...(isDark ? { ...downloadBtn, ...buttonDark } : downloadBtn),
-                            width: isMobile ? "100%" : "auto",
-                          }}
-                        >Download</button>
-                      </a>
-                    </div>
-
-                    {selectedDoc.url ? (
-                      <iframe src={selectedDoc.url}
-                        style={{
-                          ...iframe,
-                          minHeight: isMobile ? 300 : undefined,
-                        }}
-                      />
-                    ) : (
-                      <div style={{ padding: 20, color: "#64748b" }}>
-                        {selectedDoc.id === "full_memo"
-                          ? "Click to load full memo."
-                          : "Select a document to preview."}
-                      </div>
-                    )}
-
-                  </>
-                ) : (
-                  <div style={{ padding: 20 }}>Select a document</div>
-                )}
-              </div>
-
-            </div>
-          </section>
-          {lightboxOpen && images.length > 0 && (
-            <div style={lbBackdrop} onClick={() => setLightboxOpen(false)}>
-              <div style={lbTop} onClick={(e) => e.stopPropagation()}>
-                <div style={{ opacity: 0.85 }}>
-                  {lightboxIndex + 1} / {images.length}
-                </div>
-                <button style={lbClose} onClick={() => setLightboxOpen(false)}>
-                  ✕
-                </button>
-              </div>
-
-              <button
-                style={lbArrowLeft}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  prevImage();
-                }}
-                aria-label="Previous image"
-              >
-                ‹
-              </button>
-
-              <img
-                src={images[lightboxIndex]}
-                style={lbImage}
-                onClick={(e) => e.stopPropagation()}
               />
 
-              <button
-                style={lbArrowRight}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  nextImage();
-                }}
-                aria-label="Next image"
-              >
-                ›
-              </button>
-            </div>
-          )}
-          {showCA && (
-            <div style={sheetBackdrop} onClick={() => !caBusy && setShowCA(false)}>
+              {/* Content */}
               <div
-                style={
-                  isDark
-                    ? {
-                      ...sheet,
-                      background: "#0f172a",
-                      color: "#ffffff",
-                    }
-                    : sheet
-                }
-                onClick={(e) => e.stopPropagation()}
+                style={{
+                  position: 'relative',
+                  zIndex: 2,
+                  maxWidth: 800,
+                  textAlign: isMobile ? 'center' : 'left',
+                }}
               >
+                <img
+                  src="/upperline-logo.png"
+                  alt="Upperline"
+                  style={{
+                    height: isMobile ? 40 : 56,
+                    width: 'auto',
+                    marginBottom: isMobile ? 20 : 32,
+                  }}
+                />
 
+                <p
+                  style={{
+                    ...(isDark
+                      ? { ...paragraph, ...textSecondaryDark }
+                      : paragraph),
+                    marginBottom: 24,
+                    fontSize: 18,
+                    lineHeight: 1.7,
+                    maxWidth: 700,
+                  }}
+                >
+                  Upperline is a vertically integrated real estate investment,
+                  development, and asset management firm focused on acquiring,
+                  developing, and operating assets throughout high-growth Texas
+                  markets. By combining investment expertise, development execution,
+                  and active asset management, we seek to create long-term value for
+                  our investors through disciplined capital allocation and operational
+                  excellence.
+                </p>
 
-                {/* Handle */}
-                <div style={sheetHandle} />
+                <a
+                  href="https://www.upperlineco.com/who-we-are"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: '#31c8db',
+                    textDecoration: 'none',
+                    fontWeight: 700,
+                    fontSize: 16,
+                  }}
+                >
+                  View Company Profile →
+                </a>
+              </div>
+            </section>
 
-                {/* Header */}
+            {/* DOCUMENTS */}
+            <section
+              id="documents"
+              style={{
+                ...section,
+                scrollMarginTop: 90,
+              }}>
+              <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Documents</h2>
+
+              <div style={{
+                ...docContainer,
+                gridTemplateColumns: isMobile ? "1fr" : "250px 1fr",
+                height: isMobile ? "auto" : 500,
+              }}>
+
+                {/* LEFT: DOCUMENT LIST */}
+
                 <div
                   style={
                     isDark
                       ? {
-                        ...sheetHeader,
-                        borderBottom: "1px solid rgba(255,255,255,0.08)",
+                        ...docList,
+                        background: "#05070a",
+                        border: "1px solid rgba(255,255,255,0.08)",
                       }
-                      : sheetHeader
+                      : docList
                   }
                 >
-                  <div style={{ fontWeight: 700 }}>
-                    {deal.name} Confidentiality Agreement
+
+                  {buildDocuments(deal).map((doc) => {
+                    const isActive = selectedDoc?.label === doc.label;
+
+                    return (
+                      <div
+                        key={doc.label}
+                        onClick={() => {
+                          // 🔥 SPECIAL CASE: FULL EQUITY MEMO
+                          if (doc.id === "full_memo") {
+                            const savedEmail = localStorage.getItem(`ca:${deal.id}`);
+
+                            // If user has not signed → show modal
+                            if (!savedEmail) {
+                              setShowCA(true);
+                              return;
+                            }
+
+                            // ✅ User HAS access → fetch signed URL
+                            fetch(`/api/deals/${deal.id}/ca/access`, {
+                              method: "POST",
+                            })
+                              .then((r) => r.json())
+                              .then((json) => {
+                                if (json?.signedUrl) {
+                                  setSelectedDoc({
+                                    id: 'full_memo',
+                                    label: "Full Investment Memorandum",
+                                    url: json.signedUrl,
+                                    gated: false,
+                                  });
+                                }
+                              });
+
+                            return;
+                          }
+
+                          // ✅ NORMAL DOCUMENTS
+                          setSelectedDoc(doc);
+                        }}
+
+
+                        style={{
+                          ...docItem,
+                          background: isDark
+                            ? (isActive ? "#0f172a" : "#05070a")
+                            : (isActive ? "#eef2f7" : "#fff"),
+                          color: isDark ? "#ffffff" : "#0f172a",
+                          borderBottom: isDark
+                            ? "1px solid rgba(255,255,255,0.12)"
+                            : "1px solid #e5e7eb",
+                          opacity: doc.gated ? 0.6 : 1,
+                          cursor: "pointer",
+                        }}
+
+                      >
+                        {doc.gated ? '🔒 ' : '📄 '}
+                        {doc.label}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* RIGHT: PREVIEW */}
+
+                <div
+                  style={{
+                    ...docPreview,
+                    ...(isDark ? panelDarkAlt : {}),
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+
+                  {selectedDoc ? (
+                    <>
+                      <div
+                        style={{
+                          ...docHeader,
+                          ...(isDark
+                            ? {
+                              color: "#ffffff",
+                              borderBottom: "1px solid rgba(255,255,255,0.08)",
+                            }
+                            : {}),
+                          flexDirection: isMobile ? "column" : "row",
+                          alignItems: isMobile ? "flex-start" : "center",
+                          gap: isMobile ? 8 : 0,
+                        }}
+                      >
+                        <div>{selectedDoc.label}</div>
+                        <a href={selectedDoc.url} target="_blank">
+                          <button
+                            style={{
+                              ...(isDark ? { ...downloadBtn, ...buttonDark } : downloadBtn),
+                              width: isMobile ? "100%" : "auto",
+                            }}
+                          >Download</button>
+                        </a>
+                      </div>
+
+                      {selectedDoc.url ? (
+                        <iframe src={selectedDoc.url}
+                          style={{
+                            ...iframe,
+                            minHeight: isMobile ? 300 : undefined,
+                          }}
+                        />
+                      ) : (
+                        <div style={{ padding: 20, color: "#64748b" }}>
+                          {selectedDoc.id === "full_memo"
+                            ? "Click to load full memo."
+                            : "Select a document to preview."}
+                        </div>
+                      )}
+
+                    </>
+                  ) : (
+                    <div style={{ padding: 20 }}>Select a document</div>
+                  )}
+                </div>
+
+              </div>
+            </section>
+            {lightboxOpen && images.length > 0 && (
+              <div style={lbBackdrop} onClick={() => setLightboxOpen(false)}>
+                <div style={lbTop} onClick={(e) => e.stopPropagation()}>
+                  <div style={{ opacity: 0.85 }}>
+                    {lightboxIndex + 1} / {images.length}
                   </div>
-                  <button
-                    style={sheetClose}
-                    onClick={() => setShowCA(false)}
-                    disabled={caBusy}
-                  >
+                  <button style={lbClose} onClick={() => setLightboxOpen(false)}>
                     ✕
                   </button>
                 </div>
 
-                {/* FORM FIRST */}
+                <button
+                  style={lbArrowLeft}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prevImage();
+                  }}
+                  aria-label="Previous image"
+                >
+                  ‹
+                </button>
 
-                <div style={{
-                  flex: 1,
-                  overflowY: "auto",
-                }}>
-                  <div style={sheetFooter}>
+                <img
+                  src={images[lightboxIndex]}
+                  style={lbImage}
+                  onClick={(e) => e.stopPropagation()}
+                />
+
+                <button
+                  style={lbArrowRight}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nextImage();
+                  }}
+                  aria-label="Next image"
+                >
+                  ›
+                </button>
+              </div>
+            )}
+            {showCA && (
+              <div style={sheetBackdrop} onClick={() => !caBusy && setShowCA(false)}>
+                <div
+                  style={
+                    isDark
+                      ? {
+                        ...sheet,
+                        background: "#0f172a",
+                        color: "#ffffff",
+                      }
+                      : sheet
+                  }
+                  onClick={(e) => e.stopPropagation()}
+                >
 
 
-                    {/* FIRST / LAST ROW */}
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                        gap: 12,
-                      }}
-                    >
-                      <div>
-                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>First Name</label>
-                        <input
-                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+                  {/* Handle */}
+                  <div style={sheetHandle} />
 
-                          value={caFirstName}
-                          onChange={(e) => setCaFirstName(e.target.value)}
-                        />
-                      </div>
-
-                      <div>
-                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Last Name</label>
-                        <input
-                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                          value={caLastName}
-                          onChange={(e) => setCaLastName(e.target.value)}
-                        />
-                      </div>
-
-                    </div>
-
-                    <div style={sheetFormRow}>
-                      <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Email</label>
-                      <input
-                        style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                        value={caEmail}
-                        onChange={(e) => setCaEmail(e.target.value)}
-                      />
-                    </div>
-
-                    <div style={sheetFormRow}>
-                      <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Company (optional)</label>
-                      <input
-                        style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                        value={caCompany}
-                        onChange={(e) => setCaCompany(e.target.value)}
-                      />
-                    </div>
-                    {/* Job Title */}
-                    <div style={sheetFormRow}>
-                      <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Job Title (optional)</label>
-                      <input
-                        style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                        value={caJobTitle}
-                        onChange={(e) => setCaJobTitle(e.target.value)}
-                      />
-                    </div>
-
-                    {/* Phone */}
-                    <div style={sheetFormRow}>
-                      <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Phone Number (optional)</label>
-                      <input
-                        style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                        value={caPhone}
-                        onChange={(e) => setCaPhone(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  {/* LEGAL AGREEMENT SCROLLER */}
-
+                  {/* Header */}
                   <div
                     style={
                       isDark
                         ? {
-                          ...agreementScroll,
-                          background: "#0b1220",
-                          border: "1px solid rgba(255,255,255,0.08)",
+                          ...sheetHeader,
+                          borderBottom: "1px solid rgba(255,255,255,0.08)",
                         }
-                        : agreementScroll
+                        : sheetHeader
                     }
                   >
-
-
-                    <h4 style={agreementTitle}>Confidentiality Agreement</h4>
-
-                    <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                      This Confidentiality and Non-Disclosure Agreement (“Agreement”) governs access to proprietary and non-public information for the purpose of evaluating a potential investment opportunity.
-                    </p>
-
-                    <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                      By accessing these materials, you acknowledge that all information provided constitutes confidential information, including but not limited to financial statements, projections, ownership structures, investment models, and all documents made available through this deal portal.
-                    </p>
-
-                    <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                      You agree that such information shall be used solely for the purpose of evaluating a potential investment and shall not be disclosed, reproduced, or distributed to any third party without prior written consent.
-                    </p>
-
-                    <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                      You further agree not to contact any tenants, lenders, investors, brokers, or other parties identified within the materials without explicit authorization from Upperline.
-                    </p>
-
-                    <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                      All confidential information remains the exclusive property of Upperline. No license or ownership rights are granted by access to these materials.
-                    </p>
-
-                    <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                      This Agreement shall remain in effect for a period of two (2) years from the date of acceptance. Unauthorized use or disclosure may result in legal action and injunctive relief.
-                    </p>
-
-                    <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                      Acceptance of this Agreement electronically constitutes a legally binding agreement enforceable to the same extent as a manually executed agreement.
-                    </p>
-
-                  </div>
-                </div>
-                {/* ACCEPTANCE + ACTIONS */}
-                <div style={sheetFooter}>
-
-                  <label style={sheetCheckboxRow}>
-                    <input
-                      type="checkbox"
-                      checked={caAgree}
-                      onChange={(e) => setCaAgree(e.target.checked)}
-                    />
-                    I have read and accept the terms of the confidentiality agreement.
-                  </label>
-                  {caError && (
-                    <div style={caErrorStyle}>
-                      {caError}
+                    <div style={{ fontWeight: 700 }}>
+                      {deal.name} Confidentiality Agreement
                     </div>
-                  )}
-                  <div
-                    style={{
-                      ...sheetActions,
-                      flexDirection: isMobile ? 'column' : 'row',
-                      gap: 12,
-                    }}
-                  >
                     <button
-                      style={{
-                        ...sheetSecondaryBtn,
-                        width: isMobile ? '100%' : 'auto',
-                      }}
+                      style={sheetClose}
                       onClick={() => setShowCA(false)}
                       disabled={caBusy}
                     >
-                      Cancel
-                    </button>
-
-                    <button
-                      style={{
-                        ...sheetPrimaryBtn,
-                        width: isMobile ? '100%' : 'auto',
-                      }}
-                      disabled={caBusy}
-                      onClick={async () => {
-
-                        // ✅ VALIDATION FIRST
-                        if (!caFirstName.trim() || !caLastName.trim()) {
-                          setCaError("First and last name are required.");
-                          return;
-                        }
-
-                        if (!caEmail.includes("@")) {
-                          setCaError("Valid email is required.");
-                          return;
-                        }
-
-                        if (!caAgree) {
-                          setCaError("You must accept the confidentiality agreement.");
-                          return;
-                        }
-
-                        // ✅ CLEAR ERROR
-                        setCaError('');
-                        setCaBusy(true);
-
-                        try {
-                          const res = await fetch(`/api/deals/${deal.id}/ca/submit`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              firstname: caFirstName,
-                              lastname: caLastName,
-                              email: caEmail,
-                              company: caCompany,
-                              jobtitle: caJobTitle,
-                              phone: caPhone,
-                            }),
-                          });
-
-                          const json = await res.json().catch(() => null);
-
-                          if (!res.ok || !json?.ok || !json?.signedUrl) {
-                            setCaError(json?.error ?? "Unable to grant access");
-                            return;
-                          }
-
-                          localStorage.setItem(`ca:${deal.id}`, caEmail);
-                          setHasAccess(true);
-
-                          setSelectedDoc({
-                            id: 'full_memo',
-                            label: "Full Investment Memorandum",
-                            url: json.signedUrl,
-                            gated: false,
-                          });
-
-                          setShowCA(false);
-
-                        } finally {
-                          setCaBusy(false);
-                        }
-                      }}
-                    >
-                      {caBusy ? "Granting access…" : "Access Full Memo"}
+                      ✕
                     </button>
                   </div>
 
-                </div>
+                  {/* FORM FIRST */}
 
+                  <div style={{
+                    flex: 1,
+                    overflowY: "auto",
+                  }}>
+                    <div style={sheetFooter}>
+
+
+                      {/* FIRST / LAST ROW */}
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                          gap: 12,
+                        }}
+                      >
+                        <div>
+                          <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>First Name</label>
+                          <input
+                            style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                            value={caFirstName}
+                            onChange={(e) => setCaFirstName(e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Last Name</label>
+                          <input
+                            style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                            value={caLastName}
+                            onChange={(e) => setCaLastName(e.target.value)}
+                          />
+                        </div>
+
+                      </div>
+
+                      <div style={sheetFormRow}>
+                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Email</label>
+                        <input
+                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                          value={caEmail}
+                          onChange={(e) => setCaEmail(e.target.value)}
+                        />
+                      </div>
+
+                      <div style={sheetFormRow}>
+                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Company (optional)</label>
+                        <input
+                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                          value={caCompany}
+                          onChange={(e) => setCaCompany(e.target.value)}
+                        />
+                      </div>
+                      {/* Job Title */}
+                      <div style={sheetFormRow}>
+                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Job Title (optional)</label>
+                        <input
+                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                          value={caJobTitle}
+                          onChange={(e) => setCaJobTitle(e.target.value)}
+                        />
+                      </div>
+
+                      {/* Phone */}
+                      <div style={sheetFormRow}>
+                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Phone Number (optional)</label>
+                        <input
+                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                          value={caPhone}
+                          onChange={(e) => setCaPhone(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    {/* LEGAL AGREEMENT SCROLLER */}
+
+                    <div
+                      style={
+                        isDark
+                          ? {
+                            ...agreementScroll,
+                            background: "#0b1220",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                          }
+                          : agreementScroll
+                      }
+                    >
+
+
+                      <h4 style={agreementTitle}>Confidentiality Agreement</h4>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        This Confidentiality and Non-Disclosure Agreement (“Agreement”) governs access to proprietary and non-public information for the purpose of evaluating a potential investment opportunity.
+                      </p>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        By accessing these materials, you acknowledge that all information provided constitutes confidential information, including but not limited to financial statements, projections, ownership structures, investment models, and all documents made available through this deal portal.
+                      </p>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        You agree that such information shall be used solely for the purpose of evaluating a potential investment and shall not be disclosed, reproduced, or distributed to any third party without prior written consent.
+                      </p>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        You further agree not to contact any tenants, lenders, investors, brokers, or other parties identified within the materials without explicit authorization from Upperline.
+                      </p>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        All confidential information remains the exclusive property of Upperline. No license or ownership rights are granted by access to these materials.
+                      </p>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        This Agreement shall remain in effect for a period of two (2) years from the date of acceptance. Unauthorized use or disclosure may result in legal action and injunctive relief.
+                      </p>
+
+                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                        Acceptance of this Agreement electronically constitutes a legally binding agreement enforceable to the same extent as a manually executed agreement.
+                      </p>
+
+                    </div>
+                  </div>
+                  {/* ACCEPTANCE + ACTIONS */}
+                  <div style={sheetFooter}>
+
+                    <label style={sheetCheckboxRow}>
+                      <input
+                        type="checkbox"
+                        checked={caAgree}
+                        onChange={(e) => setCaAgree(e.target.checked)}
+                      />
+                      I have read and accept the terms of the confidentiality agreement.
+                    </label>
+                    {caError && (
+                      <div style={caErrorStyle}>
+                        {caError}
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        ...sheetActions,
+                        flexDirection: isMobile ? 'column' : 'row',
+                        gap: 12,
+                      }}
+                    >
+                      <button
+                        style={{
+                          ...sheetSecondaryBtn,
+                          width: isMobile ? '100%' : 'auto',
+                        }}
+                        onClick={() => setShowCA(false)}
+                        disabled={caBusy}
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        style={{
+                          ...sheetPrimaryBtn,
+                          width: isMobile ? '100%' : 'auto',
+                        }}
+                        disabled={caBusy}
+                        onClick={async () => {
+
+                          // ✅ VALIDATION FIRST
+                          if (!caFirstName.trim() || !caLastName.trim()) {
+                            setCaError("First and last name are required.");
+                            return;
+                          }
+
+                          if (!caEmail.includes("@")) {
+                            setCaError("Valid email is required.");
+                            return;
+                          }
+
+                          if (!caAgree) {
+                            setCaError("You must accept the confidentiality agreement.");
+                            return;
+                          }
+
+                          // ✅ CLEAR ERROR
+                          setCaError('');
+                          setCaBusy(true);
+
+                          try {
+                            const res = await fetch(`/api/deals/${deal.id}/ca/submit`, {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                firstname: caFirstName,
+                                lastname: caLastName,
+                                email: caEmail,
+                                company: caCompany,
+                                jobtitle: caJobTitle,
+                                phone: caPhone,
+                              }),
+                            });
+
+                            const json = await res.json().catch(() => null);
+
+                            if (!res.ok || !json?.ok || !json?.signedUrl) {
+                              setCaError(json?.error ?? "Unable to grant access");
+                              return;
+                            }
+
+                            localStorage.setItem(`ca:${deal.id}`, caEmail);
+                            setHasAccess(true);
+
+                            setSelectedDoc({
+                              id: 'full_memo',
+                              label: "Full Investment Memorandum",
+                              url: json.signedUrl,
+                              gated: false,
+                            });
+
+                            setShowCA(false);
+
+                          } finally {
+                            setCaBusy(false);
+                          }
+                        }}
+                      >
+                        {caBusy ? "Granting access…" : "Access Full Memo"}
+                      </button>
+                    </div>
+
+                  </div>
+
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </div >
     </>
   );
 }
