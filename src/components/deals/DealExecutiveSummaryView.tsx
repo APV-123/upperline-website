@@ -589,7 +589,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     </Metric>
                   ))}
 
-                  {/* CAPITAL SPLIT CARD GOES HERE */}
+                  {/* LP / GP CAPITAL MIX */}
                   <div
                     style={{
                       ...(isDark
@@ -605,14 +605,46 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                         letterSpacing: '.06em',
                       }}
                     >
-                      CAPITAL SPLIT
+                      LP / GP CAPITAL MIX
+                    </div>
+
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: 10,
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: isDark
+                            ? 'rgba(255,255,255,.85)'
+                            : '#0f172a',
+                          fontSize: 12,
+                          fontWeight: 600,
+                        }}
+                      >
+                        LP {lpPct.toFixed(1)}%
+                      </span>
+
+                      <span
+                        style={{
+                          color: isDark
+                            ? '#31c8db'
+                            : '#0891b2',
+                          fontSize: 12,
+                          fontWeight: 600,
+                        }}
+                      >
+                        GP {gpPct.toFixed(1)}%
+                      </span>
                     </div>
 
                     <div
                       style={{
                         display: 'flex',
                         gap: 2,
-                        marginBottom: 10,
                       }}
                     >
                       {Array.from({ length: 50 }).map((_, i) => {
@@ -623,44 +655,18 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                             key={i}
                             style={{
                               flex: 1,
-                              height: 8,
+                              height: 6,
                               borderRadius: 1,
                               background:
                                 pct <= lpPct
                                   ? '#31c8db'
-                                  : 'rgba(255,255,255,.25)',
+                                  : isDark
+                                    ? 'rgba(255,255,255,.25)'
+                                    : 'rgba(15,23,42,.12)',
                             }}
                           />
                         );
                       })}
-                    </div>
-
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <span
-                        style={{
-                          color: 'rgba(255,255,255,.85)',
-                          fontSize: 13,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {lpPct.toFixed(1)}% LP
-                      </span>
-
-                      <span
-                        style={{
-                          color: 'rgba(49,200,219,.18)',
-                          fontSize: 13,
-                          fontWeight: 600,
-                        }}
-                      >
-                        {gpPct.toFixed(1)}% GP
-                      </span>
                     </div>
                   </div>
                 </div>
