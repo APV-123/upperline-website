@@ -599,17 +599,6 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   >
                     <div
                       style={{
-                        fontSize: 12,
-                        opacity: .65,
-                        marginBottom: 10,
-                        letterSpacing: '.06em',
-                      }}
-                    >
-                      LP / GP CAPITAL MIX
-                    </div>
-
-                    <div
-                      style={{
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
