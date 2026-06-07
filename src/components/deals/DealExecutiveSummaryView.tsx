@@ -592,13 +592,94 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   {/* CAPITAL SPLIT CARD GOES HERE */}
 
                   <div
-                    style={
-                      isDark
+                    style={{
+                      ...(isDark
                         ? { ...metricCard, ...panelDark }
-                        : metricCard
-                    }
+                        : metricCard),
+                      minHeight: 140,
+                    }}
                   >
-                    Capital Split
+                    <div
+                      style={{
+                        fontSize: 13,
+                        opacity: .75,
+                        marginBottom: 12,
+                      }}
+                    >
+                      CAPITAL SPLIT
+                    </div>
+
+                    <div
+                      style={{
+                        height: 10,
+                        borderRadius: 999,
+                        overflow: 'hidden',
+                        display: 'flex',
+                        background: 'rgba(255,255,255,.08)',
+                        marginBottom: 18,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${lpPct}%`,
+                          background: '#31c8db',
+                        }}
+                      />
+
+                      <div
+                        style={{
+                          width: `${gpPct}%`,
+                          background: 'rgba(255,255,255,.25)',
+                        }}
+                      />
+                    </div>
+
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <div>
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            fontSize: 18,
+                          }}
+                        >
+                          {lpPct.toFixed(1)}%
+                        </div>
+
+                        <div
+                          style={{
+                            fontSize: 12,
+                            opacity: .75,
+                          }}
+                        >
+                          LP Capital
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            fontSize: 18,
+                          }}
+                        >
+                          {gpPct.toFixed(1)}%
+                        </div>
+
+                        <div
+                          style={{
+                            fontSize: 12,
+                            opacity: .75,
+                          }}
+                        >
+                          GP Capital
+                        </div>
+                      </div>
+
+                    </div>
                   </div>
 
                 </div>
