@@ -620,8 +620,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                       <span
                         style={{
                           color: isDark
-                            ? '#31c8db'
-                            : '#0891b2',
+                            ? 'rgba(255,255,255,.65)'
+                            : '#64748b',
                           fontSize: 12,
                           fontWeight: 600,
                         }}
@@ -633,10 +633,10 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     <div
                       style={{
                         display: 'flex',
-                        gap: 2,
+                        gap: 1,
                       }}
                     >
-                      {Array.from({ length: 50 }).map((_, i) => {
+                      {Array.from({ length: 70 }).map((_, i) => {
                         const pct = ((i + 1) / 50) * 100;
 
                         return (
@@ -644,7 +644,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                             key={i}
                             style={{
                               flex: 1,
-                              height: 6,
+                              height: 5,
                               borderRadius: 1,
                               background:
                                 pct <= lpPct
