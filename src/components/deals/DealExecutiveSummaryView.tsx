@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
 import DealHero from "./DealHero";
 import DealStickyHeader from "../navigation/DealStickyHeader";
+import { Darker_Grotesque } from "next/font/google";
 
 type DealHighlight = {
   id: string;
@@ -686,7 +687,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 scrollMarginTop: 90,
                 position: 'relative',
                 overflow: 'hidden',
-                padding: isMobile ? '24px' : '48px',
+                padding: isMobile ? '24px 20px' : '48px',
                 borderRadius: 20,
                 background: isDark ? '#111827' : '#f8fafc',
                 border: isDark
@@ -728,14 +729,17 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   position: 'relative',
                   zIndex: 2,
                   maxWidth: 800,
-                  textAlign: isMobile ? 'center' : 'left',
+                  textAlign:'left',
                 }}
               >
                 <img
-                  src="/upperline-logo.png"
+                  src={isDark
+                    ? "/upperline-logo-inverted.png"
+                    : "/upperline-logo.png"
+                  }
                   alt="Upperline"
                   style={{
-                    height: isMobile ? 40 : 56,
+                    height: isMobile ? 30 : 56,
                     width: 'auto',
                     marginBottom: isMobile ? 20 : 32,
                   }}
