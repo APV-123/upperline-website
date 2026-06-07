@@ -677,7 +677,13 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 {deal.business_plan_text || "No business plan provided."}
               </p>
             </section>
-            <h2 style={sectionTitle}>
+            <h2
+              style={
+                isDark
+                  ? { ...sectionTitle, ...textPrimaryDark }
+                  : sectionTitle
+              }
+            >
               About the Sponsor
             </h2>
             <section
@@ -729,12 +735,12 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   position: 'relative',
                   zIndex: 2,
                   maxWidth: 800,
-                  textAlign:'left',
+                  textAlign: 'left',
                 }}
               >
                 <img
                   src={isDark
-                    ? "/upperline-logo-inverted.png"
+                    ? "/Upperline-logo-inverted.png"
                     : "/upperline-logo.png"
                   }
                   alt="Upperline"
