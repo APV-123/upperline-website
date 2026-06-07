@@ -198,6 +198,25 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
       .filter((m) => m.section === section && m.is_visible !== false)
       .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0));
   }
+  const lpEquity = deal.target_amount;
+
+  const gpMetric = getSection('capital_stack')
+    .find(m => m.key === 'gp_equity');
+
+  const gpEquity = Number(
+    String(gpMetric?.value || '0')
+      .replace(/[$,]/g, '')
+  );
+
+  const totalEquity = lpEquity + gpEquity;
+
+  const lpPct = totalEquity
+    ? (lpEquity / totalEquity) * 100
+    : 0;
+
+  const gpPct = totalEquity
+    ? (gpEquity / totalEquity) * 100
+    : 0;
 
   return (
     <>
@@ -548,16 +567,40 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               </div>
 
               <div style={getCollapseStyle(openCapital, 400)}>
-                <div style={metricsGrid}>
+                <div
+                  style={{
+                    ...metricsGrid,
+                    gridTemplateColumns: isMobile
+                      ? '1fr'
+                      : 'repeat(2, 1fr)',
+                  }}
+                >
                   <Metric label="LP Equity" isDark={isDark}>
                     {formatCurrency(String(deal.target_amount))}
                   </Metric>
 
                   {getSection('capital_stack').map((m) => (
-                    <Metric key={m.key} label={formatKey(m.key)} isDark={isDark}>
+                    <Metric
+                      key={m.key}
+                      label={formatKey(m.key)}
+                      isDark={isDark}
+                    >
                       {formatValue(m.value, m.key)}
                     </Metric>
                   ))}
+
+                  {/* CAPITAL SPLIT CARD GOES HERE */}
+
+                  <div
+                    style={
+                      isDark
+                        ? { ...metricCard, ...panelDark }
+                        : metricCard
+                    }
+                  >
+                    Capital Split
+                  </div>
+
                 </div>
               </div>
             </div>
