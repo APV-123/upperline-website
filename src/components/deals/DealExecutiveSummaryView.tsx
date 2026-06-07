@@ -636,7 +636,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                         gap: 1,
                       }}
                     >
-                      {Array.from({ length: 70 }).map((_, i) => {
+                      {Array.from({ length: 50 }).map((_, i) => {
                         const pct = ((i + 1) / 50) * 100;
 
                         return (
