@@ -14,6 +14,9 @@ export default function DocumentsEditor({
     return (
         <div style={container}>
             <div style={content}>
+                <EditorHeader
+                    title="Details"
+                />
                 <h1 style={title}>Documents</h1>
 
                 <DocumentCard
