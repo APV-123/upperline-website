@@ -8,11 +8,12 @@ import DealEditorNav, {
   type DealEditorSection,
 } from '@/components/navigation/DealEditorNav';
 import type { DealFormValues } from '@/components/deals/DealForm';
-import MetricsEditor, { type DealMetric } from '@/components/deals/MetricsEditor';
-import DealHighlightsEditor from '@/components/deals/DealHighlightsEditor';
 import DealDetailsEditor from '@/components/deals/DealDetailsEditor';
 import DealNarrativeEditor from '@/components/deals/DealNarrativeEditor';
 import ImagesEditor from '@/components/deals/ImagesEditor';
+import DocumentsEditor from '@/components/deals/DocumentsEditor';
+import MetricsEditor, { type DealMetric } from '@/components/deals/MetricsEditor';
+import DealHighlightsEditor from '@/components/deals/DealHighlightsEditor';
 
 type DealApiResponse = {
   id: string;
@@ -181,7 +182,9 @@ export default function DealEditPage() {
               )}
 
               {section === 'documents' && (
-                <div>Documents Editor Coming Soon</div>
+                <DocumentsEditor
+                  deal={deal}
+                />
               )}
 
               {section === 'highlights' && (
