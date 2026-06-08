@@ -90,16 +90,26 @@ export default function AdminPage() {
             </div>
 
             <button
-              onClick={() => router.push('/admin/deals/create')}
-              style={{
-                marginTop: 6,
-                background: COLORS.primary,
-                color: '#fff',
-                borderRadius: 6,
-                padding: '6px 12px',
-                fontSize: 12,
-                border: 'none',
-                cursor: 'pointer',
+              onClick={async () => {
+                const res = await fetch('/api/deals/create', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    name: 'Untitled Deal',
+                    target_amount: 1,
+                  }),
+                });
+
+                const json = await res.json();
+
+                if (!json?.ok || !json?.deal?.id) {
+                  alert('Failed to create deal');
+                  return;
+                }
+
+                router.push(`/admin/deals/${json.deal.id}/edit`);
               }}
             >
               Create
