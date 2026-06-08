@@ -106,79 +106,89 @@ export default function DealEditPage() {
     <>
       <AdminNav />
 
-      <div style={{ padding: 24 }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: 24,
+          padding: 24,
+          alignItems: 'flex-start',
+        }}
+      >
         {deal ? (
           <>
             <DealEditorNav
               active={section}
               onChange={setSection}
             />
-            {section === 'details' && (
-              <DealForm
-                initialDeal={deal}
-                saving={saving}
-                onSave={async (updatedDeal) => {
-                  try {
-                    setSaving(true);
 
-                    const res = await fetch(`/api/deals/${dealId}/update`, {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(updatedDeal),
-                    });
-
-                    const text = await res.text();
-
-                    let json: SaveResponse | null = null;
-
+            <div style={{ flex: 1 }}>
+              {section === 'details' && (
+                <DealForm
+                  initialDeal={deal}
+                  saving={saving}
+                  onSave={async (updatedDeal) => {
                     try {
-                      json = JSON.parse(text) as SaveResponse;
-                    } catch {
-                      console.error('[NON JSON RESPONSE]', text);
-                      alert('Unexpected server response');
+                      setSaving(true);
+
+                      const res = await fetch(`/api/deals/${dealId}/update`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updatedDeal),
+                      });
+
+                      const text = await res.text();
+
+                      let json: SaveResponse | null = null;
+
+                      try {
+                        json = JSON.parse(text) as SaveResponse;
+                      } catch {
+                        console.error('[NON JSON RESPONSE]', text);
+                        alert('Unexpected server response');
+                        setSaving(false);
+                        return;
+                      }
+
+                      if (!res.ok || !json || !json.ok) {
+                        console.error('[SAVE FAILED]', json);
+                        alert(json?.error || 'Failed to save changes');
+                        setSaving(false);
+                        return;
+                      }
+
+                      router.push(`/admin/deals/${dealId}/public`);
+                    } catch (err) {
+                      console.error('[SAVE ERROR]', err);
+                      alert('Network error while saving');
                       setSaving(false);
-                      return;
                     }
+                  }}
+                />
+              )}
 
-                    if (!res.ok || !json || !json.ok) {
-                      console.error('[SAVE FAILED]', json);
-                      alert(json?.error || 'Failed to save changes');
-                      setSaving(false);
-                      return;
-                    }
+              {section === 'narrative' && (
+                <div>Narrative Editor Coming Soon</div>
+              )}
 
-                    router.push(`/admin/deals/${dealId}/public`);
-                  } catch (err) {
-                    console.error('[SAVE ERROR]', err);
-                    alert('Network error while saving');
-                    setSaving(false);
-                  }
-                }}
-              />
-            )}
+              {section === 'images' && (
+                <div>Images Editor Coming Soon</div>
+              )}
 
-            {section === 'narrative' && (
-              <div>Narrative Editor Coming Soon</div>
-            )}
+              {section === 'documents' && (
+                <div>Documents Editor Coming Soon</div>
+              )}
 
-            {section === 'images' && (
-              <div>Images Editor Coming Soon</div>
-            )}
+              {section === 'highlights' && (
+                <DealHighlightsEditor dealId={dealId} />
+              )}
 
-            {section === 'documents' && (
-              <div>Documents Editor Coming Soon</div>
-            )}
-
-            {section === 'highlights' && (
-              <DealHighlightsEditor dealId={dealId} />
-            )}
-
-            {section === 'metrics' && (
-              <MetricsEditor
-                dealId={dealId}
-                initialMetrics={metrics}
-              />
-            )}
+              {section === 'metrics' && (
+                <MetricsEditor
+                  dealId={dealId}
+                  initialMetrics={metrics}
+                />
+              )}
+            </div>
           </>
         ) : (
           <div style={{ padding: 40 }}>Loading deal…</div>
