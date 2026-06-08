@@ -15,9 +15,8 @@ export default function DealNarrativeEditor({
         <div style={container}>
             <div style={content}>
                 <EditorHeader
-                                    title="Details"
+                                    title="Narrative"
                                 />
-                <h1 style={title}>Narrative</h1>
 
                 <TextArea
                     label="Hero Thesis"

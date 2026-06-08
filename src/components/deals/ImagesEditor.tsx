@@ -15,9 +15,8 @@ export default function ImagesEditor({
         <div style={container}>
             <div style={content}>
                 <EditorHeader
-                                    title="Details"
+                                    title="Images"
                                 />
-                <h1 style={title}>Images</h1>
 
                 <ImageCard
                     label="Primary Image"
@@ -87,11 +86,6 @@ const content: React.CSSProperties = {
     background: '#fff',
     padding: 24,
     borderRadius: 8,
-};
-
-const title: React.CSSProperties = {
-    fontSize: 20,
-    fontWeight: 700,
 };
 
 const labelStyle: React.CSSProperties = {
