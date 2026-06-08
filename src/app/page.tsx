@@ -46,8 +46,7 @@ export default function DealIndexPage() {
 
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isDark, setIsDark] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [isDark, setIsDark] = useState(true);
 
   // ✅ Fetch PUBLIC deals (this is the key change)
   useEffect(() => {
@@ -93,84 +92,24 @@ export default function DealIndexPage() {
 
   return (
     <div className={`${styles.page} ${isDark ? styles.dark : ""}`}>
-      <div className={styles.navWrap}>
-        <div className={styles.navInner}>
+  <div className={styles.navWrap}>
+    <div className={styles.navInner}>
 
-          {/* LEFT: Brand */}
-          <a
-            href="https://upperlineco.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.brand}
-          >
-            <Image
-              src="/upperline-mark.png"
-              alt="Upperline mark"
-              className={styles.logo}
-            />
-          </a>
+      <a
+        href="https://upperlineco.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.brand}
+      >
+        <Image
+          src="/upperline-mark.png"
+          alt="Upperline mark"
+          className={styles.logo}
+        />
+      </a>
 
-          {/* RIGHT: Actions */}
-          <div className={styles.navActions}>
-
-            {/* Dark mode toggle */}
-            <button
-              type="button"
-              className={styles.navButton}
-              onClick={() => setIsDark((prev) => !prev)}
-            >
-              {isDark ? "LIGHT" : "DARK"}
-            </button>
-
-            {/* Hamburger */}
-            <button
-              type="button"
-              className={styles.hamburger}
-              onClick={() => setMenuOpen((prev) => !prev)}
-            >
-              <span className={styles.hamburgerIcon} />
-            </button>
-          </div>
-
-        </div>
-        {menuOpen && (
-          <div className={styles.menuPanel}>
-
-            <a
-              href="https://upperlineco.com/who-we-are"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.menuItem}
-              onClick={() => setMenuOpen(false)}
-            >
-              Who We Are
-            </a>
-
-            <a
-              href="https://upperlineco.com/strategy"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.menuItem}
-              onClick={() => setMenuOpen(false)}
-            >
-              Strategy
-            </a>
-
-            <a
-              href="https://upperlineco.com/approach"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.menuItem}
-              onClick={() => setMenuOpen(false)}
-            >
-              Approach
-            </a>
-
-          </div>
-        )}
-
-
-      </div>
+    </div>
+  </div>
       {/* Hero */}
       <section className={styles.hero}>
         <Image
