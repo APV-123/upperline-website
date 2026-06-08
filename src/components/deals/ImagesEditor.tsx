@@ -2,6 +2,7 @@
 
 import React from 'react';
 import type { DealFormValues } from './DealForm';
+import EditorHeader from './EditorHeader';
 
 type Props = {
     deal: DealFormValues;
@@ -13,6 +14,9 @@ export default function ImagesEditor({
     return (
         <div style={container}>
             <div style={content}>
+                <EditorHeader
+                                    title="Details"
+                                />
                 <h1 style={title}>Images</h1>
 
                 <ImageCard
