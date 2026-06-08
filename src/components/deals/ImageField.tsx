@@ -1,26 +1,7 @@
 'use client';
 
 import React from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-let _supabase: ReturnType<typeof createClient> | null = null;
-
-function getSupabase() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !key) {
-    throw new Error(
-      'Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY'
-    );
-  }
-
-  if (!_supabase) {
-    _supabase = createClient(url, key);
-  }
-
-  return _supabase;
-}
+import { getSupabase } from '@/lib/supabaseClient';
 
 async function uploadFile(
   file: File,
@@ -61,9 +42,11 @@ export default function ImageField({
   disabled,
   bucket = 'deal-images',
 }: Props) {
-  const [uploading, setUploading] = React.useState(false);
+  const [uploading, setUploading] =
+    React.useState(false);
 
-  const isDisabled = !!disabled || uploading;
+  const isDisabled =
+    !!disabled || uploading;
 
   const inputId = `img-upload-${label
     .replace(/\s+/g, '-')
@@ -71,7 +54,9 @@ export default function ImageField({
 
   return (
     <div style={{ marginTop: 20 }}>
-      <label style={labelStyle}>{label}</label>
+      <label style={labelStyle}>
+        {label}
+      </label>
 
       {url ? (
         <div style={{ marginTop: 8 }}>
@@ -98,7 +83,9 @@ export default function ImageField({
           type="button"
           disabled={isDisabled}
           onClick={() =>
-            document.getElementById(inputId)?.click()
+            document
+              .getElementById(inputId)
+              ?.click()
           }
           style={{
             padding: '8px 12px',
@@ -114,7 +101,9 @@ export default function ImageField({
             fontSize: 13,
           }}
         >
-          {url ? 'Replace Image' : 'Upload Image'}
+          {url
+            ? 'Replace Image'
+            : 'Upload Image'}
         </button>
 
         <input
@@ -124,25 +113,28 @@ export default function ImageField({
           style={{ display: 'none' }}
           disabled={isDisabled}
           onChange={async (e) => {
-            const file = e.target.files?.[0];
+            const file =
+              e.target.files?.[0];
 
             if (!file) return;
 
             setUploading(true);
 
             try {
-              const safeName = file.name.replace(
-                /\s+/g,
-                '-'
-              );
+              const safeName =
+                file.name.replace(
+                  /\s+/g,
+                  '-'
+                );
 
               const path = `deals/${Date.now()}-${safeName}`;
 
-              const result = await uploadFile(
-                file,
-                bucket,
-                path
-              );
+              const result =
+                await uploadFile(
+                  file,
+                  bucket,
+                  path
+                );
 
               if (result) {
                 onChange(result);
@@ -155,18 +147,20 @@ export default function ImageField({
         />
       </div>
 
-      <input
-        value={url}
-        onChange={(e) =>
-          onChange(e.target.value)
-        }
-        placeholder="Paste image URL"
-        disabled={isDisabled}
-        style={{
-          ...input,
-          marginTop: 8,
-        }}
-      />
+      {!url && (
+        <input
+          value={url}
+          onChange={(e) =>
+            onChange(e.target.value)
+          }
+          placeholder="Paste image URL"
+          disabled={isDisabled}
+          style={{
+            ...input,
+            marginTop: 8,
+          }}
+        />
+      )}
 
       {uploading && (
         <div

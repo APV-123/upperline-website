@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { getSupabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabaseClient';
 
 async function uploadFile(
   file: File,
