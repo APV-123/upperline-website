@@ -193,14 +193,17 @@ export default function DealEditPage() {
               {section === 'images' && (
                 <ImagesEditor
                   deal={deal}
-                 
+                  setDeal={updateDeal}
+                  saveState={saveState}
+                  saving={saving}
+                  onSave={() => saveDeal(deal)}
                 />
               )}
 
               {section === 'documents' && (
                 <DocumentsEditor
                   deal={deal}
-                  
+
                 />
               )}
 
