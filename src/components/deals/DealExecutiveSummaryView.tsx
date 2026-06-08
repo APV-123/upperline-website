@@ -693,7 +693,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 scrollMarginTop: 90,
                 position: 'relative',
                 overflow: 'hidden',
-                padding: isMobile ? '24px 20px' : '48px',
+                padding: isMobile ? '20px 16px' : '48px',
                 borderRadius: 20,
                 background: isDark ? '#111827' : '#f8fafc',
                 border: isDark
@@ -745,7 +745,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   }
                   alt="Upperline"
                   style={{
-                    height: isMobile ? 30 : 56,
+                    height: isMobile ? 42 : 56,
                     width: 'auto',
                     marginBottom: isMobile ? 20 : 32,
                   }}
@@ -757,9 +757,9 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                       ? { ...paragraph, ...textSecondaryDark }
                       : paragraph),
                     marginBottom: 24,
-                    fontSize: 18,
-                    lineHeight: 1.7,
-                    maxWidth: 700,
+                    fontSize: isMobile ? 16 : 18,
+                    lineHeight: isMobile ? 1.65 : 1.7,
+                    maxWidth: isMobile ? '100%' : 700,
                   }}
                 >
                   Upperline is a vertically integrated real estate investment,
