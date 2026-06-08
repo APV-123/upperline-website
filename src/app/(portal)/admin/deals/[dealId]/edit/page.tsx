@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import DealForm from '@/components/deals/DealForm';
 import AdminNav from '@/components/navigation/AdminNav';
 import DealEditorNav, {
   type DealEditorSection,
@@ -184,18 +183,24 @@ export default function DealEditPage() {
               {section === 'narrative' && (
                 <DealNarrativeEditor
                   deal={deal}
+                  setDeal={updateDeal}
+                  saveState={saveState}
+                  saving={saving}
+                  onSave={() => saveDeal(deal)}
                 />
               )}
 
               {section === 'images' && (
                 <ImagesEditor
                   deal={deal}
+                 
                 />
               )}
 
               {section === 'documents' && (
                 <DocumentsEditor
                   deal={deal}
+                  
                 />
               )}
 
