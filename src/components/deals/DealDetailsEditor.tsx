@@ -5,9 +5,7 @@ import type { DealFormValues } from './DealForm';
 
 type Props = {
     deal: DealFormValues;
-    setDeal: React.Dispatch<
-        React.SetStateAction<DealFormValues>
-    >;
+    setDeal: React.Dispatch<React.SetStateAction<any>>;
 };
 
 export default function DealDetailsEditor({
