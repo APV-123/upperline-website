@@ -63,7 +63,7 @@ const container: React.CSSProperties = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 16,
 };
 
 const titleStyle: React.CSSProperties = {
