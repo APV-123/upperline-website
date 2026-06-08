@@ -3,15 +3,22 @@
 import React from 'react';
 import type { DealFormValues } from './DealForm';
 
+type EditableDeal = DealFormValues & {
+    id: string;
+};
+
 type Props = {
-    deal: DealFormValues;
-    setDeal: React.Dispatch<React.SetStateAction<any>>;
+    deal: EditableDeal | null;
+    setDeal: React.Dispatch<
+        React.SetStateAction<EditableDeal | null>
+    >;
 };
 
 export default function DealDetailsEditor({
     deal,
     setDeal,
 }: Props) {
+    if (!deal) return null;
     return (
         <div style={container}>
             <div style={content}>
@@ -21,10 +28,14 @@ export default function DealDetailsEditor({
                     label="Deal Name"
                     value={deal.name}
                     onChange={(v) =>
-                        setDeal((p) => ({
-                            ...p,
-                            name: v,
-                        }))
+                        setDeal((p) => {
+                            if (!p) return p;
+
+                            return {
+                                ...p,
+                                target_amount: v === '' ? 0 : Number(v),
+                            };
+                        })
                     }
                 />
 
@@ -33,10 +44,14 @@ export default function DealDetailsEditor({
                     type="number"
                     value={deal.target_amount}
                     onChange={(v) =>
-                        setDeal((p) => ({
-                            ...p,
-                            target_amount: v === '' ? 0 : Number(v),
-                        }))
+                        setDeal((p) => {
+                            if (!p) return p;
+
+                            return {
+                                ...p,
+                                target_amount: v === '' ? 0 : Number(v),
+                            };
+                        })
                     }
                 />
 
@@ -44,10 +59,14 @@ export default function DealDetailsEditor({
                     label="Location"
                     value={deal.location}
                     onChange={(v) =>
-                        setDeal((p) => ({
-                            ...p,
-                            location: v,
-                        }))
+                        setDeal((p) => {
+                            if (!p) return p;
+
+                            return {
+                                ...p,
+                                target_amount: v === '' ? 0 : Number(v),
+                            };
+                        })
                     }
                 />
 
@@ -55,10 +74,14 @@ export default function DealDetailsEditor({
                     label="Asset Class"
                     value={deal.asset_class}
                     onChange={(v) =>
-                        setDeal((p) => ({
-                            ...p,
-                            asset_class: v,
-                        }))
+                        setDeal((p) => {
+                            if (!p) return p;
+
+                            return {
+                                ...p,
+                                target_amount: v === '' ? 0 : Number(v),
+                            };
+                        })
                     }
                 />
 
@@ -66,10 +89,14 @@ export default function DealDetailsEditor({
                     label="Strategy"
                     value={deal.strategy}
                     onChange={(v) =>
-                        setDeal((p) => ({
-                            ...p,
-                            strategy: v,
-                        }))
+                        setDeal((p) => {
+                            if (!p) return p;
+
+                            return {
+                                ...p,
+                                target_amount: v === '' ? 0 : Number(v),
+                            };
+                        })
                     }
                 />
 
@@ -78,10 +105,14 @@ export default function DealDetailsEditor({
                     type="date"
                     value={deal.estimated_closing_date}
                     onChange={(v) =>
-                        setDeal((p) => ({
-                            ...p,
-                            estimated_closing_date: v,
-                        }))
+                        setDeal((p) => {
+                            if (!p) return p;
+
+                            return {
+                                ...p,
+                                target_amount: v === '' ? 0 : Number(v),
+                            };
+                        })
                     }
                 />
             </div>
