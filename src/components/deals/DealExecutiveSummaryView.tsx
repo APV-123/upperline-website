@@ -699,7 +699,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 border: isDark
                   ? '1px solid #1f2937'
                   : '1px solid #e2e8f0',
-                maxWidth: 1000,
+                maxWidth: isMobile ? '100%' : 1000,
                 margin: '0 auto',
               }}
             >
@@ -734,6 +734,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 style={{
                   position: 'relative',
                   zIndex: 2,
+                  width: '100%',
                   maxWidth: isMobile ? '100%' : 800,
                   textAlign: 'left',
                 }}
@@ -745,7 +746,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   }
                   alt="Upperline"
                   style={{
-                    height: isMobile ? 42 : 56,
+                    height: isMobile ? 32 : 56,
                     width: 'auto',
                     marginBottom: isMobile ? 20 : 32,
                   }}
