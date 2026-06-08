@@ -734,7 +734,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 style={{
                   position: 'relative',
                   zIndex: 2,
-                  maxWidth: 800,
+                  maxWidth: isMobile ? '100%' : 800,
                   textAlign: 'left',
                 }}
               >
