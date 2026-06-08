@@ -12,6 +12,7 @@ import MetricsEditor, { type DealMetric } from '@/components/deals/MetricsEditor
 import DealHighlightsEditor from '@/components/deals/DealHighlightsEditor';
 import DealDetailsEditor from '@/components/deals/DealDetailsEditor';
 import DealNarrativeEditor from '@/components/deals/DealNarrativeEditor';
+import ImagesEditor from '@/components/deals/ImagesEditor';
 
 type DealApiResponse = {
   id: string;
@@ -174,7 +175,9 @@ export default function DealEditPage() {
               )}
 
               {section === 'images' && (
-                <div>Images Editor Coming Soon</div>
+                <ImagesEditor
+                  deal={deal}
+                />
               )}
 
               {section === 'documents' && (
