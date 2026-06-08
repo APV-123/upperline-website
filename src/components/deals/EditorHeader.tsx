@@ -4,17 +4,19 @@ import React from 'react';
 
 type Props = {
     title: string;
-    isDirty?: boolean;
+    saveState?: 'idle' | 'dirty' | 'saved';
     saving?: boolean;
     onSave?: () => void;
 };
 
 export default function EditorHeader({
     title,
-    isDirty = false,
+    saveState = 'idle',
     saving = false,
     onSave,
 }: Props) {
+    const canSave =
+        saveState === 'dirty' && !saving;
     return (
         <div style={container}>
             <div>
@@ -28,28 +30,30 @@ export default function EditorHeader({
                     gap: 16,
                 }}
             >
-                <div style={statusStyle}>
-                    {isDirty ? (
-                        <span style={{ color: '#b45309' }}>
-                            ● Unsaved Changes
-                        </span>
-                    ) : (
-                        <span style={{ color: '#15803d' }}>
-                            ✓ Saved
-                        </span>
-                    )}
-                </div>
+                {saveState !== 'idle' && (
+                    <div style={statusStyle}>
+                        {saveState === 'dirty' && (
+                            <span style={{ color: '#b45309' }}>
+                                ● Unsaved Changes
+                            </span>
+                        )}
 
+                        {saveState === 'saved' && (
+                            <span style={{ color: '#15803d' }}>
+                                ✓ Saved
+                            </span>
+                        )}
+                    </div>
+                )}
                 <button
                     onClick={onSave}
-                    disabled={!isDirty || saving}
+                    disabled={!canSave}
                     style={{
                         ...buttonStyle,
-                        opacity: !isDirty || saving ? 0.6 : 1,
-                        cursor:
-                            !isDirty || saving
-                                ? 'not-allowed'
-                                : 'pointer',
+                        opacity: canSave ? 1 : 0.6,
+                        cursor: canSave
+                            ? 'pointer'
+                            : 'not-allowed',
                     }}
                 >
                     {saving ? 'Saving...' : 'Save Deal'}
@@ -74,8 +78,8 @@ const titleStyle: React.CSSProperties = {
 };
 
 const statusStyle: React.CSSProperties = {
-    marginTop: 6,
     fontSize: 14,
+    fontWeight: 500,
 };
 
 const buttonStyle: React.CSSProperties = {

@@ -13,7 +13,7 @@ type Props = {
     setDeal: React.Dispatch<
         React.SetStateAction<EditableDeal | null>
     >;
-    isDirty: boolean;
+    saveState: 'idle' | 'dirty' | 'saved';
     saving: boolean;
     onSave: () => void;
 };
@@ -21,7 +21,7 @@ type Props = {
 export default function DealDetailsEditor({
     deal,
     setDeal,
-    isDirty,
+    saveState,
     saving,
     onSave,
 }: Props) {
@@ -31,7 +31,7 @@ export default function DealDetailsEditor({
             <div style={content}>
                 <EditorHeader
                     title="Details"
-                    isDirty={isDirty}
+                    saveState={saveState}
                     saving={saving}
                     onSave={onSave}
                 />

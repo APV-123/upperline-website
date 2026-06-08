@@ -33,7 +33,9 @@ export default function DealEditPage() {
   const [deal, setDeal] = useState<DealApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [isDirty, setIsDirty] = useState(false);
+  const [saveState, setSaveState] = useState<
+    'idle' | 'dirty' | 'saved'
+  >('idle');
   const [error, setError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<DealMetric[]>([]);
 
@@ -135,7 +137,7 @@ export default function DealEditPage() {
         return;
       }
 
-      setIsDirty(false);
+      setSaveState('saved');
     } catch (err) {
       console.error('[SAVE ERROR]', err);
       alert('Network error while saving');
@@ -147,7 +149,7 @@ export default function DealEditPage() {
     updater: React.SetStateAction<DealApiResponse | null>
   ) {
     setDeal(updater);
-    setIsDirty(true);
+    setSaveState('dirty');
   }
   return (
     <>
@@ -173,7 +175,7 @@ export default function DealEditPage() {
                 <DealDetailsEditor
                   deal={deal}
                   setDeal={updateDeal}
-                  isDirty={isDirty}
+                  saveState={saveState}
                   saving={saving}
                   onSave={() => saveDeal(deal)}
                 />
