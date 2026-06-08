@@ -160,49 +160,102 @@ export default function DealEditPage() {
               active={section}
               onChange={setSection}
             />
-
             <div style={{ flex: 1 }}>
-              {section === 'details' && (
-                <DealDetailsEditor
-                  deal={deal}
-                  setDeal={setDeal}
-                />
-              )}
 
-              {section === 'narrative' && (
-                <DealNarrativeEditor
-                  deal={deal}
-                />
-              )}
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 20,
+                }}
+              >
+                <div>
+                  <h1
+                    style={{
+                      margin: 0,
+                      fontSize: 24,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {deal.name}
+                  </h1>
 
-              {section === 'images' && (
-                <ImagesEditor
-                  deal={deal}
-                />
-              )}
+                  <div
+                    style={{
+                      color: '#64748b',
+                      fontSize: 14,
+                      marginTop: 4,
+                    }}
+                  >
+                    Editing Deal
+                  </div>
+                </div>
 
-              {section === 'documents' && (
-                <DocumentsEditor
-                  deal={deal}
-                />
-              )}
+                <button
+                  onClick={() => {
+                    if (deal) {
+                      saveDeal(deal);
+                    }
+                  }}
+                  disabled={saving}
+                  style={{
+                    background: '#163a63',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '12px 20px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {saving ? 'Saving...' : 'Save Deal'}
+                </button>
+              </div>
 
-              {section === 'highlights' && (
-                <DealHighlightsEditor dealId={dealId} />
-              )}
+              {/* existing section renderers */}
+              <div style={{ flex: 1 }}>
+                {section === 'details' && (
+                  <DealDetailsEditor
+                    deal={deal}
+                    setDeal={setDeal}
+                  />
+                )}
 
-              {section === 'metrics' && (
-                <MetricsEditor
-                  dealId={dealId}
-                  initialMetrics={metrics}
-                />
-              )}
-            </div>
-          </>
-        ) : (
-          <div style={{ padding: 40 }}>Loading deal…</div>
+                {section === 'narrative' && (
+                  <DealNarrativeEditor
+                    deal={deal}
+                  />
+                )}
+
+                {section === 'images' && (
+                  <ImagesEditor
+                    deal={deal}
+                  />
+                )}
+
+                {section === 'documents' && (
+                  <DocumentsEditor
+                    deal={deal}
+                  />
+                )}
+
+                {section === 'highlights' && (
+                  <DealHighlightsEditor dealId={dealId} />
+                )}
+
+                {section === 'metrics' && (
+                  <MetricsEditor
+                    dealId={dealId}
+                    initialMetrics={metrics}
+                  />
+                )}
+              </div>
+            </>
+            ) : (
+            <div style={{ padding: 40 }}>Loading deal…</div>
         )}
-      </div>
-    </>
-  );
+          </div>
+      </>
+      );
 }
