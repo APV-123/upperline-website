@@ -10,6 +10,7 @@ import DealEditorNav, {
 import type { DealFormValues } from '@/components/deals/DealForm';
 import MetricsEditor, { type DealMetric } from '@/components/deals/MetricsEditor';
 import DealHighlightsEditor from '@/components/deals/DealHighlightsEditor';
+import DealDetailsEditor from '@/components/deals/DealDetailsEditor';
 
 type DealApiResponse = {
   id: string;
@@ -101,7 +102,43 @@ export default function DealEditPage() {
       </>
     );
   }
+  async function saveDeal(updatedDeal: DealFormValues) {
+    try {
+      setSaving(true);
 
+      const res = await fetch(`/api/deals/${dealId}/update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedDeal),
+      });
+
+      const text = await res.text();
+
+      let json: SaveResponse | null = null;
+
+      try {
+        json = JSON.parse(text) as SaveResponse;
+      } catch {
+        console.error('[NON JSON RESPONSE]', text);
+        alert('Unexpected server response');
+        return;
+      }
+
+      if (!res.ok || !json?.ok) {
+        alert(json?.error || 'Failed to save changes');
+        return;
+      }
+
+      router.push(`/admin/deals/${dealId}/public`);
+    } catch (err) {
+      console.error('[SAVE ERROR]', err);
+      alert('Network error while saving');
+    } finally {
+      setSaving(false);
+    }
+  }
   return (
     <>
       <AdminNav />
@@ -123,46 +160,9 @@ export default function DealEditPage() {
 
             <div style={{ flex: 1 }}>
               {section === 'details' && (
-                <DealForm
-                  initialDeal={deal}
-                  saving={saving}
-                  onSave={async (updatedDeal) => {
-                    try {
-                      setSaving(true);
-
-                      const res = await fetch(`/api/deals/${dealId}/update`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(updatedDeal),
-                      });
-
-                      const text = await res.text();
-
-                      let json: SaveResponse | null = null;
-
-                      try {
-                        json = JSON.parse(text) as SaveResponse;
-                      } catch {
-                        console.error('[NON JSON RESPONSE]', text);
-                        alert('Unexpected server response');
-                        setSaving(false);
-                        return;
-                      }
-
-                      if (!res.ok || !json || !json.ok) {
-                        console.error('[SAVE FAILED]', json);
-                        alert(json?.error || 'Failed to save changes');
-                        setSaving(false);
-                        return;
-                      }
-
-                      router.push(`/admin/deals/${dealId}/public`);
-                    } catch (err) {
-                      console.error('[SAVE ERROR]', err);
-                      alert('Network error while saving');
-                      setSaving(false);
-                    }
-                  }}
+                <DealDetailsEditor
+                  deal={deal}
+                  setDeal={setDeal}
                 />
               )}
 
