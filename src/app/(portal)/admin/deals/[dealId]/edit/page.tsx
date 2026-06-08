@@ -33,6 +33,7 @@ export default function DealEditPage() {
   const [deal, setDeal] = useState<DealApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<DealMetric[]>([]);
 
@@ -134,13 +135,19 @@ export default function DealEditPage() {
         return;
       }
 
-      router.push(`/admin/deals/${dealId}/public`);
+      setIsDirty(false);
     } catch (err) {
       console.error('[SAVE ERROR]', err);
       alert('Network error while saving');
     } finally {
       setSaving(false);
     }
+  }
+  function updateDeal(
+    updater: React.SetStateAction<DealApiResponse | null>
+  ) {
+    setDeal(updater);
+    setIsDirty(true);
   }
   return (
     <>
@@ -165,7 +172,10 @@ export default function DealEditPage() {
               {section === 'details' && (
                 <DealDetailsEditor
                   deal={deal}
-                  setDeal={setDeal}
+                  setDeal={updateDeal}
+                  isDirty={isDirty}
+                  saving={saving}
+                  onSave={() => saveDeal(deal)}
                 />
               )}
 
