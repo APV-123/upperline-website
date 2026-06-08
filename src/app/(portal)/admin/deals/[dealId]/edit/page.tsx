@@ -214,43 +214,42 @@ export default function DealEditPage() {
               </div>
 
               {/* existing section renderers */}
-              <div style={{ flex: 1 }}>
-                {section === 'details' && (
-                  <DealDetailsEditor
-                    deal={deal}
-                    setDeal={setDeal}
-                  />
-                )}
 
-                {section === 'narrative' && (
-                  <DealNarrativeEditor
-                    deal={deal}
-                  />
-                )}
+              {section === 'details' && (
+                <DealDetailsEditor
+                  deal={deal}
+                  setDeal={setDeal}
+                />
+              )}
 
-                {section === 'images' && (
-                  <ImagesEditor
-                    deal={deal}
-                  />
-                )}
+              {section === 'narrative' && (
+                <DealNarrativeEditor
+                  deal={deal}
+                />
+              )}
 
-                {section === 'documents' && (
-                  <DocumentsEditor
-                    deal={deal}
-                  />
-                )}
+              {section === 'images' && (
+                <ImagesEditor
+                  deal={deal}
+                />
+              )}
 
-                {section === 'highlights' && (
-                  <DealHighlightsEditor dealId={dealId} />
-                )}
+              {section === 'documents' && (
+                <DocumentsEditor
+                  deal={deal}
+                />
+              )}
 
-                {section === 'metrics' && (
-                  <MetricsEditor
-                    dealId={dealId}
-                    initialMetrics={metrics}
-                  />
-                )}
-              </div>
+              {section === 'highlights' && (
+                <DealHighlightsEditor dealId={dealId} />
+              )}
+
+              {section === 'metrics' && (
+                <MetricsEditor
+                  dealId={dealId}
+                  initialMetrics={metrics}
+                />
+              )}
             </div>
           </>
         ) : (
