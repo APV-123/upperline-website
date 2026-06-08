@@ -105,8 +105,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
     isMobile
   );
   const [openLP, setOpenLP] = useState(true);
-  const [openProject, setOpenProject] = useState(false);
-  const [openCapital, setOpenCapital] = useState(false);
+  const [openProject, setOpenProject] = useState(true);
+  const [openCapital, setOpenCapital] = useState(true);
 
   const buildDocuments = useCallback((deal: Deal): Document[] => {
     return [
@@ -138,6 +138,16 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
+
+  useEffect(() => {
+  if (isMobile) {
+    setOpenProject(false);
+    setOpenCapital(false);
+  } else {
+    setOpenProject(true);
+    setOpenCapital(true);
+  }
+}, [isMobile]);
 
   useEffect(() => {
     if (!hasAccess) return;
