@@ -35,7 +35,7 @@ export default function DealEditorNav({
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 8,
-                width: 220,
+                width: 180,
                 flexShrink: 0,
                 position: 'sticky',
                 top: 24,

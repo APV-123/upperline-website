@@ -109,7 +109,7 @@ export default function DealEditPage() {
       <div
         style={{
           display: 'flex',
-          gap: 24,
+          gap: 16,
           padding: 24,
           alignItems: 'flex-start',
         }}
