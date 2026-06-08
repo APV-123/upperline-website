@@ -162,59 +162,6 @@ export default function DealEditPage() {
             />
             <div style={{ flex: 1 }}>
 
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: 20,
-                }}
-              >
-                <div>
-                  <h1
-                    style={{
-                      margin: 0,
-                      fontSize: 24,
-                      fontWeight: 700,
-                    }}
-                  >
-                    {deal.name}
-                  </h1>
-
-                  <div
-                    style={{
-                      color: '#64748b',
-                      fontSize: 14,
-                      marginTop: 4,
-                    }}
-                  >
-                    Editing Deal
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    if (deal) {
-                      saveDeal(deal);
-                    }
-                  }}
-                  disabled={saving}
-                  style={{
-                    background: '#163a63',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '12px 20px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
-                >
-                  {saving ? 'Saving...' : 'Save Deal'}
-                </button>
-              </div>
-
-              {/* existing section renderers */}
-
               {section === 'details' && (
                 <DealDetailsEditor
                   deal={deal}
