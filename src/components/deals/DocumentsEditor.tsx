@@ -3,158 +3,141 @@
 import React from 'react';
 import type { DealFormValues } from './DealForm';
 import EditorHeader from './EditorHeader';
+import DocumentField from './DocumentField';
+
+type EditableDeal = DealFormValues & {
+  id: string;
+};
 
 type Props = {
-    deal: DealFormValues;
+  deal: EditableDeal | null;
+  setDeal: React.Dispatch<
+    React.SetStateAction<EditableDeal | null>
+  >;
+  saveState: 'idle' | 'dirty' | 'saved';
+  saving: boolean;
+  onSave: () => void;
 };
 
 export default function DocumentsEditor({
-    deal,
+  deal,
+  setDeal,
+  saveState,
+  saving,
+  onSave,
 }: Props) {
-    return (
-        <div style={container}>
-            <div style={content}>
-                <EditorHeader
-                    title="Documents"
-                />
+  if (!deal) return null;
 
-                <DocumentCard
-                    label="Deal Snapshot"
-                    url={deal.abridged_memo_url}
-                />
+  return (
+    <div style={container}>
+      <div style={content}>
+        <EditorHeader
+          title="Documents"
+          saveState={saveState}
+          saving={saving}
+          onSave={onSave}
+        />
 
-                <DocumentCard
-                    label="Full Investment Memorandum"
-                    url={deal.full_memo_url}
-                    isPrivate
-                />
+        <DocumentField
+          label="Deal Snapshot"
+          url={deal.abridged_memo_url}
+          bucket="deal-documents-public"
+          onChange={(v) =>
+            setDeal((p) =>
+              p
+                ? {
+                    ...p,
+                    abridged_memo_url: v,
+                  }
+                : p
+            )
+          }
+        />
 
-                <DocumentCard
-                    label="About Upperline"
-                    url={deal.pitch_book_url}
-                />
+        <DocumentField
+          label="Full Investment Memorandum"
+          url={deal.full_memo_url}
+          bucket="deal-documents-private"
+          onChange={(v) =>
+            setDeal((p) =>
+              p
+                ? {
+                    ...p,
+                    full_memo_url: v,
+                  }
+                : p
+            )
+          }
+        />
 
-                <div style={{ marginTop: 24 }}>
-                    <label style={labelStyle}>
-                        Full Memo Requires CA
-                    </label>
+        <DocumentField
+          label="About Upperline"
+          url={deal.pitch_book_url}
+          bucket="deal-documents-public"
+          onChange={(v) =>
+            setDeal((p) =>
+              p
+                ? {
+                    ...p,
+                    pitch_book_url: v,
+                  }
+                : p
+            )
+          }
+        />
 
-                    <div style={valueStyle}>
-                        {deal.full_memo_requires_ca
-                            ? 'Yes'
-                            : 'No'}
-                    </div>
-                </div>
-            </div>
+        <div style={{ marginTop: 24 }}>
+          <label style={labelStyle}>
+            Full Memo Requires CA
+          </label>
+
+          <label style={checkboxRow}>
+            <input
+              type="checkbox"
+              checked={deal.full_memo_requires_ca}
+              onChange={(e) =>
+                setDeal((p) =>
+                  p
+                    ? {
+                        ...p,
+                        full_memo_requires_ca:
+                          e.target.checked,
+                      }
+                    : p
+                )
+              }
+            />
+
+            Require Confidentiality Agreement
+          </label>
         </div>
-    );
-}
-
-type DocumentCardProps = {
-    label: string;
-    url: string;
-    isPrivate?: boolean;
-};
-
-function DocumentCard({
-    label,
-    url,
-    isPrivate = false,
-}: DocumentCardProps) {
-    const isHttp = /^https?:\/\//i.test(url);
-
-    return (
-        <div style={{ marginTop: 20 }}>
-            <label style={labelStyle}>
-                {label}
-
-                {isPrivate && (
-                    <span
-                        style={{
-                            marginLeft: 8,
-                            color: '#64748b',
-                            fontSize: 11,
-                        }}
-                    >
-                        (private)
-                    </span>
-                )}
-            </label>
-
-            {!url && (
-                <div style={emptyState}>
-                    No document uploaded
-                </div>
-            )}
-
-            {!!url && (
-                <div style={card}>
-                    {isHttp ? (
-                        <a
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={link}
-                        >
-                            View Document
-                        </a>
-                    ) : (
-                        <div style={fileName}>
-                            {url.split('/').pop()}
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
-    );
+      </div>
+    </div>
+  );
 }
 
 const container: React.CSSProperties = {
-    background: '#f8fafc',
-    padding: 40,
+  background: '#f8fafc',
+  padding: 40,
 };
 
 const content: React.CSSProperties = {
-    maxWidth: 820,
-    margin: '0 auto',
-    background: '#fff',
-    padding: 24,
-    borderRadius: 8,
+  maxWidth: 820,
+  margin: '0 auto',
+  background: '#fff',
+  padding: 24,
+  borderRadius: 8,
 };
 
 const labelStyle: React.CSSProperties = {
-    fontSize: 12,
-    display: 'block',
-    marginBottom: 6,
+  fontSize: 12,
+  display: 'block',
+  marginBottom: 8,
 };
 
-const card: React.CSSProperties = {
-    border: '1px solid #e5e7eb',
-    borderRadius: 8,
-    padding: 14,
-};
-
-const link: React.CSSProperties = {
-    color: '#003a5d',
-    fontWeight: 600,
-    textDecoration: 'none',
-};
-
-const fileName: React.CSSProperties = {
-    color: '#003a5d',
-    fontWeight: 600,
-};
-
-const valueStyle: React.CSSProperties = {
-    marginTop: 8,
-    padding: 12,
-    border: '1px solid #e5e7eb',
-    borderRadius: 8,
-};
-
-const emptyState: React.CSSProperties = {
-    padding: 14,
-    border: '1px dashed #cbd5e1',
-    borderRadius: 8,
-    color: '#64748b',
+const checkboxRow: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  fontSize: 14,
 };

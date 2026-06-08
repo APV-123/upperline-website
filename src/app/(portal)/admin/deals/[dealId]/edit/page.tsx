@@ -203,7 +203,10 @@ export default function DealEditPage() {
               {section === 'documents' && (
                 <DocumentsEditor
                   deal={deal}
-
+                  setDeal={updateDeal}
+                  saveState={saveState}
+                  saving={saving}
+                  onSave={() => saveDeal(deal)}
                 />
               )}
 
