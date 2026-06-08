@@ -111,6 +111,16 @@ export default function AdminPage() {
 
                 router.push(`/admin/deals/${json.deal.id}/edit`);
               }}
+              style={{
+                marginTop: 6,
+                background: COLORS.primary,
+                color: '#fff',
+                borderRadius: 6,
+                padding: '6px 12px',
+                fontSize: 12,
+                border: 'none',
+                cursor: 'pointer',
+              }}
             >
               Create
             </button>
