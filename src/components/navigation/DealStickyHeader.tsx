@@ -2,6 +2,7 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import Link from "next/link";
 
 type Props = {
     dealName: string;
@@ -41,12 +42,7 @@ export default function DealStickyHeader({
                         : 'none',
         }}>
             <div style={inner}>
-                <a
-                    href="https://portal.upperlineco.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={brand}
-                >
+                <Link href="/" style={brand}>
                     <Image
                         src="/upperline-mark.png"
                         alt="Upperline mark"
@@ -54,11 +50,11 @@ export default function DealStickyHeader({
                         height={40}
                         priority
                         style={{
-                            width: 'auto',
-                            height: '34px',
+                            width: "auto",
+                            height: "34px",
                         }}
                     />
-                </a>
+                </Link>
 
                 {!isMobile && (
                     <nav style={nav}>
