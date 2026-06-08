@@ -251,11 +251,12 @@ export default function DealEditPage() {
                   />
                 )}
               </div>
-            </>
-            ) : (
-            <div style={{ padding: 40 }}>Loading deal…</div>
+            </div>
+          </>
+        ) : (
+          <div style={{ padding: 40 }}>Loading deal…</div>
         )}
-          </div>
-      </>
-      );
+      </div>
+    </>
+  );
 }
