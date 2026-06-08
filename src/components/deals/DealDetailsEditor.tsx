@@ -2,6 +2,7 @@
 
 import React from 'react';
 import type { DealFormValues } from './DealForm';
+import EditorHeader from './EditorHeader';
 
 type EditableDeal = DealFormValues & {
     id: string;
@@ -22,7 +23,9 @@ export default function DealDetailsEditor({
     return (
         <div style={container}>
             <div style={content}>
-                <h1 style={title}>Details</h1>
+                <EditorHeader
+                    title="Details"
+                />
 
                 <Field
                     label="Deal Name"
@@ -33,7 +36,7 @@ export default function DealDetailsEditor({
 
                             return {
                                 ...p,
-                                target_amount: v === '' ? 0 : Number(v),
+                                name: v,
                             };
                         })
                     }
@@ -64,7 +67,7 @@ export default function DealDetailsEditor({
 
                             return {
                                 ...p,
-                                target_amount: v === '' ? 0 : Number(v),
+                                location: v,
                             };
                         })
                     }
@@ -79,7 +82,7 @@ export default function DealDetailsEditor({
 
                             return {
                                 ...p,
-                                target_amount: v === '' ? 0 : Number(v),
+                                asset_class: v,
                             };
                         })
                     }
@@ -94,7 +97,7 @@ export default function DealDetailsEditor({
 
                             return {
                                 ...p,
-                                target_amount: v === '' ? 0 : Number(v),
+                                strategy: v,
                             };
                         })
                     }
@@ -110,7 +113,7 @@ export default function DealDetailsEditor({
 
                             return {
                                 ...p,
-                                target_amount: v === '' ? 0 : Number(v),
+                                estimated_closing_date: v,
                             };
                         })
                     }
@@ -158,11 +161,6 @@ const content: React.CSSProperties = {
     background: '#fff',
     padding: 24,
     borderRadius: 8,
-};
-
-const title: React.CSSProperties = {
-    fontSize: 20,
-    fontWeight: 700,
 };
 
 const labelStyle: React.CSSProperties = {
