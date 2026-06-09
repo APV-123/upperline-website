@@ -218,22 +218,18 @@ export default function MetricsEditor({ dealId, initialMetrics }: Props) {
                 </button>
             </div>
 
-            {sectionOrder
-                .filter(
-                    (section) => grouped[section]
-                )
-                .map((section) => (
-                    <MetricSection
-                        key={section}
-                        heading={getSectionTitle(section)}
-                        rows={grouped[section]}
-                        onChange={updateRow}
-                        onMoveUp={moveRowUp}
-                        onMoveDown={moveRowDown}
-                        onDelete={deleteRow}
-                        onAdd={addMetric}
-                    />
-                ))}
+            {sectionOrder.map((section) => (
+                <MetricSection
+                    key={section}
+                    heading={getSectionTitle(section)}
+                    rows={grouped[section] ?? []}
+                    onChange={updateRow}
+                    onMoveUp={moveRowUp}
+                    onMoveDown={moveRowDown}
+                    onDelete={deleteRow}
+                    onAdd={addMetric}
+                />
+            ))}
         </div>
     );
 }
