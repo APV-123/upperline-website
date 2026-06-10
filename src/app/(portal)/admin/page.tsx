@@ -152,14 +152,15 @@ export default function AdminPage() {
                 marginTop: 6,
                 background: COLORS.accent,
                 color: '#fff',
-                borderRadius: 6,
-                padding: '6px 12px',
-                fontSize: 12,
+                padding: '10px 16px',
+                fontSize: 13,
+                fontWeight: 600,
+                borderRadius: 8,
                 border: 'none',
                 cursor: 'pointer',
               }}
             >
-              Create
+              + New Deal
             </button>
           </div>
 
@@ -238,12 +239,79 @@ export default function AdminPage() {
 
                       <div
                         style={{
-                          fontSize: 12,
-                          color: COLORS.subtext,
-                          marginTop: 4,
+                          display: 'flex',
+                          gap: 32,
+                          marginTop: 10,
                         }}
                       >
-                        {investorCount} investors · {invitedCount} invited · {draftReadyCount} drafts
+                        <div>
+                          <div
+                            style={{
+                              fontSize: 10,
+                              color: COLORS.subtext,
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            Investors
+                          </div>
+
+                          <div
+                            style={{
+                              fontSize: 18,
+                              fontWeight: 700,
+                              color: COLORS.text,
+                            }}
+                          >
+                            {investorCount}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div
+                            style={{
+                              fontSize: 10,
+                              color: COLORS.subtext,
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            Invited
+                          </div>
+
+                          <div
+                            style={{
+                              fontSize: 18,
+                              fontWeight: 700,
+                              color: COLORS.text,
+                            }}
+                          >
+                            {invitedCount}
+                          </div>
+                        </div>
+
+                        <div>
+                          <div
+                            style={{
+                              fontSize: 10,
+                              color: COLORS.subtext,
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            Drafts
+                          </div>
+
+                          <div
+                            style={{
+                              fontSize: 18,
+                              fontWeight: 700,
+                              color:
+                                draftReadyCount > 0
+                                  ? '#f59e0b'
+                                  : COLORS.text,
+                            }}
+                          >
+                            {draftReadyCount}
+                          </div>
+                        </div>
                       </div>
                     </div>
 
