@@ -22,6 +22,26 @@ export default function AdminDealPreviewPage() {
 
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isDark, setIsDark] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  const COLORS = isDark
+    ? {
+      background: '#071426',
+      surface: '#10213d',
+      text: '#ffffff',
+      subtext: '#9fb3c8',
+      border: 'rgba(255,255,255,.08)',
+      accent: '#31c8db',
+    }
+    : {
+      background: '#f3f4f6',
+      surface: '#ffffff',
+      text: '#0f172a',
+      subtext: '#64748b',
+      border: 'rgba(15,23,42,.08)',
+      accent: '#003a5d',
+    };
 
   useEffect(() => {
     async function load() {
@@ -47,6 +67,18 @@ export default function AdminDealPreviewPage() {
     load();
   }, [dealId]);
 
+  useEffect(() => {
+    const check = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    check();
+
+    window.addEventListener('resize', check);
+
+    return () =>
+      window.removeEventListener('resize', check);
+  }, []);
   if (loading) return <div style={{ padding: 40 }}>Loading preview…</div>;
 
   if (!deal) {
@@ -68,19 +100,35 @@ export default function AdminDealPreviewPage() {
       {/* ✅ PREVIEW CONTROL BAR */}
       <div
         style={{
-          padding: 16,
-          background: '#003a5d',
-          color: '#fff',
+          padding: isMobile ? 12 : 16,
+          background: COLORS.surface,
+          color: COLORS.text,
+
+          borderBottom: `1px solid ${COLORS.border}`,
+
           display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'space-between',
-          alignItems: 'center',
+          alignItems: isMobile ? 'flex-start' : 'center',
+          gap: isMobile ? 12 : 0,
         }}
       >
-        <div style={{ fontWeight: 600 }}>
-          Admin Preview
+        <div
+          style={{
+            fontWeight: 600,
+            color: COLORS.text,
+          }}
+        >
+          Previewing: {deal.name}
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: 10,
+            flexWrap: isMobile ? 'wrap' : 'nowrap',
+          }}
+        >
           <button
             onClick={() =>
               router.push(`/admin/deals/${dealId}/edit`)
@@ -88,8 +136,10 @@ export default function AdminDealPreviewPage() {
             style={{
               padding: '6px 12px',
               borderRadius: 6,
-              background: '#ffffff',
-              color: '#003a5d',
+
+              background: COLORS.accent,
+              color: '#04152e',
+
               border: 'none',
               cursor: 'pointer',
               fontWeight: 600,
