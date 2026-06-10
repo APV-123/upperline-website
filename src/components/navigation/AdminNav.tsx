@@ -21,18 +21,18 @@ export default function AdminNav() {
           width: '100%',
           height: 64, // ✅ FIXED HEIGHT
           padding: '0 32px',
-          borderBottom: '1px solid rgba(0,0,0,0.06)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: '#fff',
+          background: '#071426',
+          borderBottom: '1px solid rgba(255,255,255,.08)',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
 
           <Link href="/admin">
             <Image
-              src="/upperline-logo.png"
+              src="/Upperline-logo-inverted.png"
               alt="Upperline"
               width={160}   // ✅ BIGGER
               height={36}
@@ -48,6 +48,7 @@ export default function AdminNav() {
               fontSize: 13,
               opacity: 0.6,
               cursor: 'pointer',
+              color: '#9fb3c8',
             }}
           >
             Admin
