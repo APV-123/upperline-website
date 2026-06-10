@@ -28,6 +28,7 @@ export default function AdminPage() {
 
   const [isDark, setIsDark] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [hovered, setHovered] = useState<string | null>(null);
 
   const COLORS = isDark
     ? {
@@ -198,9 +199,22 @@ export default function AdminPage() {
                     border: `1px solid ${COLORS.border}`,
                     borderRadius: 12,
                     cursor: 'pointer',
+
                     transition: 'all .15s ease',
-                    boxShadow: '0 8px 24px rgba(0,0,0,.18)',
+
+                    transform:
+                      hovered === d.id
+                        ? 'translateY(-2px)'
+                        : 'translateY(0)',
+
+                    boxShadow:
+                      hovered === d.id
+                        ? '0 16px 32px rgba(0,0,0,.28)'
+                        : '0 8px 24px rgba(0,0,0,.18)',
                   }}
+                  onMouseEnter={() => setHovered(d.id)}
+                  onMouseLeave={() => setHovered(null)}
+
                 >
                   {/* LEFT */}
                   <div
@@ -427,7 +441,7 @@ export default function AdminPage() {
             })}
           </div>
         </div>
-      </div>
+      </div >
     </>
   );
 }
