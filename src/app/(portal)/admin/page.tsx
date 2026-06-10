@@ -226,7 +226,9 @@ export default function AdminPage() {
                         style={{
                           fontSize: 20,
                           fontWeight: 700,
-                          color: COLORS.text,
+                          color: d.is_public
+                            ? COLORS.text
+                            : 'rgba(255,255,255,.72)',
                         }}
                       >
                         {d.name}
@@ -242,7 +244,8 @@ export default function AdminPage() {
                         <div>
                           <div
                             style={{
-                              fontSize: 10,
+                              fontSize: 9,
+                              fontWeight: 500,
                               color: COLORS.subtext,
                               textTransform: 'uppercase',
                             }}
@@ -252,9 +255,11 @@ export default function AdminPage() {
 
                           <div
                             style={{
-                              fontSize: 18,
-                              fontWeight: 700,
-                              color: COLORS.text,
+                              fontSize: 14,
+                              fontWeight: 600,
+                              color: d.is_public
+                                ? COLORS.text
+                                : 'rgba(255,255,255,.72)',
                             }}
                           >
                             {invitedCount}
@@ -264,7 +269,8 @@ export default function AdminPage() {
                         <div>
                           <div
                             style={{
-                              fontSize: 10,
+                              fontSize: 9,
+                              fontWeight: 500,
                               color: COLORS.subtext,
                               textTransform: 'uppercase',
                             }}
@@ -274,8 +280,8 @@ export default function AdminPage() {
 
                           <div
                             style={{
-                              fontSize: 18,
-                              fontWeight: 700,
+                              fontSize: 14,
+                              fontWeight: 600,
                               color:
                                 draftReadyCount > 0
                                   ? '#f59e0b'
@@ -296,10 +302,11 @@ export default function AdminPage() {
                         fontWeight: 600,
                         background: d.is_public
                           ? 'rgba(49,200,219,.15)'
-                          : 'rgba(255,255,255,.05)',
+                          : 'rgba(255,255,255,.03)',
+
                         color: d.is_public
                           ? COLORS.accent
-                          : COLORS.subtext,
+                          : 'rgba(255,255,255,.55)',
                       }}
                     >
                       {d.is_public ? 'Published' : 'Draft'}
@@ -327,7 +334,9 @@ export default function AdminPage() {
                         style={{
                           fontSize: 22,
                           fontWeight: 700,
-                          color: COLORS.text,
+                          color: d.is_public
+                            ? COLORS.text
+                            : 'rgba(255,255,255,.72)',
                         }}
                       >
                         ${committed.toLocaleString()}
@@ -343,7 +352,9 @@ export default function AdminPage() {
                         style={{
                           fontSize: 22,
                           fontWeight: 700,
-                          color: COLORS.text,
+                          color: d.is_public
+                            ? COLORS.text
+                            : 'rgba(255,255,255,.72)',
                         }}
                       >
                         ${d.target_amount.toLocaleString()}
@@ -359,7 +370,9 @@ export default function AdminPage() {
                         style={{
                           fontSize: 28,
                           fontWeight: 700,
-                          color: COLORS.text,
+                          color: d.is_public
+                            ? COLORS.text
+                            : 'rgba(255,255,255,.72)',
                         }}
                       >
                         {investorCount}
@@ -395,7 +408,9 @@ export default function AdminPage() {
                       style={{
                         width: `${pct}%`,
                         height: '100%',
-                        background: COLORS.accent,
+                        background: d.is_public
+                          ? COLORS.accent
+                          : 'rgba(255,255,255,.18)',
                       }}
                     />
                   </div>
@@ -472,10 +487,10 @@ export default function AdminPage() {
                         ...btnStyle,
                         background: d.is_public
                           ? 'rgba(49,200,219,.15)'
-                          : COLORS.surface,
+                          : 'rgba(255,255,255,.03)',
                         color: d.is_public
                           ? COLORS.accent
-                          : COLORS.text,
+                          : 'rgba(255,255,255,.65)',
                         border: `1px solid ${COLORS.border}`,
                       }}
                     >
