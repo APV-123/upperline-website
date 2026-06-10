@@ -33,6 +33,7 @@ export const DEAL_SELECT = `
   ),
 
   deal_metrics (
+    id,
     key,
     label,
     icon,

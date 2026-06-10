@@ -484,7 +484,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   </Metric>
 
                   {getSection('lp_summary').map((m) => (
-                    <Metric key={m.key} label={formatKey(m.key)} isDark={isDark}>
+                    <Metric key={m.key} label={m.label} isDark={isDark}>
                       {formatValue(m.value, m.key)}
                     </Metric>
                   ))}
@@ -534,7 +534,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               <div style={getCollapseStyle(openProject, 400)}>
                 <div style={metricsGrid}>
                   {getSection('project_returns').map((m) => (
-                    <Metric key={m.key} label={formatKey(m.key)} isDark={isDark}>
+                    <Metric key={m.key} label={m.label} isDark={isDark}>
                       {formatValue(m.value, m.key)}
                     </Metric>
                   ))}
@@ -593,7 +593,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   {getSection('capital_stack').map((m) => (
                     <Metric
                       key={m.key}
-                      label={formatKey(m.key)}
+                      label={m.label}
                       isDark={isDark}
                     >
                       {formatValue(m.value, m.key)}
@@ -1333,24 +1333,6 @@ function formatCurrency(value?: string) {
   }
 
   return `$${num}`;
-}
-function formatKey(key: string) {
-  const map: Record<string, string> = {
-    lp_irr: "LP IRR",
-    lp_moic: "LP Equity Multiple (MOIC)",
-    lp_cash_on_cash: "Cash-on-Cash Return",
-    minimum_investment: "Minimum Investment",
-
-    project_unlevered_irr: "Project Unlevered IRR",
-    project_levered_irr: "Project Levered IRR",
-    untrended_return_on_cost: "Un-Trended Return on Cost",
-    stabilized_return_on_cost: "Stabilized Return on Cost",
-
-    gp_equity: "GP Equity",
-    total_equity: "Total Equity",
-  };
-
-  return map[key] || key;
 }
 
 function formatValue(value?: string, key?: string) {

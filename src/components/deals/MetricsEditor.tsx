@@ -4,6 +4,7 @@
 import { useMemo, useState } from 'react';
 
 export type DealMetric = {
+    id?: string;
     key: string;
     label: string;
     value?: string;
@@ -53,9 +54,9 @@ export default function MetricsEditor({ dealId, initialMetrics }: Props) {
         return groups;
     }, [rows]);
 
-    function updateRow(key: string, patch: Partial<Row>) {
+    function updateRow(id: string, patch: Partial<Row>) {
         setRows((prev) =>
-            prev.map((row) => (row.key === key ? { ...row, ...patch } : row))
+            prev.map((row) => (row.id === id ? { ...row, ...patch } : row))
         );
     }
 
@@ -110,9 +111,9 @@ export default function MetricsEditor({ dealId, initialMetrics }: Props) {
             setSaving(false);
         }
     }
-    function moveRowUp(key: string) {
+    function moveRowUp(id: string) {
         setRows((prev) => {
-            const idx = prev.findIndex((r) => r.key === key);
+            const idx = prev.findIndex((r) => r.id === id);
 
             if (idx <= 0) return prev;
 
@@ -128,9 +129,9 @@ export default function MetricsEditor({ dealId, initialMetrics }: Props) {
         });
     }
 
-    function moveRowDown(key: string) {
+    function moveRowDown(id: string) {
         setRows((prev) => {
-            const idx = prev.findIndex((r) => r.key === key);
+            const idx = prev.findIndex((r) => r.id === id);
 
             if (idx === prev.length - 1) return prev;
 
@@ -145,9 +146,9 @@ export default function MetricsEditor({ dealId, initialMetrics }: Props) {
             }));
         });
     }
-    function deleteRow(key: string) {
+    function deleteRow(id: string) {
         setRows((prev) =>
-            prev.filter((r) => r.key !== key)
+            prev.filter((r) => r.id !== id)
         );
     }
     function addMetric(section: string) {
@@ -156,7 +157,8 @@ export default function MetricsEditor({ dealId, initialMetrics }: Props) {
         setRows((prev) => [
             ...prev,
             {
-                key: id,
+                id,
+                key: '',
                 label: 'New Metric',
                 value: '',
                 section,
@@ -272,11 +274,11 @@ function MetricSection({
 
             <div style={table}>
                 {rows.map((row) => (
-                    <div key={row.key} style={rowWrap}>
+                    <div key={row.id} style={rowWrap}>
                         <select
                             value={row.icon || ''}
                             onChange={(e) =>
-                                onChange(row.key, {
+                                onChange(row.id!, {
                                     icon: e.target.value,
                                 })
                             }
@@ -294,7 +296,7 @@ function MetricSection({
                         <input
                             value={row.label}
                             onChange={(e) =>
-                                onChange(row.key, {
+                                onChange(row.id!, {
                                     label: e.target.value,
                                 })
                             }
@@ -304,14 +306,14 @@ function MetricSection({
 
                         <input
                             value={row.value}
-                            onChange={(e) => onChange(row.key, { value: e.target.value })}
+                            onChange={(e) => onChange(row.id!, { value: e.target.value })}
                             placeholder="Enter value"
                             style={input}
                         />
                         <select
                             value={row.section}
                             onChange={(e) =>
-                                onChange(row.key, {
+                                onChange(row.id!, {
                                     section: e.target.value,
                                 })
                             }
@@ -341,7 +343,7 @@ function MetricSection({
                             <input
                                 type="checkbox"
                                 checked={row.is_visible}
-                                onChange={(e) => onChange(row.key, { is_visible: e.target.checked })}
+                                onChange={(e) => onChange(row.id!, { is_visible: e.target.checked })}
                             />
                             Visible
                         </label>
@@ -349,7 +351,7 @@ function MetricSection({
                         <div style={actionWrap}>
                             <button
                                 onClick={() =>
-                                    onMoveUp(row.key)
+                                    onMoveUp(row.id!)
                                 }
                                 style={miniBtn}
                             >
@@ -358,7 +360,7 @@ function MetricSection({
 
                             <button
                                 onClick={() =>
-                                    onMoveDown(row.key)
+                                    onMoveDown(row.id!)
                                 }
                                 style={miniBtn}
                             >
@@ -367,7 +369,7 @@ function MetricSection({
 
                             <button
                                 onClick={() =>
-                                    onDelete(row.key)
+                                    onDelete(row.id!)
                                 }
                                 style={deleteBtn}
                             >

@@ -33,6 +33,47 @@ function makeRaiseId(name: string) {
   return `${base}-${suffix}`;
 }
 
+ const DEFAULT_METRICS = [
+    {
+      key: 'lp_irr',
+      label: 'LP IRR',
+      section: 'lp_summary',
+      display_order: 1,
+    },
+    {
+      key: 'lp_moic',
+      label: 'LP Equity Multiple (MOIC)',
+      section: 'lp_summary',
+      display_order: 2,
+    },
+    {
+      key: 'minimum_investment',
+      label: 'Minimum Investment',
+      section: 'lp_summary',
+      display_order: 3,
+    },
+
+    {
+      key: 'project_unlevered_irr',
+      label: 'Project Unlevered IRR',
+      section: 'project_returns',
+      display_order: 1,
+    },
+    {
+      key: 'project_levered_irr',
+      label: 'Project Levered IRR',
+      section: 'project_returns',
+      display_order: 2,
+    },
+
+    {
+      key: 'gp_equity',
+      label: 'GP Equity',
+      section: 'capital_stack',
+      display_order: 1,
+    },
+  ];
+
 export async function POST(req: Request) {
   try {
     const body = (await req
@@ -80,7 +121,36 @@ export async function POST(req: Request) {
         { status: 500 }
       );
     }
+   
+  const { error: metricsError } =
+  await supabaseServer
+    .from('deal_metrics')
+    .insert(
+      DEFAULT_METRICS.map((m) => ({
+        deal_id: data.id,
+        key: m.key,
+        label: m.label,
+        section: m.section,
+        display_order: m.display_order,
+        value: null,
+        is_visible: true,
+      }))
+    );
 
+    if (metricsError) {
+      console.error(
+        '[CREATE DEFAULT METRICS ERROR]',
+        metricsError
+      );
+
+      return NextResponse.json(
+        {
+          ok: false,
+          error: metricsError.message,
+        },
+        { status: 500 }
+      );
+    }
     return NextResponse.json(
       {
         ok: true,

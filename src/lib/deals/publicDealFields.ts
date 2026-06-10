@@ -31,6 +31,7 @@ export const PUBLIC_DEAL_SELECT = `
   ),
 
   deal_metrics (
+    id,
     key,
     label,
     icon,
