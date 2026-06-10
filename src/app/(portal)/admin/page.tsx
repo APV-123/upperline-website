@@ -5,15 +5,6 @@ import Link from 'next/link';
 import AdminNav from '@/components/navigation/AdminNav';
 import { useRouter } from 'next/navigation';
 
-const COLORS = {
-  background: '#f3f4f6',
-  surface: '#ffffff',
-  primary: '#1e3a5f',
-  text: '#0f172a',
-  subtext: '#64748b',
-  border: 'rgba(15,23,42,0.08)',
-};
-
 type Deal = {
   id: string;
   name: string;
@@ -31,8 +22,30 @@ type Deal = {
 
 export default function AdminPage() {
   const router = useRouter();
+
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [isDark, setIsDark] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  const COLORS = isDark
+    ? {
+      background: '#071426',
+      surface: '#10213d',
+      text: '#ffffff',
+      subtext: '#9fb3c8',
+      border: 'rgba(255,255,255,.08)',
+      accent: '#31c8db',
+    }
+    : {
+      background: '#f3f4f6',
+      surface: '#ffffff',
+      text: '#0f172a',
+      subtext: '#64748b',
+      border: 'rgba(15,23,42,.08)',
+      accent: '#003a5d',
+    };
 
   useEffect(() => {
     async function loadDeals() {
@@ -55,13 +68,26 @@ export default function AdminPage() {
     loadDeals();
   }, []);
 
+  useEffect(() => {
+    const check = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    check();
+
+    window.addEventListener('resize', check);
+
+    return () =>
+      window.removeEventListener('resize', check);
+  }, []);
+
   return (
     <>
       <AdminNav />
 
       <div
         style={{
-          background: COLORS.primary,
+          background: COLORS.background,
           minHeight: '100vh',
           paddingTop: 16,
           paddingBottom: 32,
@@ -73,7 +99,7 @@ export default function AdminPage() {
             marginLeft: 32,
             marginRight: 32,
             padding: 16,
-            background: COLORS.background,
+            background: 'transparent',
             minHeight: 'calc(100vh - 120px)',
           }}
         >
