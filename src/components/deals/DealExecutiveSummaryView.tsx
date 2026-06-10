@@ -625,7 +625,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                           fontWeight: 600,
                         }}
                       >
-                        LP {lpPct.toFixed(1)}%
+                        LP {Math.round(lpPct)}%
                       </span>
 
                       <span
@@ -637,7 +637,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                           fontWeight: 600,
                         }}
                       >
-                        GP {gpPct.toFixed(1)}%
+                        GP {Math.round(gpPct)}%
                       </span>
                     </div>
 
