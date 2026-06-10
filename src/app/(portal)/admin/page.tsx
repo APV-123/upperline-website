@@ -47,6 +47,17 @@ export default function AdminPage() {
       accent: '#003a5d',
     };
 
+  const btnStyle = {
+    padding: '8px 12px',
+    borderRadius: 8,
+    border: `1px solid ${COLORS.border}`,
+    background: '#173056',
+    color: COLORS.text,
+    fontSize: 12,
+    fontWeight: 500,
+    cursor: 'pointer',
+  };
+
   useEffect(() => {
     async function loadDeals() {
       try {
@@ -163,7 +174,7 @@ export default function AdminPage() {
             </div>
           )}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {deals.map((d) => {
               const committed = d.metrics?.committed ?? 0;
               const investorCount = d.metrics?.investorCount ?? 0;
@@ -182,66 +193,162 @@ export default function AdminPage() {
                     router.push(`/admin/deals/${d.id}/public`)
                   }
                   style={{
-                    padding: 12,
+                    padding: 20,
                     background: COLORS.surface,
                     border: `1px solid ${COLORS.border}`,
-                    borderRadius: 6,
-                    display: 'flex',
-                    flexDirection: isMobile ? 'column' : 'row',
-                    alignItems: isMobile ? 'stretch' : 'center',
-                    gap: 12,
+                    borderRadius: 12,
                     cursor: 'pointer',
+                    transition: 'all .15s ease',
+                    boxShadow: '0 8px 24px rgba(0,0,0,.18)',
                   }}
                 >
                   {/* LEFT */}
-                  <div>
-                    <div
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 600,
-                        color: COLORS.text,
-                      }}
-                    >
-                      {d.name}
-                    </div>
-
-                    <div style={{ fontSize: 11, color: COLORS.subtext }}>
-                      ${committed.toLocaleString()} / $
-                      {d.target_amount.toLocaleString()} ({pct}%)
-                    </div>
-
-                    <div style={{ fontSize: 11, color: COLORS.subtext }}>
-                      {investorCount} investors · {invitedCount} invited ·{' '}
-                      {draftReadyCount} drafts
-                    </div>
-
-                    {/* Warning */}
-                    {draftReadyCount > 0 && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      marginBottom: 20,
+                    }}
+                  >
+                    <div>
                       <div
                         style={{
-                          fontSize: 10,
-                          color: '#b91c1c',
-                          marginTop: 2,
-                          fontWeight: 600,
+                          fontSize: 20,
+                          fontWeight: 700,
+                          color: COLORS.text,
                         }}
                       >
-                        ⚠ {draftReadyCount} draft
-                        {draftReadyCount > 1 ? 's' : ''} not sent
+                        {d.name}
                       </div>
-                    )}
 
-                    {/* Status */}
-                    <div style={{ fontSize: 10, marginTop: 4 }}>
-                      {d.is_public ? '● Published' : '● Draft'}
+                      <div
+                        style={{
+                          fontSize: 12,
+                          color: COLORS.subtext,
+                          marginTop: 4,
+                        }}
+                      >
+                        {investorCount} investors · {invitedCount} invited · {draftReadyCount} drafts
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        padding: '6px 10px',
+                        borderRadius: 999,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        background: d.is_public
+                          ? 'rgba(49,200,219,.15)'
+                          : 'rgba(255,255,255,.05)',
+                        color: d.is_public
+                          ? COLORS.accent
+                          : COLORS.subtext,
+                      }}
+                    >
+                      {d.is_public ? 'Published' : 'Draft'}
                     </div>
                   </div>
 
                   {/* RIGHT */}
+
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: isMobile
+                        ? 'repeat(2,1fr)'
+                        : 'repeat(4,1fr)',
+                      gap: 16,
+                      marginBottom: 20,
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 11, color: COLORS.subtext }}>
+                        RAISED
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: 22,
+                          fontWeight: 700,
+                          color: COLORS.text,
+                        }}
+                      >
+                        ${committed.toLocaleString()}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: 11, color: COLORS.subtext }}>
+                        TARGET
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: 22,
+                          fontWeight: 700,
+                          color: COLORS.text,
+                        }}
+                      >
+                        ${d.target_amount.toLocaleString()}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: 11, color: COLORS.subtext }}>
+                        INVESTORS
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: 28,
+                          fontWeight: 700,
+                          color: COLORS.text,
+                        }}
+                      >
+                        {investorCount}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: 11, color: COLORS.subtext }}>
+                        FUNDED
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: 22,
+                          fontWeight: 700,
+                          color: COLORS.accent,
+                        }}
+                      >
+                        {pct}%
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      height: 8,
+                      borderRadius: 999,
+                      background: 'rgba(255,255,255,.06)',
+                      overflow: 'hidden',
+                      marginBottom: 20,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: `${pct}%`,
+                        height: '100%',
+                        background: COLORS.accent,
+                      }}
+                    />
+                  </div>
                   <div
                     style={{
                       display: 'flex',
                       flexWrap: 'wrap',
-                      gap: 8,
+                      gap: 16,
                     }}
                   >
                     <Link href={`/admin/deals/${d.id}/investors`}>
@@ -325,12 +432,4 @@ export default function AdminPage() {
   );
 }
 
-const btnStyle = {
-  padding: '5px 10px',
-  borderRadius: 6,
-  border: '1px solid rgba(15,23,42,0.08)',
-  background: '#fff',
-  fontSize: 12,
-  color: '#0f172a',
-  cursor: 'pointer',
-};
+
