@@ -116,16 +116,6 @@ export default function AdminPage() {
         >
           {/* HEADER */}
           <div style={{ marginBottom: 12 }}>
-            <div
-              style={{
-                fontSize: 20,
-                fontWeight: 600,
-                color: COLORS.text,
-              }}
-            >
-              Deals
-            </div>
-
             <button
               onClick={async () => {
                 const res = await fetch('/api/deals/create', {
@@ -150,13 +140,13 @@ export default function AdminPage() {
               }}
               style={{
                 marginTop: 6,
-                background: COLORS.accent,
-                color: '#fff',
+                background: 'rgba(49,200,219,.12)',
+                color: COLORS.accent,
+                border: `1px solid rgba(49,200,219,.18)`,
                 padding: '10px 16px',
                 fontSize: 13,
                 fontWeight: 600,
-                borderRadius: 8,
-                border: 'none',
+                borderRadius: 999,
                 cursor: 'pointer',
               }}
             >
