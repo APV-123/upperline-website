@@ -95,10 +95,9 @@ export default function AdminPage() {
       >
         <div
           style={{
-            maxWidth: 1200,
-            marginLeft: 32,
-            marginRight: 32,
-            padding: 16,
+            maxWidth: 1400,
+            margin: '0 auto',
+            padding: isMobile ? 12 : 24,
             background: 'transparent',
             minHeight: 'calc(100vh - 120px)',
           }}
@@ -139,7 +138,7 @@ export default function AdminPage() {
               }}
               style={{
                 marginTop: 6,
-                background: COLORS.primary,
+                background: COLORS.accent,
                 color: '#fff',
                 borderRadius: 6,
                 padding: '6px 12px',
@@ -188,8 +187,9 @@ export default function AdminPage() {
                     border: `1px solid ${COLORS.border}`,
                     borderRadius: 6,
                     display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
+                    flexDirection: isMobile ? 'column' : 'row',
+                    alignItems: isMobile ? 'stretch' : 'center',
+                    gap: 12,
                     cursor: 'pointer',
                   }}
                 >
@@ -237,7 +237,13 @@ export default function AdminPage() {
                   </div>
 
                   {/* RIGHT */}
-                  <div style={{ display: 'flex', gap: 8 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: 8,
+                    }}
+                  >
                     <Link href={`/admin/deals/${d.id}/investors`}>
                       <button
                         style={btnStyle}
@@ -298,8 +304,12 @@ export default function AdminPage() {
                       style={{
                         ...btnStyle,
                         background: d.is_public
-                          ? '#e8eef4'
-                          : '#f1f2f4',
+                          ? 'rgba(49,200,219,.15)'
+                          : COLORS.surface,
+                        color: d.is_public
+                          ? COLORS.accent
+                          : COLORS.text,
+                        border: `1px solid ${COLORS.border}`,
                       }}
                     >
                       {d.is_public ? 'Published' : 'Draft'}
