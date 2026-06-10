@@ -7,6 +7,9 @@ export default function AdminNav() {
   return (
     <div
       style={{
+        position: 'sticky',
+        top:0,
+        zIndex: 100,
         width: '100%',
         height: 64,
         padding: '0 32px',
@@ -16,6 +19,7 @@ export default function AdminNav() {
         background: '#071426',
         borderBottom: '1px solid rgba(255,255,255,.08)',
         boxSizing: 'border-box',
+        boxShadow: '0 4px 20px rgba(0,0,0,.25)',
       }}
     >
       <div
