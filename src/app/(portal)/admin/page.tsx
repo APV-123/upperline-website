@@ -140,10 +140,10 @@ export default function AdminPage() {
               }}
               style={{
                 marginTop: 6,
-                background: 'rgba(49,200,219,.12)',
+                background: 'rgba(49,200,219,.10)',
                 color: COLORS.accent,
                 border: `1px solid rgba(49,200,219,.18)`,
-                padding: '10px 16px',
+                padding: '8px 14px',
                 fontSize: 13,
                 fontWeight: 600,
                 borderRadius: 999,
@@ -186,8 +186,13 @@ export default function AdminPage() {
                   }
                   style={{
                     padding: 20,
-                    background: COLORS.surface,
-                    border: `1px solid ${COLORS.border}`,
+                    background: d.is_public
+                      ? COLORS.surface
+                      : '#0c1b33',
+
+                    border: d.is_public
+                      ? `1px solid ${COLORS.border}`
+                      : '1px solid rgba(255,255,255,.04)',
                     borderRadius: 12,
                     cursor: 'pointer',
 
@@ -234,28 +239,6 @@ export default function AdminPage() {
                           marginTop: 10,
                         }}
                       >
-                        <div>
-                          <div
-                            style={{
-                              fontSize: 10,
-                              color: COLORS.subtext,
-                              textTransform: 'uppercase',
-                            }}
-                          >
-                            Investors
-                          </div>
-
-                          <div
-                            style={{
-                              fontSize: 18,
-                              fontWeight: 700,
-                              color: COLORS.text,
-                            }}
-                          >
-                            {investorCount}
-                          </div>
-                        </div>
-
                         <div>
                           <div
                             style={{
@@ -437,7 +420,12 @@ export default function AdminPage() {
                         e.stopPropagation();
                         router.push(`/admin/deals/${d.id}/edit`);
                       }}
-                      style={btnStyle}
+                      style={{
+                        ...btnStyle,
+                        background: 'rgba(49,200,219,.15)',
+                        color: COLORS.accent,
+                        border: '1px solid rgba(49,200,219,.18)',
+                      }}
                     >
                       Edit
                     </button>
