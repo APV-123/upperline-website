@@ -384,26 +384,6 @@ function MetricSection({
                             style={inputStyle(colors)}
                         />
 
-                        <button
-                            onClick={() =>
-                                onChange(row.id!, {
-                                    is_visible: !row.is_visible,
-                                })
-                            }
-                            style={{
-                                ...buttonStyle(colors),
-                                color: row.is_visible
-                                    ? colors.accent
-                                    : colors.subtext,
-
-                                fontSize: 18,
-                                fontWeight: 700,
-                                padding: 0,
-                            }}
-                        >
-                            {row.is_visible ? '●' : '○'}
-                        </button>
-
                         <div style={{ position: 'relative' }}>
                             <button
                                 onClick={() =>
@@ -440,6 +420,18 @@ function MetricSection({
                                     }}
                                 >
                                     <button
+                                        onClick={() =>
+                                            onChange(row.id!, {
+                                                is_visible: !row.is_visible,
+                                            })
+                                        }
+                                        style={menuItem(colors)}
+                                    >
+                                        {row.is_visible
+                                            ? 'Hide Metric'
+                                            : 'Show Metric'}
+                                    </button>
+                                    <button
                                         onClick={() => onMoveUp(row.id!)}
                                         style={menuItem(colors)}
                                     >
@@ -452,7 +444,91 @@ function MetricSection({
                                     >
                                         Move Down
                                     </button>
+                                    <div
+                                        style={{
+                                            height: 1,
+                                            background: colors.border,
+                                            margin: '6px 0',
+                                        }}
+                                    />
+                                    <div
+                                        style={{
+                                            padding: '8px 10px',
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            letterSpacing: '.04em',
+                                            color: colors.subtext,
+                                            textTransform: 'uppercase',
+                                        }}
+                                    >
+                                        Move To
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            onChange(row.id!, {
+                                                section: 'hero',
+                                            });
+                                            setOpenMenuId(null);
+                                        }}
+                                        style={menuItem(colors)}
+                                    >
+                                        Hero Metrics
+                                    </button>
 
+                                    <button
+                                        onClick={() => {
+                                            onChange(row.id!, {
+                                                section: 'property_facts',
+                                            });
+                                            setOpenMenuId(null);
+                                        }}
+                                        style={menuItem(colors)}
+                                    >
+                                        Property Facts
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            onChange(row.id!, {
+                                                section: 'lp_summary',
+                                            });
+                                            setOpenMenuId(null);
+                                        }}
+                                        style={menuItem(colors)}
+                                    >
+                                        LP Return Summary
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            onChange(row.id!, {
+                                                section: 'project_returns',
+                                            });
+                                            setOpenMenuId(null);
+                                        }}
+                                        style={menuItem(colors)}
+                                    >
+                                        Project Returns
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            onChange(row.id!, {
+                                                section: 'capital_stack',
+                                            });
+                                            setOpenMenuId(null);
+                                        }}
+                                        style={menuItem(colors)}
+                                    >
+                                        Capital Stack
+                                    </button>
+                                    <div
+                                        style={{
+                                            height: 1,
+                                            background: colors.border,
+                                            margin: '6px 0',
+                                        }}
+                                    />
                                     <button
                                         onClick={() =>
                                             onDelete(row.id!)
@@ -532,7 +608,7 @@ const rowWrap = (
 
     gridTemplateColumns: isMobile
         ? '1fr'
-        : '220px minmax(320px,1.8fr) 190px 40px 36px',
+        : '220px minmax(320px,1.8fr) 190px 36px',
 
     gap: 12,
     alignItems: 'center',
