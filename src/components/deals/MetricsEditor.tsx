@@ -321,9 +321,6 @@ function MetricSection({
         <div style={section}>
             <div
                 style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
                     marginBottom: 12,
                 }}
             >
@@ -331,17 +328,7 @@ function MetricSection({
                     {heading}
                 </h3>
 
-                <button
-                    onClick={() => onAdd(sectionKey)}
-                    style={{
-                        ...buttonStyle(colors),
-                        color: colors.accent,
-                        border: `1px solid ${colors.accent}`,
-                        fontWeight: 600,
-                    }}
-                >
-                    + Add Metric
-                </button>
+                
             </div>
 
             <div style={table}>
@@ -456,6 +443,17 @@ function MetricSection({
                     </div>
                 ))}
             </div>
+            <button
+                    onClick={() => onAdd(sectionKey)}
+                    style={{
+                        ...buttonStyle(colors),
+                        color: colors.accent,
+                        border: `1px solid ${colors.accent}`,
+                        fontWeight: 600,
+                    }}
+                >
+                    + Add Metric
+                </button>
         </div>
     );
 }
@@ -471,7 +469,7 @@ const cardHeader: React.CSSProperties = {
 
 
 const section: React.CSSProperties = {
-    marginTop: 20,
+    marginTop: 40,
 };
 
 const sectionTitle = (
