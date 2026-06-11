@@ -38,7 +38,7 @@ export default function DealEditPage() {
   const [error, setError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<DealMetric[]>([]);
   const [isMobile, setIsMobile] = useState(false);
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(true);
 
 
   // ✅ Load deal
