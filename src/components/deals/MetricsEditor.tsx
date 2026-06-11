@@ -323,7 +323,7 @@ function MetricSection({
 
             <div style={table}>
                 {rows.map((row) => (
-                    <div key={row.id} style={rowWrap}>
+                    <div key={row.id} style={rowWrap(isMobile)}>
                         <select
                             value={row.icon || ''}
                             onChange={(e) =>
@@ -388,7 +388,7 @@ function MetricSection({
                                 Capital Stack
                             </option>
                         </select>
-                        <label style={checkboxWrap}>
+                        <label style={checkboxWrap(colors)}>
                             <input
                                 type="checkbox"
                                 checked={row.is_visible}
@@ -423,9 +423,11 @@ function MetricSection({
                                 style={{
                                     ...buttonStyle(colors),
                                     color: colors.subtext,
+                                    width: 36,
+                                    padding: 0,
                                 }}
                             >
-                                Delete
+                                X
                             </button>
                         </div>
                     </div>
@@ -478,12 +480,18 @@ const table: React.CSSProperties = {
     gap: 10,
 };
 
-const rowWrap: React.CSSProperties = {
+const rowWrap = (
+    isMobile: boolean
+): React.CSSProperties => ({
     display: 'grid',
-    gridTemplateColumns: '240px 1fr 180px 110px 180px',
+
+    gridTemplateColumns: isMobile
+        ? '1fr'
+        : '220px 1fr 180px 140px auto auto',
+
     gap: 12,
     alignItems: 'center',
-};
+});
 
 const labelCell: React.CSSProperties = {
     fontSize: 13,
@@ -503,13 +511,15 @@ const inputStyle = (
     fontSize: 13,
 });
 
-const checkboxWrap: React.CSSProperties = {
+const checkboxWrap = (
+    colors: typeof ADMIN_THEME.dark
+): React.CSSProperties => ({
     display: 'flex',
     alignItems: 'center',
     gap: 8,
     fontSize: 13,
-    color: '#334155',
-};
+    color: colors.subtext,
+});
 
 
 const actionWrap: React.CSSProperties = {
