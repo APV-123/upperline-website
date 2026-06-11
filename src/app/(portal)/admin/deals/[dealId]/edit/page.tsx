@@ -198,6 +198,7 @@ export default function DealEditPage() {
                 active={section}
                 onChange={setSection}
                 isDark={isDark}
+                isMobile={isMobile}
               />
             </div>
             <div style={{ flex: 1 }}>
