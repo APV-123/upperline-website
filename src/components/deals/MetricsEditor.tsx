@@ -319,7 +319,30 @@ function MetricSection({
 }) {
     return (
         <div style={section}>
-            <h3 style={sectionTitle}>{heading}</h3>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 12,
+                }}
+            >
+                <h3 style={sectionTitle(colors)}>
+                    {heading}
+                </h3>
+
+                <button
+                    onClick={() => onAdd(sectionKey)}
+                    style={{
+                        ...buttonStyle(colors),
+                        color: colors.accent,
+                        border: `1px solid ${colors.accent}`,
+                        fontWeight: 600,
+                    }}
+                >
+                    + Add Metric
+                </button>
+            </div>
 
             <div style={table}>
                 {rows.map((row) => (
@@ -433,23 +456,6 @@ function MetricSection({
                     </div>
                 ))}
             </div>
-            <button
-                onClick={() =>
-                    onAdd(sectionKey)
-                }
-                style={{
-                    ...buttonStyle(colors),
-
-                    color: colors.accent,
-                    border: `1px solid ${colors.accent}`,
-
-                    fontWeight: 600,
-
-                    marginTop: 12,
-                }}
-            >
-                + Add Metric
-            </button>
         </div>
     );
 }
@@ -468,11 +474,14 @@ const section: React.CSSProperties = {
     marginTop: 20,
 };
 
-const sectionTitle: React.CSSProperties = {
-    fontSize: 16,
+const sectionTitle = (
+    colors: typeof ADMIN_THEME.dark
+): React.CSSProperties => ({
+    fontSize: 18,
     fontWeight: 700,
-    marginBottom: 12,
-};
+    margin: 0,
+    color: colors.text,
+});
 
 const table: React.CSSProperties = {
     display: 'flex',
@@ -487,7 +496,7 @@ const rowWrap = (
 
     gridTemplateColumns: isMobile
         ? '1fr'
-        : '220px 1fr 180px 140px auto auto',
+        : '220px 1fr 180px 180px auto',
 
     gap: 12,
     alignItems: 'center',
