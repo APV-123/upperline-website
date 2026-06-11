@@ -48,6 +48,10 @@ export default function MetricsEditor({
     const [rows, setRows] = useState<Row[]>(() => buildInitialRows(initialMetrics));
     const [saving, setSaving] = useState(false);
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+    const [menuMode, setMenuMode] =
+        useState<'main' | 'icon' | 'section'>(
+            'main'
+        );
     const colors = isDark
         ? ADMIN_THEME.dark
         : ADMIN_THEME.light;
@@ -71,7 +75,7 @@ export default function MetricsEditor({
             prev.map((row) => (row.id === id ? { ...row, ...patch } : row))
         );
     }
-
+    
     async function saveMetrics() {
         try {
             setSaving(true);
@@ -270,6 +274,8 @@ export default function MetricsEditor({
                     isMobile={isMobile}
                     colors={colors}
                     onChange={updateRow}
+                    menuMode={menuMode}
+                    setMenuMode={setMenuMode}
                     openMenuId={openMenuId}
                     setOpenMenuId={setOpenMenuId}
                     onMoveUp={moveRowUp}
@@ -292,6 +298,36 @@ const ICON_OPTIONS = [
     'dollar',
     'warehouse',
 ];
+function getIcon(icon?: string) {
+        switch (icon) {
+            case 'building':
+                return '🏢';
+
+            case 'percent':
+                return '%';
+
+            case 'vacancy':
+                return '◫';
+
+            case 'car':
+                return '🚗';
+
+            case 'map':
+                return '📍';
+
+            case 'users':
+                return '👥';
+
+            case 'dollar':
+                return '$';
+
+            case 'warehouse':
+                return '▣';
+
+            default:
+                return '•';
+        }
+    }
 
 function MetricSection({
     heading,
@@ -302,6 +338,8 @@ function MetricSection({
     onChange,
     openMenuId,
     setOpenMenuId,
+    menuMode,
+    setMenuMode,
     onMoveUp,
     onMoveDown,
     onDelete,
@@ -319,6 +357,13 @@ function MetricSection({
     openMenuId: string | null;
     setOpenMenuId: React.Dispatch<
         React.SetStateAction<string | null>
+    >;
+    menuMode: 'main' | 'icon' | 'section';
+
+    setMenuMode: React.Dispatch<
+        React.SetStateAction<
+            'main' | 'icon' | 'section'
+        >
     >;
     onMoveUp: (id: string) => void;
     onMoveDown: (id: string) => void;
@@ -348,24 +393,17 @@ function MetricSection({
                             position: 'relative',
                         }}
                     >
-                        <select
-                            value={row.icon || ''}
-                            onChange={(e) =>
-                                onChange(row.id!, {
-                                    icon: e.target.value,
-                                })
-                            }
-                            style={inputStyle(colors)}
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: colors.accent,
+                                fontSize: 18,
+                            }}
                         >
-                            {ICON_OPTIONS.map((icon) => (
-                                <option
-                                    key={icon}
-                                    value={icon}
-                                >
-                                    {icon || 'No Icon'}
-                                </option>
-                            ))}
-                        </select>
+                            {getIcon(row.icon)}
+                        </div>
                         <input
                             value={row.label}
                             onChange={(e) =>
@@ -404,144 +442,174 @@ function MetricSection({
                             </button>
 
                             {openMenuId === row.id && (
-                                <div
-                                    style={{
-                                        position: 'absolute',
-                                        top: '110%',
-                                        right: 0,
-                                        minWidth: 180,
-                                        background: colors.surface,
-                                        border: `1px solid ${colors.border}`,
-                                        borderRadius: 8,
-                                        padding: 8,
-                                        zIndex: 100,
-                                        boxShadow:
-                                            '0 10px 30px rgba(0,0,0,0.25)',
-                                    }}
-                                >
-                                    <button
-                                        onClick={() =>
-                                            onChange(row.id!, {
-                                                is_visible: !row.is_visible,
-                                            })
-                                        }
-                                        style={menuItem(colors)}
-                                    >
-                                        {row.is_visible
-                                            ? 'Hide Metric'
-                                            : 'Show Metric'}
-                                    </button>
-                                    <button
-                                        onClick={() => onMoveUp(row.id!)}
-                                        style={menuItem(colors)}
-                                    >
-                                        Move Up
-                                    </button>
+                                <>
+                                    {menuMode === 'main' && (
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                top: '110%',
+                                                right: 0,
+                                                minWidth: 220,
+                                                background: colors.surface,
+                                                border: `1px solid ${colors.border}`,
+                                                borderRadius: 8,
+                                                padding: 8,
+                                                zIndex: 100,
+                                                boxShadow:
+                                                    '0 10px 30px rgba(0,0,0,0.25)',
+                                            }}
+                                        >
+                                            <button
+                                                onClick={() =>
+                                                    onChange(row.id!, {
+                                                        is_visible: !row.is_visible,
+                                                    })
+                                                }
+                                                style={menuItem(colors)}
+                                            >
+                                                {row.is_visible
+                                                    ? 'Hide Metric'
+                                                    : 'Show Metric'}
+                                            </button>
+                                            <div
+                                                style={{
+                                                    height: 1,
+                                                    background: colors.border,
+                                                    margin: '6px 0',
+                                                }}
+                                            />
+                                            <button
+                                                onClick={() => onMoveUp(row.id!)}
+                                                style={menuItem(colors)}
+                                            >
+                                                Move Up
+                                            </button>
 
-                                    <button
-                                        onClick={() => onMoveDown(row.id!)}
-                                        style={menuItem(colors)}
-                                    >
-                                        Move Down
-                                    </button>
-                                    <div
-                                        style={{
-                                            height: 1,
-                                            background: colors.border,
-                                            margin: '6px 0',
-                                        }}
-                                    />
-                                    <div
-                                        style={{
-                                            padding: '8px 10px',
-                                            fontSize: 11,
-                                            fontWeight: 700,
-                                            letterSpacing: '.04em',
-                                            color: colors.subtext,
-                                            textTransform: 'uppercase',
-                                        }}
-                                    >
-                                        Move To
-                                    </div>
-                                    <button
-                                        onClick={() => {
-                                            onChange(row.id!, {
-                                                section: 'hero',
-                                            });
-                                            setOpenMenuId(null);
-                                        }}
-                                        style={menuItem(colors)}
-                                    >
-                                        Hero Metrics
-                                    </button>
+                                            <button
+                                                onClick={() => onMoveDown(row.id!)}
+                                                style={menuItem(colors)}
+                                            >
+                                                Move Down
+                                            </button>
+                                            <div
+                                                style={{
+                                                    height: 1,
+                                                    background: colors.border,
+                                                    margin: '6px 0',
+                                                }}
+                                            />
+                                            <div
+                                                style={{
+                                                    padding: '8px 10px',
+                                                    fontSize: 11,
+                                                    fontWeight: 700,
+                                                    letterSpacing: '.04em',
+                                                    color: colors.subtext,
+                                                    textTransform: 'uppercase',
+                                                }}
+                                            >
+                                                Appearance
+                                            </div>
 
-                                    <button
-                                        onClick={() => {
-                                            onChange(row.id!, {
-                                                section: 'property_facts',
-                                            });
-                                            setOpenMenuId(null);
-                                        }}
-                                        style={menuItem(colors)}
-                                    >
-                                        Property Facts
-                                    </button>
+                                            <button
+                                                style={menuItem(colors)}
+                                            >
+                                                Change Icon →
+                                            </button>
+                                            <div
+                                                style={{
+                                                    padding: '8px 10px',
+                                                    fontSize: 11,
+                                                    fontWeight: 700,
+                                                    letterSpacing: '.04em',
+                                                    color: colors.subtext,
+                                                    textTransform: 'uppercase',
+                                                }}
+                                            >
+                                                Move To
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    onChange(row.id!, {
+                                                        section: 'hero',
+                                                    });
+                                                    setOpenMenuId(null);
+                                                }}
+                                                style={menuItem(colors)}
+                                            >
+                                                Hero Metrics
+                                            </button>
 
-                                    <button
-                                        onClick={() => {
-                                            onChange(row.id!, {
-                                                section: 'lp_summary',
-                                            });
-                                            setOpenMenuId(null);
-                                        }}
-                                        style={menuItem(colors)}
-                                    >
-                                        LP Return Summary
-                                    </button>
+                                            <button
+                                                onClick={() => {
+                                                    onChange(row.id!, {
+                                                        section: 'property_facts',
+                                                    });
+                                                    setOpenMenuId(null);
+                                                }}
+                                                style={menuItem(colors)}
+                                            >
+                                                Property Facts
+                                            </button>
 
-                                    <button
-                                        onClick={() => {
-                                            onChange(row.id!, {
-                                                section: 'project_returns',
-                                            });
-                                            setOpenMenuId(null);
-                                        }}
-                                        style={menuItem(colors)}
-                                    >
-                                        Project Returns
-                                    </button>
+                                            <button
+                                                onClick={() => {
+                                                    onChange(row.id!, {
+                                                        section: 'lp_summary',
+                                                    });
+                                                    setOpenMenuId(null);
+                                                }}
+                                                style={menuItem(colors)}
+                                            >
+                                                LP Return Summary
+                                            </button>
 
-                                    <button
-                                        onClick={() => {
-                                            onChange(row.id!, {
-                                                section: 'capital_stack',
-                                            });
-                                            setOpenMenuId(null);
-                                        }}
-                                        style={menuItem(colors)}
-                                    >
-                                        Capital Stack
-                                    </button>
-                                    <div
-                                        style={{
-                                            height: 1,
-                                            background: colors.border,
-                                            margin: '6px 0',
-                                        }}
-                                    />
-                                    <button
-                                        onClick={() =>
-                                            onDelete(row.id!)
-                                        }
-                                        style={{
-                                            ...menuItem(colors),
-                                            color: '#ef4444',
-                                        }}
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
+                                            <button
+                                                onClick={() => {
+                                                    onChange(row.id!, {
+                                                        section: 'project_returns',
+                                                    });
+                                                    setOpenMenuId(null);
+                                                }}
+                                                style={menuItem(colors)}
+                                            >
+                                                Project Returns
+                                            </button>
+
+                                            <button
+                                                onClick={() => {
+                                                    onChange(row.id!, {
+                                                        section: 'capital_stack',
+                                                    });
+                                                    setOpenMenuId(null);
+                                                }}
+                                                style={menuItem(colors)}
+                                            >
+                                                Capital Stack
+                                            </button>
+                                            <div
+                                                style={{
+                                                    height: 1,
+                                                    background: colors.border,
+                                                    margin: '6px 0',
+                                                }}
+                                            />
+                                            <button
+                                                onClick={() =>
+                                                    onDelete(row.id!)
+                                                }
+                                                style={{
+                                                    ...menuItem(colors),
+                                                    color: '#ef4444',
+                                                }}
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
                             )}
+
                         </div>
                     </div>
                 ))}
@@ -608,7 +676,7 @@ const rowWrap = (
 
     gridTemplateColumns: isMobile
         ? '1fr'
-        : '220px minmax(320px,1.8fr) 190px 36px',
+        : '40px minmax(350px,1.8fr) 190px 36px',
 
     gap: 12,
     alignItems: 'center',
