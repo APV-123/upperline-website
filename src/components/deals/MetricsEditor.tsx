@@ -455,6 +455,23 @@ function MetricSection({
                                             : row.id!
                                     );
                                 }}
+                                style={{
+                                    ...buttonStyle(colors),
+
+                                    width: 36,
+                                    height: 36,
+
+                                    padding: 0,
+
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+
+                                    fontSize: 18,
+                                    fontWeight: 700,
+
+                                    color: colors.subtext,
+                                }}
                             >
                                 ⋯
                             </button>
