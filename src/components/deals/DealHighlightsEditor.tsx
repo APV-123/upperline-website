@@ -137,7 +137,7 @@ export default function DealHighlightsEditor({
                             margin: 0,
                             color: colors.text,
                         }}
-                    >Investment Highlights</h2>
+                    >Highlights</h2>
 
                     <p
                         style={{
@@ -163,7 +163,7 @@ export default function DealHighlightsEditor({
                         style={{
                             background: colors.surface,
                             color: colors.accent,
-                            border: `1px solid ${colors.border}`,
+                            border: `1px solid ${colors.accent}`,
                             borderRadius: 10,
                             padding: '10px 14px',
                             cursor: 'pointer',
@@ -204,7 +204,7 @@ export default function DealHighlightsEditor({
                                 border: `1px solid ${colors.border}`,
                                 background: colors.input,
                                 borderRadius: 10,
-                                padding: 16,
+                                padding: 20,
                             }}
                         >
                             <div
@@ -336,7 +336,9 @@ export default function DealHighlightsEditor({
                                     }
                                     style={{
                                         background: colors.surface,
-                                        color: '#dc2626',
+                                        color: '#ef4444',
+                                        fontSize: 13,
+                                        fontWeight: 500,
                                         border: `1px solid ${colors.border}`,
                                         borderRadius: 8,
                                         padding: '8px 12px',
