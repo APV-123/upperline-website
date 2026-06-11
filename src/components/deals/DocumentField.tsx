@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { getSupabase } from '@/lib/supabaseClient';
+import { ADMIN_THEME } from '@/lib/adminTheme';
 
 async function uploadFile(
   file: File,
@@ -33,7 +34,7 @@ async function uploadFile(
 type Props = {
   label: string;
   url: string;
-  isDark: boolean;
+  colors: typeof ADMIN_THEME.dark;
   isMobile: boolean;
   onChange: (value: string) => void;
   bucket:
@@ -46,7 +47,7 @@ type Props = {
 export default function DocumentField({
   label,
   url,
-  isDark,
+  colors,
   isMobile,
   onChange,
   bucket,
@@ -74,7 +75,7 @@ export default function DocumentField({
       <label
         style={{
           fontSize: 12,
-          color: isDark ? '#cbd5e1' : '#475569',
+          color: colors.subtext,
         }}
       >
         {label}
@@ -83,7 +84,7 @@ export default function DocumentField({
           <span
             style={{
               marginLeft: 6,
-              color: isDark ? '#94a3b8' : '#64748b',
+              color: colors.subtext,
               fontSize: 11,
             }}
           >
@@ -107,7 +108,7 @@ export default function DocumentField({
               style={{
                 fontSize: 14,
                 fontWeight: 600,
-                color: isDark ? '#60a5fa' : '#003a5d',
+                color: colors.accent,
               }}
             >
               {fileName}
@@ -118,7 +119,7 @@ export default function DocumentField({
         <div
           style={{
             marginTop: 8,
-            color: isDark ? '#94a3b8' : '#64748b',
+            color: colors.subtext,
           }}
         >
           No document uploaded
@@ -134,16 +135,21 @@ export default function DocumentField({
           }
           style={{
             padding: isMobile ? '10px 14px' : '8px 12px',
-            color: '#fff',
-            border: 'none',
+            color: isDisabled
+              ? colors.subtext
+              : colors.accent,
+            border: `1px solid ${isDisabled
+                ? colors.border
+                : colors.accent
+              }`,
             borderRadius: 6,
             cursor: isDisabled
               ? 'not-allowed'
               : 'pointer',
             fontSize: 13,
             background: isDisabled
-              ? '#94a3b8'
-              : '#003a5d',
+              ? colors.surface
+              : `${colors.accent}20`,
           }}
         >
           {url
@@ -195,7 +201,7 @@ export default function DocumentField({
           style={{
             marginTop: 6,
             fontSize: 12,
-            color: isDark ? '#94a3b8' : '#666',
+            color: colors.subtext,
           }}
         >
           Uploading...
