@@ -165,6 +165,8 @@ export default function DealDetailsEditor({
 type FieldProps = {
     label: string;
     value: string | number;
+    isDark: boolean;
+    isMobile: boolean;
     onChange: (value: string) => void;
     type?: string;
 };
