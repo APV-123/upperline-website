@@ -298,6 +298,28 @@ const ICON_OPTIONS = [
     'dollar',
     'warehouse',
 ];
+const SECTION_OPTIONS = [
+    {
+        key: 'hero',
+        label: 'Hero Metrics',
+    },
+    {
+        key: 'property_facts',
+        label: 'Property Facts',
+    },
+    {
+        key: 'lp_summary',
+        label: 'LP Return Summary',
+    },
+    {
+        key: 'project_returns',
+        label: 'Project Returns',
+    },
+    {
+        key: 'capital_stack',
+        label: 'Capital Stack',
+    },
+];
 function getIcon(icon?: string) {
     switch (icon) {
         case 'building':
@@ -424,18 +446,14 @@ function MetricSection({
 
                         <div style={{ position: 'relative' }}>
                             <button
-                                onClick={() =>
+                                onClick={() => {
+                                    setMenuMode('main');
+
                                     setOpenMenuId(
                                         openMenuId === row.id
                                             ? null
                                             : row.id!
-                                    )
-                                }
-                                style={{
-                                    ...buttonStyle(colors),
-                                    fontSize: 18,
-                                    fontWeight: 700,
-                                    padding: 0,
+                                    );
                                 }}
                             >
                                 ⋯
@@ -444,7 +462,7 @@ function MetricSection({
                             {openMenuId === row.id && (
                                 <>
                                     {menuMode === 'main' && (
-                                        
+
                                         <div
                                             style={{
                                                 position: 'absolute',
@@ -528,7 +546,7 @@ function MetricSection({
                                             >
                                                 Move To →
                                             </button>
-                                            
+
                                             <div
                                                 style={{
                                                     height: 1,
@@ -549,7 +567,106 @@ function MetricSection({
                                             </button>
                                         </div>
                                     )}
-                                </>
+                                    {menuMode === 'icon' && (
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                top: '110%',
+                                                right: 0,
+                                                minWidth: 220,
+                                                background: colors.surface,
+                                                border: `1px solid ${colors.border}`,
+                                                borderRadius: 8,
+                                                padding: 8,
+                                                zIndex: 100,
+                                                boxShadow:
+                                                    '0 10px 30px rgba(0,0,0,0.25)',
+                                            }}
+                                        >
+                                            <button
+                                                onClick={() =>
+                                                    setMenuMode('main')
+                                                }
+                                                style={menuItem(colors)}
+                                            >
+                                                ← Back
+                                            </button>
+                                            <div
+                                                style={{
+                                                    height: 1,
+                                                    background: colors.border,
+                                                    margin: '6px 0',
+                                                }}
+                                            />
+                                            {ICON_OPTIONS.map((icon) => (
+                                                <button
+                                                    key={icon}
+                                                    onClick={() => {
+                                                        onChange(row.id!, {
+                                                            icon,
+                                                        });
+
+                                                        setMenuMode('main');
+                                                        setOpenMenuId(null);
+                                                    }}
+                                                    style={menuItem(colors)}
+                                                >
+                                                    {getIcon(icon)} {icon || 'No Icon'}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                    {menuMode === 'section' && (
+
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                top: '110%',
+                                                right: 0,
+                                                minWidth: 220,
+                                                background: colors.surface,
+                                                border: `1px solid ${colors.border}`,
+                                                borderRadius: 8,
+                                                padding: 8,
+                                                zIndex: 100,
+                                                boxShadow:
+                                                    '0 10px 30px rgba(0,0,0,0.25)',
+                                            }}
+                                        >
+                                            <button
+                                                onClick={() =>
+                                                    setMenuMode('main')
+                                                }
+                                                style={menuItem(colors)}
+                                            >
+                                                ← Back
+                                            </button>
+                                            {SECTION_OPTIONS.map((section) => (
+                                                <button
+                                                    key={section.key}
+                                                    onClick={() => {
+                                                        onChange(row.id!, {
+                                                            section: section.key,
+                                                        });
+
+                                                        setMenuMode('main');
+                                                        setOpenMenuId(null);
+                                                    }}
+                                                    style={menuItem(colors)}
+                                                >
+                                                    {section.label}
+                                                </button>
+                                            ))}
+                                            <div
+                                                style={{
+                                                    height: 1,
+                                                    background: colors.border,
+                                                    margin: '6px 0',
+                                                }}
+                                            />
+
+                                        </div>
+                                    )}                                    </>
                             )}
 
                         </div>
