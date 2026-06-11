@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { ADMIN_THEME } from '@/lib/adminTheme';
 import type { DealFormValues } from './DealForm';
 import EditorHeader from './EditorHeader';
 
@@ -31,10 +32,13 @@ export default function DealNarrativeEditor({
     onSave,
 }: Props) {
     if (!deal) return null;
+    const colors = isDark
+        ? ADMIN_THEME.dark
+        : ADMIN_THEME.light;
     return (
         <div
             style={{
-                background: isDark ? '#0f172a' : '#f8fafc',
+                background: colors.background,
                 padding: isMobile ? 12 : 40,
             }}
         >
@@ -43,8 +47,8 @@ export default function DealNarrativeEditor({
                     width: '100%',
                     maxWidth: isMobile ? '100%' : 900,
                     margin: '0 auto',
-                    background: isDark ? '#1e293b' : '#ffffff',
-                    border: `1px solid ${isDark ? '#334155' : '#e5e7eb'}`,
+                    background: colors.surface,
+                    border: `1px solid ${colors.border}`,
                     padding: isMobile ? 16 : 24,
                     borderRadius: 8,
                 }}
@@ -61,7 +65,7 @@ export default function DealNarrativeEditor({
                 <TextArea
                     label="Hero Thesis"
                     value={deal.thesis}
-                    isDark={isDark}
+                    colors={colors}
                     isMobile={isMobile}
                     minHeight={80}
                     onChange={(v) =>
@@ -79,7 +83,7 @@ export default function DealNarrativeEditor({
                 <TextArea
                     label="Investment Overview"
                     value={deal.overview_text}
-                    isDark={isDark}
+                    colors={colors}
                     isMobile={isMobile}
                     minHeight={220}
                     onChange={(v) =>
@@ -97,7 +101,7 @@ export default function DealNarrativeEditor({
                 <TextArea
                     label="Business Plan"
                     value={deal.business_plan_text}
-                    isDark={isDark}
+                    colors={colors}
                     isMobile={isMobile}
                     minHeight={220}
                     onChange={(v) =>
@@ -119,7 +123,7 @@ export default function DealNarrativeEditor({
 type TextAreaProps = {
     label: string;
     value: string;
-    isDark: boolean;
+    colors: typeof ADMIN_THEME.dark;
     isMobile: boolean;
     minHeight?: number;
     onChange: (value: string) => void;
@@ -128,19 +132,19 @@ type TextAreaProps = {
 function TextArea({
     label,
     value,
-    isDark,
+    colors,
     isMobile,
     minHeight,
     onChange,
 }: TextAreaProps) {
     return (
-        <div style={{ marginTop: 16 }}>
+        <div style={{ marginTop: 24 }}>
             <label
                 style={{
                     fontSize: 12,
                     display: 'block',
                     marginBottom: 6,
-                    color: isDark ? '#cbd5e1' : '#475569',
+                    color: colors.subtext,
                 }}
             >
                 {label}
@@ -155,11 +159,11 @@ function TextArea({
                     width: '100%',
                     padding: isMobile ? 12 : 14,
                     borderRadius: 6,
-                    border: `1px solid ${isDark ? '#334155' : '#e5e7eb'}`,
-                    background: isDark ? '#0f172a' : '#ffffff',
-                    color: isDark ? '#f8fafc' : '#0f172a',
+                    border: `1px solid ${colors.border}`,
+                    background: colors.input,
+                    color: colors.text,
                     fontFamily: 'inherit',
-                    fontSize: 14,
+                    fontSize: 15,
                     minHeight: minHeight ?? (isMobile ? 140 : 180),
                     resize: 'vertical',
                 }}
