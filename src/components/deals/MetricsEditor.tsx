@@ -444,6 +444,7 @@ function MetricSection({
                             {openMenuId === row.id && (
                                 <>
                                     {menuMode === 'main' && (
+                                        
                                         <div
                                             style={{
                                                 position: 'absolute',
@@ -527,65 +528,7 @@ function MetricSection({
                                             >
                                                 Move To →
                                             </button>
-                                            <button
-                                                onClick={() => {
-                                                    onChange(row.id!, {
-                                                        section: 'hero',
-                                                    });
-                                                    setOpenMenuId(null);
-                                                }}
-                                                style={menuItem(colors)}
-                                            >
-                                                Hero Metrics
-                                            </button>
-
-                                            <button
-                                                onClick={() => {
-                                                    onChange(row.id!, {
-                                                        section: 'property_facts',
-                                                    });
-                                                    setOpenMenuId(null);
-                                                }}
-                                                style={menuItem(colors)}
-                                            >
-                                                Property Facts
-                                            </button>
-
-                                            <button
-                                                onClick={() => {
-                                                    onChange(row.id!, {
-                                                        section: 'lp_summary',
-                                                    });
-                                                    setOpenMenuId(null);
-                                                }}
-                                                style={menuItem(colors)}
-                                            >
-                                                LP Return Summary
-                                            </button>
-
-                                            <button
-                                                onClick={() => {
-                                                    onChange(row.id!, {
-                                                        section: 'project_returns',
-                                                    });
-                                                    setOpenMenuId(null);
-                                                }}
-                                                style={menuItem(colors)}
-                                            >
-                                                Project Returns
-                                            </button>
-
-                                            <button
-                                                onClick={() => {
-                                                    onChange(row.id!, {
-                                                        section: 'capital_stack',
-                                                    });
-                                                    setOpenMenuId(null);
-                                                }}
-                                                style={menuItem(colors)}
-                                            >
-                                                Capital Stack
-                                            </button>
+                                            
                                             <div
                                                 style={{
                                                     height: 1,
