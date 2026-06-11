@@ -47,6 +47,7 @@ export default function MetricsEditor({
 }: Props) {
     const [rows, setRows] = useState<Row[]>(() => buildInitialRows(initialMetrics));
     const [saving, setSaving] = useState(false);
+    const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const colors = isDark
         ? ADMIN_THEME.dark
         : ADMIN_THEME.light;
@@ -269,6 +270,8 @@ export default function MetricsEditor({
                     isMobile={isMobile}
                     colors={colors}
                     onChange={updateRow}
+                    openMenuId={openMenuId}
+                    setOpenMenuId={setOpenMenuId}
                     onMoveUp={moveRowUp}
                     onMoveDown={moveRowDown}
                     onDelete={deleteRow}
@@ -297,6 +300,8 @@ function MetricSection({
     isMobile,
     colors,
     onChange,
+    openMenuId,
+    setOpenMenuId,
     onMoveUp,
     onMoveDown,
     onDelete,
@@ -311,7 +316,10 @@ function MetricSection({
         id: string,
         patch: Partial<Row>
     ) => void;
-
+    openMenuId: string | null;
+    setOpenMenuId: React.Dispatch<
+        React.SetStateAction<string | null>
+    >;
     onMoveUp: (id: string) => void;
     onMoveDown: (id: string) => void;
     onDelete: (id: string) => void;
@@ -333,7 +341,13 @@ function MetricSection({
 
             <div style={table}>
                 {rows.map((row) => (
-                    <div key={row.id} style={rowWrap(isMobile)}>
+                    <div
+                        key={row.id}
+                        style={{
+                            ...rowWrap(isMobile),
+                            position: 'relative',
+                        }}
+                    >
                         <select
                             value={row.icon || ''}
                             onChange={(e) =>
@@ -390,16 +404,69 @@ function MetricSection({
                             {row.is_visible ? '●' : '○'}
                         </button>
 
-                        <button
-                            style={{
-                                ...buttonStyle(colors),
-                                fontSize: 18,
-                                fontWeight: 700,
-                                padding: 0,
-                            }}
-                        >
-                            ⋯
-                        </button>
+                        <div style={{ position: 'relative' }}>
+                            <button
+                                onClick={() =>
+                                    setOpenMenuId(
+                                        openMenuId === row.id
+                                            ? null
+                                            : row.id!
+                                    )
+                                }
+                                style={{
+                                    ...buttonStyle(colors),
+                                    fontSize: 18,
+                                    fontWeight: 700,
+                                    padding: 0,
+                                }}
+                            >
+                                ⋯
+                            </button>
+
+                            {openMenuId === row.id && (
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        top: '110%',
+                                        right: 0,
+                                        minWidth: 180,
+                                        background: colors.surface,
+                                        border: `1px solid ${colors.border}`,
+                                        borderRadius: 8,
+                                        padding: 8,
+                                        zIndex: 100,
+                                        boxShadow:
+                                            '0 10px 30px rgba(0,0,0,0.25)',
+                                    }}
+                                >
+                                    <button
+                                        onClick={() => onMoveUp(row.id!)}
+                                        style={menuItem(colors)}
+                                    >
+                                        Move Up
+                                    </button>
+
+                                    <button
+                                        onClick={() => onMoveDown(row.id!)}
+                                        style={menuItem(colors)}
+                                    >
+                                        Move Down
+                                    </button>
+
+                                    <button
+                                        onClick={() =>
+                                            onDelete(row.id!)
+                                        }
+                                        style={{
+                                            ...menuItem(colors),
+                                            color: '#ef4444',
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 ))}
             </div>
@@ -465,7 +532,7 @@ const rowWrap = (
 
     gridTemplateColumns: isMobile
         ? '1fr'
-        : '220px minmax(320px,1.8fr) 190px 40px 40px',
+        : '220px minmax(320px,1.8fr) 190px 40px 36px',
 
     gap: 12,
     alignItems: 'center',
@@ -492,4 +559,18 @@ const buttonStyle = (
     background: colors.surface,
     color: colors.text,
     cursor: 'pointer',
+});
+
+const menuItem = (
+    colors: typeof ADMIN_THEME.dark
+): React.CSSProperties => ({
+    display: 'block',
+    width: '100%',
+    textAlign: 'left',
+    padding: '8px 10px',
+    background: 'transparent',
+    border: 'none',
+    color: colors.text,
+    cursor: 'pointer',
+    borderRadius: 6,
 });
