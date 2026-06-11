@@ -75,7 +75,7 @@ export default function MetricsEditor({
             prev.map((row) => (row.id === id ? { ...row, ...patch } : row))
         );
     }
-    
+
     async function saveMetrics() {
         try {
             setSaving(true);
@@ -299,35 +299,35 @@ const ICON_OPTIONS = [
     'warehouse',
 ];
 function getIcon(icon?: string) {
-        switch (icon) {
-            case 'building':
-                return '🏢';
+    switch (icon) {
+        case 'building':
+            return '🏢';
 
-            case 'percent':
-                return '%';
+        case 'percent':
+            return '%';
 
-            case 'vacancy':
-                return '◫';
+        case 'vacancy':
+            return '◫';
 
-            case 'car':
-                return '🚗';
+        case 'car':
+            return '🚗';
 
-            case 'map':
-                return '📍';
+        case 'map':
+            return '📍';
 
-            case 'users':
-                return '👥';
+        case 'users':
+            return '👥';
 
-            case 'dollar':
-                return '$';
+        case 'dollar':
+            return '$';
 
-            case 'warehouse':
-                return '▣';
+        case 'warehouse':
+            return '▣';
 
-            default:
-                return '•';
-        }
+        default:
+            return '';
     }
+}
 
 function MetricSection({
     heading,
@@ -512,22 +512,21 @@ function MetricSection({
                                             </div>
 
                                             <button
+                                                onClick={() =>
+                                                    setMenuMode('icon')
+                                                }
                                                 style={menuItem(colors)}
                                             >
                                                 Change Icon →
                                             </button>
-                                            <div
-                                                style={{
-                                                    padding: '8px 10px',
-                                                    fontSize: 11,
-                                                    fontWeight: 700,
-                                                    letterSpacing: '.04em',
-                                                    color: colors.subtext,
-                                                    textTransform: 'uppercase',
-                                                }}
+                                            <button
+                                                onClick={() =>
+                                                    setMenuMode('section')
+                                                }
+                                                style={menuItem(colors)}
                                             >
-                                                Move To
-                                            </div>
+                                                Move To →
+                                            </button>
                                             <button
                                                 onClick={() => {
                                                     onChange(row.id!, {
