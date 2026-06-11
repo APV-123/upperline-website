@@ -2,6 +2,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { ADMIN_THEME } from '@/lib/adminTheme';
 
 export type DealMetric = {
@@ -52,9 +53,27 @@ export default function MetricsEditor({
         useState<'main' | 'icon' | 'section'>(
             'main'
         );
+    useEffect(() => {
+        function closeMenus() {
+            setOpenMenuId(null);
+            setMenuMode('main');
+        }
+
+        document.addEventListener(
+            'click',
+            closeMenus
+        );
+
+        return () =>
+            document.removeEventListener(
+                'click',
+                closeMenus
+            );
+    }, []);
     const colors = isDark
         ? ADMIN_THEME.dark
         : ADMIN_THEME.light;
+
 
     const grouped = useMemo(() => {
         const groups: Record<string, Row[]> = {};
@@ -367,6 +386,7 @@ function MetricSection({
     onDelete,
     onAdd,
 }: {
+
     heading: string;
     sectionKey: string;
     rows: Row[];
@@ -444,9 +464,14 @@ function MetricSection({
                             style={inputStyle(colors)}
                         />
 
-                        <div style={{ position: 'relative' }}>
+                        <div
+                            style={{ position: 'relative' }}
+                            onClick={(e) => e.stopPropagation()}
+                        >
                             <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                    e.stopPropagation();
+
                                     setMenuMode('main');
 
                                     setOpenMenuId(
