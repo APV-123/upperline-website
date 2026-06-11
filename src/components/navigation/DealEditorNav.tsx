@@ -11,6 +11,7 @@ export type DealEditorSection =
 type Props = {
     active: DealEditorSection;
     onChange: (section: DealEditorSection) => void;
+    isDark: boolean;
 };
 
 const sections: {
@@ -28,6 +29,7 @@ const sections: {
 export default function DealEditorNav({
     active,
     onChange,
+    isDark,
 }: Props) {
     return (
         <div
@@ -39,6 +41,9 @@ export default function DealEditorNav({
                 flexShrink: 0,
                 position: 'sticky',
                 top: 24,
+                background: '#071426',
+                padding: 4,
+                borderRadius: 12,
             }}
         >
             {sections.map((section) => {
@@ -49,17 +54,24 @@ export default function DealEditorNav({
                         key={section.key}
                         onClick={() => onChange(section.key)}
                         style={{
-                            padding: '8px 14px',
+                            padding: '10px 14px',
                             borderRadius: 8,
                             border: isActive
-                                ? '1px solid #1e3a5f'
-                                : '1px solid rgba(15,23,42,0.08)',
-                            background: isActive ? '#1e3a5f' : '#ffffff',
-                            color: isActive ? '#ffffff' : '#0f172a',
+                                ? '1px solid rgba(49,200,219,.18)'
+                                : '1px solid rgba(255,255,255,.08)',
+
+                            background: isActive
+                                ? 'rgba(49,200,219,.15)'
+                                : '#10213d',
+
+                            color: isActive
+                                ? '#31c8db'
+                                : '#9fb3c8',
+
                             fontSize: 13,
-                            fontWeight: 500,
+                            fontWeight: isActive ? 600 : 500,
                             cursor: 'pointer',
-                            transition: 'all 0.15s ease',
+                            transition: 'all .15s ease',
                         }}
                     >
                         {section.label}

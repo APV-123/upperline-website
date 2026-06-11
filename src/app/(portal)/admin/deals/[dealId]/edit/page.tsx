@@ -197,6 +197,7 @@ export default function DealEditPage() {
               <DealEditorNav
                 active={section}
                 onChange={setSection}
+                isDark={isDark}
               />
             </div>
             <div style={{ flex: 1 }}>
