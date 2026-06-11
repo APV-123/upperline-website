@@ -470,7 +470,7 @@ function MetricSection({
                                     fontSize: 18,
                                     fontWeight: 700,
 
-                                    color: colors.subtext,
+                                    color: colors.accent,
                                 }}
                             >
                                 ⋯
@@ -626,7 +626,19 @@ function MetricSection({
                                                         setMenuMode('main');
                                                         setOpenMenuId(null);
                                                     }}
-                                                    style={menuItem(colors)}
+                                                    style={{
+                                                        ...menuItem(colors),
+
+                                                        background:
+                                                            row.icon === icon
+                                                                ? `${colors.accent}20`
+                                                                : 'transparent',
+
+                                                        color:
+                                                            row.icon === icon
+                                                                ? colors.accent
+                                                                : colors.text,
+                                                    }}
                                                 >
                                                     {getIcon(icon)} {icon || 'No Icon'}
                                                 </button>
@@ -658,6 +670,13 @@ function MetricSection({
                                             >
                                                 ← Back
                                             </button>
+                                            <div
+                                                style={{
+                                                    height: 1,
+                                                    background: colors.border,
+                                                    margin: '6px 0',
+                                                }}
+                                            />
                                             {SECTION_OPTIONS.map((section) => (
                                                 <button
                                                     key={section.key}
@@ -669,7 +688,24 @@ function MetricSection({
                                                         setMenuMode('main');
                                                         setOpenMenuId(null);
                                                     }}
-                                                    style={menuItem(colors)}
+                                                    style={{
+                                                        ...menuItem(colors),
+
+                                                        background:
+                                                            row.section === section.key
+                                                                ? `${colors.accent}20`
+                                                                : 'transparent',
+
+                                                        color:
+                                                            row.section === section.key
+                                                                ? colors.accent
+                                                                : colors.text,
+
+                                                        fontWeight:
+                                                            row.section === section.key
+                                                                ? 600
+                                                                : 400,
+                                                    }}
                                                 >
                                                     {section.label}
                                                 </button>
