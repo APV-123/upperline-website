@@ -1,5 +1,7 @@
 'use client';
 
+import { ADMIN_THEME } from '@/lib/adminTheme';
+
 export type DealEditorSection =
     | 'details'
     | 'narrative'
@@ -12,6 +14,7 @@ type Props = {
     active: DealEditorSection;
     onChange: (section: DealEditorSection) => void;
     isDark: boolean;
+    isMobile: boolean;
 };
 
 const sections: {
@@ -30,20 +33,44 @@ export default function DealEditorNav({
     active,
     onChange,
     isDark,
+    isMobile,
 }: Props) {
+    const colors = isDark
+        ? ADMIN_THEME.dark
+        : ADMIN_THEME.light;
+
     return (
         <div
             style={{
                 display: 'flex',
-                flexDirection: 'column',
-                gap: 8,
-                width: 180,
+
+                flexDirection: isMobile
+                    ? 'row'
+                    : 'column',
+
+                overflowX: isMobile
+                    ? 'auto'
+                    : 'visible',
+
+                width: isMobile
+                    ? '100%'
+                    : 180,
+
                 flexShrink: 0,
-                position: 'sticky',
-                top: 24,
-                background: '#071426',
-                padding: 4,
+
+                position: isMobile
+                    ? 'relative'
+                    : 'sticky',
+
+                top: isMobile
+                    ? undefined
+                    : 24,
+
+                background: colors.background,
+                border: `1px solid ${colors.border}`,
                 borderRadius: 12,
+                padding: 4,
+                gap: 8,
             }}
         >
             {sections.map((section) => {
@@ -56,22 +83,33 @@ export default function DealEditorNav({
                         style={{
                             padding: '10px 14px',
                             borderRadius: 8,
+
                             border: isActive
-                                ? '1px solid rgba(49,200,219,.18)'
-                                : '1px solid rgba(255,255,255,.08)',
+                                ? `1px solid ${colors.accent}`
+                                : `1px solid ${colors.border}`,
 
                             background: isActive
-                                ? 'rgba(49,200,219,.15)'
-                                : '#10213d',
+                                ? `${colors.accent}20`
+                                : colors.surface,
 
                             color: isActive
-                                ? '#31c8db'
-                                : '#9fb3c8',
+                                ? colors.accent
+                                : colors.subtext,
 
                             fontSize: 13,
                             fontWeight: isActive ? 600 : 500,
                             cursor: 'pointer',
                             transition: 'all .15s ease',
+
+                            whiteSpace: 'nowrap',
+
+                            minWidth: isMobile
+                                ? 'fit-content'
+                                : 'auto',
+
+                            textAlign: isMobile
+                                ? 'center'
+                                : 'left',
                         }}
                     >
                         {section.label}
