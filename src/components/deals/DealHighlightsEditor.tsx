@@ -207,7 +207,11 @@ export default function DealHighlightsEditor({
                                 padding: 16,
                             }}
                         >
-                            <div style={field}>
+                            <div
+                                style={{
+                                    marginBottom: 16,
+                                }}
+                            >
                                 <label
                                     style={{
                                         display: 'block',
@@ -245,7 +249,11 @@ export default function DealHighlightsEditor({
                                 />
                             </div>
 
-                            <div style={field}>
+                            <div
+                                style={{
+                                    marginBottom: 16,
+                                }}
+                            >
                                 <label
                                     style={{
                                         display: 'block',
