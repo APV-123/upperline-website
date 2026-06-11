@@ -53,6 +53,8 @@ export default function DealNarrativeEditor({
                     title="Narrative"
                     saveState={saveState}
                     saving={saving}
+                    isDark={isDark}
+                    isMobile={isMobile}
                     onSave={onSave}
                 />
 

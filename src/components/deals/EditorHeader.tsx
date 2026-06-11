@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { ADMIN_THEME } from '@/lib/adminTheme';
+import { Autour_One } from 'next/font/google';
 
 type Props = {
     title: string;
@@ -52,12 +53,17 @@ export default function EditorHeader({
             <div
                 style={{
                     display: 'flex',
-                    alignItems: 'center',
+                    alignItems: isMobile ? 'stretch' : 'center',
                     gap: 16,
                 }}
             >
                 {saveState !== 'idle' && (
-                    <div style={statusStyle}>
+                    <div
+                        style={{
+                            fontSize: 14,
+                            fontWeight: 500,
+                        }}
+                    >
                         {saveState === 'dirty' && (
                             <span style={{ color: '#f59e0b' }}>
                                 ● Unsaved Changes
@@ -84,8 +90,8 @@ export default function EditorHeader({
                             : colors.subtext,
 
                         border: `1px solid ${canSave
-                                ? colors.accent
-                                : colors.border
+                            ? colors.accent
+                            : colors.border
                             }`,
 
                         borderRadius: 10,
@@ -102,6 +108,9 @@ export default function EditorHeader({
                         cursor: canSave
                             ? 'pointer'
                             : 'not-allowed',
+
+
+                        width: isMobile? '100%' : 'auto',
                     }}
                 >
                     {saving ? 'Saving...' : 'Save Deal'}

@@ -54,6 +54,8 @@ export default function DocumentsEditor({
           title="Documents"
           saveState={saveState}
           saving={saving}
+          isDark={isDark}
+          isMobile={isMobile}
           onSave={onSave}
         />
 

@@ -51,6 +51,8 @@ export default function DealDetailsEditor({
                     title="Details"
                     saveState={saveState}
                     saving={saving}
+                    isDark={isDark}
+                    isMobile={isMobile}
                     onSave={onSave}
                 />
 

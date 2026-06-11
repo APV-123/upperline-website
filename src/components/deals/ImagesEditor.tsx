@@ -54,6 +54,8 @@ export default function ImagesEditor({
           title="Images"
           saveState={saveState}
           saving={saving}
+          isDark={isDark}
+          isMobile={isMobile}
           onSave={onSave}
         />
 
