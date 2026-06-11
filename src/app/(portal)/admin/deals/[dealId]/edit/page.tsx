@@ -216,7 +216,7 @@ export default function DealEditPage() {
                   setDeal={updateDeal}
                   saveState={saveState}
                   saving={saving}
-                  isMobile={isMoble}
+                  isMobile={isMobile}
                   isDark={isDark}
                   onSave={() => saveDeal(deal)}
                 />
@@ -228,7 +228,7 @@ export default function DealEditPage() {
                   setDeal={updateDeal}
                   saveState={saveState}
                   saving={saving}
-                  isMobile={isMoble}
+                  isMobile={isMobile}
                   isDark={isDark}
                   onSave={() => saveDeal(deal)}
                 />
@@ -240,7 +240,7 @@ export default function DealEditPage() {
                   setDeal={updateDeal}
                   saveState={saveState}
                   saving={saving}
-                  isMobile={isMoble}
+                  isMobile={isMobile}
                   isDark={isDark}
                   onSave={() => saveDeal(deal)}
                 />
@@ -252,7 +252,7 @@ export default function DealEditPage() {
                   setDeal={updateDeal}
                   saveState={saveState}
                   saving={saving}
-                  isMobile={isMoble}
+                  isMobile={isMobile}
                   isDark={isDark}
                   onSave={() => saveDeal(deal)}
                 />
@@ -260,7 +260,7 @@ export default function DealEditPage() {
 
               {section === 'highlights' && (
                 <DealHighlightsEditor dealId={dealId}
-                  isMobile={isMoble}
+                  isMobile={isMobile}
                   isDark={isDark}
                 />
               )}
@@ -269,7 +269,7 @@ export default function DealEditPage() {
                 <MetricsEditor
                   dealId={dealId}
                   initialMetrics={metrics}
-                  isMobile={isMoble}
+                  isMobile={isMobile}
                   isDark={isDark}
                 />
               )}
