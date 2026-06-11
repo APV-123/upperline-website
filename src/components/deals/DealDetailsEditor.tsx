@@ -2,7 +2,9 @@
 
 import React from 'react';
 import type { DealFormValues } from './DealForm';
+import { ADMIN_THEME } from '@/lib/adminTheme';
 import EditorHeader from './EditorHeader';
+import { block } from 'sharp';
 
 type EditableDeal = DealFormValues & {
     id: string;
@@ -30,10 +32,13 @@ export default function DealDetailsEditor({
     onSave,
 }: Props) {
     if (!deal) return null;
+    const colors = isDark
+        ? ADMIN_THEME.dark
+        : ADMIN_THEME.light;
     return (
         <div
             style={{
-                background: isDark ? '#0f172a' : '#f8fafc',
+                background: colors.background,
                 padding: isMobile ? 12 : 40,
             }}
         >
@@ -42,7 +47,8 @@ export default function DealDetailsEditor({
                     width: '100%',
                     maxWidth: isMobile ? '100%' : 720,
                     margin: '0 auto',
-                    background: isDark ? '#1e293b' : '#ffffff',
+                    background: colors.surface,
+                    border: `1px solid ${colors.border}`,
                     padding: isMobile ? 16 : 24,
                     borderRadius: 8,
                 }}
@@ -59,7 +65,7 @@ export default function DealDetailsEditor({
                 <Field
                     label="Deal Name"
                     value={deal.name}
-                    isDark={isDark}
+                    colors={colors}
                     isMobile={isMobile}
                     onChange={(v) =>
                         setDeal((p) => {
@@ -77,7 +83,7 @@ export default function DealDetailsEditor({
                     label="Target Raise"
                     type="number"
                     value={deal.target_amount}
-                    isDark={isDark}
+                    colors={colors}
                     isMobile={isMobile}
                     onChange={(v) =>
                         setDeal((p) => {
@@ -94,7 +100,7 @@ export default function DealDetailsEditor({
                 <Field
                     label="Location"
                     value={deal.location}
-                    isDark={isDark}
+                    colors={colors}
                     isMobile={isMobile}
                     onChange={(v) =>
                         setDeal((p) => {
@@ -111,7 +117,7 @@ export default function DealDetailsEditor({
                 <Field
                     label="Asset Class"
                     value={deal.asset_class}
-                    isDark={isDark}
+                    colors={colors}
                     isMobile={isMobile}
                     onChange={(v) =>
                         setDeal((p) => {
@@ -128,7 +134,7 @@ export default function DealDetailsEditor({
                 <Field
                     label="Strategy"
                     value={deal.strategy}
-                    isDark={isDark}
+                    colors={colors}
                     isMobile={isMobile}
                     onChange={(v) =>
                         setDeal((p) => {
@@ -146,7 +152,7 @@ export default function DealDetailsEditor({
                     label="Estimated Closing Date"
                     type="date"
                     value={deal.estimated_closing_date}
-                    isDark={isDark}
+                    colors={colors}
                     isMobile={isMobile}
                     onChange={(v) =>
                         setDeal((p) => {
@@ -167,7 +173,7 @@ export default function DealDetailsEditor({
 type FieldProps = {
     label: string;
     value: string | number;
-    isDark: boolean;
+    colors: typeof ADMIN_THEME.dark;
     isMobile: boolean;
     onChange: (value: string) => void;
     type?: string;
@@ -176,17 +182,19 @@ type FieldProps = {
 function Field({
     label,
     value,
-    isDark,
+    colors,
     isMobile,
     onChange,
     type = 'text',
 }: FieldProps) {
     return (
-        <div style={{ marginTop: 12 }}>
+        <div style={{ marginTop: 18 }}>
             <label
                 style={{
                     fontSize: 12,
-                    color: isDark ? '#cbd5e1' : '#475569',
+                    color: colors.subtext,
+                    display: 'block',
+                    marginBottom: 6,
                 }}
             >
                 {label}
@@ -198,12 +206,20 @@ function Field({
                 onChange={(e) => onChange(e.target.value)}
                 style={{
                     width: '100%',
+
                     padding: isMobile ? 10 : 12,
-                    borderRadius: 6,
-                    border: `1px solid ${isDark ? '#334155' : '#e5e7eb'}`,
-                    background: isDark ? '#0f172a' : '#ffffff',
-                    color: isDark ? '#f8fafc' : '#0f172a',
+
+                    borderRadius: 8,
+
+                    border: `1px solid ${colors.border}`,
+
+                    background: colors.input,
+
+                    color: colors.text,
+
                     fontSize: 16,
+
+                    marginTop: 6,
                 }}
             />
         </div>
