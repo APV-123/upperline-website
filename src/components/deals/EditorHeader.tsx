@@ -54,7 +54,7 @@ export default function EditorHeader({
                     gap: 16,
                 }}
             >
-                {saveState !== 'idle' && (
+                {!isMobile && saveState !== 'idle' && (
                     <div
                         style={{
                             fontSize: 14,
