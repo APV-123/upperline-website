@@ -22,6 +22,8 @@ type MetricsResponse = {
 type Props = {
     dealId: string;
     initialMetrics: DealMetric[];
+    isMobile: boolean;
+    isDark: boolean;
 };
 
 type Row = DealMetric;
@@ -36,7 +38,12 @@ function buildInitialRows(
     );
 }
 
-export default function MetricsEditor({ dealId, initialMetrics }: Props) {
+export default function MetricsEditor({
+    dealId,
+    initialMetrics,
+    isMobile,
+    isDark,
+}: Props) {
     const [rows, setRows] = useState<Row[]>(() => buildInitialRows(initialMetrics));
     const [saving, setSaving] = useState(false);
 
@@ -223,8 +230,11 @@ export default function MetricsEditor({ dealId, initialMetrics }: Props) {
             {sectionOrder.map((section) => (
                 <MetricSection
                     key={section}
+                    sectionKey={section}
                     heading={getSectionTitle(section)}
                     rows={grouped[section] ?? []}
+                    isMobile={isMobile}
+                    isDark={isDark}
                     onChange={updateRow}
                     onMoveUp={moveRowUp}
                     onMoveDown={moveRowDown}
@@ -249,7 +259,10 @@ const ICON_OPTIONS = [
 
 function MetricSection({
     heading,
+    sectionKey,
     rows,
+    isMobile,
+    isDark,
     onChange,
     onMoveUp,
     onMoveDown,
@@ -257,15 +270,18 @@ function MetricSection({
     onAdd,
 }: {
     heading: string;
+    sectionKey: string;
     rows: Row[];
+    isMobile: boolean;
+    isDark: boolean;
     onChange: (
-        key: string,
+        id: string,
         patch: Partial<Row>
     ) => void;
 
-    onMoveUp: (key: string) => void;
-    onMoveDown: (key: string) => void;
-    onDelete: (key: string) => void;
+    onMoveUp: (id: string) => void;
+    onMoveDown: (id: string) => void;
+    onDelete: (id: string) => void;
     onAdd: (section: string) => void;
 }) {
     return (
@@ -381,9 +397,7 @@ function MetricSection({
             </div>
             <button
                 onClick={() =>
-                    onAdd(
-                        rows[0]?.section ?? 'hero'
-                    )
+                    onAdd(sectionKey)
                 }
                 style={secondaryBtn}
             >

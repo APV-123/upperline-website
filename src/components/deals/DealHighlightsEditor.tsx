@@ -105,18 +105,54 @@ export default function DealHighlightsEditor({
 
 
     return (
-        <div style={card}>
-            <div style={cardHeader}>
+        <div
+            style={{
+                background: isDark ? '#1e293b' : '#ffffff',
+                border: `1px solid ${isDark ? '#334155' : '#e5e7eb'}`,
+                borderRadius: 12,
+                padding: isMobile ? 16 : 20,
+                marginTop: 24,
+            }}
+        >
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: isMobile ? 'column' : 'row',
+                    justifyContent: 'space-between',
+                    alignItems: isMobile ? 'stretch' : 'flex-start',
+                    marginBottom: 20,
+                    gap: 16,
+                }}
+            >
                 <div>
-                    <h2 style={title}>Investment Highlights</h2>
+                    <h2
+                        style={{
+                            fontSize: 20,
+                            fontWeight: 700,
+                            margin: 0,
+                            color: isDark ? '#f8fafc' : '#0f172a',
+                        }}
+                    >Investment Highlights</h2>
 
-                    <p style={subtitle}>
+                    <p
+                        style={{
+                            fontSize: 13,
+                            color: isDark ? '#94a3b8' : '#64748b',
+                            marginTop: 6,
+                        }}
+                    >
                         Manage the key reasons investors should care
                         about this opportunity.
                     </p>
                 </div>
 
-                <div style={{ display: 'flex', gap: 12 }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: isMobile ? 'column' : 'row',
+                        gap: 12,
+                    }}
+                >
                     <button
                         onClick={addHighlight}
                         style={secondaryBtn}
@@ -143,7 +179,12 @@ export default function DealHighlightsEditor({
                     {highlights.map((h, index) => (
                         <div
                             key={h.id ?? index}
-                            style={row}
+                            style={{
+                                border: `1px solid ${isDark ? '#334155' : '#e5e7eb'}`,
+                                background: isDark ? '#0f172a' : '#ffffff',
+                                borderRadius: 10,
+                                padding: 16,
+                            }}
                         >
                             <div style={field}>
                                 <label style={label}>
