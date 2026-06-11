@@ -534,19 +534,6 @@ function MetricSection({
                                                     margin: '6px 0',
                                                 }}
                                             />
-                                            <div
-                                                style={{
-                                                    padding: '8px 10px',
-                                                    fontSize: 11,
-                                                    fontWeight: 700,
-                                                    letterSpacing: '.04em',
-                                                    color: colors.subtext,
-                                                    textTransform: 'uppercase',
-                                                }}
-                                            >
-                                                Appearance
-                                            </div>
-
                                             <button
                                                 onClick={() =>
                                                     setMenuMode('icon')
