@@ -410,52 +410,40 @@ function MetricSection({
                                     ? colors.accent
                                     : colors.subtext,
 
-                                
+
                                 fontWeight: 700,
                                 padding: 0,
                             }}
                         >
-                            {row.is_visible ? '✓' : '○'}
+                            {row.is_visible ? '👁' : '◌'}
                         </button>
 
                         <button
-                            onClick={() => onMoveUp(row.id!)}
                             style={buttonStyle(colors)}
                         >
-                            ↑
-                        </button>
-
-                        <button
-                            onClick={() => onMoveDown(row.id!)}
-                            style={buttonStyle(colors)}
-                        >
-                            ↓
-                        </button>
-
-                        <button
-                            onClick={() => onDelete(row.id!)}
-                            style={{
-                                ...buttonStyle(colors),
-                                color: colors.subtext,
-                                padding: 0,
-                            }}
-                        >
-                            X
+                            ⋯
                         </button>
                     </div>
                 ))}
             </div>
-            <button
-                onClick={() => onAdd(sectionKey)}
+            <div
                 style={{
-                    ...buttonStyle(colors),
-                    color: colors.accent,
-                    border: `1px solid ${colors.accent}`,
-                    fontWeight: 600,
+                    marginTop: 24,
                 }}
             >
-                + Add Metric
-            </button>
+                <button
+                    onClick={() => onAdd(sectionKey)}
+                    style={{
+                        ...buttonStyle(colors),
+                        color: colors.accent,
+                        border: `1px solid ${colors.accent}`,
+                        fontWeight: 600,
+                    }}
+                >
+                    + Add Metric
+                </button>
+
+            </div>
         </div>
     );
 }
@@ -500,17 +488,11 @@ const rowWrap = (
 
     gridTemplateColumns: isMobile
         ? '1fr'
-        : '220px minmax(240px,1.5fr) 180px 180px 40px 40px 40px 40px',
+        : '220px minmax(240px,1.5fr) 180px 160px 40px 40px',
 
     gap: 12,
     alignItems: 'center',
 });
-
-const labelCell: React.CSSProperties = {
-    fontSize: 13,
-    fontWeight: 600,
-    color: '#0f172a',
-};
 
 const inputStyle = (
     colors: typeof ADMIN_THEME.dark
