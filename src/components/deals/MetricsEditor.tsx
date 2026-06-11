@@ -321,7 +321,7 @@ function MetricSection({
         <div style={section(colors)}>
             <div
                 style={{
-                    marginBottom: 12,
+                    marginBottom: 20,
                 }}
             >
                 <h3 style={sectionTitle(colors)}>
@@ -369,35 +369,7 @@ function MetricSection({
                             placeholder="Enter value"
                             style={inputStyle(colors)}
                         />
-                        <select
-                            value={row.section}
-                            onChange={(e) =>
-                                onChange(row.id!, {
-                                    section: e.target.value,
-                                })
-                            }
-                            style={inputStyle(colors)}
-                        >
-                            <option value="hero">
-                                Hero Metrics
-                            </option>
 
-                            <option value="property_facts">
-                                Property Facts
-                            </option>
-
-                            <option value="lp_summary">
-                                LP Return Summary
-                            </option>
-
-                            <option value="project_returns">
-                                Project Returns
-                            </option>
-
-                            <option value="capital_stack">
-                                Capital Stack
-                            </option>
-                        </select>
                         <button
                             onClick={() =>
                                 onChange(row.id!, {
@@ -410,7 +382,7 @@ function MetricSection({
                                     ? colors.accent
                                     : colors.subtext,
 
-
+                                fontSize: 18,
                                 fontWeight: 700,
                                 padding: 0,
                             }}
@@ -419,7 +391,12 @@ function MetricSection({
                         </button>
 
                         <button
-                            style={buttonStyle(colors)}
+                            style={{
+                                ...buttonStyle(colors),
+                                fontSize: 18,
+                                fontWeight: 700,
+                                padding: 0,
+                            }}
                         >
                             ⋯
                         </button>
@@ -469,7 +446,7 @@ const section = (
 const sectionTitle = (
     colors: typeof ADMIN_THEME.dark
 ): React.CSSProperties => ({
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 700,
     margin: 0,
     color: colors.text,
@@ -488,7 +465,7 @@ const rowWrap = (
 
     gridTemplateColumns: isMobile
         ? '1fr'
-        : '220px minmax(240px,1.5fr) 180px 160px 40px 40px',
+        : '220px minmax(320px,1.8fr) 190px 40px 40px',
 
     gap: 12,
     alignItems: 'center',
