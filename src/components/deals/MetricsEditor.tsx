@@ -318,7 +318,7 @@ function MetricSection({
     onAdd: (section: string) => void;
 }) {
     return (
-        <div style={section}>
+        <div style={section(colors)}>
             <div
                 style={{
                     marginBottom: 12,
@@ -328,7 +328,7 @@ function MetricSection({
                     {heading}
                 </h3>
 
-                
+
             </div>
 
             <div style={table}>
@@ -402,58 +402,53 @@ function MetricSection({
                             <input
                                 type="checkbox"
                                 checked={row.is_visible}
-                                onChange={(e) => onChange(row.id!, { is_visible: e.target.checked })}
+                                onChange={(e) =>
+                                    onChange(row.id!, {
+                                        is_visible: e.target.checked,
+                                    })
+                                }
                             />
                             Visible
                         </label>
 
-                        <div style={actionWrap}>
-                            <button
-                                onClick={() =>
-                                    onMoveUp(row.id!)
-                                }
-                                style={buttonStyle(colors)}
-                            >
-                                ↑
-                            </button>
+                        <button
+                            onClick={() => onMoveUp(row.id!)}
+                            style={buttonStyle(colors)}
+                        >
+                            ↑
+                        </button>
 
-                            <button
-                                onClick={() =>
-                                    onMoveDown(row.id!)
-                                }
-                                style={buttonStyle(colors)}
-                            >
-                                ↓
-                            </button>
+                        <button
+                            onClick={() => onMoveDown(row.id!)}
+                            style={buttonStyle(colors)}
+                        >
+                            ↓
+                        </button>
 
-                            <button
-                                onClick={() =>
-                                    onDelete(row.id!)
-                                }
-                                style={{
-                                    ...buttonStyle(colors),
-                                    color: colors.subtext,
-                                    width: 36,
-                                    padding: 0,
-                                }}
-                            >
-                                X
-                            </button>
-                        </div>
+                        <button
+                            onClick={() => onDelete(row.id!)}
+                            style={{
+                                ...buttonStyle(colors),
+                                color: colors.subtext,
+                                padding: 0,
+                            }}
+                        >
+                            X
+                        </button>
                     </div>
                 ))}
             </div>
             <button
-                    onClick={() => onAdd(sectionKey)}
-                    style={{
-                        ...buttonStyle(colors),
-                        color: colors.accent,
-                        border: `1px solid ${colors.accent}`,
-                        fontWeight: 600,
-                    }}
-                >
-                    + Add Metric
-                </button>
+                onClick={() => onAdd(sectionKey)}
+                style={{
+                    ...buttonStyle(colors),
+                    color: colors.accent,
+                    border: `1px solid ${colors.accent}`,
+                    fontWeight: 600,
+                }}
+            >
+                + Add Metric
+            </button>
         </div>
     );
 }
@@ -468,9 +463,13 @@ const cardHeader: React.CSSProperties = {
 };
 
 
-const section: React.CSSProperties = {
+const section = (
+    colors: typeof ADMIN_THEME.dark
+): React.CSSProperties => ({
     marginTop: 40,
-};
+    paddingTop: 32,
+    borderTop: `1px solid ${colors.border}`,
+});
 
 const sectionTitle = (
     colors: typeof ADMIN_THEME.dark
@@ -494,7 +493,7 @@ const rowWrap = (
 
     gridTemplateColumns: isMobile
         ? '1fr'
-        : '220px 1fr 180px 180px auto',
+        : '220px 1fr 180px 180px auto 40px 40px 40px',
 
     gap: 12,
     alignItems: 'center',
@@ -527,13 +526,6 @@ const checkboxWrap = (
     fontSize: 13,
     color: colors.subtext,
 });
-
-
-const actionWrap: React.CSSProperties = {
-    display: 'flex',
-    gap: 6,
-};
-
 
 const buttonStyle = (
     colors: typeof ADMIN_THEME.dark
