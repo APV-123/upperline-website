@@ -61,7 +61,7 @@ export default function DealNarrativeEditor({
                     value={deal.thesis}
                     isDark={isDark}
                     isMobile={isMobile}
-                    minHeight={240}
+                    minHeight={80}
                     onChange={(v) =>
                         setDeal((p) => {
                             if (!p) return p;
@@ -79,6 +79,7 @@ export default function DealNarrativeEditor({
                     value={deal.overview_text}
                     isDark={isDark}
                     isMobile={isMobile}
+                    minHeight={220}
                     onChange={(v) =>
                         setDeal((p) => {
                             if (!p) return p;
@@ -96,6 +97,7 @@ export default function DealNarrativeEditor({
                     value={deal.business_plan_text}
                     isDark={isDark}
                     isMobile={isMobile}
+                    minHeight={220}
                     onChange={(v) =>
                         setDeal((p) => {
                             if (!p) return p;
