@@ -2,6 +2,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { ADMIN_THEME } from '@/lib/adminTheme';
 
 export type DealMetric = {
     id?: string;
@@ -46,6 +47,9 @@ export default function MetricsEditor({
 }: Props) {
     const [rows, setRows] = useState<Row[]>(() => buildInitialRows(initialMetrics));
     const [saving, setSaving] = useState(false);
+    const colors = isDark
+        ? ADMIN_THEME.dark
+        : ADMIN_THEME.light;
 
     const grouped = useMemo(() => {
         const groups: Record<string, Row[]> = {};
@@ -205,11 +209,33 @@ export default function MetricsEditor({
         }
     }
     return (
-        <div style={card}>
+        <div
+            style={{
+                background: colors.surface,
+                border: `1px solid ${colors.border}`,
+                borderRadius: 12,
+                padding: isMobile ? 16 : 24,
+            }}
+        >
             <div style={cardHeader}>
                 <div>
-                    <h2 style={title}>Investment Metrics</h2>
-                    <p style={subtitle}>
+                    <h2
+                        style={{
+                            fontSize: 40,
+                            fontWeight: 700,
+                            margin: 0,
+                            color: colors.text,
+                        }}
+                    >Investment Metrics</h2>
+                    <p
+                        style={{
+                            fontSize: 13,
+                            color: colors.subtext,
+                            marginTop: 6,
+                            marginBottom: 0,
+                            maxWidth: 900,
+                        }}
+                    >
                         Control values and visibility for LP Summary, Project Returns, and Capital Stack.
                     </p>
                 </div>
@@ -218,7 +244,14 @@ export default function MetricsEditor({
                     onClick={saveMetrics}
                     disabled={saving}
                     style={{
-                        ...primaryBtn,
+                        ...buttonStyle(colors),
+
+                        background: `${colors.accent}20`,
+                        color: colors.accent,
+                        border: `1px solid ${colors.accent}`,
+
+                        fontWeight: 600,
+
                         opacity: saving ? 0.7 : 1,
                         cursor: saving ? 'default' : 'pointer',
                     }}
@@ -234,7 +267,7 @@ export default function MetricsEditor({
                     heading={getSectionTitle(section)}
                     rows={grouped[section] ?? []}
                     isMobile={isMobile}
-                    isDark={isDark}
+                    colors={colors}
                     onChange={updateRow}
                     onMoveUp={moveRowUp}
                     onMoveDown={moveRowDown}
@@ -262,7 +295,7 @@ function MetricSection({
     sectionKey,
     rows,
     isMobile,
-    isDark,
+    colors,
     onChange,
     onMoveUp,
     onMoveDown,
@@ -273,7 +306,7 @@ function MetricSection({
     sectionKey: string;
     rows: Row[];
     isMobile: boolean;
-    isDark: boolean;
+    colors: typeof ADMIN_THEME.dark;
     onChange: (
         id: string,
         patch: Partial<Row>
@@ -298,7 +331,7 @@ function MetricSection({
                                     icon: e.target.value,
                                 })
                             }
-                            style={input}
+                            style={inputStyle(colors)}
                         >
                             {ICON_OPTIONS.map((icon) => (
                                 <option
@@ -317,14 +350,14 @@ function MetricSection({
                                 })
                             }
                             placeholder="Metric Label"
-                            style={input}
+                            style={inputStyle(colors)}
                         />
 
                         <input
                             value={row.value}
                             onChange={(e) => onChange(row.id!, { value: e.target.value })}
                             placeholder="Enter value"
-                            style={input}
+                            style={inputStyle(colors)}
                         />
                         <select
                             value={row.section}
@@ -333,7 +366,7 @@ function MetricSection({
                                     section: e.target.value,
                                 })
                             }
-                            style={input}
+                            style={inputStyle(colors)}
                         >
                             <option value="hero">
                                 Hero Metrics
@@ -369,7 +402,7 @@ function MetricSection({
                                 onClick={() =>
                                     onMoveUp(row.id!)
                                 }
-                                style={miniBtn}
+                                style={buttonStyle(colors)}
                             >
                                 ↑
                             </button>
@@ -378,7 +411,7 @@ function MetricSection({
                                 onClick={() =>
                                     onMoveDown(row.id!)
                                 }
-                                style={miniBtn}
+                                style={buttonStyle(colors)}
                             >
                                 ↓
                             </button>
@@ -387,7 +420,10 @@ function MetricSection({
                                 onClick={() =>
                                     onDelete(row.id!)
                                 }
-                                style={deleteBtn}
+                                style={{
+                                    ...buttonStyle(colors),
+                                    color: colors.subtext,
+                                }}
                             >
                                 Delete
                             </button>
@@ -399,7 +435,16 @@ function MetricSection({
                 onClick={() =>
                     onAdd(sectionKey)
                 }
-                style={secondaryBtn}
+                style={{
+                    ...buttonStyle(colors),
+
+                    color: colors.accent,
+                    border: `1px solid ${colors.accent}`,
+
+                    fontWeight: 600,
+
+                    marginTop: 12,
+                }}
             >
                 + Add Metric
             </button>
@@ -407,13 +452,6 @@ function MetricSection({
     );
 }
 
-const card: React.CSSProperties = {
-    background: '#fff',
-    border: '1px solid #e5e7eb',
-    borderRadius: 12,
-    padding: 20,
-    marginTop: 24,
-};
 
 const cardHeader: React.CSSProperties = {
     display: 'flex',
@@ -423,19 +461,6 @@ const cardHeader: React.CSSProperties = {
     marginBottom: 20,
 };
 
-const title: React.CSSProperties = {
-    fontSize: 20,
-    fontWeight: 700,
-    margin: 0,
-};
-
-const subtitle: React.CSSProperties = {
-    fontSize: 13,
-    color: '#64748b',
-    marginTop: 6,
-    marginBottom: 0,
-    maxWidth: 900,
-};
 
 const section: React.CSSProperties = {
     marginTop: 20,
@@ -466,13 +491,17 @@ const labelCell: React.CSSProperties = {
     color: '#0f172a',
 };
 
-const input: React.CSSProperties = {
+const inputStyle = (
+    colors: typeof ADMIN_THEME.dark
+): React.CSSProperties => ({
     width: '100%',
     padding: 10,
     borderRadius: 8,
-    border: '1px solid #cbd5e1',
+    border: `1px solid ${colors.border}`,
+    background: colors.input,
+    color: colors.text,
     fontSize: 13,
-};
+});
 
 const checkboxWrap: React.CSSProperties = {
     display: 'flex',
@@ -482,42 +511,20 @@ const checkboxWrap: React.CSSProperties = {
     color: '#334155',
 };
 
-const primaryBtn: React.CSSProperties = {
-    background: '#1f3d36',
-    color: '#fff',
-    padding: '10px 14px',
-    borderRadius: 8,
-    border: 'none',
-    fontWeight: 600,
-};
+
 const actionWrap: React.CSSProperties = {
     display: 'flex',
     gap: 6,
 };
 
-const miniBtn: React.CSSProperties = {
-    padding: '6px 10px',
-    borderRadius: 6,
-    border: '1px solid #cbd5e1',
-    background: '#fff',
-    cursor: 'pointer',
-};
 
-const deleteBtn: React.CSSProperties = {
-    padding: '6px 10px',
-    borderRadius: 6,
-    border: '1px solid #fecaca',
-    background: '#fef2f2',
-    color: '#dc2626',
-    cursor: 'pointer',
-};
-
-const secondaryBtn: React.CSSProperties = {
-    marginTop: 12,
-    padding: '10px 14px',
+const buttonStyle = (
+    colors: typeof ADMIN_THEME.dark
+): React.CSSProperties => ({
+    padding: '8px 12px',
     borderRadius: 8,
-    border: '1px solid #cbd5e1',
-    background: '#fff',
+    border: `1px solid ${colors.border}`,
+    background: colors.surface,
+    color: colors.text,
     cursor: 'pointer',
-    fontWeight: 600,
-};
+});

@@ -336,7 +336,7 @@ export default function DealHighlightsEditor({
                                     }
                                     style={{
                                         background: colors.surface,
-                                        color: '#ef4444',
+                                        color: colors.subtext,
                                         fontSize: 13,
                                         fontWeight: 500,
                                         border: `1px solid ${colors.border}`,
