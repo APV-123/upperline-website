@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { ADMIN_THEME } from '@/lib/adminTheme';
-import { Autour_One } from 'next/font/google';
 
 type Props = {
     title: string;
@@ -31,17 +30,15 @@ export default function EditorHeader({
             style={{
                 display: 'flex',
                 flexDirection: isMobile ? 'column' : 'row',
-                justifyContent: 'space-between',
                 alignItems: isMobile ? 'stretch' : 'center',
-                gap: isMobile ? 12 : 16,
-                marginBottom: 20,
+                gap: 16,
             }}
         >
             <div>
                 <h1
                     style={{
                         margin: 0,
-                        fontSize: isMobile ? 32 : 40,
+                        fontSize: isMobile ? 24 : 40,
                         fontWeight: 700,
                         color: colors.text,
                     }}
@@ -110,7 +107,8 @@ export default function EditorHeader({
                             : 'not-allowed',
 
 
-                        width: isMobile? '100%' : 'auto',
+                        width: isMobile ? '100%' : 'auto',
+                        justifyContent: isMobile ? 'center' : undefined,
                     }}
                 >
                     {saving ? 'Saving...' : 'Save Deal'}
