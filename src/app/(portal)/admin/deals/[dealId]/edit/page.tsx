@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { ADMIN_THEME } from '@/lib/adminTheme';
 import AdminNav from '@/components/navigation/AdminNav';
 import DealEditorNav, {
   type DealEditorSection,
@@ -39,7 +40,9 @@ export default function DealEditPage() {
   const [metrics, setMetrics] = useState<DealMetric[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const [isDark, setIsDark] = useState(false);
-
+  const colors = isDark
+    ? ADMIN_THEME.dark
+    : ADMIN_THEME.light;
 
   // ✅ Load deal
   useEffect(() => {
@@ -116,7 +119,21 @@ export default function DealEditPage() {
 
   // ✅ Loading state
   if (loading) {
-    return <div style={{ padding: 40 }}>Loading deal…</div>;
+    return (
+      <>
+        <AdminNav />
+        <div
+          style={{
+            minHeight: 'calc(100vh - 64px)',
+            background: colors.background,
+            color: colors.text,
+            padding: 40,
+          }}
+        >
+          Loading deal...
+        </div>
+      </>
+    );
   }
 
   // ✅ Not found
@@ -124,7 +141,14 @@ export default function DealEditPage() {
     return (
       <>
         <AdminNav />
-        <div style={{ padding: 40 }}>
+        <div
+          style={{
+            minHeight: 'calc(100vh - 64px)',
+            background: colors.background,
+            color: colors.text,
+            padding: 40,
+          }}
+        >
           <h1>{error}</h1>
         </div>
       </>
@@ -179,11 +203,20 @@ export default function DealEditPage() {
 
       <div
         style={{
+          minHeight: 'calc(100vh - 64px)',
+
+          background: colors.background,
+
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
-          gap: 16,
+
+          gap: isMobile ? 12 : 24,
+
           padding: isMobile ? 12 : 24,
+
           alignItems: 'flex-start',
+
+          boxSizing: 'border-box',
         }}
       >
         {deal ? (
@@ -201,7 +234,13 @@ export default function DealEditPage() {
                 isMobile={isMobile}
               />
             </div>
-            <div style={{ flex: 1 }}>
+            <div
+              style={{
+                flex: 1,
+                width: '100%',
+                minWidth: 0,
+              }}
+            >
 
               {section === 'details' && (
                 <DealDetailsEditor

@@ -1,11 +1,14 @@
 'use client';
 
 import React from 'react';
+import { ADMIN_THEME } from '@/lib/adminTheme';
 
 type Props = {
     title: string;
     saveState?: 'idle' | 'dirty' | 'saved';
     saving?: boolean;
+    isDark: boolean;
+    isMobile: boolean;
     onSave?: () => void;
 };
 
@@ -13,14 +16,37 @@ export default function EditorHeader({
     title,
     saveState = 'idle',
     saving = false,
+    isDark,
+    isMobile,
     onSave,
 }: Props) {
+    const colors = isDark
+        ? ADMIN_THEME.dark
+        : ADMIN_THEME.light;
     const canSave =
         saveState === 'dirty' && !saving;
     return (
-        <div style={container}>
+        <div
+            style={{
+                display: 'flex',
+                flexDirection: isMobile ? 'column' : 'row',
+                justifyContent: 'space-between',
+                alignItems: isMobile ? 'stretch' : 'center',
+                gap: isMobile ? 12 : 16,
+                marginBottom: 20,
+            }}
+        >
             <div>
-                <h1 style={titleStyle}>{title}</h1>
+                <h1
+                    style={{
+                        margin: 0,
+                        fontSize: isMobile ? 32 : 40,
+                        fontWeight: 700,
+                        color: colors.text,
+                    }}
+                >
+                    {title}
+                </h1>
             </div>
 
             <div
@@ -33,13 +59,13 @@ export default function EditorHeader({
                 {saveState !== 'idle' && (
                     <div style={statusStyle}>
                         {saveState === 'dirty' && (
-                            <span style={{ color: '#b45309' }}>
+                            <span style={{ color: '#f59e0b' }}>
                                 ● Unsaved Changes
                             </span>
                         )}
 
                         {saveState === 'saved' && (
-                            <span style={{ color: '#15803d' }}>
+                            <span style={{ color: colors.accent }}>
                                 ✓ Saved
                             </span>
                         )}
@@ -49,8 +75,30 @@ export default function EditorHeader({
                     onClick={onSave}
                     disabled={!canSave}
                     style={{
-                        ...buttonStyle,
+                        background: canSave
+                            ? `${colors.accent}20`
+                            : colors.surface,
+
+                        color: canSave
+                            ? colors.accent
+                            : colors.subtext,
+
+                        border: `1px solid ${canSave
+                                ? colors.accent
+                                : colors.border
+                            }`,
+
+                        borderRadius: 10,
+
+                        padding: isMobile
+                            ? '12px 16px'
+                            : '12px 20px',
+
+                        fontWeight: 600,
+                        fontSize: 14,
+
                         opacity: canSave ? 1 : 0.6,
+
                         cursor: canSave
                             ? 'pointer'
                             : 'not-allowed',
@@ -62,32 +110,3 @@ export default function EditorHeader({
         </div>
     );
 }
-
-const container: React.CSSProperties = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-};
-
-const titleStyle: React.CSSProperties = {
-    margin: 0,
-    fontSize: 28,
-    fontWeight: 700,
-    color: '#0f172a',
-};
-
-const statusStyle: React.CSSProperties = {
-    fontSize: 14,
-    fontWeight: 500,
-};
-
-const buttonStyle: React.CSSProperties = {
-    background: '#163a63',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 8,
-    padding: '12px 20px',
-    fontWeight: 600,
-    fontSize: 14,
-};
