@@ -398,18 +398,25 @@ function MetricSection({
                                 Capital Stack
                             </option>
                         </select>
-                        <label style={checkboxWrap(colors)}>
-                            <input
-                                type="checkbox"
-                                checked={row.is_visible}
-                                onChange={(e) =>
-                                    onChange(row.id!, {
-                                        is_visible: e.target.checked,
-                                    })
-                                }
-                            />
-                            Visible
-                        </label>
+                        <button
+                            onClick={() =>
+                                onChange(row.id!, {
+                                    is_visible: !row.is_visible,
+                                })
+                            }
+                            style={{
+                                ...buttonStyle(colors),
+                                color: row.is_visible
+                                    ? colors.accent
+                                    : colors.subtext,
+
+                                fontSize: 18,
+                                fontWeight: 600,
+                                padding: 0,
+                            }}
+                        >
+                            {row.is_visible ? '👁' : '◌'}
+                        </button>
 
                         <button
                             onClick={() => onMoveUp(row.id!)}
@@ -493,7 +500,7 @@ const rowWrap = (
 
     gridTemplateColumns: isMobile
         ? '1fr'
-        : '220px 1fr 180px 180px auto 40px 40px 40px',
+        : '220px minmax(240px,1.5fr) 180px 180px 40px 40px 40px 40px',
 
     gap: 12,
     alignItems: 'center',
@@ -515,16 +522,6 @@ const inputStyle = (
     background: colors.input,
     color: colors.text,
     fontSize: 13,
-});
-
-const checkboxWrap = (
-    colors: typeof ADMIN_THEME.dark
-): React.CSSProperties => ({
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    fontSize: 13,
-    color: colors.subtext,
 });
 
 const buttonStyle = (
