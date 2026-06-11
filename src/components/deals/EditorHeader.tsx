@@ -30,8 +30,10 @@ export default function EditorHeader({
             style={{
                 display: 'flex',
                 flexDirection: isMobile ? 'column' : 'row',
+                justifyContent: isMobile ? undefined : 'space-between',
                 alignItems: isMobile ? 'stretch' : 'center',
                 gap: 16,
+                marginBottom: 24,
             }}
         >
             <div>
@@ -50,8 +52,9 @@ export default function EditorHeader({
             <div
                 style={{
                     display: 'flex',
+                    flexDirection: isMobile ? 'column' : 'row',
                     alignItems: isMobile ? 'stretch' : 'center',
-                    gap: 16,
+                    gap: 12,
                 }}
             >
                 {!isMobile && saveState !== 'idle' && (
