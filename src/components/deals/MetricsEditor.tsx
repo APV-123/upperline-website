@@ -415,7 +415,7 @@ function MetricSection({
                                 padding: 0,
                             }}
                         >
-                            {row.is_visible ? '👁' : '◌'}
+                            {row.is_visible ? '●' : '○'}
                         </button>
 
                         <button
