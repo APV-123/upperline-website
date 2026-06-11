@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { getSupabase } from '@/lib/supabaseClient';
+import { ADMIN_THEME } from '@/lib/adminTheme';
 
 async function uploadFile(
   file: File,
@@ -30,7 +31,7 @@ async function uploadFile(
 type Props = {
   label: string;
   url: string;
-  isDark: boolean;
+  colors: typeof ADMIN_THEME.dark;
   isMobile: boolean;
   onChange: (value: string) => void;
   disabled?: boolean;
@@ -40,7 +41,7 @@ type Props = {
 export default function ImageField({
   label,
   url,
-  isDark,
+  colors,
   isMobile,
   onChange,
   disabled,
@@ -63,7 +64,7 @@ export default function ImageField({
           fontSize: 12,
           display: 'block',
           marginBottom: 6,
-          color: isDark ? '#cbd5e1' : '#475569',
+          color: colors.subtext,
         }}
       >
         {label}
@@ -76,10 +77,10 @@ export default function ImageField({
             alt={label}
             style={{
               width: '100%',
-              maxHeight: 250,
+              maxHeight: 320,
               objectFit: 'cover',
               borderRadius: 8,
-              border: `1px solid ${isDark ? '#334155' : '#e5e7eb'}`,
+              border: `1px solid ${colors.border}`,
             }}
           />
         </div>
@@ -88,11 +89,12 @@ export default function ImageField({
           style={{
             marginTop: 8,
             padding: 16,
-            border: `1px dashed ${isDark ? '#475569' : '#cbd5e1'}`,
+            border: `1px dashed ${colors.border}`,
+            color: colors.subtext,
+            background: colors.input,
             borderRadius: 8,
-            color: isDark ? '#94a3b8' : '#64748b',
             fontSize: 14,
-            background: isDark ? '#0f172a' : 'transparent',
+
           }}
         >
           No image uploaded
@@ -111,10 +113,17 @@ export default function ImageField({
           style={{
             padding: '8px 12px',
             background: isDisabled
-              ? '#94a3b8'
-              : '#163a63',
-            color: '#fff',
-            border: 'none',
+              ? colors.surface
+              : `${colors.accent}20`,
+
+            color: isDisabled
+              ? colors.subtext
+              : colors.accent,
+
+            border: `1px solid ${isDisabled
+              ? colors.border
+              : colors.accent
+              }`,
             borderRadius: 6,
             cursor: isDisabled
               ? 'not-allowed'
@@ -181,9 +190,9 @@ export default function ImageField({
             padding: isMobile ? 10 : 12,
             marginTop: 8,
             borderRadius: 6,
-            border: `1px solid ${isDark ? '#334155' : '#e5e7eb'}`,
-            background: isDark ? '#0f172a' : '#ffffff',
-            color: isDark ? '#f8fafc' : '#0f172a',
+            border: `1px solid ${colors.border}`,
+            background: colors.input,
+            color: colors.text,
             boxSizing: 'border-box',
           }}
         />
@@ -194,7 +203,7 @@ export default function ImageField({
           style={{
             marginTop: 6,
             fontSize: 12,
-            color: isDark ? '#94a3b8' : '#64748b',
+            color: colors.subtext,
           }}
         >
           Uploading...

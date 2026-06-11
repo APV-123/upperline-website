@@ -2,6 +2,7 @@
 
 import React from 'react';
 import type { DealFormValues } from './DealForm';
+import { ADMIN_THEME } from '@/lib/adminTheme';
 import EditorHeader from './EditorHeader';
 import ImageField from './ImageField';
 
@@ -31,11 +32,13 @@ export default function ImagesEditor({
   onSave,
 }: Props) {
   if (!deal) return null;
-
+  const colors = isDark
+    ? ADMIN_THEME.dark
+    : ADMIN_THEME.light;
   return (
     <div
       style={{
-        background: isDark ? '#0f172a' : '#f8fafc',
+        background: colors.background,
         padding: isMobile ? 12 : 40,
       }}
     >
@@ -44,8 +47,8 @@ export default function ImagesEditor({
           width: '100%',
           maxWidth: isMobile ? '100%' : 900,
           margin: '0 auto',
-          background: isDark ? '#1e293b' : '#ffffff',
-          border: `1px solid ${isDark ? '#334155' : '#e5e7eb'}`,
+          background: colors.surface,
+          border: `1px solid ${colors.border}`,
           padding: isMobile ? 16 : 24,
           borderRadius: 8,
         }}
@@ -62,7 +65,7 @@ export default function ImagesEditor({
         <ImageField
           label="Hero Image"
           url={deal.image_1_url}
-          isDark={isDark}
+          colors={colors}
           isMobile={isMobile}
           onChange={(v) =>
             setDeal((p) =>
@@ -79,7 +82,7 @@ export default function ImagesEditor({
         <ImageField
           label="Gallery Image 1"
           url={deal.image_2_url}
-          isDark={isDark}
+          colors={colors}
           isMobile={isMobile}
           onChange={(v) =>
             setDeal((p) =>
@@ -96,7 +99,7 @@ export default function ImagesEditor({
         <ImageField
           label="Gallery Image 2"
           url={deal.image_3_url}
-          isDark={isDark}
+          colors={colors}
           isMobile={isMobile}
           onChange={(v) =>
             setDeal((p) =>
