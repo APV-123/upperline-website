@@ -434,7 +434,7 @@ const subtitle: React.CSSProperties = {
     color: '#64748b',
     marginTop: 6,
     marginBottom: 0,
-    maxWidth: 700,
+    maxWidth: 900,
 };
 
 const section: React.CSSProperties = {

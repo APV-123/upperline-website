@@ -42,7 +42,7 @@ export default function DocumentsEditor({
       <div
         style={{
           width: '100%',
-          maxWidth: isMobile ? '100%' : 820,
+          maxWidth: isMobile ? '100%' : 900,
           margin: '0 auto',
           background: isDark ? '#1e293b' : '#ffffff',
           border: `1px solid ${isDark ? '#334155' : '#e5e7eb'}`,

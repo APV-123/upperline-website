@@ -45,7 +45,7 @@ export default function DealDetailsEditor({
             <div
                 style={{
                     width: '100%',
-                    maxWidth: isMobile ? '100%' : 720,
+                    maxWidth: isMobile ? '100%' : 900,
                     margin: '0 auto',
                     background: colors.surface,
                     border: `1px solid ${colors.border}`,
