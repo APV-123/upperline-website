@@ -38,7 +38,7 @@ export default function DealEditPage() {
   const [error, setError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<DealMetric[]>([]);
   const [isMobile, setIsMobile] = useState(false);
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
 
 
   // ✅ Load deal
@@ -95,27 +95,18 @@ export default function DealEditPage() {
       setIsMobile(window.innerWidth < 768);
     };
 
-    const handleTheme = () => {
-      setIsDark(
-        document.documentElement.classList.contains('dark')
-      );
-    };
-
     handleResize();
-    handleTheme();
+
+    const saved = localStorage.getItem('theme');
+
+    if (saved === 'dark') {
+      setIsDark(true);
+    }
 
     window.addEventListener('resize', handleResize);
 
-    const observer = new MutationObserver(handleTheme);
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
     return () => {
       window.removeEventListener('resize', handleResize);
-      observer.disconnect();
     };
   }, []);
 
