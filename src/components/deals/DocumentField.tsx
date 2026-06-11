@@ -33,10 +33,12 @@ async function uploadFile(
 type Props = {
   label: string;
   url: string;
+  isDark: boolean;
+  isMobile: boolean;
   onChange: (value: string) => void;
   bucket:
-    | 'deal-documents-public'
-    | 'deal-documents-private';
+  | 'deal-documents-public'
+  | 'deal-documents-private';
   disabled?: boolean;
   accept?: string;
 };
@@ -44,6 +46,8 @@ type Props = {
 export default function DocumentField({
   label,
   url,
+  isDark,
+  isMobile,
   onChange,
   bucket,
   disabled,
@@ -67,11 +71,22 @@ export default function DocumentField({
 
   return (
     <div style={{ marginTop: 12 }}>
-      <label style={labelStyle}>
+      <label
+        style={{
+          fontSize: 12,
+          color: isDark ? '#cbd5e1' : '#475569',
+        }}
+      >
         {label}
 
         {bucket === 'deal-documents-private' && (
-          <span style={privateTag}>
+          <span
+            style={{
+              marginLeft: 6,
+              color: isDark ? '#94a3b8' : '#64748b',
+              fontSize: 11,
+            }}
+          >
             (private)
           </span>
         )}
@@ -88,13 +103,24 @@ export default function DocumentField({
               View Document
             </a>
           ) : (
-            <div style={fileNameStyle}>
+            <div
+              style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: isDark ? '#60a5fa' : '#003a5d',
+              }}
+            >
               {fileName}
             </div>
           )}
         </div>
       ) : (
-        <div style={emptyStyle}>
+        <div
+          style={{
+            marginTop: 8,
+            color: isDark ? '#94a3b8' : '#64748b',
+          }}
+        >
           No document uploaded
         </div>
       )}
@@ -107,7 +133,14 @@ export default function DocumentField({
             document.getElementById(inputId)?.click()
           }
           style={{
-            ...buttonStyle,
+            padding: isMobile ? '10px 14px' : '8px 12px',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 6,
+            cursor: isDisabled
+              ? 'not-allowed'
+              : 'pointer',
+            fontSize: 13,
             background: isDisabled
               ? '#94a3b8'
               : '#003a5d',
@@ -158,46 +191,16 @@ export default function DocumentField({
       </div>
 
       {uploading && (
-        <div style={uploadingStyle}>
+        <div
+          style={{
+            marginTop: 6,
+            fontSize: 12,
+            color: isDark ? '#94a3b8' : '#666',
+          }}
+        >
           Uploading...
         </div>
       )}
     </div>
   );
 }
-
-const labelStyle: React.CSSProperties = {
-  fontSize: 12,
-};
-
-const privateTag: React.CSSProperties = {
-  marginLeft: 6,
-  color: '#64748b',
-  fontSize: 11,
-};
-
-const emptyStyle: React.CSSProperties = {
-  marginTop: 8,
-  color: '#64748b',
-};
-
-const fileNameStyle: React.CSSProperties = {
-  fontSize: 14,
-  fontWeight: 600,
-  color: '#003a5d',
-};
-
-const uploadingStyle: React.CSSProperties = {
-  marginTop: 6,
-  fontSize: 12,
-  color: '#666',
-};
-
-const buttonStyle: React.CSSProperties = {
-  padding: '8px 12px',
-  color: '#fff',
-  border: 'none',
-  borderRadius: 6,
-  cursor: 'pointer',
-  fontSize: 13,
-};

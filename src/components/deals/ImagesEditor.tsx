@@ -16,6 +16,8 @@ type Props = {
   >;
   saveState: 'idle' | 'dirty' | 'saved';
   saving: boolean;
+  isMobile: boolean;
+  isDark: boolean;
   onSave: () => void;
 };
 
@@ -24,13 +26,30 @@ export default function ImagesEditor({
   setDeal,
   saveState,
   saving,
+  isMobile,
+  isDark,
   onSave,
 }: Props) {
   if (!deal) return null;
 
   return (
-    <div style={container}>
-      <div style={content}>
+    <div
+      style={{
+        background: isDark ? '#0f172a' : '#f8fafc',
+        padding: isMobile ? 12 : 40,
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: isMobile ? '100%' : 820,
+          margin: '0 auto',
+          background: isDark ? '#1e293b' : '#ffffff',
+          border: `1px solid ${isDark ? '#334155' : '#e5e7eb'}`,
+          padding: isMobile ? 16 : 24,
+          borderRadius: 8,
+        }}
+      >
         <EditorHeader
           title="Images"
           saveState={saveState}
@@ -39,45 +58,51 @@ export default function ImagesEditor({
         />
 
         <ImageField
-          label="Primary Image"
+          label="Hero Image"
           url={deal.image_1_url}
+          isDark={isDark}
+          isMobile={isMobile}
           onChange={(v) =>
             setDeal((p) =>
               p
                 ? {
-                    ...p,
-                    image_1_url: v,
-                  }
+                  ...p,
+                  image_1_url: v,
+                }
                 : p
             )
           }
         />
 
         <ImageField
-          label="Secondary Image"
+          label="Gallery Image 1"
           url={deal.image_2_url}
+          isDark={isDark}
+          isMobile={isMobile}
           onChange={(v) =>
             setDeal((p) =>
               p
                 ? {
-                    ...p,
-                    image_2_url: v,
-                  }
+                  ...p,
+                  image_2_url: v,
+                }
                 : p
             )
           }
         />
 
         <ImageField
-          label="Tertiary Image"
+          label="Gallery Image 2"
           url={deal.image_3_url}
+          isDark={isDark}
+          isMobile={isMobile}
           onChange={(v) =>
             setDeal((p) =>
               p
                 ? {
-                    ...p,
-                    image_3_url: v,
-                  }
+                  ...p,
+                  image_3_url: v,
+                }
                 : p
             )
           }
@@ -86,16 +111,3 @@ export default function ImagesEditor({
     </div>
   );
 }
-
-const container: React.CSSProperties = {
-  background: '#f8fafc',
-  padding: 40,
-};
-
-const content: React.CSSProperties = {
-  maxWidth: 820,
-  margin: '0 auto',
-  background: '#fff',
-  padding: 24,
-  borderRadius: 8,
-};

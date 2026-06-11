@@ -30,6 +30,8 @@ async function uploadFile(
 type Props = {
   label: string;
   url: string;
+  isDark: boolean;
+  isMobile: boolean;
   onChange: (value: string) => void;
   disabled?: boolean;
   bucket?: 'deal-images';
@@ -38,6 +40,8 @@ type Props = {
 export default function ImageField({
   label,
   url,
+  isDark,
+  isMobile,
   onChange,
   disabled,
   bucket = 'deal-images',
@@ -54,7 +58,14 @@ export default function ImageField({
 
   return (
     <div style={{ marginTop: 20 }}>
-      <label style={labelStyle}>
+      <label
+        style={{
+          fontSize: 12,
+          display: 'block',
+          marginBottom: 6,
+          color: isDark ? '#cbd5e1' : '#475569',
+        }}
+      >
         {label}
       </label>
 
@@ -68,12 +79,22 @@ export default function ImageField({
               maxHeight: 250,
               objectFit: 'cover',
               borderRadius: 8,
-              border: '1px solid #e5e7eb',
+              border: `1px solid ${isDark ? '#334155' : '#e5e7eb'}`,
             }}
           />
         </div>
       ) : (
-        <div style={emptyState}>
+        <div
+          style={{
+            marginTop: 8,
+            padding: 16,
+            border: `1px dashed ${isDark ? '#475569' : '#cbd5e1'}`,
+            borderRadius: 8,
+            color: isDark ? '#94a3b8' : '#64748b',
+            fontSize: 14,
+            background: isDark ? '#0f172a' : 'transparent',
+          }}
+        >
           No image uploaded
         </div>
       )}
@@ -156,8 +177,14 @@ export default function ImageField({
           placeholder="Paste image URL"
           disabled={isDisabled}
           style={{
-            ...input,
+            width: '100%',
+            padding: isMobile ? 10 : 12,
             marginTop: 8,
+            borderRadius: 6,
+            border: `1px solid ${isDark ? '#334155' : '#e5e7eb'}`,
+            background: isDark ? '#0f172a' : '#ffffff',
+            color: isDark ? '#f8fafc' : '#0f172a',
+            boxSizing: 'border-box',
           }}
         />
       )}
@@ -167,7 +194,7 @@ export default function ImageField({
           style={{
             marginTop: 6,
             fontSize: 12,
-            color: '#64748b',
+            color: isDark ? '#94a3b8' : '#64748b',
           }}
         >
           Uploading...
@@ -176,25 +203,3 @@ export default function ImageField({
     </div>
   );
 }
-
-const labelStyle: React.CSSProperties = {
-  fontSize: 12,
-  display: 'block',
-  marginBottom: 6,
-};
-
-const input: React.CSSProperties = {
-  width: '100%',
-  padding: 8,
-  borderRadius: 6,
-  border: '1px solid #e5e7eb',
-};
-
-const emptyState: React.CSSProperties = {
-  marginTop: 8,
-  padding: 16,
-  border: '1px dashed #cbd5e1',
-  borderRadius: 8,
-  color: '#64748b',
-  fontSize: 14,
-};

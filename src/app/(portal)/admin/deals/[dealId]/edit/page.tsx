@@ -37,6 +37,8 @@ export default function DealEditPage() {
   >('idle');
   const [error, setError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<DealMetric[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isDark, setIsDark] = useState(false);
 
 
   // ✅ Load deal
@@ -87,6 +89,36 @@ export default function DealEditPage() {
       mounted = false;
     };
   }, [dealId]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    const handleTheme = () => {
+      setIsDark(
+        document.documentElement.classList.contains('dark')
+      );
+    };
+
+    handleResize();
+    handleTheme();
+
+    window.addEventListener('resize', handleResize);
+
+    const observer = new MutationObserver(handleTheme);
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      observer.disconnect();
+    };
+  }, []);
+
   if (!dealId) {
     return <div style={{ padding: 40 }}>Invalid deal</div>;
   }
@@ -157,17 +189,25 @@ export default function DealEditPage() {
       <div
         style={{
           display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
           gap: 16,
-          padding: 24,
+          padding: isMobile ? 12 : 24,
           alignItems: 'flex-start',
         }}
       >
         {deal ? (
           <>
-            <DealEditorNav
-              active={section}
-              onChange={setSection}
-            />
+            <div
+              style={{
+                width: isMobile ? '100%' : 180,
+                flexShrink: 0,
+              }}
+            >
+              <DealEditorNav
+                active={section}
+                onChange={setSection}
+              />
+            </div>
             <div style={{ flex: 1 }}>
 
               {section === 'details' && (
@@ -176,6 +216,8 @@ export default function DealEditPage() {
                   setDeal={updateDeal}
                   saveState={saveState}
                   saving={saving}
+                  isMobile={isMoble}
+                  isDark={isDark}
                   onSave={() => saveDeal(deal)}
                 />
               )}
@@ -186,6 +228,8 @@ export default function DealEditPage() {
                   setDeal={updateDeal}
                   saveState={saveState}
                   saving={saving}
+                  isMobile={isMoble}
+                  isDark={isDark}
                   onSave={() => saveDeal(deal)}
                 />
               )}
@@ -196,6 +240,8 @@ export default function DealEditPage() {
                   setDeal={updateDeal}
                   saveState={saveState}
                   saving={saving}
+                  isMobile={isMoble}
+                  isDark={isDark}
                   onSave={() => saveDeal(deal)}
                 />
               )}
@@ -206,18 +252,25 @@ export default function DealEditPage() {
                   setDeal={updateDeal}
                   saveState={saveState}
                   saving={saving}
+                  isMobile={isMoble}
+                  isDark={isDark}
                   onSave={() => saveDeal(deal)}
                 />
               )}
 
               {section === 'highlights' && (
-                <DealHighlightsEditor dealId={dealId} />
+                <DealHighlightsEditor dealId={dealId}
+                  isMobile={isMoble}
+                  isDark={isDark}
+                />
               )}
 
               {section === 'metrics' && (
                 <MetricsEditor
                   dealId={dealId}
                   initialMetrics={metrics}
+                  isMobile={isMoble}
+                  isDark={isDark}
                 />
               )}
             </div>
