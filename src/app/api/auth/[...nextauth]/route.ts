@@ -90,8 +90,15 @@ const handler = NextAuth({
         }
       }
 
-      (session as any).accessToken =
-        token.accessToken;
+      (
+        session as typeof session & {
+          accessToken?: string;
+        }
+      ).accessToken =
+        typeof token.accessToken ===
+        'string'
+          ? token.accessToken
+          : undefined;
 
       return session;
     },
