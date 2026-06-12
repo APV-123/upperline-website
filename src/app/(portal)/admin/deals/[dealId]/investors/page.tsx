@@ -12,6 +12,7 @@ import InvestorCard from '@/components/investors/InvestorCard';
 import AddProspectsModal from '@/components/investors/AddProspectsModal';
 import InviteDraftForm from '@/components/investors/InviteDraftForm';
 
+
 type Bucket = 'committed' | 'circling' | 'needs_touch' | 'passed';
 
 type ApiInvestorRow = {
@@ -66,7 +67,6 @@ type HubSpotActivity = {
     timestamp: string; // ISO string
     ownerName?: string | null;
 };
-type StageAction = 'engaged' | 'commit' | 'fund' | 'revert' | 'pass';
 type ContactActivityResponse = {
     ok?: boolean;
     error?: string;
