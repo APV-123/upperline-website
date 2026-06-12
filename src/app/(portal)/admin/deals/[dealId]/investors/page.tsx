@@ -41,11 +41,7 @@ type Investor = {
     dealId?: string;
     contactId?: string | null;
 };
-type ContactRow = {
-    id: string;        // HubSpot contactId
-    name: string;
-    email: string;
-};
+
 type ProspectRow = {
     raise_id: string;
     contact_id: string;
@@ -85,22 +81,8 @@ type HubspotCreateDealResponse = {
     error?: string;
     dealId?: string;
 };
-type ContactSearchResponse = {
-    ok: boolean;
-    results: Array<{
-        id: string;
-        name?: string;
-        email?: string;
-        firstname?: string;
-        lastname?: string;
-    }>;
-    nextAfter: string | null;
-    error?: string;
-    details?: string;
-};
-type ExistingProspect = {
-    contact_id: string | number;
-};
+
+
 
 const BUCKETS: { key: Bucket; label: string }[] = [
     { key: 'committed', label: 'Committed' },
@@ -118,92 +100,6 @@ function formatDateMaybe(iso: string | null) {
     return d.toLocaleDateString();
 }
 // ✅ Stage-aware action rules (BUSINESS LOGIC, not UI)
-
-function getAllowedActions(stageId?: string | null): StageAction[] {
-    if (!stageId) return [];
-
-    switch (stageId) {
-        case STAGE_LABEL_TO_ID['Introduced']:
-            return ['engaged', 'pass'] as const;
-
-        case STAGE_LABEL_TO_ID['Engaged']:
-        case STAGE_LABEL_TO_ID['Soft Interest']:
-        case STAGE_LABEL_TO_ID['Docs / IC Review']:
-            return ['commit', 'revert', 'pass'] as const;
-
-        case STAGE_LABEL_TO_ID['Committed']:
-            return ['fund', 'pass'] as const;
-
-        default:
-            return [];
-    }
-}
-function getStageAccent(bucket: Bucket) {
-    switch (bucket) {
-        case 'committed':
-            return '#22c55e'; // green
-        case 'passed':
-            return '#ef4444'; // red
-        default:
-            return '#3b82f6'; // blue
-    }
-}
-
-function Divider() {
-    return (
-        <div
-            style={{
-                height: 1,
-                background: 'rgba(255,255,255,0.08)',
-                margin: '6px 0',
-            }}
-        />
-    );
-}
-
-function MenuItem({
-    label,
-    onClick,
-    disabled,
-    tone = 'default',
-}: {
-    label: string;
-    onClick?: () => void;
-    disabled?: boolean;
-    tone?: 'default' | 'warning' | 'danger';
-}) {
-    const color =
-        tone === 'danger'
-            ? '#fb7185'
-            : tone === 'warning'
-                ? '#fbbf24'
-                : '#e5e7eb';
-
-    return (
-        <button
-            disabled={disabled}
-            onClick={(e) => {
-                e.stopPropagation();   // ✅ THIS is the key line
-                onClick?.();
-            }}
-            style={{
-                display: 'block',
-                width: '100%',
-                textAlign: 'left',
-                padding: '6px 10px',
-                fontSize: 12,
-                background: 'transparent',
-                border: 'none',
-                color,
-                cursor: disabled ? 'not-allowed' : 'pointer',
-                opacity: disabled ? 0.5 : 1,
-                borderRadius: 6,
-            }}
-        >
-            {label}
-        </button>
-    );
-}
 
 export default function DealInvestorsPage() {
     //===========================================
@@ -444,28 +340,7 @@ export default function DealInvestorsPage() {
     const fmt0 = (n: number) => `$${Math.round(n).toLocaleString()}`;
     const [showAddInvestor, setShowAddInvestor] = useState(false);
 
-    function optimisticAddInvestorDeal(p: ProspectRow, dealId: string) {
-        const optimistic: ApiInvestorRow = {
-            dealId: dealId,
-            contactId: p.contact_id,
-            investorName: p.contact_name ?? 'Unnamed Contact',
-            investorEmail: p.contact_email ?? null,
-            amount: 250000, // your default invite amount
-            dealstage: 'Introduced',       // not critical; just display
-            dealstageLabel: 'Introduced',  // what your card shows
-            bucket: 'needs_touch',         // force it to appear immediately
-            pipeline: null,
-            raise_id: deal?.raise_id ?? null,
-            hs_lastactivitydate: null,
-            hs_lastmodifieddate: new Date().toISOString(),
-        };
-
-        setRows((prev) => {
-            // avoid duplicates if we already inserted this deal
-            const filtered = prev.filter((r) => r.dealId !== dealId);
-            return [optimistic, ...filtered];
-        });
-    }
+    
     // ✅ Shortcut for stage transitions from Action menu
     function quickStageChange(investor: Investor, stageId: string) {
         if (isUpdatingStage) return;
@@ -1447,7 +1322,3 @@ export default function DealInvestorsPage() {
         </>
     );
 }
-
-
-
-
