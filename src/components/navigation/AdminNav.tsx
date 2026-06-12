@@ -274,39 +274,6 @@ export default function AdminNav() {
             >
               Settings
             </Link>
-
-            <button
-              onClick={() =>
-                signOut({
-                  callbackUrl:
-                    '/login',
-                })
-              }
-              style={{
-                width: '100%',
-                textAlign:
-                  'left',
-
-                padding:
-                  '12px 16px',
-
-                border: 'none',
-
-                background:
-                  'transparent',
-
-                color:
-                  '#ef4444',
-
-                cursor:
-                  'pointer',
-
-                borderTop:
-                  '1px solid rgba(255,255,255,.08)',
-              }}
-            >
-              Sign Out
-            </button>
           </div>
         )}
       </div>
