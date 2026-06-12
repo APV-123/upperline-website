@@ -229,7 +229,8 @@ export default function DealEditPage() {
                 position: isMobile ? 'sticky' : 'static',
                 top: 0,
                 zIndex: 50,
-                background: colors.background,
+                background: 'red',
+                height: 2000,
               }}
             >
               <DealEditorNav
