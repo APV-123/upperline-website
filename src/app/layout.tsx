@@ -1,5 +1,6 @@
 // app/layout.tsx
 import "./globals.css";
+import AuthProvider from '@/components/providers/SessionProvider';
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
@@ -57,7 +58,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             />
           </noscript>
         )}
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
