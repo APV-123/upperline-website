@@ -1998,32 +1998,94 @@ function InviteDraftForm({
 }) {
 
 
+    const [loadingTemplate, setLoadingTemplate] =
+        useState(true);
 
-    const defaultSubject = 'Inwood – Rosehill | Investor Preview';
+    const [subject, setSubject] =
+        useState(
+            prospect.invite_subject ?? ''
+        );
 
-    const firstName =
-        (prospect.contact_name ?? '').split(' ')[0].trim() || 'there';
+    const [body, setBody] =
+        useState(
+            prospect.invite_body ?? ''
+        );
 
-
-    const defaultBody = `Hi {{ first_name }},
-
-I wanted to share an early look at our Inwood – Rosehill opportunity.
-
-If you’re open to it, I’d be happy to walk you through the deal and answer any questions.
-
-Best,`;
-
-
-    const [subject, setSubject] = useState(
-        prospect.invite_subject ?? defaultSubject
-    );
-    const [body, setBody] = useState(
-        prospect.invite_body ?? defaultBody
-    );
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    if (!prospect) return null;
+
+    const firstName =
+        (prospect.contact_name ?? '')
+            .split(' ')[0]
+            .trim() || 'there';
+
+    useEffect(() => {
+        async function loadTemplate() {
+            if (
+                prospect.invite_subject ||
+                prospect.invite_body
+            ) {
+                setLoadingTemplate(false);
+                return;
+            }
+
+            try {
+                const res = await fetch(
+                    `/api/deals/${dealId}/communications`,
+                    {
+                        cache: 'no-store',
+                    }
+                );
+
+                const json =
+                    await res.json();
+
+                if (
+                    res.ok &&
+                    json.ok &&
+                    json.templates?.length
+                ) {
+                    const initialInvite =
+                        json.templates.find(
+                            (t: {
+                                step_order: number;
+                            }) =>
+                                t.step_order ===
+                                1
+                        );
+
+                    if (
+                        initialInvite
+                    ) {
+                        setSubject(
+                            initialInvite.subject ??
+                            ''
+                        );
+
+                        setBody(
+                            initialInvite.body ??
+                            ''
+                        );
+                    }
+                }
+            } catch (err) {
+                console.error(
+                    '[LOAD TEMPLATE]',
+                    err
+                );
+            } finally {
+                setLoadingTemplate(false);
+            }
+        }
+
+        loadTemplate();
+    }, [
+        dealId,
+        prospect.invite_subject,
+        prospect.invite_body,
+    ]);
+
     function renderPreview(text: string) {
         // safer than replaceAll
         return text.split('{{ first_name }}').join(firstName);
@@ -2067,7 +2129,7 @@ Best,`;
         }
     }
 
-
+    if (!prospect) return null;
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, height: '100%' }}>
             <div style={{ fontSize: 12, opacity: 0.75 }}>
@@ -2075,7 +2137,16 @@ Best,`;
                 <strong>{prospect.contact_name || 'Unnamed Contact'}</strong>
                 {' '}· {prospect.contact_email || '—'}
             </div>
-
+            {loadingTemplate && (
+                <div
+                    style={{
+                        fontSize: 12,
+                        opacity: 0.7,
+                    }}
+                >
+                    Loading template...
+                </div>
+            )}
             <input
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
