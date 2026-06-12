@@ -230,7 +230,7 @@ export default function DealEditPage() {
                 top: 0,
                 zIndex: 50,
                 background: 'red',
-                height: 2000,
+
               }}
             >
               <DealEditorNav
