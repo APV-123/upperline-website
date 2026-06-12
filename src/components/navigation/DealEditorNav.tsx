@@ -61,7 +61,7 @@ export default function DealEditorNav({
                 position: 'sticky',
 
                 top: isMobile
-                    ? 72
+                    ? 0
                     : 24,
 
                 zIndex: 50,
