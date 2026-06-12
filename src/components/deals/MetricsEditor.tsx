@@ -53,23 +53,7 @@ export default function MetricsEditor({
         useState<'main' | 'icon' | 'section'>(
             'main'
         );
-    useEffect(() => {
-        function closeMenus() {
-            setOpenMenuId(null);
-            setMenuMode('main');
-        }
-
-        document.addEventListener(
-            'click',
-            closeMenus
-        );
-
-        return () =>
-            document.removeEventListener(
-                'click',
-                closeMenus
-            );
-    }, []);
+    
     const colors = isDark
         ? ADMIN_THEME.dark
         : ADMIN_THEME.light;
