@@ -34,6 +34,12 @@ export default function CommunicationsEditor({
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [saveState, setSaveState] =
+    useState<
+        'idle' |
+        'saving' |
+        'saved'
+    >('idle');
 
     useEffect(() => {
         async function loadTemplates() {
@@ -49,9 +55,34 @@ export default function CommunicationsEditor({
                     res.ok &&
                     json.ok
                 ) {
-                    setTemplates(
-                        json.templates ?? []
-                    );
+                    if (
+                        json.templates?.length
+                    ) {
+                        setTemplates(
+                            json.templates
+                        );
+                    } else {
+                        setTemplates([
+                            {
+                                id: crypto.randomUUID(),
+                                name: 'Initial Invite',
+                                step_order: 1,
+                                delay_days: 0,
+                                subject: '',
+                                body: '',
+                                is_active: true,
+                            },
+                            {
+                                id: crypto.randomUUID(),
+                                name: 'Follow Up #1',
+                                step_order: 2,
+                                delay_days: 7,
+                                subject: '',
+                                body: '',
+                                is_active: true,
+                            },
+                        ]);
+                    }
                 }
             } catch (err) {
                 console.error(
