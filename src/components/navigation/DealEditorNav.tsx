@@ -8,7 +8,8 @@ export type DealEditorSection =
     | 'images'
     | 'documents'
     | 'highlights'
-    | 'metrics';
+    | 'metrics'
+    | 'communications';
 
 type Props = {
     active: DealEditorSection;
@@ -27,6 +28,7 @@ const sections: {
         { key: 'documents', label: 'Documents' },
         { key: 'highlights', label: 'Highlights' },
         { key: 'metrics', label: 'Metrics' },
+        { key: 'communications', label: 'Communications'}
     ];
 
 export default function DealEditorNav({

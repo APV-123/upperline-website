@@ -14,6 +14,7 @@ import ImagesEditor from '@/components/deals/ImagesEditor';
 import DocumentsEditor from '@/components/deals/DocumentsEditor';
 import MetricsEditor, { type DealMetric } from '@/components/deals/MetricsEditor';
 import DealHighlightsEditor from '@/components/deals/DealHighlightsEditor';
+import CommunicationsEditor from '@/components/deals/CommunicationsEditor';
 
 type DealApiResponse = {
   id: string;
@@ -229,7 +230,7 @@ export default function DealEditPage() {
                 position: isMobile ? 'sticky' : 'static',
                 top: 0,
                 zIndex: 50,
-                background: 'red',
+                background: colors.background,
 
               }}
             >
@@ -307,6 +308,13 @@ export default function DealEditPage() {
                 <MetricsEditor
                   dealId={dealId}
                   initialMetrics={metrics}
+                  isMobile={isMobile}
+                  isDark={isDark}
+                />
+              )}
+              {section === 'communications' && (
+                <CommunicationsEditor
+                  dealId={dealId}
                   isMobile={isMobile}
                   isDark={isDark}
                 />
