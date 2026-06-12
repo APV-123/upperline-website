@@ -75,23 +75,39 @@ export default function CommunicationsEditor({
             prev.map((t, i) =>
                 i === index
                     ? {
-                          ...t,
-                          [field]: value,
-                      }
+                        ...t,
+                        [field]: value,
+                    }
                     : t
             )
         );
     }
 
     function addTemplate() {
+        const defaultNames = [
+            'Initial Invite',
+            'Follow Up #1',
+            'Follow Up #2',
+            'Last Call',
+        ];
+
+        const defaultDelays = [
+            0,
+            7,
+            14,
+            30,
+        ];
+
         setTemplates((prev) => [
             ...prev,
             {
                 id: crypto.randomUUID(),
-                name: '',
-                step_order:
-                    prev.length + 1,
-                delay_days: 0,
+                name:
+                    defaultNames[prev.length] ??
+                    `Step ${prev.length + 1}`,
+                step_order: prev.length + 1,
+                delay_days:
+                    defaultDelays[prev.length] ?? 7,
                 subject: '',
                 body: '',
                 is_active: true,
@@ -136,7 +152,7 @@ export default function CommunicationsEditor({
             ) {
                 alert(
                     json.error ??
-                        'Failed to save communications'
+                    'Failed to save communications'
                 );
             }
         } catch (err) {
@@ -282,14 +298,13 @@ export default function CommunicationsEditor({
                             <h3
                                 style={{
                                     margin: 0,
-                                    color:
-                                        colors.text,
+                                    color: colors.text,
+                                    fontSize: 18,
+                                    fontWeight: 700,
                                 }}
                             >
-                                Step{' '}
-                                {
-                                    template.step_order
-                                }
+                                {template.name ||
+                                    `Step ${template.step_order}`}
                             </h3>
 
                             <button
@@ -342,7 +357,15 @@ export default function CommunicationsEditor({
                                     colors
                                 )}
                             />
-
+                            <div
+                                style={{
+                                    color: colors.subtext,
+                                    fontSize: 12,
+                                    fontWeight: 600,
+                                }}
+                            >
+                                Wait After Previous Step (Days)
+                            </div>
                             <input
                                 type="number"
                                 value={
@@ -366,7 +389,15 @@ export default function CommunicationsEditor({
                                     colors
                                 )}
                             />
-
+                            <div
+                                style={{
+                                    color: colors.subtext,
+                                    fontSize: 12,
+                                    fontWeight: 600,
+                                }}
+                            >
+                                Subject
+                            </div>
                             <input
                                 value={
                                     template.subject
@@ -387,7 +418,15 @@ export default function CommunicationsEditor({
                                     colors
                                 )}
                             />
-
+                            <div
+                                style={{
+                                    color: colors.subtext,
+                                    fontSize: 12,
+                                    fontWeight: 600,
+                                }}
+                            >
+                                Email Body
+                            </div>
                             <textarea
                                 rows={
                                     isMobile
@@ -417,6 +456,53 @@ export default function CommunicationsEditor({
                                         'vertical',
                                 }}
                             />
+                            <div
+                                style={{
+                                    marginTop: 12,
+                                    padding: 12,
+                                    borderRadius: 8,
+                                    background: colors.surface,
+                                    border: `1px solid ${colors.border}`,
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        color: colors.subtext,
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        marginBottom: 8,
+                                    }}
+                                >
+                                    Available Variables
+                                </div>
+
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        gap: 8,
+                                        flexWrap: 'wrap',
+                                    }}
+                                >
+                                    {[
+                                        '{{first_name}}',
+                                        '{{full_name}}',
+                                        '{{deal_name}}',
+                                    ].map((v) => (
+                                        <div
+                                            key={v}
+                                            style={{
+                                                padding: '4px 8px',
+                                                borderRadius: 6,
+                                                background: `${colors.accent}20`,
+                                                color: colors.accent,
+                                                fontSize: 12,
+                                            }}
+                                        >
+                                            {v}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )
