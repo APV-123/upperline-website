@@ -225,6 +225,11 @@ export default function DealEditPage() {
               style={{
                 width: isMobile ? '100%' : 180,
                 flexShrink: 0,
+
+                position: isMobile ? 'sticky' : 'static',
+                top: 0,
+                zIndex: 50,
+                background: colors.background,
               }}
             >
               <DealEditorNav
