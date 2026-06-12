@@ -58,18 +58,22 @@ export default function DealEditorNav({
 
                 flexShrink: 0,
 
-                position: isMobile
-                    ? 'relative'
-                    : 'sticky',
+                position: 'sticky',
 
                 top: isMobile
-                    ? undefined
+                    ? 72
                     : 24,
+
+                zIndex: 50,
+                boxShadow: isMobile
+                    ? '0 4px 12px rgba(0,0,0,.15)'
+                    : undefined,
 
                 background: colors.background,
                 border: `1px solid ${colors.border}`,
                 borderRadius: 12,
                 padding: 4,
+                paddingBottom: isMobile ? 8 : 4,
                 gap: 8,
             }}
         >
