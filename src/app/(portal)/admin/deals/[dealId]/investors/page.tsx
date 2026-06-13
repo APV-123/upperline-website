@@ -890,9 +890,7 @@ export default function DealInvestorsPage() {
                     >
                         <button
                             onClick={() =>
-                                setShowPassed(
-                                    (v) => !v
-                                )
+                                setShowPassed(v => !v)
                             }
                             style={{
                                 background: 'transparent',
@@ -906,6 +904,39 @@ export default function DealInvestorsPage() {
                             {showPassed ? '▼' : '▶'} Passed (
                             {passedInvestors.length})
                         </button>
+
+                        {showPassed && (
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: 16,
+                                    marginTop: 16,
+                                }}
+                            >
+                                {passedInvestors.map(
+                                    (investor) => (
+                                        <InvestorCard
+                                            key={investor.id}
+                                            investor={investor}
+                                            onOpen={() =>
+                                                setActiveInvestor(
+                                                    investor
+                                                )
+                                            }
+                                            onQuickStage={(
+                                                stageId
+                                            ) =>
+                                                quickStageChange(
+                                                    investor,
+                                                    stageId
+                                                )
+                                            }
+                                        />
+                                    )
+                                )}
+                            </div>
+                        )}
                     </div>
                     {showAddInvestor && (
                         <div
