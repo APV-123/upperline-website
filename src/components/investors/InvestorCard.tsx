@@ -138,7 +138,7 @@ export default function InvestorCard({
         <div
             onClick={onOpen}
             style={{
-                background: '#12284a',,
+                background: '#12284a',
                 borderRadius: 14,
                 padding: 20,
                 marginBottom: 16,
