@@ -945,6 +945,7 @@ export default function DealInvestorsPage() {
                                                 investor={investor}
                                                 onOpen={() => setActiveInvestor(investor)}
                                                 onQuickStage={(stageId) => quickStageChange(investor, stageId)}
+                                                colors={colors}
                                             />
                                         ))}
                                 </div>
@@ -1002,6 +1003,7 @@ export default function DealInvestorsPage() {
                                                         stageId
                                                     )
                                                 }
+                                                colors={colors}
                                             />
                                         )
                                     )}

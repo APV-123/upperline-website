@@ -115,10 +115,18 @@ export default function InvestorCard({
     investor,
     onOpen,
     onQuickStage,
+    colors,
 }: {
     investor: Investor;
     onOpen: () => void;
     onQuickStage: (stageId: string) => void;
+    colors: {
+        surface: string;
+        input: string;
+        text: string;
+        subtext: string;
+        border: string;
+    }
 }) {
     const isNeedsTouch = investor.bucket === 'needs_touch';
     const [menuOpen, setMenuOpen] = useState(false);
@@ -126,12 +134,12 @@ export default function InvestorCard({
         <div
             onClick={onOpen}
             style={{
-                background: '#1a1f24',
+                background: colors.surface,
                 borderRadius: 14,
                 padding: 20,
                 marginBottom: 16,
-                color: '#f1f3f4',
-                border: '1px solid rgba(255,255,255,0.06)',
+                color: colors.text,
+                border: `1px solid ${colors.border}`,
                 borderLeft: `4px solid ${getStageAccent(investor.bucket)}`,
                 boxShadow: isNeedsTouch ? '0 0 0 2px rgba(225,29,72,0.35)' : 'none',
                 cursor: 'pointer',
