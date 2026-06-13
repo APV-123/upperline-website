@@ -1017,6 +1017,7 @@ export default function DealInvestorsPage() {
                                 ))}
                             </div>
                         )}
+                        </div>
                     {showAddInvestor && (
                         <div
                             style={{
