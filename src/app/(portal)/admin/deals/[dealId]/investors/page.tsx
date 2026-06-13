@@ -857,6 +857,27 @@ export default function DealInvestorsPage() {
                         </div>
                     </div>
                     {/* Buckets */}
+                    <h3
+                        style={{
+                            fontSize: 13,
+                            textTransform: 'uppercase',
+                            letterSpacing: '1px',
+                            opacity: .7,
+                            marginBottom: 18,
+                        }}
+                    >
+                        Active Pipeline
+                    </h3>
+
+                    <div
+                        style={{
+                            background: '#fff',
+                            border: `1px solid ${BORDER}`,
+                            borderRadius: 8,
+                            padding: 16,
+                            marginBottom: 24,
+                        }}
+                    >
                     <div
                         style={{
                             display: 'grid',
@@ -892,6 +913,7 @@ export default function DealInvestorsPage() {
                                     ))}
                             </div>
                         ))}
+                    </div>
                     </div>
                     <div
                         style={{
