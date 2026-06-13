@@ -990,7 +990,7 @@ export default function DealInvestorsPage() {
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                zIndex: 50,
+                                zIndex: 9999,
                             }}
                         >
                             <div
