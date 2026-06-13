@@ -1154,9 +1154,26 @@ export default function DealInvestorsPage() {
                                             background: '#0b1728',
                                         }}
                                     >
-                                        <h2>{activeInvestor.name}</h2>
+                                        <h2
+                                            style={{
+                                                margin: 0,
+                                                fontSize: 28,
+                                                fontWeight: 700,
+                                                color: colors.text,
+                                            }}
+                                        >
+                                            {activeInvestor.name}
+                                        </h2>
 
-                                        <div>{activeInvestor.email}</div>
+                                        <div
+                                            style={{
+                                                marginTop: 6,
+                                                color: colors.subtext,
+                                                fontSize: 14,
+                                            }}
+                                        >
+                                            {activeInvestor.email}
+                                        </div>
 
                                         <div style={{ marginTop: 20 }}>
                                             Stage: {activeInvestor.stageLabel}
@@ -1290,6 +1307,7 @@ export default function DealInvestorsPage() {
                                                 flex: 1,
                                                 overflowY: 'auto',
                                                 padding: 24,
+                                                background: '#0f1f38',
                                             }}
                                         >
                                             {/* Activity timeline */}
@@ -1388,8 +1406,8 @@ export default function DealInvestorsPage() {
                                                                 borderRadius: 10,
                                                                 background:
                                                                     isOpen
-                                                                        ? 'rgba(49,200,219,0.08)'
-                                                                        : colors.surface,
+                                                                        ? '#16304f'
+                                                                        : '#12284a',
                                                                 border: `1px solid ${colors.border}`,
                                                                 marginBottom: 12,
                                                                 cursor: isEmail ? 'pointer' : 'default',
@@ -1409,10 +1427,20 @@ export default function DealInvestorsPage() {
                                                                 <span>
                                                                     <span
                                                                         style={{
+                                                                            display: 'inline-block',
+                                                                            padding: '2px 8px',
+                                                                            borderRadius: 999,
+                                                                            background:
+                                                                                a.type === 'EMAIL'
+                                                                                    ? 'rgba(49,200,219,.12)'
+                                                                                    : 'rgba(251,191,36,.12)',
                                                                             color:
                                                                                 a.type === 'EMAIL'
                                                                                     ? colors.accent
                                                                                     : '#fbbf24',
+                                                                            fontSize: 11,
+                                                                            fontWeight: 700,
+                                                                            letterSpacing: '.3px',
                                                                         }}
                                                                     >
                                                                         {a.type}
