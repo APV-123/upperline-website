@@ -700,6 +700,7 @@ export default function DealInvestorsPage() {
                             })()}
                         </div>
                     </div>
+                    {/* PROSPECTS */}
                     <div
                         style={{
                             background: '#fff',
@@ -747,6 +748,9 @@ export default function DealInvestorsPage() {
                                             marginBottom: 16,
                                             color: '#f1f3f4',
                                             border: '1px solid rgba(255,255,255,0.06)',
+                                            display: 'flex',
+                                            gap: 16,
+                                            flexWrap: 'wrap',
                                         }}
                                     >
                                         <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
