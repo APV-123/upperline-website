@@ -700,13 +700,13 @@ export default function DealInvestorsPage() {
                             })()}
                         </div>
                     </div>
-
-                    {/* Buckets */}
                     <div
                         style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(4, 1fr)',
-                            gap: 24,
+                            background: '#fff',
+                            border: `1px solid ${BORDER}`,
+                            borderRadius: 8,
+                            padding: 16,
+                            marginBottom: 24,
                         }}
                     >
                         <div>
@@ -720,7 +720,7 @@ export default function DealInvestorsPage() {
                                     marginBottom: 18,
                                 }}
                             >
-                                Prospective
+                                Prospective Investors
                             </h3>
 
                             {loadingProspects && (
@@ -855,6 +855,16 @@ export default function DealInvestorsPage() {
                             })}
 
                         </div>
+                    </div>
+                    {/* Buckets */}
+                    <div
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gap: 24,
+                        }}
+                    >
+
                         {BUCKETS.map((bucket) => (
                             <div key={bucket.key}>
                                 <h3
