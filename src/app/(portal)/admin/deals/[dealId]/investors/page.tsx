@@ -1163,6 +1163,102 @@ export default function DealInvestorsPage() {
                                         <div>
                                             Amount: ${activeInvestor.amount.toLocaleString()}
                                         </div>
+                                        <div
+                                style={{
+                                    padding: 20,
+                                    borderTop: '1px solid rgba(255,255,255,0.08)',
+                                    flexShrink: 0,
+                                }}
+                            >
+                                <div style={{ marginTop: 16 }}>
+                                    {/* Commit / Amount */}
+                                    <label style={{ fontSize: 12, opacity: 0.7 }}>
+                                        Amount
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        value={commitAmount ?? ''}
+
+                                        onChange={(e) => {
+                                            const v = e.target.value;
+                                            setCommitAmount(v === '' ? null : Number(v));
+                                        }}
+
+                                        style={{
+                                            marginTop: 6,
+                                            width: '100%',
+                                            padding: '8px 10px',
+                                            borderRadius: 8,
+                                            border: '1px solid rgba(255,255,255,0.15)',
+                                            background: 'transparent',
+                                            color: '#f1f3f4',
+                                            fontSize: 14,
+                                        }}
+                                    />
+
+                                    {/* Stage selector */}
+                                    <label
+                                        style={{
+                                            fontSize: 12,
+                                            opacity: 0.7,
+                                            marginTop: 14,
+                                            display: 'block',
+                                        }}
+                                    >
+                                        Stage
+                                    </label>
+
+                                    <select
+                                        value={selectedStageId ?? ''}
+                                        onChange={(e) => setSelectedStageId(e.target.value)}
+                                        style={{
+                                            marginTop: 6,
+                                            width: '100%',
+                                            padding: '8px 10px',
+                                            borderRadius: 8,
+                                            border: '1px solid rgba(255,255,255,0.15)',
+                                            background: '#0f1317',
+                                            color: '#f1f3f4',
+                                            fontSize: 14,
+                                        }}
+                                    >
+                                        {HUBSPOT_DEAL_STAGES.map((stage) => (
+                                            <option key={stage.id} value={stage.id}>
+                                                {stage.label}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    {/* Update action */}
+                                    <button
+                                        onClick={handleUpdateStage}
+                                        disabled={!canUpdate || isUpdatingStage}
+                                        style={{
+                                            marginTop: 14,
+                                            width: '100%',
+                                            background:
+                                                !canUpdate || isUpdatingStage
+                                                    ? '#374151'     // disabled
+                                                    : '#2563eb',    // active
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: 8,
+                                            padding: '10px',
+                                            fontWeight: 600,
+                                            cursor:
+                                                !canUpdate || isUpdatingStage
+                                                    ? 'not-allowed'
+                                                    : 'pointer',
+                                            opacity:
+                                                isUpdatingStage ? 0.85 : 1,
+                                        }}
+                                    >
+                                        Update Stage
+                                    </button>
+                                </div>
+                            </div>
+
                                     </div>
                                     <div
                                         style={{
