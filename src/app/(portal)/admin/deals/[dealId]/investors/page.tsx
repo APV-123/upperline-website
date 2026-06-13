@@ -85,10 +85,9 @@ type HubspotCreateDealResponse = {
 
 
 const BUCKETS: { key: Bucket; label: string }[] = [
-    { key: 'committed', label: 'Committed' },
     { key: 'circling', label: 'Circling' },
     { key: 'needs_touch', label: 'Needs Touch' },
-    { key: 'passed', label: 'Passed' },
+    { key: 'committed', label: 'Committed' },
 ];
 
 
@@ -137,6 +136,7 @@ export default function DealInvestorsPage() {
 
     const [showInviteDraft, setShowInviteDraft] = useState(false);
     const [activeProspect, setActiveProspect] = useState<ProspectRow | null>(null);
+    const [showPassed, setShowPassed] = useState(false);
 
     // =======================
     // HubSpot writes (mutations)
@@ -307,6 +307,9 @@ export default function DealInvestorsPage() {
         });
     }, [rows]);
 
+    const passedInvestors = investors.filter(
+        (i) => i.bucket === 'passed'
+    );
     const committedTotal = useMemo(() => {
         return investors
             .filter((i) => i.bucket === 'committed')
@@ -340,7 +343,7 @@ export default function DealInvestorsPage() {
     const fmt0 = (n: number) => `$${Math.round(n).toLocaleString()}`;
     const [showAddInvestor, setShowAddInvestor] = useState(false);
 
-    
+
     // ✅ Shortcut for stage transitions from Action menu
     function quickStageChange(investor: Investor, stageId: string) {
         if (isUpdatingStage) return;
@@ -702,7 +705,7 @@ export default function DealInvestorsPage() {
                     <div
                         style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(5, 1fr)',
+                            gridTemplateColumns: 'repeat(4, 1fr)',
                             gap: 24,
                         }}
                     >
@@ -879,6 +882,30 @@ export default function DealInvestorsPage() {
                                     ))}
                             </div>
                         ))}
+                    </div>
+                    <div
+                        style={{
+                            marginTop: 24,
+                        }}
+                    >
+                        <button
+                            onClick={() =>
+                                setShowPassed(
+                                    (v) => !v
+                                )
+                            }
+                            style={{
+                                background: 'transparent',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontSize: 13,
+                                fontWeight: 600,
+                                color: '#64748b',
+                            }}
+                        >
+                            {showPassed ? '▼' : '▶'} Passed (
+                            {passedInvestors.length})
+                        </button>
                     </div>
                     {showAddInvestor && (
                         <div
