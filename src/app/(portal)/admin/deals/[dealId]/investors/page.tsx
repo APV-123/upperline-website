@@ -1140,20 +1140,36 @@ export default function DealInvestorsPage() {
                             >
                                 <div
                                     style={{
-                                        borderRight: `1px solid ${colors.border}`,
-                                        padding: 24,
+                                        display: 'grid',
+                                        gridTemplateColumns: '320px 1fr',
+                                        height: '100%',
                                     }}
                                 >
-                                    <h2>{activeInvestor.name}</h2>
+                                    <div
+                                        style={{
+                                            borderRight: `1px solid ${colors.border}`,
+                                            padding: 24,
+                                            color: colors.text,
+                                        }}
+                                    >
+                                        <h2>{activeInvestor.name}</h2>
 
-                                    <div>{activeInvestor.email}</div>
+                                        <div>{activeInvestor.email}</div>
 
-                                    <div style={{ marginTop: 20 }}>
-                                        Stage: {activeInvestor.stageLabel}
+                                        <div style={{ marginTop: 20 }}>
+                                            Stage: {activeInvestor.stageLabel}
+                                        </div>
+
+                                        <div>
+                                            Amount: ${activeInvestor.amount.toLocaleString()}
+                                        </div>
                                     </div>
-
-                                    <div>
-                                        Amount: ${activeInvestor.amount.toLocaleString()}
+                                    <div
+                                        style={{
+                                            padding: 24,
+                                        }}
+                                    >
+                                        Investor Activity
                                     </div>
                                 </div>
                             </div>
