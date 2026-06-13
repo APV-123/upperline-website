@@ -5,6 +5,7 @@ import {
     HUBSPOT_DEAL_STAGES,
     STAGE_LABEL_TO_ID,
 } from '@/lib/hubspotStages';
+import { ADMIN_THEME } from '@/lib/adminTheme';
 import AdminNav from '@/components/navigation/AdminNav';
 import { useParams } from 'next/navigation';
 import { useCallback } from 'react';
@@ -137,6 +138,11 @@ export default function DealInvestorsPage() {
     const [showInviteDraft, setShowInviteDraft] = useState(false);
     const [activeProspect, setActiveProspect] = useState<ProspectRow | null>(null);
     const [showPassed, setShowPassed] = useState(false);
+    const [isDark, setIsDark] = useState(true);
+
+    const colors = isDark
+        ? ADMIN_THEME.dark
+        : ADMIN_THEME.light;
 
     // =======================
     // HubSpot writes (mutations)
@@ -264,6 +270,16 @@ export default function DealInvestorsPage() {
             setLoadingActivity(false);
         }
     }
+    useEffect(() => {
+        const saved = localStorage.getItem('theme');
+
+        if (saved === 'dark') {
+            setIsDark(true);
+        } else {
+            setIsDark(false);
+        }
+    }, []);
+
     useEffect(() => {
         if (!dealId) return;
         loadDashboard();
@@ -481,8 +497,8 @@ export default function DealInvestorsPage() {
 
             <div
                 style={{
-                    background: '#003a5d', // ✅ brand navy
-                    minHeight: '100vh',
+                    background: colors.background, // ✅ brand navy
+                    minHeight: 'calc(100vh - 64px)',
                     paddingTop: 16,
                     paddingBottom: 32,
                 }}
@@ -493,7 +509,7 @@ export default function DealInvestorsPage() {
                         marginLeft: 32,
                         marginRight: 32,
                         padding: 16,
-                        background: '#f3f4f6', // ✅ slate
+                        background: 'transparent',
                         minHeight: 'calc(100vh - 120px)',
                     }}
                 >
@@ -540,7 +556,7 @@ export default function DealInvestorsPage() {
                         {/* Row 1: Progress */}
                         <div
                             style={{
-                                background: '#fff',
+                                background: colors.surface,
                                 border: `1px solid ${BORDER}`,
                                 borderRadius: 6,
                                 padding: 12,
@@ -703,8 +719,8 @@ export default function DealInvestorsPage() {
                     {/* PROSPECTS */}
                     <div
                         style={{
-                            background: '#fff',
-                            border: `1px solid ${BORDER}`,
+                            background: colors.surface,
+                            border: `1px solid ${colors.border}`,
                             borderRadius: 8,
                             padding: 16,
                             marginBottom: 24,
@@ -879,8 +895,8 @@ export default function DealInvestorsPage() {
 
                     <div
                         style={{
-                            background: '#fff',
-                            border: `1px solid ${BORDER}`,
+                            background: colors.surface,
+                            border: `1px solid ${colors.border}`,
                             borderRadius: 8,
                             padding: 16,
                             marginBottom: 24,
