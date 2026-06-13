@@ -1017,7 +1017,7 @@ export default function DealInvestorsPage() {
                                 ))}
                             </div>
                         )}
-                        </div>
+                    </div>
                     {showAddInvestor && (
                         <div
                             style={{
@@ -1113,350 +1113,54 @@ export default function DealInvestorsPage() {
                     }
                     {activeInvestor && (
                         <div
+                            onClick={() => setActiveInvestor(null)}
                             style={{
                                 position: 'fixed',
-                                top: 0,
-                                right: 0,
-                                width: isSliderExpanded ? 720 : 420,
-                                height: '100vh',
-                                background: '#0f1317',
-                                borderLeft: '1px solid rgba(255,255,255,0.12)',
-                                zIndex: 9999,
-                                boxShadow: '-12px 0 32px rgba(0,0,0,0.5)',
-                                color: '#f1f3f4',
+                                inset: 0,
+                                background: 'rgba(0,0,0,.55)',
+                                backdropFilter: 'blur(4px)',
+                                zIndex: 2000,
                                 display: 'flex',
-                                flexDirection: 'column',
-                                transition: 'width 180ms ease',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                padding: 24,
                             }}
                         >
                             <div
+                                onClick={(e) => e.stopPropagation()}
                                 style={{
-                                    padding: 20,
-                                    borderBottom: '1px solid rgba(255,255,255,0.08)',
-                                    flexShrink: 0,
+                                    width: '100%',
+                                    maxWidth: 1100,
+                                    height: '90vh',
+                                    background: colors.surface,
+                                    borderRadius: 18,
+                                    border: `1px solid ${colors.border}`,
+                                    overflow: 'hidden',
                                 }}
                             >
                                 <div
                                     style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        marginBottom: 6,
+                                        padding: 24,
+                                        color: colors.text,
                                     }}
                                 >
-                                    <h3 style={{ margin: 0 }}>{activeInvestor.name}</h3>
+                                    <h2>{activeInvestor.name}</h2>
 
-                                    <div style={{ display: 'flex', gap: 8 }}>
-                                        <button
-                                            onClick={() => setIsSliderExpanded(v => !v)}
-                                            title={isSliderExpanded ? 'Collapse panel' : 'Expand panel'}
-                                            style={{
-                                                background: 'transparent',
-                                                border: '1px solid rgba(255,255,255,0.25)',
-                                                borderRadius: 6,
-                                                color: '#f1f3f4',
-                                                cursor: 'pointer',
-                                                padding: '2px 6px',
-                                                fontSize: 12,
-                                            }}
-                                        >
-                                            {isSliderExpanded ? '⤡' : '⤢'}
-                                        </button>
+                                    <div>{activeInvestor.email}</div>
 
-                                        <button
-                                            onClick={() => {
-                                                setIsSliderExpanded(false);
-                                                setActiveInvestor(null);
-                                            }}
-                                            style={{
-                                                background: 'transparent',
-                                                border: 'none',
-                                                color: '#f1f3f4',
-                                                fontSize: 16,
-                                                cursor: 'pointer',
-                                            }}
-                                        >
-                                            ✕
-                                        </button>
+                                    <div style={{ marginTop: 20 }}>
+                                        Stage: {activeInvestor.stageLabel}
                                     </div>
-                                </div>
 
-                                <div>{activeInvestor.email}</div>
-                                <div>Stage: {activeInvestor.stageLabel}</div>
-                                <div>Amount: ${activeInvestor.amount.toLocaleString()}</div>
-                                {/* Snapshot: last interaction */}
-                                <div style={{ marginTop: 14, fontSize: 12, opacity: 0.8 }}>
                                     <div>
-                                        <strong>Last interaction:</strong> {activeInvestor.lastActivity || '—'}
+                                        Amount: ${activeInvestor.amount.toLocaleString()}
                                     </div>
-                                </div>
-                            </div>
-                            <div
-                                style={{
-                                    flex: 1,
-                                    overflowY: 'auto',
-                                    padding: 20,
-                                }}
-                            >
-                                {/* Activity timeline */}
-                                <div style={{ marginTop: 18 }}>
-                                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
-                                        Activity
-                                    </div>
-                                    {/*============================
-                                Log internal note (Hubspot write)
-                            ===============================*/}
-
-                                    <div
-                                        style={{
-                                            marginBottom: 16,
-                                            padding: 12,
-                                            border: '1px solid rgba(255,255,255,0.12)',
-                                            borderRadius: 10,
-                                            background: 'rgba(255,255,255,0.02)',
-                                        }}
-                                    >
-                                        <textarea
-                                            placeholder="Log internal note…"
-                                            value={noteDraft}
-                                            onChange={(e) => setNoteDraft(e.target.value)}
-                                            rows={3}
-                                            style={{
-                                                width: '100%',
-                                                resize: 'none',
-                                                background: 'transparent',
-                                                border: 'none',
-                                                color: '#f1f3f4',
-                                                fontSize: 13,
-                                                outline: 'none',
-                                                lineHeight: 1.4,
-                                            }}
-                                        />
-
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                justifyContent: 'flex-end',
-                                                marginTop: 8,
-                                            }}
-                                        >
-                                            <button
-                                                disabled={!noteDraft.trim() || savingNote}
-                                                onClick={handleSaveNote}
-                                                style={{
-                                                    fontSize: 12,
-                                                    padding: '6px 12px',
-                                                    borderRadius: 8,
-                                                    border: '1px solid rgba(255,255,255,0.2)',
-                                                    background: savingNote ? '#374151' : '#2563eb',
-                                                    color: '#fff',
-                                                    cursor: savingNote ? 'not-allowed' : 'pointer',
-                                                }}
-                                            >
-                                                {savingNote ? 'Saving…' : 'Save note'}
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {loadingActivity && (
-                                        <div style={{ fontSize: 12, opacity: 0.65 }}>Loading activity…</div>
-                                    )}
-
-                                    {!loadingActivity && activityError && (
-                                        <div style={{ fontSize: 12, color: '#fb7185' }}>{activityError}</div>
-                                    )}
-
-                                    {!loadingActivity && !activityError && activity.length === 0 && (
-                                        <div style={{ fontSize: 12, opacity: 0.65 }}>No activity found.</div>
-                                    )}
-                                    {/*===========================
-                                Activity feed (read-only)
-                            ==============================*/}
-                                    {!loadingActivity && activity.map((a) => {
-                                        const isEmail = a.type === 'EMAIL';
-                                        const isOpen = openActivityId === a.id;
-
-                                        return (
-                                            <div
-                                                key={a.id}
-                                                onClick={() => {
-                                                    if (!isEmail) return;
-
-                                                    // Toggle this email open/closed
-                                                    setOpenActivityId(prev => (prev === a.id ? null : a.id));
-
-                                                    // If panel is compact, expand it for reading
-                                                    if (!isSliderExpanded) setIsSliderExpanded(true);
-                                                }}
-                                                style={{
-                                                    borderLeft: '2px solid rgba(255,255,255,0.12)',
-                                                    paddingLeft: 10,
-                                                    marginBottom: 12,
-                                                    cursor: isEmail ? 'pointer' : 'default',
-                                                    opacity: isEmail ? 1 : 0.65,
-                                                    background: isEmail && !isOpen ? 'rgba(255,255,255,0.02)' : 'transparent',
-                                                    transition: 'background 120ms ease',
-                                                }}
-                                            >
-                                                {/* Header row */}
-                                                <div
-                                                    style={{
-                                                        fontSize: 12,
-                                                        fontWeight: 600,
-                                                        display: 'flex',
-                                                        justifyContent: 'space-between',
-                                                    }}
-                                                >
-                                                    <span>
-                                                        {a.type}
-                                                        {a.ownerName ? ` · ${a.ownerName}` : ''}
-                                                    </span>
-
-                                                    {isEmail && (
-                                                        <span style={{ fontSize: 11, opacity: 0.7, letterSpacing: '0.3px' }}>
-                                                            {isOpen ? 'Hide' : 'Open'}
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                {/* Timestamp */}
-                                                <div style={{ fontSize: 11, opacity: 0.7 }}>
-                                                    {new Date(a.timestamp).toLocaleString()}
-                                                </div>
-
-                                                {/* Subject */}
-                                                {a.subject && (
-                                                    <div
-                                                        style={{
-                                                            fontSize: 12,
-                                                            marginTop: 4,
-                                                            fontWeight: 600,
-                                                        }}
-                                                    >
-                                                        {a.subject}
-                                                    </div>
-                                                )}
-
-                                                {/* Body preview */}
-                                                {a.preview && (
-                                                    <div
-                                                        style={{
-                                                            fontSize: 12,
-                                                            opacity: 0.8,
-                                                            marginTop: 6,
-                                                            whiteSpace: isOpen ? 'pre-wrap' : 'normal',
-                                                            ...(isOpen ? {} : CLAMP_3),
-                                                        }}
-                                                    >
-                                                        {a.preview}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                            <div
-                                style={{
-                                    padding: 20,
-                                    borderTop: '1px solid rgba(255,255,255,0.08)',
-                                    flexShrink: 0,
-                                }}
-                            >
-                                <div style={{ marginTop: 16 }}>
-                                    {/* Commit / Amount */}
-                                    <label style={{ fontSize: 12, opacity: 0.7 }}>
-                                        Amount
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        value={commitAmount ?? ''}
-
-                                        onChange={(e) => {
-                                            const v = e.target.value;
-                                            setCommitAmount(v === '' ? null : Number(v));
-                                        }}
-
-                                        style={{
-                                            marginTop: 6,
-                                            width: '100%',
-                                            padding: '8px 10px',
-                                            borderRadius: 8,
-                                            border: '1px solid rgba(255,255,255,0.15)',
-                                            background: 'transparent',
-                                            color: '#f1f3f4',
-                                            fontSize: 14,
-                                        }}
-                                    />
-
-                                    {/* Stage selector */}
-                                    <label
-                                        style={{
-                                            fontSize: 12,
-                                            opacity: 0.7,
-                                            marginTop: 14,
-                                            display: 'block',
-                                        }}
-                                    >
-                                        Stage
-                                    </label>
-
-                                    <select
-                                        value={selectedStageId ?? ''}
-                                        onChange={(e) => setSelectedStageId(e.target.value)}
-                                        style={{
-                                            marginTop: 6,
-                                            width: '100%',
-                                            padding: '8px 10px',
-                                            borderRadius: 8,
-                                            border: '1px solid rgba(255,255,255,0.15)',
-                                            background: '#0f1317',
-                                            color: '#f1f3f4',
-                                            fontSize: 14,
-                                        }}
-                                    >
-                                        {HUBSPOT_DEAL_STAGES.map((stage) => (
-                                            <option key={stage.id} value={stage.id}>
-                                                {stage.label}
-                                            </option>
-                                        ))}
-                                    </select>
-
-                                    {/* Update action */}
-                                    <button
-                                        onClick={handleUpdateStage}
-                                        disabled={!canUpdate || isUpdatingStage}
-                                        style={{
-                                            marginTop: 14,
-                                            width: '100%',
-                                            background:
-                                                !canUpdate || isUpdatingStage
-                                                    ? '#374151'     // disabled
-                                                    : '#2563eb',    // active
-                                            color: '#fff',
-                                            border: 'none',
-                                            borderRadius: 8,
-                                            padding: '10px',
-                                            fontWeight: 600,
-                                            cursor:
-                                                !canUpdate || isUpdatingStage
-                                                    ? 'not-allowed'
-                                                    : 'pointer',
-                                            opacity:
-                                                isUpdatingStage ? 0.85 : 1,
-                                        }}
-                                    >
-                                        Update Stage
-                                    </button>
                                 </div>
                             </div>
                         </div>
-                    )
-                    }
-
-                </div >
-            </div >
+                    )}
+                </div>
+            </div>
         </>
     );
 }
