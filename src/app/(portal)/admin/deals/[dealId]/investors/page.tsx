@@ -529,7 +529,7 @@ export default function DealInvestorsPage() {
                             style={{
                                 fontSize: 20,
                                 fontWeight: 600,
-                                color: '#0f172a',
+                                color: colors.text,
                             }}
                         >
                             {deal?.name || 'Loading deal...'}
@@ -569,7 +569,7 @@ export default function DealInvestorsPage() {
                                         fontSize: 11,
                                         letterSpacing: '0.5px',
                                         textTransform: 'uppercase',
-                                        color: SLATE_TEXT,
+                                        color: colors.subtext,
                                         opacity: 0.8,
                                     }}
                                 >
@@ -580,7 +580,7 @@ export default function DealInvestorsPage() {
                                     style={{
                                         fontSize: 16,
                                         fontWeight: 700,
-                                        color: DARK_TEXT,
+                                        color: colors.text,
                                     }}
                                 >
                                     {pctLabel}
@@ -588,18 +588,18 @@ export default function DealInvestorsPage() {
                             </div>
 
                             <div style={{ display: 'flex', gap: 12, marginTop: 6, alignItems: 'baseline' }}>
-                                <div style={{ fontSize: 22, fontWeight: 700, color: DARK_TEXT }}>
+                                <div style={{ fontSize: 22, fontWeight: 700, color: colors.text }}>
                                     {fmt0(committed)}
                                 </div>
 
-                                <div style={{ fontSize: 13, color: SLATE_TEXT }}>
+                                <div style={{ fontSize: 13, color: colors.subtext }}>
                                     of {fmt0(target)} target
                                 </div>
 
                                 {/* Remaining (right aligned) */}
                                 <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                                    <div style={{ fontSize: 11, color: SLATE_TEXT, opacity: 0.9 }}>Remaining</div>
-                                    <div style={{ fontSize: 13, fontWeight: 700, color: DARK_TEXT }}>
+                                    <div style={{ fontSize: 11, color: colors.subtext, opacity: 0.9 }}>Remaining</div>
+                                    <div style={{ fontSize: 13, fontWeight: 700, color: colors.text }}>
                                         {fmt0(remaining)}
                                     </div>
                                 </div>
@@ -636,7 +636,7 @@ export default function DealInvestorsPage() {
                                 <div
                                     key={kpi.label}
                                     style={{
-                                        background: '#fff',
+                                        background: colors.surface,
                                         border: kpi.label === 'Shown'
                                             ? '1px solid rgba(15,23,42,0.12)'
                                             : `1px solid ${BORDER}`,
@@ -645,11 +645,11 @@ export default function DealInvestorsPage() {
                                         boxShadow: kpi.label === 'Shown' ? '0 1px 2px rgba(0,0,0,0.04)' : 'none',
                                     }}
                                 >
-                                    <div style={{ fontSize: 11, color: SLATE_TEXT }}>{kpi.label}</div>
-                                    <div style={{ fontSize: 18, fontWeight: 700, color: DARK_TEXT, marginTop: 4 }}>
+                                    <div style={{ fontSize: 11, color: colors.subtext }}>{kpi.label}</div>
+                                    <div style={{ fontSize: 18, fontWeight: 700, color: colors.text, marginTop: 4 }}>
                                         {kpi.value}
                                     </div>
-                                    <div style={{ fontSize: 11, color: SLATE_TEXT, marginTop: 2 }}>
+                                    <div style={{ fontSize: 11, color: colors.subtext, marginTop: 2 }}>
                                         {kpi.sub}
                                     </div>
                                 </div>
@@ -660,15 +660,15 @@ export default function DealInvestorsPage() {
                         <div
                             style={{
                                 marginTop: 10,
-                                background: '#fff',
-                                border: `1px solid ${BORDER}`,
+                                background: colors.surface,
+                                border: `1px solid ${colors.border}`,
                                 borderRadius: 6,
                                 padding: 10,
                             }}
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                                <div style={{ fontSize: 11, color: SLATE_TEXT }}>Funnel</div>
-                                <div style={{ fontSize: 11, color: SLATE_TEXT }}>
+                                <div style={{ fontSize: 11, color: colors.subtext }}>Funnel</div>
+                                <div style={{ fontSize: 11, color: colors.subtext }}>
                                     Draft → Invited → Active → Committed
                                 </div>
                             </div>
@@ -679,7 +679,7 @@ export default function DealInvestorsPage() {
                                     justifyContent: 'space-between',
                                     fontSize: 12,
                                     marginBottom: 6,
-                                    color: DARK_TEXT,
+                                    color: colors.text,
                                     fontWeight: 600,
                                 }}
                             >
