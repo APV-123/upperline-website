@@ -990,7 +990,7 @@ export default function DealInvestorsPage() {
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                zIndex: 9999,
+                                zIndex: 50,
                             }}
                         >
                             <div
@@ -1084,7 +1084,7 @@ export default function DealInvestorsPage() {
                                 height: '100vh',
                                 background: '#0f1317',
                                 borderLeft: '1px solid rgba(255,255,255,0.12)',
-                                zIndex: 50,
+                                zIndex: 9999,
                                 boxShadow: '-12px 0 32px rgba(0,0,0,0.5)',
                                 color: '#f1f3f4',
                                 display: 'flex',
