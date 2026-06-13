@@ -1140,8 +1140,8 @@ export default function DealInvestorsPage() {
                             >
                                 <div
                                     style={{
+                                        borderRight: `1px solid ${colors.border}`,
                                         padding: 24,
-                                        color: colors.text,
                                     }}
                                 >
                                     <h2>{activeInvestor.name}</h2>
