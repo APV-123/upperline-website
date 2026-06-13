@@ -734,130 +734,134 @@ export default function DealInvestorsPage() {
                                 </div>
                             )}
 
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    gap: 16,
+                                    flexWrap: 'wrap',
+                                }}
+                            >
+                                {prospects.map((p) => {
+                                    const isDraftReady = (p.invite_status ?? '').trim() === 'draft_ready';
 
-                            {prospects.map((p) => {
-                                const isDraftReady = (p.invite_status ?? '').trim() === 'draft_ready';
-
-                                return (
-                                    <div
-                                        key={p.contact_id}
-                                        style={{
-                                            background: '#1a1f24',
-                                            borderRadius: 14,
-                                            padding: 16,
-                                            marginBottom: 16,
-                                            color: '#f1f3f4',
-                                            border: '1px solid rgba(255,255,255,0.06)',
-                                            display: 'flex',
-                                            gap: 16,
-                                            flexWrap: 'wrap',
-                                        }}
-                                    >
-                                        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
-                                            {p.contact_name || 'Unnamed Contact'}
-                                        </div>
-
-                                        <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 12 }}>
-                                            {p.contact_email || '—'}
-                                        </div>
-
-                                        {/* Draft status line */}
-                                        {isDraftReady && (
-                                            <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>
-                                                Draft ready
+                                    return (
+                                        <div
+                                            key={p.contact_id}
+                                            style={{
+                                                background: '#1a1f24',
+                                                borderRadius: 14,
+                                                padding: 16,
+                                                marginBottom: 0,
+                                                color: '#f1f3f4',
+                                                border: '1px solid rgba(255,255,255,0.06)',
+                                                width: 320,
+                                            }}
+                                        >
+                                            <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
+                                                {p.contact_name || 'Unnamed Contact'}
                                             </div>
-                                        )}
 
-                                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                                            <button
-                                                style={{
-                                                    background: 'transparent',
-                                                    color: '#cfd4d8',
-                                                    border: '1px solid rgba(255,255,255,0.18)',
-                                                    borderRadius: 8,
-                                                    fontSize: 12,
-                                                    padding: '6px 10px',
-                                                    cursor: 'pointer',
-                                                }}
-                                                onClick={() => openInviteDraft(p)}
-                                            >
-                                                {isDraftReady ? 'Edit Draft' : 'Draft Invite'}
-                                            </button>
+                                            <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 12 }}>
+                                                {p.contact_email || '—'}
+                                            </div>
 
-                                            <button
-                                                disabled={!isDraftReady}
-                                                style={{
-                                                    background: 'transparent',
-                                                    color: '#cfd4d8',
-                                                    border: '1px solid rgba(255,255,255,0.18)',
-                                                    borderRadius: 8,
-                                                    fontSize: 12,
-                                                    padding: '6px 10px',
-                                                    cursor: isDraftReady ? 'pointer' : 'not-allowed',
-                                                    opacity: isDraftReady ? 1 : 0.45,
-                                                }}
-                                                onClick={async () => {
-                                                    if (!confirm('Mark invite as sent and move investor into pipeline?')) return;
+                                            {/* Draft status line */}
+                                            {isDraftReady && (
+                                                <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>
+                                                    Draft ready
+                                                </div>
+                                            )}
 
-                                                    const sendRes = await fetch(
-                                                        `/api/deals/${dealId}/prospects/${p.contact_id}/send`,
-                                                        { method: 'POST' }
-                                                    );
+                                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                                <button
+                                                    style={{
+                                                        background: 'transparent',
+                                                        color: '#cfd4d8',
+                                                        border: '1px solid rgba(255,255,255,0.18)',
+                                                        borderRadius: 8,
+                                                        fontSize: 12,
+                                                        padding: '6px 10px',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                    onClick={() => openInviteDraft(p)}
+                                                >
+                                                    {isDraftReady ? 'Edit Draft' : 'Draft Invite'}
+                                                </button>
 
-                                                    const sendJson = (await sendRes.json().catch(() => null)) as SendInviteResponse | null;
+                                                <button
+                                                    disabled={!isDraftReady}
+                                                    style={{
+                                                        background: 'transparent',
+                                                        color: '#cfd4d8',
+                                                        border: '1px solid rgba(255,255,255,0.18)',
+                                                        borderRadius: 8,
+                                                        fontSize: 12,
+                                                        padding: '6px 10px',
+                                                        cursor: isDraftReady ? 'pointer' : 'not-allowed',
+                                                        opacity: isDraftReady ? 1 : 0.45,
+                                                    }}
+                                                    onClick={async () => {
+                                                        if (!confirm('Mark invite as sent and move investor into pipeline?')) return;
 
-                                                    if (!sendRes.ok || sendJson?.ok === false) {
-                                                        alert(sendJson?.error ?? 'Failed to mark invite as sent');
-                                                        return;
-                                                    }
+                                                        const sendRes = await fetch(
+                                                            `/api/deals/${dealId}/prospects/${p.contact_id}/send`,
+                                                            { method: 'POST' }
+                                                        );
 
-                                                    const hubspotRes = await fetch(`/api/deals/${dealId}/add-investor`, {
-                                                        method: 'POST',
-                                                        headers: { 'Content-Type': 'application/json' },
-                                                        body: JSON.stringify({
-                                                            contactId: p.contact_id,
-                                                            amount: 250000,
-                                                            investorName: p.contact_name,
-                                                        }),
-                                                    });
+                                                        const sendJson = (await sendRes.json().catch(() => null)) as SendInviteResponse | null;
 
-                                                    const hubspotJson = (await hubspotRes.json().catch(() => null)) as HubspotCreateDealResponse | null;
+                                                        if (!sendRes.ok || sendJson?.ok === false) {
+                                                            alert(sendJson?.error ?? 'Failed to mark invite as sent');
+                                                            return;
+                                                        }
 
-                                                    if (!hubspotRes.ok || hubspotJson?.ok === false) {
-                                                        alert(hubspotJson?.error ?? 'Failed to create HubSpot deal');
-                                                        return;
-                                                    }
+                                                        const hubspotRes = await fetch(`/api/deals/${dealId}/add-investor`, {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({
+                                                                contactId: p.contact_id,
+                                                                amount: 250000,
+                                                                investorName: p.contact_name,
+                                                            }),
+                                                        });
 
-                                                    await loadDashboard();
-                                                    setTimeout(() => loadDashboard(), 1500);
-                                                    setTimeout(() => loadDashboard(), 4000);
-                                                }}
-                                            >
-                                                Send
-                                            </button>
+                                                        const hubspotJson = (await hubspotRes.json().catch(() => null)) as HubspotCreateDealResponse | null;
 
-                                            <button
-                                                style={{
-                                                    background: 'transparent',
-                                                    color: '#fb7185',
-                                                    border: '1px solid rgba(251,113,133,0.35)',
-                                                    borderRadius: 8,
-                                                    fontSize: 12,
-                                                    padding: '6px 10px',
-                                                    cursor: 'pointer',
-                                                }}
-                                                onClick={async () => {
-                                                    await fetch(`/api/deals/${dealId}/prospects/${p.contact_id}`, { method: 'DELETE' });
-                                                    await loadDashboard();
-                                                }}
-                                            >
-                                                Remove
-                                            </button>
+                                                        if (!hubspotRes.ok || hubspotJson?.ok === false) {
+                                                            alert(hubspotJson?.error ?? 'Failed to create HubSpot deal');
+                                                            return;
+                                                        }
+
+                                                        await loadDashboard();
+                                                        setTimeout(() => loadDashboard(), 1500);
+                                                        setTimeout(() => loadDashboard(), 4000);
+                                                    }}
+                                                >
+                                                    Send
+                                                </button>
+
+                                                <button
+                                                    style={{
+                                                        background: 'transparent',
+                                                        color: '#fb7185',
+                                                        border: '1px solid rgba(251,113,133,0.35)',
+                                                        borderRadius: 8,
+                                                        fontSize: 12,
+                                                        padding: '6px 10px',
+                                                        cursor: 'pointer',
+                                                    }}
+                                                    onClick={async () => {
+                                                        await fetch(`/api/deals/${dealId}/prospects/${p.contact_id}`, { method: 'DELETE' });
+                                                        await loadDashboard();
+                                                    }}
+                                                >
+                                                    Remove
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
-
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
                     {/* Buckets */}
@@ -882,98 +886,101 @@ export default function DealInvestorsPage() {
                             marginBottom: 24,
                         }}
                     >
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(3, 1fr)',
-                            gap: 24,
-                        }}
-                    >
-
-                        {BUCKETS.map((bucket) => (
-                            <div key={bucket.key}>
-                                <h3
-                                    style={{
-                                        fontSize: 13,
-                                        fontWeight: 500,
-                                        letterSpacing: '1px',
-                                        textTransform: 'uppercase',
-                                        opacity: 0.7,
-                                        marginBottom: 18,
-                                    }}
-                                >
-                                    {bucket.label}
-                                </h3>
-
-                                {investors
-                                    .filter((i) => i.bucket === bucket.key)
-                                    .map((investor) => (
-                                        <InvestorCard
-                                            key={investor.id}
-                                            investor={investor}
-                                            onOpen={() => setActiveInvestor(investor)}
-                                            onQuickStage={(stageId) => quickStageChange(investor, stageId)}
-                                        />
-                                    ))}
-                            </div>
-                        ))}
-                    </div>
-                    </div>
-                    <div
-                        style={{
-                            marginTop: 24,
-                        }}
-                    >
-                        <button
-                            onClick={() =>
-                                setShowPassed(v => !v)
-                            }
+                        <div
                             style={{
-                                background: 'transparent',
-                                border: 'none',
-                                cursor: 'pointer',
-                                fontSize: 13,
-                                fontWeight: 600,
-                                color: '#64748b',
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(3, 1fr)',
+                                gap: 24,
                             }}
                         >
-                            {showPassed ? '▼' : '▶'} Passed (
-                            {passedInvestors.length})
-                        </button>
 
-                        {showPassed && (
-                            <div
+                            {BUCKETS.map((bucket) => (
+                                <div key={bucket.key}>
+                                    <h3
+                                        style={{
+                                            fontSize: 13,
+                                            fontWeight: 500,
+                                            letterSpacing: '1px',
+                                            textTransform: 'uppercase',
+                                            opacity: 0.7,
+                                            marginBottom: 18,
+                                        }}
+                                    >
+                                        {bucket.label}
+                                    </h3>
+
+                                    {investors
+                                        .filter((i) => i.bucket === bucket.key)
+                                        .map((investor) => (
+                                            <InvestorCard
+                                                key={investor.id}
+                                                investor={investor}
+                                                onOpen={() => setActiveInvestor(investor)}
+                                                onQuickStage={(stageId) => quickStageChange(investor, stageId)}
+                                            />
+                                        ))}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    {/* PASSED*/}
+                    {passedInvestors.length > 0 && (
+                        <div
+                            style={{
+                                marginTop: 24,
+                            }}
+                        >
+                            <button
+                                onClick={() =>
+                                    setShowPassed(v => !v)
+                                }
                                 style={{
-                                    display: 'flex',
-                                    flexWrap: 'wrap',
-                                    gap: 16,
-                                    marginTop: 16,
+                                    background: 'transparent',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontSize: 13,
+                                    fontWeight: 600,
+                                    color: '#64748b',
                                 }}
                             >
-                                {passedInvestors.map(
-                                    (investor) => (
-                                        <InvestorCard
-                                            key={investor.id}
-                                            investor={investor}
-                                            onOpen={() =>
-                                                setActiveInvestor(
-                                                    investor
-                                                )
-                                            }
-                                            onQuickStage={(
-                                                stageId
-                                            ) =>
-                                                quickStageChange(
-                                                    investor,
+                                {showPassed ? '▼' : '▶'} Passed (
+                                {passedInvestors.length})
+                            </button>
+
+                            {showPassed && (
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        flexWrap: 'wrap',
+                                        gap: 16,
+                                        marginTop: 16,
+                                    }}
+                                >
+                                    {passedInvestors.map(
+                                        (investor) => (
+                                            <InvestorCard
+                                                key={investor.id}
+                                                investor={investor}
+                                                onOpen={() =>
+                                                    setActiveInvestor(
+                                                        investor
+                                                    )
+                                                }
+                                                onQuickStage={(
                                                     stageId
-                                                )
-                                            }
-                                        />
-                                    )
-                                )}
-                            </div>
-                        )}
-                    </div>
+                                                ) =>
+                                                    quickStageChange(
+                                                        investor,
+                                                        stageId
+                                                    )
+                                                }
+                                            />
+                                        )
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
                     {showAddInvestor && (
                         <div
                             style={{
