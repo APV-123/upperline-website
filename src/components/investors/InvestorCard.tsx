@@ -28,8 +28,13 @@ function getStageAccent(bucket: Bucket) {
     switch (bucket) {
         case 'committed':
             return '#22c55e'; // green
+
+        case 'needs_touch':
+            return '#f59e0b'; // amber
+
         case 'passed':
             return '#ef4444'; // red
+
         default:
             return '#3b82f6'; // blue
     }
@@ -128,20 +133,19 @@ export default function InvestorCard({
         border: string;
     }
 }) {
-    const isNeedsTouch = investor.bucket === 'needs_touch';
     const [menuOpen, setMenuOpen] = useState(false);
     return (
         <div
             onClick={onOpen}
             style={{
-                background: colors.surface,
+                background: '#12284a',,
                 borderRadius: 14,
                 padding: 20,
                 marginBottom: 16,
                 color: colors.text,
                 border: `1px solid ${colors.border}`,
                 borderLeft: `4px solid ${getStageAccent(investor.bucket)}`,
-                boxShadow: isNeedsTouch ? '0 0 0 2px rgba(225,29,72,0.35)' : 'none',
+                boxShadow: 'none',
                 cursor: 'pointer',
             }}
         >
@@ -149,12 +153,25 @@ export default function InvestorCard({
                 {investor.name}
             </div>
 
-            <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 10 }}>
+            <div
+                style={{
+                    fontSize: 12,
+                    color: colors.subtext,
+                    marginBottom: 10,
+                }}
+            >
                 {investor.email || '—'}
                 {investor.stageLabel ? ` · ${investor.stageLabel}` : ''}
             </div>
 
-            <div style={{ fontSize: 14, opacity: 0.85, marginBottom: 10 }}>
+            <div
+                style={{
+                    fontSize: 15,
+                    fontWeight: 600,
+                    color: colors.text,
+                    marginBottom: 10,
+                }}
+            >
                 ${investor.amount.toLocaleString()}
             </div>
 
