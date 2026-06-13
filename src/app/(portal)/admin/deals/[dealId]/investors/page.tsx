@@ -505,9 +505,8 @@ export default function DealInvestorsPage() {
             >
                 <div
                     style={{
-                        maxWidth: 1200,
-                        marginLeft: 32,
-                        marginRight: 32,
+                        maxWidth: 1400,
+                        margin: '0 auto',
                         padding: 16,
                         background: 'transparent',
                         minHeight: 'calc(100vh - 120px)',
@@ -538,14 +537,15 @@ export default function DealInvestorsPage() {
                         <button
                             onClick={() => setShowAddInvestor(true)}
                             style={{
-                                background: '#003a5d',
-                                color: '#fff',
+                                background: colors.accent,
+                                color: '#071426',
+                                border: `1px solid ${colors.border}`,
+                                boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+                                fontWeight: 600,
                                 borderRadius: 6,
                                 padding: '6px 12px',
                                 fontSize: 12,
-                                border: 'none',
                                 cursor: 'pointer',
-                                fontWeight: 500,
                             }}
                         >
                             Add Investor
@@ -729,11 +729,11 @@ export default function DealInvestorsPage() {
                         <div>
                             <h3
                                 style={{
-                                    fontSize: 13,
-                                    fontWeight: 500,
+                                    fontSize: 14,
+                                    fontWeight: 700,
                                     letterSpacing: '1px',
                                     textTransform: 'uppercase',
-                                    opacity: 0.7,
+                                    color: colors.text,
                                     marginBottom: 18,
                                 }}
                             >
@@ -883,10 +883,11 @@ export default function DealInvestorsPage() {
                     {/* Buckets */}
                     <h3
                         style={{
-                            fontSize: 13,
+                            fontSize: 14,
+                            fontWeight: 700,
                             textTransform: 'uppercase',
                             letterSpacing: '1px',
-                            opacity: .7,
+                            color: colors.text,
                             marginBottom: 18,
                         }}
                     >
@@ -914,15 +915,26 @@ export default function DealInvestorsPage() {
                                 <div key={bucket.key}>
                                     <h3
                                         style={{
-                                            fontSize: 13,
-                                            fontWeight: 500,
+                                            fontSize: 12,
+                                            fontWeight: 700,
                                             letterSpacing: '1px',
                                             textTransform: 'uppercase',
-                                            opacity: 0.7,
                                             marginBottom: 18,
+                                            color:
+                                                bucket.key === 'circling'
+                                                    ? '#60a5fa'
+                                                    : bucket.key === 'needs_touch'
+                                                        ? '#f472b6'
+                                                        : '#4ade80',
                                         }}
                                     >
-                                        {bucket.label}
+                                        {bucket.label} (
+                                        {
+                                            investors.filter(
+                                                i => i.bucket === bucket.key
+                                            ).length
+                                        }
+                                        )
                                     </h3>
 
                                     {investors
