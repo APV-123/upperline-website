@@ -1130,8 +1130,8 @@ export default function DealInvestorsPage() {
                                 onClick={(e) => e.stopPropagation()}
                                 style={{
                                     width: '100%',
-                                    maxWidth: 1100,
-                                    height: '90vh',
+                                    maxWidth: 1200,
+                                    height: '80vh',
                                     background: colors.surface,
                                     borderRadius: 18,
                                     border: `1px solid ${colors.border}`,
@@ -1150,6 +1150,8 @@ export default function DealInvestorsPage() {
                                             borderRight: `1px solid ${colors.border}`,
                                             padding: 24,
                                             color: colors.text,
+
+                                            background: '#0b1728',
                                         }}
                                     >
                                         <h2>{activeInvestor.name}</h2>
@@ -1162,102 +1164,109 @@ export default function DealInvestorsPage() {
 
                                         <div>
                                             Amount: ${activeInvestor.amount.toLocaleString()}
+                                            <div
+                                                style={{
+                                                    height: 1,
+                                                    background: colors.border,
+                                                    margin: '18px 0 22px',
+                                                }}
+                                            />
                                         </div>
                                         <div
-                                style={{
-                                    padding: 20,
-                                    borderTop: '1px solid rgba(255,255,255,0.08)',
-                                    flexShrink: 0,
-                                }}
-                            >
-                                <div style={{ marginTop: 16 }}>
-                                    {/* Commit / Amount */}
-                                    <label style={{ fontSize: 12, opacity: 0.7 }}>
-                                        Amount
-                                    </label>
+                                            style={{
+                                                padding: 20,
+                                                borderTop: '1px solid rgba(255,255,255,0.08)',
+                                                flexShrink: 0,
+                                            }}
+                                        >
+                                            <div style={{ marginTop: 16 }}>
+                                                {/* Commit / Amount */}
+                                                <label style={{ fontSize: 12, opacity: 0.7 }}>
+                                                    Amount
+                                                </label>
 
-                                    <input
-                                        type="number"
-                                        value={commitAmount ?? ''}
+                                                <input
+                                                    type="number"
+                                                    value={commitAmount ?? ''}
 
-                                        onChange={(e) => {
-                                            const v = e.target.value;
-                                            setCommitAmount(v === '' ? null : Number(v));
-                                        }}
+                                                    onChange={(e) => {
+                                                        const v = e.target.value;
+                                                        setCommitAmount(v === '' ? null : Number(v));
+                                                    }}
 
-                                        style={{
-                                            marginTop: 6,
-                                            width: '100%',
-                                            padding: '8px 10px',
-                                            borderRadius: 8,
-                                            border: '1px solid rgba(255,255,255,0.15)',
-                                            background: 'transparent',
-                                            color: '#f1f3f4',
-                                            fontSize: 14,
-                                        }}
-                                    />
+                                                    style={{
+                                                        marginTop: 6,
+                                                        width: '100%',
+                                                        padding: '8px 10px',
+                                                        borderRadius: 8,
+                                                        border: '1px solid rgba(255,255,255,0.15)',
+                                                        background: 'transparent',
+                                                        color: '#f1f3f4',
+                                                        fontSize: 14,
+                                                    }}
+                                                />
 
-                                    {/* Stage selector */}
-                                    <label
-                                        style={{
-                                            fontSize: 12,
-                                            opacity: 0.7,
-                                            marginTop: 14,
-                                            display: 'block',
-                                        }}
-                                    >
-                                        Stage
-                                    </label>
+                                                {/* Stage selector */}
+                                                <label
+                                                    style={{
+                                                        fontSize: 12,
+                                                        opacity: 0.7,
+                                                        marginTop: 14,
+                                                        display: 'block',
+                                                    }}
+                                                >
+                                                    Stage
+                                                </label>
 
-                                    <select
-                                        value={selectedStageId ?? ''}
-                                        onChange={(e) => setSelectedStageId(e.target.value)}
-                                        style={{
-                                            marginTop: 6,
-                                            width: '100%',
-                                            padding: '8px 10px',
-                                            borderRadius: 8,
-                                            border: '1px solid rgba(255,255,255,0.15)',
-                                            background: '#0f1317',
-                                            color: '#f1f3f4',
-                                            fontSize: 14,
-                                        }}
-                                    >
-                                        {HUBSPOT_DEAL_STAGES.map((stage) => (
-                                            <option key={stage.id} value={stage.id}>
-                                                {stage.label}
-                                            </option>
-                                        ))}
-                                    </select>
+                                                <select
+                                                    value={selectedStageId ?? ''}
+                                                    onChange={(e) => setSelectedStageId(e.target.value)}
+                                                    style={{
+                                                        marginTop: 6,
+                                                        width: '100%',
+                                                        padding: '8px 10px',
+                                                        borderRadius: 8,
+                                                        border: '1px solid rgba(255,255,255,0.15)',
+                                                        background: '#0f1317',
+                                                        color: '#f1f3f4',
+                                                        fontSize: 14,
+                                                    }}
+                                                >
+                                                    {HUBSPOT_DEAL_STAGES.map((stage) => (
+                                                        <option key={stage.id} value={stage.id}>
+                                                            {stage.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
 
-                                    {/* Update action */}
-                                    <button
-                                        onClick={handleUpdateStage}
-                                        disabled={!canUpdate || isUpdatingStage}
-                                        style={{
-                                            marginTop: 14,
-                                            width: '100%',
-                                            background:
-                                                !canUpdate || isUpdatingStage
-                                                    ? '#374151'     // disabled
-                                                    : '#2563eb',    // active
-                                            color: '#fff',
-                                            border: 'none',
-                                            borderRadius: 8,
-                                            padding: '10px',
-                                            fontWeight: 600,
-                                            cursor:
-                                                !canUpdate || isUpdatingStage
-                                                    ? 'not-allowed'
-                                                    : 'pointer',
-                                            opacity:
-                                                isUpdatingStage ? 0.85 : 1,
-                                        }}
-                                    >
-                                        Update Stage
-                                    </button>
-                                </div>
-                            </div>
+                                                {/* Update action */}
+                                                <button
+                                                    onClick={handleUpdateStage}
+                                                    disabled={!canUpdate || isUpdatingStage}
+                                                    style={{
+                                                        marginTop: 14,
+                                                        width: '100%',
+                                                        background:
+                                                            !canUpdate || isUpdatingStage
+                                                                ? '#334155'     // disabled
+                                                                : colors.accent,    // active
+                                                        color: '#071426',
+                                                        border: 'none',
+                                                        borderRadius: 8,
+                                                        padding: '10px',
+                                                        fontWeight: 600,
+                                                        cursor:
+                                                            !canUpdate || isUpdatingStage
+                                                                ? 'not-allowed'
+                                                                : 'pointer',
+                                                        opacity:
+                                                            isUpdatingStage ? 0.85 : 1,
+                                                    }}
+                                                >
+                                                    Update Stage
+                                                </button>
+                                            </div>
+                                        </div>
 
                                     </div>
                                     <div
@@ -1272,7 +1281,8 @@ export default function DealInvestorsPage() {
                                             style={{
                                                 padding: 24,
                                                 borderBottom: `1px solid ${colors.border}`,
-                                                fontWeight: 600,
+                                                fontWeight: 700,
+                                                fontSize: 18,
                                                 color: colors.text,
                                             }}
                                         >
@@ -1298,9 +1308,9 @@ export default function DealInvestorsPage() {
                                                     style={{
                                                         marginBottom: 16,
                                                         padding: 12,
-                                                        border: '1px solid rgba(255,255,255,0.12)',
                                                         borderRadius: 10,
-                                                        background: 'rgba(255,255,255,0.02)',
+                                                        background: '#0b1728',
+                                                        border: `1px solid ${colors.border}`,
                                                     }}
                                                 >
                                                     <textarea
@@ -1376,12 +1386,13 @@ export default function DealInvestorsPage() {
                                                                 if (!isSliderExpanded) setIsSliderExpanded(true);
                                                             }}
                                                             style={{
-                                                                borderLeft: '2px solid rgba(255,255,255,0.12)',
-                                                                paddingLeft: 10,
+                                                                padding: 12,
+                                                                borderRadius: 10,
+                                                                background: '#0b1728',
+                                                                border: `1px solid ${colors.border}`,
                                                                 marginBottom: 12,
                                                                 cursor: isEmail ? 'pointer' : 'default',
                                                                 opacity: isEmail ? 1 : 0.65,
-                                                                background: isEmail && !isOpen ? 'rgba(255,255,255,0.02)' : 'transparent',
                                                                 transition: 'background 120ms ease',
                                                             }}
                                                         >
@@ -1395,7 +1406,16 @@ export default function DealInvestorsPage() {
                                                                 }}
                                                             >
                                                                 <span>
-                                                                    {a.type}
+                                                                    <span
+                                                                        style={{
+                                                                            color:
+                                                                                a.type === 'EMAIL'
+                                                                                    ? colors.accent
+                                                                                    : '#fbbf24',
+                                                                        }}
+                                                                    >
+                                                                        {a.type}
+                                                                    </span>
                                                                     {a.ownerName ? ` · ${a.ownerName}` : ''}
                                                                 </span>
 
@@ -1449,7 +1469,7 @@ export default function DealInvestorsPage() {
                         </div>
                     )}
                 </div>
-                </div>
-                </>
+            </div>
+        </>
     )
 }
