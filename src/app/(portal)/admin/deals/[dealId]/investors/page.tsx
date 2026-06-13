@@ -898,18 +898,45 @@ export default function DealInvestorsPage() {
                         </div>
                     </div>
                     {/* Buckets */}
-                    <h3
+                    <div
                         style={{
-                            fontSize: 14,
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            letterSpacing: '1px',
-                            color: colors.text,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
                             marginBottom: 18,
                         }}
                     >
-                        Active Pipeline
-                    </h3>
+                        <h3
+                            style={{
+                                fontSize: 14,
+                                fontWeight: 700,
+                                textTransform: 'uppercase',
+                                letterSpacing: '1px',
+                                color: colors.text,
+                                margin: 0,
+                            }}
+                        >
+                            Active Pipeline
+                        </h3>
+
+                        {passedInvestors.length > 0 && (
+                            <button
+                                onClick={() => setShowPassed(v => !v)}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontSize: 12,
+                                    fontWeight: 600,
+                                    color: colors.subtext,
+                                }}
+                            >
+                                {showPassed
+                                    ? 'Show Active Pipeline'
+                                    : `Show Passed (${passedInvestors.length})`}
+                            </button>
+                        )}
+                    </div>
 
                     <div
                         style={{
@@ -920,114 +947,76 @@ export default function DealInvestorsPage() {
                             marginBottom: 24,
                         }}
                     >
-                        <div
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(3, 1fr)',
-                                gap: 24,
-                            }}
-                        >
-
-                            {BUCKETS.map((bucket) => (
-                                <div key={bucket.key}>
-                                    <h3
-                                        style={{
-                                            fontSize: 12,
-                                            fontWeight: 700,
-                                            letterSpacing: '1px',
-                                            textTransform: 'uppercase',
-                                            marginBottom: 18,
-                                            color:
-                                                bucket.key === 'circling'
-                                                    ? '#60a5fa'
-                                                    : bucket.key === 'needs_touch'
-                                                        ? '#fbbf24'
-                                                        : '#4ade80',
-                                        }}
-                                    >
-                                        {bucket.label} (
-                                        {
-                                            investors.filter(
-                                                i => i.bucket === bucket.key
-                                            ).length
-                                        }
-                                        )
-                                    </h3>
-
-                                    {investors
-                                        .filter((i) => i.bucket === bucket.key)
-                                        .map((investor) => (
-                                            <InvestorCard
-                                                key={investor.id}
-                                                investor={investor}
-                                                onOpen={() => setActiveInvestor(investor)}
-                                                onQuickStage={(stageId) => quickStageChange(investor, stageId)}
-                                                colors={colors}
-                                            />
-                                        ))}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    {/* PASSED*/}
-                    {passedInvestors.length > 0 && (
-                        <div
-                            style={{
-                                marginTop: 24,
-                            }}
-                        >
-                            <button
-                                onClick={() =>
-                                    setShowPassed(v => !v)
-                                }
+                        {showPassed ? (
+                            <div
                                 style={{
-                                    background: 'transparent',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    fontSize: 13,
-                                    fontWeight: 600,
-                                    color: '#64748b',
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    gap: 16,
                                 }}
                             >
-                                {showPassed ? '▼' : '▶'} Passed (
-                                {passedInvestors.length})
-                            </button>
+                                {passedInvestors.map((investor) => (
+                                    <InvestorCard
+                                        key={investor.id}
+                                        investor={investor}
+                                        onOpen={() => setActiveInvestor(investor)}
+                                        onQuickStage={(stageId) =>
+                                            quickStageChange(investor, stageId)
+                                        }
+                                        colors={colors}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(3, 1fr)',
+                                    gap: 24,
+                                }}
+                            >
 
-                            {showPassed && (
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        flexWrap: 'wrap',
-                                        gap: 16,
-                                        marginTop: 16,
-                                    }}
-                                >
-                                    {passedInvestors.map(
-                                        (investor) => (
-                                            <InvestorCard
-                                                key={investor.id}
-                                                investor={investor}
-                                                onOpen={() =>
-                                                    setActiveInvestor(
-                                                        investor
-                                                    )
-                                                }
-                                                onQuickStage={(
-                                                    stageId
-                                                ) =>
-                                                    quickStageChange(
-                                                        investor,
-                                                        stageId
-                                                    )
-                                                }
-                                                colors={colors}
-                                            />
-                                        )
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    )}
+                                {BUCKETS.map((bucket) => (
+                                    <div key={bucket.key}>
+                                        <h3
+                                            style={{
+                                                fontSize: 12,
+                                                fontWeight: 700,
+                                                letterSpacing: '1px',
+                                                textTransform: 'uppercase',
+                                                marginBottom: 18,
+                                                color:
+                                                    bucket.key === 'circling'
+                                                        ? '#60a5fa'
+                                                        : bucket.key === 'needs_touch'
+                                                            ? '#fbbf24'
+                                                            : '#4ade80',
+                                            }}
+                                        >
+                                            {bucket.label} (
+                                            {
+                                                investors.filter(
+                                                    i => i.bucket === bucket.key
+                                                ).length
+                                            }
+                                            )
+                                        </h3>
+
+                                        {investors
+                                            .filter((i) => i.bucket === bucket.key)
+                                            .map((investor) => (
+                                                <InvestorCard
+                                                    key={investor.id}
+                                                    investor={investor}
+                                                    onOpen={() => setActiveInvestor(investor)}
+                                                    onQuickStage={(stageId) => quickStageChange(investor, stageId)}
+                                                    colors={colors}
+                                                />
+                                            ))}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     {showAddInvestor && (
                         <div
                             style={{
