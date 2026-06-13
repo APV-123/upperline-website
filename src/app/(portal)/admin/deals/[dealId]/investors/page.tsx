@@ -1199,8 +1199,8 @@ export default function DealInvestorsPage() {
                                                         width: '100%',
                                                         padding: '8px 10px',
                                                         borderRadius: 8,
-                                                        border: '1px solid rgba(255,255,255,0.15)',
-                                                        background: 'transparent',
+                                                        border: `1px solid ${colors.border}`,
+                                                        background: '#081326',
                                                         color: '#f1f3f4',
                                                         fontSize: 14,
                                                     }}
@@ -1227,7 +1227,7 @@ export default function DealInvestorsPage() {
                                                         padding: '8px 10px',
                                                         borderRadius: 8,
                                                         border: '1px solid rgba(255,255,255,0.15)',
-                                                        background: '#0f1317',
+                                                        background: '#081326',
                                                         color: '#f1f3f4',
                                                         fontSize: 14,
                                                     }}
@@ -1246,15 +1246,12 @@ export default function DealInvestorsPage() {
                                                     style={{
                                                         marginTop: 14,
                                                         width: '100%',
-                                                        background:
-                                                            !canUpdate || isUpdatingStage
-                                                                ? '#334155'     // disabled
-                                                                : colors.accent,    // active
+                                                        background: colors.accent,
                                                         color: '#071426',
+                                                        fontWeight: 700,
                                                         border: 'none',
                                                         borderRadius: 8,
                                                         padding: '10px',
-                                                        fontWeight: 600,
                                                         cursor:
                                                             !canUpdate || isUpdatingStage
                                                                 ? 'not-allowed'
@@ -1309,7 +1306,7 @@ export default function DealInvestorsPage() {
                                                         marginBottom: 16,
                                                         padding: 12,
                                                         borderRadius: 10,
-                                                        background: '#0b1728',
+                                                        background: '#081326',
                                                         border: `1px solid ${colors.border}`,
                                                     }}
                                                 >
@@ -1345,8 +1342,9 @@ export default function DealInvestorsPage() {
                                                                 padding: '6px 12px',
                                                                 borderRadius: 8,
                                                                 border: '1px solid rgba(255,255,255,0.2)',
-                                                                background: savingNote ? '#374151' : '#2563eb',
-                                                                color: '#fff',
+                                                                background: colors.accent,
+                                                                color: '#071426',
+                                                                fontWeight: 700,
                                                                 cursor: savingNote ? 'not-allowed' : 'pointer',
                                                             }}
                                                         >
@@ -1388,7 +1386,10 @@ export default function DealInvestorsPage() {
                                                             style={{
                                                                 padding: 12,
                                                                 borderRadius: 10,
-                                                                background: '#0b1728',
+                                                                background:
+                                                                    isOpen
+                                                                        ? 'rgba(49,200,219,0.08)'
+                                                                        : colors.surface,
                                                                 border: `1px solid ${colors.border}`,
                                                                 marginBottom: 12,
                                                                 cursor: isEmail ? 'pointer' : 'default',
