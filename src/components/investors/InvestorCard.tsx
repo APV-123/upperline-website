@@ -144,7 +144,7 @@ export default function InvestorCard({
                 marginBottom: 16,
                 color: colors.text,
                 border: `1px solid ${colors.border}`,
-                borderLeft: `4px solid ${getStageAccent(investor.bucket)}`,
+                borderTop: `3px solid ${getStageAccent(investor.bucket)}`,
                 boxShadow: 'none',
                 cursor: 'pointer',
             }}
@@ -160,8 +160,20 @@ export default function InvestorCard({
                     marginBottom: 10,
                 }}
             >
-                {investor.email || '—'}
-                {investor.stageLabel ? ` · ${investor.stageLabel}` : ''}
+                {investor.email}
+            </div>
+
+            <div
+                style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: getStageAccent(investor.bucket),
+                    textTransform: 'uppercase',
+                    letterSpacing: '.5px',
+                    marginBottom: 12,
+                }}
+            >
+                {investor.stageLabel}
             </div>
 
             <div

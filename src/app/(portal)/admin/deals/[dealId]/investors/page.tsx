@@ -12,6 +12,7 @@ import { useCallback } from 'react';
 import InvestorCard from '@/components/investors/InvestorCard';
 import AddProspectsModal from '@/components/investors/AddProspectsModal';
 import InviteDraftForm from '@/components/investors/InviteDraftForm';
+import { color } from 'framer-motion';
 
 
 type Bucket = 'committed' | 'circling' | 'needs_touch' | 'passed';
@@ -764,27 +765,42 @@ export default function DealInvestorsPage() {
                                         <div
                                             key={p.contact_id}
                                             style={{
-                                                background: '#1a1f24',
+                                                background: '#12284a',
                                                 borderRadius: 14,
                                                 padding: 16,
                                                 marginBottom: 0,
-                                                color: '#f1f3f4',
-                                                border: '1px solid rgba(255,255,255,0.06)',
-                                                width: 320,
+                                                color: colors.text,
+                                                border: `1px solid ${colors.border}`,
+                                                minWidth: 360,
                                             }}
                                         >
                                             <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
                                                 {p.contact_name || 'Unnamed Contact'}
                                             </div>
 
-                                            <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 12 }}>
+                                            <div
+                                                style={{
+                                                    fontSize: 12,
+                                                    color: colors.subtext,
+                                                    marginBottom: 12,
+                                                }}
+                                            >
                                                 {p.contact_email || '—'}
                                             </div>
 
                                             {/* Draft status line */}
                                             {isDraftReady && (
-                                                <div style={{ fontSize: 11, opacity: 0.75, marginBottom: 10 }}>
-                                                    Draft ready
+                                                <div
+                                                    style={{
+                                                        fontSize: 11,
+                                                        fontWeight: 600,
+                                                        color: colors.accent,
+                                                        textTransform: 'uppercase',
+                                                        letterSpacing: '.5px',
+                                                        marginBottom: 10,
+                                                    }}
+                                                >
+                                                    Draft Ready
                                                 </div>
                                             )}
 
@@ -792,8 +808,8 @@ export default function DealInvestorsPage() {
                                                 <button
                                                     style={{
                                                         background: 'transparent',
-                                                        color: '#cfd4d8',
-                                                        border: '1px solid rgba(255,255,255,0.18)',
+                                                        color: colors.accent,
+                                                        border: `1px solid ${colors.accent}`,
                                                         borderRadius: 8,
                                                         fontSize: 12,
                                                         padding: '6px 10px',
@@ -807,9 +823,10 @@ export default function DealInvestorsPage() {
                                                 <button
                                                     disabled={!isDraftReady}
                                                     style={{
-                                                        background: 'transparent',
-                                                        color: '#cfd4d8',
-                                                        border: '1px solid rgba(255,255,255,0.18)',
+                                                        background: colors.accent,
+                                                        color: '#071426',
+                                                        border: 'none',
+                                                        fontWeight: 600,
                                                         borderRadius: 8,
                                                         fontSize: 12,
                                                         padding: '6px 10px',
@@ -924,7 +941,7 @@ export default function DealInvestorsPage() {
                                                 bucket.key === 'circling'
                                                     ? '#60a5fa'
                                                     : bucket.key === 'needs_touch'
-                                                        ? '#f472b6'
+                                                        ? '#fbbf24'
                                                         : '#4ade80',
                                         }}
                                     >
