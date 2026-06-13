@@ -1428,7 +1428,7 @@ export default function DealInvestorsPage() {
                                                             </div>
 
                                                             {/* Timestamp */}
-                                                            <div style={{ fontSize: 11, opacity: 0.7 }}>
+                                                            <div style={{ fontSize: 11, opacity: 0.55, color: colors.subtext, }}>
                                                                 {new Date(a.timestamp).toLocaleString()}
                                                             </div>
 
@@ -1436,9 +1436,10 @@ export default function DealInvestorsPage() {
                                                             {a.subject && (
                                                                 <div
                                                                     style={{
-                                                                        fontSize: 12,
+                                                                        fontSize: 15,
                                                                         marginTop: 4,
-                                                                        fontWeight: 600,
+                                                                        fontWeight: 700,
+                                                                        color: colors.text,
                                                                     }}
                                                                 >
                                                                     {a.subject}
@@ -1449,9 +1450,10 @@ export default function DealInvestorsPage() {
                                                             {a.preview && (
                                                                 <div
                                                                     style={{
-                                                                        fontSize: 12,
-                                                                        opacity: 0.8,
-                                                                        marginTop: 6,
+                                                                        fontSize: 13,
+                                                                        color: colors.subtext,
+                                                                        lineHeight: 1.6,
+                                                                        marginTop: 8,
                                                                         whiteSpace: isOpen ? 'pre-wrap' : 'normal',
                                                                         ...(isOpen ? {} : CLAMP_3),
                                                                     }}
