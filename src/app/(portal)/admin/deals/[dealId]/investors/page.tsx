@@ -1166,17 +1166,194 @@ export default function DealInvestorsPage() {
                                     </div>
                                     <div
                                         style={{
-                                            padding: 24,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            height: '100%',
+                                            overflow: 'hidden',
                                         }}
                                     >
-                                        Investor Activity
+                                        <div
+                                            style={{
+                                                padding: 24,
+                                                borderBottom: `1px solid ${colors.border}`,
+                                                fontWeight: 600,
+                                                color: colors.text,
+                                            }}
+                                        >
+                                            Investor Activity
+                                        </div>
+                                        <div
+                                            style={{
+                                                flex: 1,
+                                                overflowY: 'auto',
+                                                padding: 24,
+                                            }}
+                                        >
+                                            {/* Activity timeline */}
+                                            <div style={{ marginTop: 18 }}>
+                                                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
+                                                    Activity
+                                                </div>
+                                                {/*============================
+                                Log internal note (Hubspot write)
+                            ===============================*/}
+
+                                                <div
+                                                    style={{
+                                                        marginBottom: 16,
+                                                        padding: 12,
+                                                        border: '1px solid rgba(255,255,255,0.12)',
+                                                        borderRadius: 10,
+                                                        background: 'rgba(255,255,255,0.02)',
+                                                    }}
+                                                >
+                                                    <textarea
+                                                        placeholder="Log internal note…"
+                                                        value={noteDraft}
+                                                        onChange={(e) => setNoteDraft(e.target.value)}
+                                                        rows={3}
+                                                        style={{
+                                                            width: '100%',
+                                                            resize: 'none',
+                                                            background: 'transparent',
+                                                            border: 'none',
+                                                            color: '#f1f3f4',
+                                                            fontSize: 13,
+                                                            outline: 'none',
+                                                            lineHeight: 1.4,
+                                                        }}
+                                                    />
+
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            justifyContent: 'flex-end',
+                                                            marginTop: 8,
+                                                        }}
+                                                    >
+                                                        <button
+                                                            disabled={!noteDraft.trim() || savingNote}
+                                                            onClick={handleSaveNote}
+                                                            style={{
+                                                                fontSize: 12,
+                                                                padding: '6px 12px',
+                                                                borderRadius: 8,
+                                                                border: '1px solid rgba(255,255,255,0.2)',
+                                                                background: savingNote ? '#374151' : '#2563eb',
+                                                                color: '#fff',
+                                                                cursor: savingNote ? 'not-allowed' : 'pointer',
+                                                            }}
+                                                        >
+                                                            {savingNote ? 'Saving…' : 'Save note'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {loadingActivity && (
+                                                    <div style={{ fontSize: 12, opacity: 0.65 }}>Loading activity…</div>
+                                                )}
+
+                                                {!loadingActivity && activityError && (
+                                                    <div style={{ fontSize: 12, color: '#fb7185' }}>{activityError}</div>
+                                                )}
+
+                                                {!loadingActivity && !activityError && activity.length === 0 && (
+                                                    <div style={{ fontSize: 12, opacity: 0.65 }}>No activity found.</div>
+                                                )}
+                                                {/*===========================
+                                Activity feed (read-only)
+                            ==============================*/}
+                                                {!loadingActivity && activity.map((a) => {
+                                                    const isEmail = a.type === 'EMAIL';
+                                                    const isOpen = openActivityId === a.id;
+
+                                                    return (
+                                                        <div
+                                                            key={a.id}
+                                                            onClick={() => {
+                                                                if (!isEmail) return;
+
+                                                                // Toggle this email open/closed
+                                                                setOpenActivityId(prev => (prev === a.id ? null : a.id));
+
+                                                                // If panel is compact, expand it for reading
+                                                                if (!isSliderExpanded) setIsSliderExpanded(true);
+                                                            }}
+                                                            style={{
+                                                                borderLeft: '2px solid rgba(255,255,255,0.12)',
+                                                                paddingLeft: 10,
+                                                                marginBottom: 12,
+                                                                cursor: isEmail ? 'pointer' : 'default',
+                                                                opacity: isEmail ? 1 : 0.65,
+                                                                background: isEmail && !isOpen ? 'rgba(255,255,255,0.02)' : 'transparent',
+                                                                transition: 'background 120ms ease',
+                                                            }}
+                                                        >
+                                                            {/* Header row */}
+                                                            <div
+                                                                style={{
+                                                                    fontSize: 12,
+                                                                    fontWeight: 600,
+                                                                    display: 'flex',
+                                                                    justifyContent: 'space-between',
+                                                                }}
+                                                            >
+                                                                <span>
+                                                                    {a.type}
+                                                                    {a.ownerName ? ` · ${a.ownerName}` : ''}
+                                                                </span>
+
+                                                                {isEmail && (
+                                                                    <span style={{ fontSize: 11, opacity: 0.7, letterSpacing: '0.3px' }}>
+                                                                        {isOpen ? 'Hide' : 'Open'}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Timestamp */}
+                                                            <div style={{ fontSize: 11, opacity: 0.7 }}>
+                                                                {new Date(a.timestamp).toLocaleString()}
+                                                            </div>
+
+                                                            {/* Subject */}
+                                                            {a.subject && (
+                                                                <div
+                                                                    style={{
+                                                                        fontSize: 12,
+                                                                        marginTop: 4,
+                                                                        fontWeight: 600,
+                                                                    }}
+                                                                >
+                                                                    {a.subject}
+                                                                </div>
+                                                            )}
+
+                                                            {/* Body preview */}
+                                                            {a.preview && (
+                                                                <div
+                                                                    style={{
+                                                                        fontSize: 12,
+                                                                        opacity: 0.8,
+                                                                        marginTop: 6,
+                                                                        whiteSpace: isOpen ? 'pre-wrap' : 'normal',
+                                                                        ...(isOpen ? {} : CLAMP_3),
+                                                                    }}
+                                                                >
+                                                                    {a.preview}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     )}
                 </div>
-            </div>
-        </>
-    );
+                </div>
+                </>
+    )
 }
