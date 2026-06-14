@@ -158,6 +158,42 @@ export default function InviteDraftForm({
                 setError(json?.error ?? 'Failed to save draft');
                 return;
             }
+            const outlookRes = await fetch(
+                '/api/outlook/create-draft',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        to: prospect.contact_email,
+                        subject,
+                        body,
+                    }),
+                }
+            );
+
+            const outlookJson =
+                await outlookRes.json().catch(
+                    () => null
+                );
+
+            if (
+                !outlookRes.ok ||
+                outlookJson?.ok === false
+            ) {
+                console.error(
+                    '[OUTLOOK DRAFT FAILED]',
+                    outlookJson
+                );
+
+                setError(
+                    outlookJson?.error ??
+                    'Outlook draft failed'
+                );
+
+                return;
+            }
 
             await onSaved();
 

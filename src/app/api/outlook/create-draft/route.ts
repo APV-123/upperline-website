@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-export async function GET(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     const token = await getToken({
       req,
@@ -34,6 +34,22 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const {
+      to,
+      subject,
+      body,
+    } = await req.json();
+
+    if (!to) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: 'Missing recipient email',
+        },
+        { status: 400 }
+      );
+    }
+
     const graphRes = await fetch(
       'https://graph.microsoft.com/v1.0/me/messages',
       {
@@ -43,16 +59,15 @@ export async function GET(req: NextRequest) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          subject: 'Upperline Graph Test',
+          subject,
           body: {
             contentType: 'Text',
-            content:
-              'This Outlook draft was created from Upperline.',
+            content: body,
           },
           toRecipients: [
             {
               emailAddress: {
-                address: 'av@upperlineco.com',
+                address: to,
               },
             },
           ],
@@ -62,13 +77,31 @@ export async function GET(req: NextRequest) {
 
     const graphJson = await graphRes.json();
 
+    if (!graphRes.ok) {
+      console.error(
+        '[GRAPH CREATE DRAFT FAILED]',
+        graphJson
+      );
+
+      return NextResponse.json(
+        {
+          ok: false,
+          graphJson,
+        },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
-      ok: graphRes.ok,
+      ok: true,
+      draftId: graphJson?.id ?? null,
+      webLink: graphJson?.webLink ?? null,
       graphJson,
     });
+
   } catch (e) {
     console.error(
-      '[OUTLOOK DRAFT TEST ERROR]',
+      '[OUTLOOK CREATE DRAFT ERROR]',
       e
     );
 
