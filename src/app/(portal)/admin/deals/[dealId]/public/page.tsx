@@ -22,26 +22,10 @@ export default function AdminDealPreviewPage() {
 
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  const COLORS = isDark
-    ? {
-      background: '#071426',
-      surface: '#10213d',
-      text: '#ffffff',
-      subtext: '#9fb3c8',
-      border: 'rgba(255,255,255,.08)',
-      accent: '#31c8db',
-    }
-    : {
-      background: '#f3f4f6',
-      surface: '#ffffff',
-      text: '#0f172a',
-      subtext: '#64748b',
-      border: 'rgba(15,23,42,.08)',
-      accent: '#003a5d',
-    };
+
 
   useEffect(() => {
     async function load() {
@@ -79,6 +63,15 @@ export default function AdminDealPreviewPage() {
     return () =>
       window.removeEventListener('resize', check);
   }, []);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+
+    if (saved === 'dark') {
+      setIsDark(true);
+    }
+  }, []);
+
   if (loading) return <div style={{ padding: 40 }}>Loading preview…</div>;
 
   if (!deal) {
@@ -151,7 +144,10 @@ export default function AdminDealPreviewPage() {
       </div>
 
       {/* ✅ SHARED VIEW */}
-      <DealExecutiveSummaryView deal={deal} />
+      <DealExecutiveSummaryView
+        deal={deal}
+        isDark={isDark}
+      />
     </>
   );
 }
