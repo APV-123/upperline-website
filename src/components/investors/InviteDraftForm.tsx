@@ -124,8 +124,11 @@ export default function InviteDraftForm({
     ]);
 
     function renderPreview(text: string) {
-        // safer than replaceAll
-        return text.split('{{ first_name }}').join(firstName);
+        return text
+            .split('{{ first_name }}')
+            .join(firstName)
+            .split('{{ opportunity_link }}')
+            .join('View Colony Lakes Opportunity');
     }
 
 
