@@ -27,7 +27,7 @@ export default function AdminPage() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
@@ -51,7 +51,7 @@ export default function AdminPage() {
     };
 
   const archivedCount = deals.filter(
-    (d: any) => d.is_archived
+    (d: Deal) => d.is_archived
   ).length;
   const btnStyle = {
     padding: '8px 12px',
@@ -96,6 +96,13 @@ export default function AdminPage() {
 
     return () =>
       window.removeEventListener('resize', check);
+  }, []);
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+
+    if (saved === 'dark') {
+      setIsDark(true);
+    }
   }, []);
 
   return (
