@@ -179,6 +179,8 @@ export default function InviteDraftForm({
                         to: prospect.contact_email,
                         subject,
                         body,
+                        firstName,
+                        dealId,
                     }),
                 }
             );

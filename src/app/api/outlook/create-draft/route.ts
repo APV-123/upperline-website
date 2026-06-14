@@ -39,12 +39,21 @@ export async function POST(req: NextRequest) {
       to,
       subject,
       body,
+      firstName,
+      dealId,
     } = await req.json();
         
     
 
     const htmlBody =
-        buildInviteHtml(body);
+        buildInviteHtml(
+            body,
+            {
+            firstName,
+            dealUrl:
+                `https://portal.upperlineco.com/deals/${dealId}`,
+            }
+        );
 
     console.log(
         '[HTML BODY]',

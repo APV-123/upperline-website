@@ -1,7 +1,18 @@
 export function buildInviteHtml(
-  body: string
+  body: string,
+  options?: {
+    firstName?: string;
+    dealUrl?: string;
+  }
 ) {
-  const lines = body.split('\n');
+  let rendered = body;
+
+  rendered = rendered.replaceAll(
+    '{{ first_name }}',
+    options?.firstName ?? ''
+  );
+
+  const lines = rendered.split('\n');
 
   const html: string[] = [];
   let inList = false;
@@ -33,7 +44,7 @@ export function buildInviteHtml(
       html.push(`
         <p style="margin:0 0 16px 0;">
           <a
-            href="https://portal.upperlineco.com"
+            href="${options?.dealUrl ?? '#'}"
             style="
               color:#0ea5e9;
               font-weight:600;
