@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
   try {
     const token = await getToken({
       req: {
@@ -18,9 +18,13 @@ export async function POST(req: Request) {
       hasToken: !!token,
       hasAccessToken:
         !!token?.accessToken,
+      email: token?.email ?? null,
     });
   } catch (e) {
-    console.error(e);
+    console.error(
+      '[OUTLOOK TOKEN ERROR]',
+      e
+    );
 
     return NextResponse.json(
       {
