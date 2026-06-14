@@ -383,6 +383,14 @@ export default function AdminPage() {
                         style={{ position: 'relative' }}
                       >
                         <button
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background =
+                              'rgba(255,255,255,.06)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background =
+                              'rgba(255,255,255,.03)';
+                          }}
                           onClick={(e) => {
                             e.stopPropagation();
 
@@ -392,6 +400,7 @@ export default function AdminPage() {
                                 : d.id
                             );
                           }}
+
                           style={{
                             width: 34,
                             height: 34,
