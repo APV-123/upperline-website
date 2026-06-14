@@ -519,6 +519,7 @@ export default function CommunicationsEditor({
                                         '{{ full_name }}',
                                         '{{ deal_name }}',
                                         '{{ opportunity_link }}',
+                                        '{{ bullet }}',
                                     ].map((v) => (
                                         <div
                                             key={v}
