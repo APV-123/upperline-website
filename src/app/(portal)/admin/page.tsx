@@ -262,7 +262,7 @@ export default function AdminPage() {
                   <div
                     key={d.id}
                     onClick={() =>
-                      router.push(`/admin/deals/${d.id}/public`)
+                      router.push(`/admin/deals/${d.id}/investors`)
                     }
                     style={{
                       padding: 20,
@@ -486,7 +486,7 @@ export default function AdminPage() {
                                   alert('Failed');
                                   return;
                                 }
-                                
+
                                 setDeals((prev) =>
                                   prev.map((x) =>
                                     x.id === d.id
@@ -619,14 +619,6 @@ export default function AdminPage() {
                         gap: 16,
                       }}
                     >
-                      <Link href={`/admin/deals/${d.id}/investors`}>
-                        <button
-                          style={btnStyle}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Investors
-                        </button>
-                      </Link>
 
                       <button
                         onClick={(e) => {
