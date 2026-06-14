@@ -67,7 +67,7 @@ export default function AdminPage() {
     (d: Deal) => d.is_archived
   ).length;
   const btnStyle = {
-    padding: '8px 12px',
+    padding: '8px 16px',
     borderRadius: 8,
     border: `1px solid ${COLORS.border}`,
     background: '#173056',
@@ -566,7 +566,7 @@ export default function AdminPage() {
                     <div
                       style={{
                         display: 'flex',
-                        flexWrap: 'wrap',
+                        alignItems: 'center',
                         gap: 16,
                       }}
                     >
@@ -602,7 +602,7 @@ export default function AdminPage() {
                           Preview
                         </button>
                       </Link>
-
+                      <div style={{ marginLeft: 'auto' }} />
                       <button
                         onClick={async (e) => {
                           e.stopPropagation();
