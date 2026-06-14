@@ -350,10 +350,20 @@ export default function AdminPage() {
                             );
                           }}
                           style={{
-                            background: 'transparent',
-                            border: 'none',
+                            width: 34,
+                            height: 34,
+                            borderRadius: 8,
+
+                            background: 'rgba(255,255,255,.03)',
+                            border: `1px solid ${COLORS.border}`,
+
                             color: COLORS.subtext,
                             cursor: 'pointer',
+
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+
                             fontSize: 18,
                             fontWeight: 700,
                           }}
@@ -504,9 +514,12 @@ export default function AdminPage() {
                         style={{
                           width: `${pct}%`,
                           height: '100%',
-                          background: d.is_public
-                            ? COLORS.accent
-                            : 'rgba(255,255,255,.18)',
+                          background: d.is_archived
+                            ? '#0b1628'
+                            : d.is_public
+                              ? COLORS.surface
+                              : '#0c1b33',
+                          opacity: d.is_archived ? 0.75 : 1,
                         }}
                       />
                     </div>
@@ -549,33 +562,7 @@ export default function AdminPage() {
                           Preview
                         </button>
                       </Link>
-                      <div
-                        style={{
-                          marginLeft: 'auto',
-                          padding: '8px 12px',
-                          borderRadius: 999,
-                          fontSize: 12,
-                          fontWeight: 600,
 
-                          background: d.is_archived
-                            ? 'rgba(255,255,255,.05)'
-                            : d.is_public
-                              ? 'rgba(49,200,219,.15)'
-                              : 'rgba(255,255,255,.03)',
-
-                          color: d.is_archived
-                            ? 'rgba(255,255,255,.55)'
-                            : d.is_public
-                              ? COLORS.accent
-                              : 'rgba(255,255,255,.65)',
-                        }}
-                      >
-                        {d.is_archived
-                          ? 'Archived'
-                          : d.is_public
-                            ? 'Published'
-                            : 'Draft'}
-                      </div>
                       <button
                         onClick={async (e) => {
                           e.stopPropagation();
