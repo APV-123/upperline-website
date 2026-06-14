@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { ADMIN_THEME } from '@/lib/adminTheme';
 import DealExecutiveSummaryView from '@/components/deals/DealExecutiveSummaryView';
 import AdminNav from '@/components/navigation/AdminNav';
 
@@ -25,7 +26,9 @@ export default function AdminDealPreviewPage() {
   const [isDark, setIsDark] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-
+  const colors = isDark
+  ? ADMIN_THEME.dark
+  : ADMIN_THEME.light;
 
   useEffect(() => {
     async function load() {
@@ -94,10 +97,10 @@ export default function AdminDealPreviewPage() {
       <div
         style={{
           padding: isMobile ? 12 : 16,
-          background: COLORS.surface,
-          color: COLORS.text,
+          background: colors.surface,
+          color: colors.text,
 
-          borderBottom: `1px solid ${COLORS.border}`,
+          borderBottom: `1px solid ${colors.border}`,
 
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
@@ -109,7 +112,7 @@ export default function AdminDealPreviewPage() {
         <div
           style={{
             fontWeight: 600,
-            color: COLORS.text,
+            color: colors.text,
           }}
         >
           Previewing: {deal.name}
@@ -130,7 +133,7 @@ export default function AdminDealPreviewPage() {
               padding: '6px 12px',
               borderRadius: 6,
 
-              background: COLORS.accent,
+              background: colors.accent,
               color: '#04152e',
 
               border: 'none',
