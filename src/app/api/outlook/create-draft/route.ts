@@ -40,9 +40,34 @@ export async function POST(req: NextRequest) {
       subject,
       body,
     } = await req.json();
+        
+    
 
     const htmlBody =
         buildInviteHtml(body);
+
+    console.log(
+        '[HTML BODY]',
+        htmlBody   
+    );
+
+    console.log(
+        '[GRAPH PAYLOAD]',
+        JSON.stringify({
+            subject,
+            body: {
+            contentType: 'HTML',
+            content: htmlBody,
+            },
+            toRecipients: [
+            {
+                emailAddress: {
+                address: to,
+                },
+            },
+            ],
+        })
+    );
 
     if (!to) {
       return NextResponse.json(
@@ -82,19 +107,23 @@ export async function POST(req: NextRequest) {
     const graphJson = await graphRes.json();
 
     if (!graphRes.ok) {
-      console.error(
-        '[GRAPH CREATE DRAFT FAILED]',
-        graphJson
-      );
+        console.error(
+            '[GRAPH CREATE DRAFT FAILED]',
+            graphJson
+        );
 
-      return NextResponse.json(
-        {
-          ok: false,
-          graphJson,
-        },
-        { status: 500 }
-      );
-    }
+        return NextResponse.json(
+            {
+            ok: false,
+            error: JSON.stringify(
+                graphJson,
+                null,
+                2
+            ),
+            },
+            { status: 500 }
+        );
+        }
 
     return NextResponse.json({
       ok: true,
