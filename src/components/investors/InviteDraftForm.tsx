@@ -133,6 +133,9 @@ export default function InviteDraftForm({
 
 
     async function saveDraft() {
+        console.log(
+            '[SAVE DRAFT STARTED]'
+        );
         try {
             setSaving(true);
             setError(null);
@@ -158,6 +161,13 @@ export default function InviteDraftForm({
                 setError(json?.error ?? 'Failed to save draft');
                 return;
             }
+            console.log(
+                '[CALLING OUTLOOK]',
+                {
+                    to: prospect.contact_email,
+                    subject,
+                }
+            );
             const outlookRes = await fetch(
                 '/api/outlook/create-draft',
                 {
@@ -177,6 +187,10 @@ export default function InviteDraftForm({
                 await outlookRes.json().catch(
                     () => null
                 );
+            console.log(
+                '[OUTLOOK RESULT]',
+                outlookJson
+            );
 
             if (
                 !outlookRes.ok ||
