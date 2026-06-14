@@ -452,7 +452,12 @@ export default function AdminPage() {
                             </button>
 
                             <button
-                              style={menuItemStyle}
+                              style={{
+                                ...menuItemStyle,
+                                color: d.is_archived
+                                  ? '#22c55e'
+                                  : '#f59e0b',
+                              }}
                               onMouseEnter={(e) => {
                                 e.currentTarget.style.background =
                                   'rgba(255,255,255,.04)';
@@ -460,6 +465,41 @@ export default function AdminPage() {
                               onMouseLeave={(e) => {
                                 e.currentTarget.style.background =
                                   'transparent';
+                              }}
+                              onClick={async (e) => {
+                                e.stopPropagation();
+
+                                const route = d.is_archived
+                                  ? 'restore'
+                                  : 'archive';
+
+                                const res = await fetch(
+                                  `/api/deals/${d.id}/${route}`,
+                                  {
+                                    method: 'POST',
+                                  }
+                                );
+
+                                const json = await res.json();
+
+                                if (!json?.ok) {
+                                  alert('Failed');
+                                  return;
+                                }
+                                
+                                setDeals((prev) =>
+                                  prev.map((x) =>
+                                    x.id === d.id
+                                      ? {
+                                        ...x,
+                                        is_archived:
+                                          !x.is_archived,
+                                      }
+                                      : x
+                                  )
+                                );
+
+                                setOpenMenuId(null);
                               }}
                             >
                               {d.is_archived
