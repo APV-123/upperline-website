@@ -515,9 +515,10 @@ export default function CommunicationsEditor({
                                     }}
                                 >
                                     {[
-                                        '{{first_name}}',
-                                        '{{full_name}}',
-                                        '{{deal_name}}',
+                                        '{{ first_name }}',
+                                        '{{ full_name }}',
+                                        '{{ deal_name }}',
+                                        '{{ opportunity_link }}',
                                     ].map((v) => (
                                         <div
                                             key={v}
