@@ -1,19 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    console.log(
-    '[COOKIE]',
-    req.headers.get('cookie')
-    );
     const token = await getToken({
-      req: {
-        headers: {
-          cookie:
-            req.headers.get('cookie') ?? '',
-        },
-      } as never,
+      req,
       secret: process.env.NEXTAUTH_SECRET,
     });
 
@@ -21,8 +12,16 @@ export async function GET(req: Request) {
       ok: true,
       hasToken: !!token,
       hasAccessToken:
-        !!token?.accessToken,
-      email: token?.email ?? null,
+        !!(token as { accessToken?: string })?.accessToken,
+
+      keys: token
+        ? Object.keys(token)
+        : [],
+
+      email:
+        typeof token?.email === 'string'
+          ? token.email
+          : null,
     });
   } catch (e) {
     console.error(
