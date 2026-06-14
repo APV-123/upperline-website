@@ -11,6 +11,7 @@ type Deal = {
   raise_id: string;
   target_amount: number;
   is_public: boolean;
+  is_archived: boolean;
 
   metrics?: {
     committed: number;
@@ -29,6 +30,7 @@ export default function AdminPage() {
   const [isDark, setIsDark] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
 
   const COLORS = isDark
     ? {
@@ -48,6 +50,9 @@ export default function AdminPage() {
       accent: '#003a5d',
     };
 
+  const archivedCount = deals.filter(
+    (d: any) => d.is_archived
+  ).length;
   const btnStyle = {
     padding: '8px 12px',
     borderRadius: 8,
@@ -115,7 +120,14 @@ export default function AdminPage() {
           }}
         >
           {/* HEADER */}
-          <div style={{ marginBottom: 12 }}>
+          <div
+            style={{
+              marginBottom: 12,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
             <button
               onClick={async () => {
                 const res = await fetch('/api/deals/create', {
@@ -152,6 +164,22 @@ export default function AdminPage() {
             >
               + New Deal
             </button>
+            <div
+              onClick={() =>
+                setShowArchived(!showArchived)
+              }
+              style={{
+                fontSize: 12,
+                fontWeight: 500,
+                color: COLORS.subtext,
+                cursor: 'pointer',
+                userSelect: 'none',
+              }}
+            >
+              {showArchived
+                ? 'Hide Archived'
+                : `Show Archived (${archivedCount})`}
+            </div>
           </div>
 
           {loading && (
@@ -167,339 +195,344 @@ export default function AdminPage() {
           )}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {deals.map((d) => {
-              const committed = d.metrics?.committed ?? 0;
-              const investorCount = d.metrics?.investorCount ?? 0;
-              const invitedCount = d.metrics?.invitedCount ?? 0;
-              const draftReadyCount = d.metrics?.draftReadyCount ?? 0;
+            {deals
+              .filter(
+                (d) =>
+                  showArchived || !d.is_archived
+              )
+              .map((d) => {
+                const committed = d.metrics?.committed ?? 0;
+                const investorCount = d.metrics?.investorCount ?? 0;
+                const invitedCount = d.metrics?.invitedCount ?? 0;
+                const draftReadyCount = d.metrics?.draftReadyCount ?? 0;
 
-              const pct =
-                d.target_amount > 0
-                  ? Math.round((committed / d.target_amount) * 100)
-                  : 0;
+                const pct =
+                  d.target_amount > 0
+                    ? Math.round((committed / d.target_amount) * 100)
+                    : 0;
 
-              return (
-                <div
-                  key={d.id}
-                  onClick={() =>
-                    router.push(`/admin/deals/${d.id}/public`)
-                  }
-                  style={{
-                    padding: 20,
-                    background: d.is_public
-                      ? COLORS.surface
-                      : '#0c1b33',
-
-                    border: d.is_public
-                      ? `1px solid ${COLORS.border}`
-                      : '1px solid rgba(255,255,255,.04)',
-                    borderRadius: 12,
-                    cursor: 'pointer',
-
-                    transition: 'all .15s ease',
-
-                    transform:
-                      hovered === d.id
-                        ? 'translateY(-2px)'
-                        : 'translateY(0)',
-
-                    boxShadow:
-                      hovered === d.id
-                        ? '0 16px 32px rgba(0,0,0,.28)'
-                        : '0 8px 24px rgba(0,0,0,.18)',
-                  }}
-                  onMouseEnter={() => setHovered(d.id)}
-                  onMouseLeave={() => setHovered(null)}
-
-                >
-                  {/* LEFT */}
+                return (
                   <div
+                    key={d.id}
+                    onClick={() =>
+                      router.push(`/admin/deals/${d.id}/public`)
+                    }
                     style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      marginBottom: 20,
+                      padding: 20,
+                      background: d.is_public
+                        ? COLORS.surface
+                        : '#0c1b33',
+
+                      border: d.is_public
+                        ? `1px solid ${COLORS.border}`
+                        : '1px solid rgba(255,255,255,.04)',
+                      borderRadius: 12,
+                      cursor: 'pointer',
+
+                      transition: 'all .15s ease',
+
+                      transform:
+                        hovered === d.id
+                          ? 'translateY(-2px)'
+                          : 'translateY(0)',
+
+                      boxShadow:
+                        hovered === d.id
+                          ? '0 16px 32px rgba(0,0,0,.28)'
+                          : '0 8px 24px rgba(0,0,0,.18)',
                     }}
+                    onMouseEnter={() => setHovered(d.id)}
+                    onMouseLeave={() => setHovered(null)}
+
                   >
-                    <div>
-                      <div
-                        style={{
-                          fontSize: 20,
-                          fontWeight: 700,
-                          color: d.is_public
-                            ? COLORS.text
-                            : 'rgba(255,255,255,.72)',
-                        }}
-                      >
-                        {d.name}
+                    {/* LEFT */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        marginBottom: 20,
+                      }}
+                    >
+                      <div>
+                        <div
+                          style={{
+                            fontSize: 20,
+                            fontWeight: 700,
+                            color: d.is_public
+                              ? COLORS.text
+                              : 'rgba(255,255,255,.72)',
+                          }}
+                        >
+                          {d.name}
+                        </div>
+
+                        <div
+                          style={{
+                            display: 'flex',
+                            gap: 32,
+                            marginTop: 10,
+                          }}
+                        >
+                          <div>
+                            <div
+                              style={{
+                                fontSize: 9,
+                                fontWeight: 500,
+                                color: COLORS.subtext,
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              Invited
+                            </div>
+
+                            <div
+                              style={{
+                                fontSize: 14,
+                                fontWeight: 600,
+                                color: d.is_public
+                                  ? COLORS.text
+                                  : 'rgba(255,255,255,.72)',
+                              }}
+                            >
+                              {invitedCount}
+                            </div>
+                          </div>
+
+                          <div>
+                            <div
+                              style={{
+                                fontSize: 9,
+                                fontWeight: 500,
+                                color: COLORS.subtext,
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              Drafts
+                            </div>
+
+                            <div
+                              style={{
+                                fontSize: 14,
+                                fontWeight: 600,
+                                color:
+                                  draftReadyCount > 0
+                                    ? '#f59e0b'
+                                    : COLORS.text,
+                              }}
+                            >
+                              {draftReadyCount}
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
                       <div
                         style={{
-                          display: 'flex',
-                          gap: 32,
-                          marginTop: 10,
+                          padding: '6px 10px',
+                          borderRadius: 999,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          background: d.is_public
+                            ? 'rgba(49,200,219,.15)'
+                            : 'rgba(255,255,255,.03)',
+
+                          color: d.is_public
+                            ? COLORS.accent
+                            : 'rgba(255,255,255,.55)',
                         }}
                       >
-                        <div>
-                          <div
-                            style={{
-                              fontSize: 9,
-                              fontWeight: 500,
-                              color: COLORS.subtext,
-                              textTransform: 'uppercase',
-                            }}
-                          >
-                            Invited
-                          </div>
-
-                          <div
-                            style={{
-                              fontSize: 14,
-                              fontWeight: 600,
-                              color: d.is_public
-                                ? COLORS.text
-                                : 'rgba(255,255,255,.72)',
-                            }}
-                          >
-                            {invitedCount}
-                          </div>
-                        </div>
-
-                        <div>
-                          <div
-                            style={{
-                              fontSize: 9,
-                              fontWeight: 500,
-                              color: COLORS.subtext,
-                              textTransform: 'uppercase',
-                            }}
-                          >
-                            Drafts
-                          </div>
-
-                          <div
-                            style={{
-                              fontSize: 14,
-                              fontWeight: 600,
-                              color:
-                                draftReadyCount > 0
-                                  ? '#f59e0b'
-                                  : COLORS.text,
-                            }}
-                          >
-                            {draftReadyCount}
-                          </div>
-                        </div>
+                        {d.is_public ? 'Published' : 'Draft'}
                       </div>
                     </div>
 
+                    {/* RIGHT */}
+
                     <div
                       style={{
-                        padding: '6px 10px',
+                        display: 'grid',
+                        gridTemplateColumns: isMobile
+                          ? 'repeat(2,1fr)'
+                          : 'repeat(4,1fr)',
+                        gap: 16,
+                        marginBottom: 20,
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: 11, color: COLORS.subtext }}>
+                          RAISED
+                        </div>
+
+                        <div
+                          style={{
+                            fontSize: 22,
+                            fontWeight: 700,
+                            color: d.is_public
+                              ? COLORS.text
+                              : 'rgba(255,255,255,.72)',
+                          }}
+                        >
+                          ${committed.toLocaleString()}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={{ fontSize: 11, color: COLORS.subtext }}>
+                          TARGET
+                        </div>
+
+                        <div
+                          style={{
+                            fontSize: 22,
+                            fontWeight: 700,
+                            color: d.is_public
+                              ? COLORS.text
+                              : 'rgba(255,255,255,.72)',
+                          }}
+                        >
+                          ${d.target_amount.toLocaleString()}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={{ fontSize: 11, color: COLORS.subtext }}>
+                          INVESTORS
+                        </div>
+
+                        <div
+                          style={{
+                            fontSize: 28,
+                            fontWeight: 700,
+                            color: d.is_public
+                              ? COLORS.text
+                              : 'rgba(255,255,255,.72)',
+                          }}
+                        >
+                          {investorCount}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={{ fontSize: 11, color: COLORS.subtext }}>
+                          FUNDED
+                        </div>
+
+                        <div
+                          style={{
+                            fontSize: 22,
+                            fontWeight: 700,
+                            color: COLORS.accent,
+                          }}
+                        >
+                          {pct}%
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        height: 8,
                         borderRadius: 999,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        background: d.is_public
-                          ? 'rgba(49,200,219,.15)'
-                          : 'rgba(255,255,255,.03)',
-
-                        color: d.is_public
-                          ? COLORS.accent
-                          : 'rgba(255,255,255,.55)',
+                        background: 'rgba(255,255,255,.06)',
+                        overflow: 'hidden',
+                        marginBottom: 20,
                       }}
                     >
-                      {d.is_public ? 'Published' : 'Draft'}
-                    </div>
-                  </div>
-
-                  {/* RIGHT */}
-
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: isMobile
-                        ? 'repeat(2,1fr)'
-                        : 'repeat(4,1fr)',
-                      gap: 16,
-                      marginBottom: 20,
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontSize: 11, color: COLORS.subtext }}>
-                        RAISED
-                      </div>
-
                       <div
                         style={{
-                          fontSize: 22,
-                          fontWeight: 700,
-                          color: d.is_public
-                            ? COLORS.text
-                            : 'rgba(255,255,255,.72)',
+                          width: `${pct}%`,
+                          height: '100%',
+                          background: d.is_public
+                            ? COLORS.accent
+                            : 'rgba(255,255,255,.18)',
                         }}
-                      >
-                        ${committed.toLocaleString()}
-                      </div>
+                      />
                     </div>
-
-                    <div>
-                      <div style={{ fontSize: 11, color: COLORS.subtext }}>
-                        TARGET
-                      </div>
-
-                      <div
-                        style={{
-                          fontSize: 22,
-                          fontWeight: 700,
-                          color: d.is_public
-                            ? COLORS.text
-                            : 'rgba(255,255,255,.72)',
-                        }}
-                      >
-                        ${d.target_amount.toLocaleString()}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div style={{ fontSize: 11, color: COLORS.subtext }}>
-                        INVESTORS
-                      </div>
-
-                      <div
-                        style={{
-                          fontSize: 28,
-                          fontWeight: 700,
-                          color: d.is_public
-                            ? COLORS.text
-                            : 'rgba(255,255,255,.72)',
-                        }}
-                      >
-                        {investorCount}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div style={{ fontSize: 11, color: COLORS.subtext }}>
-                        FUNDED
-                      </div>
-
-                      <div
-                        style={{
-                          fontSize: 22,
-                          fontWeight: 700,
-                          color: COLORS.accent,
-                        }}
-                      >
-                        {pct}%
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    style={{
-                      height: 8,
-                      borderRadius: 999,
-                      background: 'rgba(255,255,255,.06)',
-                      overflow: 'hidden',
-                      marginBottom: 20,
-                    }}
-                  >
                     <div
                       style={{
-                        width: `${pct}%`,
-                        height: '100%',
-                        background: d.is_public
-                          ? COLORS.accent
-                          : 'rgba(255,255,255,.18)',
-                      }}
-                    />
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: 16,
-                    }}
-                  >
-                    <Link href={`/admin/deals/${d.id}/investors`}>
-                      <button
-                        style={btnStyle}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Investors
-                      </button>
-                    </Link>
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        router.push(`/admin/deals/${d.id}/edit`);
-                      }}
-                      style={{
-                        ...btnStyle,
-                        background: 'rgba(49,200,219,.15)',
-                        color: COLORS.accent,
-                        border: '1px solid rgba(49,200,219,.18)',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 16,
                       }}
                     >
-                      Edit
-                    </button>
+                      <Link href={`/admin/deals/${d.id}/investors`}>
+                        <button
+                          style={btnStyle}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Investors
+                        </button>
+                      </Link>
 
-                    <Link href={`/admin/deals/${d.id}/public`}>
                       <button
-                        style={btnStyle}
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/admin/deals/${d.id}/edit`);
+                        }}
+                        style={{
+                          ...btnStyle,
+                          background: 'rgba(49,200,219,.15)',
+                          color: COLORS.accent,
+                          border: '1px solid rgba(49,200,219,.18)',
+                        }}
                       >
-                        Preview
+                        Edit
                       </button>
-                    </Link>
 
-                    <button
-                      onClick={async (e) => {
-                        e.stopPropagation();
+                      <Link href={`/admin/deals/${d.id}/public`}>
+                        <button
+                          style={btnStyle}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Preview
+                        </button>
+                      </Link>
 
-                        setDeals((prev) =>
-                          prev.map((x) =>
-                            x.id === d.id
-                              ? { ...x, is_public: !x.is_public }
-                              : x
-                          )
-                        );
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
 
-                        const res = await fetch(
-                          `/api/deals/${d.id}/toggle-public`,
-                          { method: 'POST' }
-                        );
-
-                        const json = await res.json();
-
-                        if (!json?.ok) {
                           setDeals((prev) =>
                             prev.map((x) =>
                               x.id === d.id
-                                ? { ...x, is_public: d.is_public }
+                                ? { ...x, is_public: !x.is_public }
                                 : x
                             )
                           );
-                        }
-                      }}
-                      style={{
-                        ...btnStyle,
-                        background: d.is_public
-                          ? 'rgba(49,200,219,.15)'
-                          : 'rgba(255,255,255,.03)',
-                        color: d.is_public
-                          ? COLORS.accent
-                          : 'rgba(255,255,255,.65)',
-                        border: `1px solid ${COLORS.border}`,
-                      }}
-                    >
-                      {d.is_public ? 'Published' : 'Draft'}
-                    </button>
+
+                          const res = await fetch(
+                            `/api/deals/${d.id}/toggle-public`,
+                            { method: 'POST' }
+                          );
+
+                          const json = await res.json();
+
+                          if (!json?.ok) {
+                            setDeals((prev) =>
+                              prev.map((x) =>
+                                x.id === d.id
+                                  ? { ...x, is_public: d.is_public }
+                                  : x
+                              )
+                            );
+                          }
+                        }}
+                        style={{
+                          ...btnStyle,
+                          background: d.is_public
+                            ? 'rgba(49,200,219,.15)'
+                            : 'rgba(255,255,255,.03)',
+                          color: d.is_public
+                            ? COLORS.accent
+                            : 'rgba(255,255,255,.65)',
+                          border: `1px solid ${COLORS.border}`,
+                        }}
+                      >
+                        {d.is_public ? 'Published' : 'Draft'}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
       </div >

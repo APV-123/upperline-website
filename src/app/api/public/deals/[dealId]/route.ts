@@ -31,6 +31,7 @@ type PublicDeal = {
   asset_class?: string;
   strategy?: string;
   estimated_closing_date?: string;
+  thesis?: string;
   why_we_like_it?: string;
   overview_text?: string;
   business_plan_text?: string;
@@ -68,6 +69,7 @@ export async function GET(
       .select(PUBLIC_DEAL_SELECT)
       .eq('id', dealId)
       .eq('is_public', true)
+      .eq('is_archived', false)
       .single<PublicDeal>();
 
     if (error || !data) {

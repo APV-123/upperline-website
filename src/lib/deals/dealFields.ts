@@ -5,6 +5,7 @@ export const DEAL_SELECT = `
   target_amount,
   created_at,
   is_public,
+  is_archived,
 
   location,
   asset_class,
