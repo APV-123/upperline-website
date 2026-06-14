@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import { buildInviteHtml } from '@/lib/email/buildInviteHtml';
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,6 +41,9 @@ export async function POST(req: NextRequest) {
       body,
     } = await req.json();
 
+    const htmlBody =
+        buildInviteHtml(body);
+
     if (!to) {
       return NextResponse.json(
         {
@@ -60,10 +64,10 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           subject,
-          body: {
-            contentType: 'Text',
-            content: body,
-          },
+        body: {
+            contentType: 'HTML',
+            content: htmlBody,
+        },
           toRecipients: [
             {
               emailAddress: {
