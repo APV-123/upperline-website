@@ -31,6 +31,8 @@ export default function AdminPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [openMenuId, setOpenMenuId] =
+    useState<string | null>(null);
 
   const COLORS = isDark
     ? {
@@ -205,7 +207,9 @@ export default function AdminPage() {
             {deals
               .filter(
                 (d) =>
-                  showArchived || !d.is_archived
+                  showArchived
+                    ? d.is_archived
+                    : !d.is_archived
               )
               .map((d) => {
                 const committed = d.metrics?.committed ?? 0;
@@ -334,22 +338,74 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      <div
-                        style={{
-                          padding: '6px 10px',
-                          borderRadius: 999,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          background: d.is_public
-                            ? 'rgba(49,200,219,.15)'
-                            : 'rgba(255,255,255,.03)',
+                      <div style={{ position: 'relative' }}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
 
-                          color: d.is_public
-                            ? COLORS.accent
-                            : 'rgba(255,255,255,.55)',
-                        }}
-                      >
-                        {d.is_public ? 'Published' : 'Draft'}
+                            setOpenMenuId(
+                              openMenuId === d.id
+                                ? null
+                                : d.id
+                            );
+                          }}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: COLORS.subtext,
+                            cursor: 'pointer',
+                            fontSize: 18,
+                            fontWeight: 700,
+                          }}
+                        >
+                          ⋯
+                        </button>
+
+                        {openMenuId === d.id && (
+                          <div
+                            style={{
+                              position: 'absolute',
+                              right: 0,
+                              top: 28,
+                              width: 160,
+                              background: COLORS.surface,
+                              border: `1px solid ${COLORS.border}`,
+                              borderRadius: 8,
+                              overflow: 'hidden',
+                              zIndex: 100,
+                            }}
+                          >
+                            <button
+                              style={{
+                                width: '100%',
+                                padding: 12,
+                                textAlign: 'left',
+                                background: 'transparent',
+                                border: 'none',
+                                cursor: 'pointer',
+                                color: COLORS.text,
+                              }}
+                            >
+                              Duplicate
+                            </button>
+
+                            <button
+                              style={{
+                                width: '100%',
+                                padding: 12,
+                                textAlign: 'left',
+                                background: 'transparent',
+                                border: 'none',
+                                cursor: 'pointer',
+                                color: COLORS.text,
+                              }}
+                            >
+                              {d.is_archived
+                                ? 'Restore'
+                                : 'Archive'}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -493,7 +549,33 @@ export default function AdminPage() {
                           Preview
                         </button>
                       </Link>
+                      <div
+                        style={{
+                          marginLeft: 'auto',
+                          padding: '8px 12px',
+                          borderRadius: 999,
+                          fontSize: 12,
+                          fontWeight: 600,
 
+                          background: d.is_archived
+                            ? 'rgba(255,255,255,.05)'
+                            : d.is_public
+                              ? 'rgba(49,200,219,.15)'
+                              : 'rgba(255,255,255,.03)',
+
+                          color: d.is_archived
+                            ? 'rgba(255,255,255,.55)'
+                            : d.is_public
+                              ? COLORS.accent
+                              : 'rgba(255,255,255,.65)',
+                        }}
+                      >
+                        {d.is_archived
+                          ? 'Archived'
+                          : d.is_public
+                            ? 'Published'
+                            : 'Draft'}
+                      </div>
                       <button
                         onClick={async (e) => {
                           e.stopPropagation();
