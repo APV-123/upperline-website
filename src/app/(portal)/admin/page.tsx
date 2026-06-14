@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import AdminNav from '@/components/navigation/AdminNav';
 import { useRouter } from 'next/navigation';
@@ -33,6 +33,7 @@ export default function AdminPage() {
   const [showArchived, setShowArchived] = useState(false);
   const [openMenuId, setOpenMenuId] =
     useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const COLORS = isDark
     ? {
@@ -51,6 +52,16 @@ export default function AdminPage() {
       border: 'rgba(15,23,42,.08)',
       accent: '#003a5d',
     };
+
+  const menuItemStyle = {
+    width: '100%',
+    padding: 12,
+    textAlign: 'left' as const,
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    color: COLORS.text,
+  };
 
   const archivedCount = deals.filter(
     (d: Deal) => d.is_archived
@@ -105,6 +116,31 @@ export default function AdminPage() {
     if (saved === 'dark') {
       setIsDark(true);
     }
+  }, []);
+  useEffect(() => {
+    function handleClickOutside(
+      event: MouseEvent
+    ) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(
+          event.target as Node
+        )
+      ) {
+        setOpenMenuId(null);
+      }
+    }
+
+    document.addEventListener(
+      'mousedown',
+      handleClickOutside
+    );
+
+    return () =>
+      document.removeEventListener(
+        'mousedown',
+        handleClickOutside
+      );
   }, []);
 
   return (
@@ -338,7 +374,14 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      <div style={{ position: 'relative' }}>
+                      <div
+                        ref={
+                          openMenuId === d.id
+                            ? menuRef
+                            : null
+                        }
+                        style={{ position: 'relative' }}
+                      >
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -386,28 +429,28 @@ export default function AdminPage() {
                             }}
                           >
                             <button
-                              style={{
-                                width: '100%',
-                                padding: 12,
-                                textAlign: 'left',
-                                background: 'transparent',
-                                border: 'none',
-                                cursor: 'pointer',
-                                color: COLORS.text,
+                              style={menuItemStyle}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background =
+                                  'rgba(255,255,255,.04)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background =
+                                  'transparent';
                               }}
                             >
                               Duplicate
                             </button>
 
                             <button
-                              style={{
-                                width: '100%',
-                                padding: 12,
-                                textAlign: 'left',
-                                background: 'transparent',
-                                border: 'none',
-                                cursor: 'pointer',
-                                color: COLORS.text,
+                              style={menuItemStyle}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background =
+                                  'rgba(255,255,255,.04)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background =
+                                  'transparent';
                               }}
                             >
                               {d.is_archived
@@ -514,12 +557,9 @@ export default function AdminPage() {
                         style={{
                           width: `${pct}%`,
                           height: '100%',
-                          background: d.is_archived
-                            ? '#0b1628'
-                            : d.is_public
-                              ? COLORS.surface
-                              : '#0c1b33',
-                          opacity: d.is_archived ? 0.75 : 1,
+                          background: d.is_public
+                            ? COLORS.accent
+                            : 'rgba(255,255,255,.18)',
                         }}
                       />
                     </div>
