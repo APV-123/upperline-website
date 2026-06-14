@@ -3,6 +3,10 @@ import { getToken } from 'next-auth/jwt';
 
 export async function GET(req: Request) {
   try {
+    console.log(
+    '[COOKIE]',
+    req.headers.get('cookie')
+    );
     const token = await getToken({
       req: {
         headers: {
