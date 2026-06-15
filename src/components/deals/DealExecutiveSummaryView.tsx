@@ -93,6 +93,8 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
   const [caJobTitle, setCaJobTitle] = useState('');
   const [caPhone, setCaPhone] = useState('');
   const [caAgree, setCaAgree] = useState(false);
+  const [isAccredited, setIsAccredited] =
+    useState(false);
   const [caError, setCaError] = useState('');
   const [hasAccess, setHasAccess] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -1038,10 +1040,11 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 
                   {/* FORM FIRST */}
 
-                  <div style={{
-                    flex: 1,
-                    overflowY: "auto",
-                  }}>
+                  <div
+                    style={{
+                      overflowY: "auto",
+                    }}
+                  >
                     <div style={sheetFooter}>
 
 
@@ -1084,7 +1087,24 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                           onChange={(e) => setCaEmail(e.target.value)}
                         />
                       </div>
+                      <label
+                        style={{
+                          ...sheetCheckboxRow,
+                          marginBottom: 16,
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isAccredited}
+                          onChange={(e) =>
+                            setIsAccredited(
+                              e.target.checked
+                            )
+                          }
+                        />
 
+                        I certify that I am an accredited investor.
+                      </label>
                       <div style={sheetFormRow}>
                         <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Company (optional)</label>
                         <input
@@ -1216,7 +1236,12 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                             setCaError("Valid email is required.");
                             return;
                           }
-
+                          if (!isAccredited) {
+                            setCaError(
+                              "You must certify accredited investor status."
+                            );
+                            return;
+                          }
                           if (!caAgree) {
                             setCaError("You must accept the confidentiality agreement.");
                             return;
@@ -1264,7 +1289,9 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                           }
                         }}
                       >
-                        {caBusy ? "Granting access…" : "Access Full Memo"}
+                        {caBusy
+                          ? "Granting access…"
+                          : "Accept & Access Full Memorandum"}
                       </button>
                     </div>
 
@@ -1613,7 +1640,7 @@ const sheetBackdrop: React.CSSProperties = {
 const sheet = {
   width: "100%",
   maxWidth: 720,
-  height: "90vh",
+  maxHeight: "90vh",
   background: "#fff",
   borderTopLeftRadius: 16,
   borderTopRightRadius: 16,
@@ -1681,30 +1708,33 @@ const sheetActions: React.CSSProperties = {
 };
 
 const sheetPrimaryBtn: React.CSSProperties = {
-  background: "#1f3d36",
-  color: "#fff",
-  padding: "10px 14px",
+  background: "#31c8db",
+  color: "#081628",
+  padding: "12px 20px",
   borderRadius: 8,
   border: "none",
   cursor: "pointer",
-  fontWeight: 600,
+  fontWeight: 700,
 };
 
 const sheetSecondaryBtn: React.CSSProperties = {
-  background: "#f1f5f9",
-  padding: "10px 14px",
+  background: "transparent",
+  color: "rgba(255,255,255,.65)",
+  padding: "12px 20px",
   borderRadius: 8,
-  border: "1px solid #e5e7eb",
+  border: "1px solid rgba(255,255,255,.12)",
   cursor: "pointer",
 };
 const agreementScroll: React.CSSProperties = {
-  maxHeight: 180,
+  maxHeight: 260,
   overflowY: "auto",
-  padding: "14px 16px",
+  padding: "20px",
   margin: "10px 16px",
   border: "1px solid #e5e7eb",
-  borderRadius: 10,
+  borderRadius: 12,
   background: "#f8fafc",
+  boxShadow:
+    "inset 0 1px 0 rgba(255,255,255,.04)",
 };
 
 const agreementTitle: React.CSSProperties = {
