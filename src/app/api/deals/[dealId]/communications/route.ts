@@ -73,6 +73,7 @@ export async function GET(
   templates: data ?? [],
   tokens,
 });
+}
 
 export async function POST(
   req: Request,
