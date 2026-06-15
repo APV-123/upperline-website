@@ -95,23 +95,25 @@ if (signatureFile) {
     signatureHtml =
       await fs.readFile(
         path.join(
-        process.cwd(),
-        'public',
-        'assets',
-        'signatures',
-        `${signatureFile}.html`
-      ),
+          process.cwd(),
+          'public',
+          'assets',
+          'signatures',
+          `${signatureFile}.html`
+        ),
         'utf8'
       );
-      signatureHtml = signatureHtml
-  .replaceAll(
-    'src="/',
-    'src="https://portal.upperlineco.com/'
-  )
-  .replaceAll(
-    'href="/',
-    'href="https://portal.upperlineco.com/'
-  );
+
+    signatureHtml = signatureHtml
+      .replaceAll(
+        'src="/',
+        'src="https://portal.upperlineco.com/'
+      )
+      .replaceAll(
+        'href="/',
+        'href="https://portal.upperlineco.com/'
+      );
+
   } catch (err) {
     console.error(
       '[SIGNATURE LOAD FAILED]',
@@ -243,7 +245,10 @@ console.log(
         { status: 400 }
       );
     }
-
+console.log(
+  '[HUBSPOT BCC]',
+  '243869924@bcc.na2.hubspot.com'
+);
     const graphRes = await fetch(
       'https://graph.microsoft.com/v1.0/me/messages',
       {
@@ -265,6 +270,13 @@ console.log(
               },
             },
           ],
+          bccRecipients: [
+            {
+              emailAddress: {
+                address: '243869924@bcc.na2.hubspot.com'
+              }
+            }
+          ]
         }),
       }
     );
