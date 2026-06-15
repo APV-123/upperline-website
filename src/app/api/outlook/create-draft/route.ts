@@ -79,7 +79,7 @@ const signatureMap: Record<
   'brent-hodges',
   'sh@upperlineco.com':
     'spencer-harkness',
-  'eh@upperlineco.com':
+  'em@upperlineco.com':
     'eric-mayfield',
   'jk@upperlineco.com':
     'jeremy-knapp',

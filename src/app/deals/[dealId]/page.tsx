@@ -45,7 +45,11 @@ export default function DealPage() {
 
   useEffect(() => {
     const saved = localStorage.getItem("theme");
-    if (saved === "dark") {
+
+    if (saved === "light") {
+      setIsDark(false);
+    } else {
+      // ✅ default to dark
       setIsDark(true);
     }
   }, []);
@@ -64,6 +68,5 @@ export default function DealPage() {
   }
 
   // ✅ SINGLE SOURCE OF UI
-  console.log('[PUBLIC DEAL]', deal)
   return <DealExecutiveSummaryView deal={deal} isDark={isDark} />;
 }
