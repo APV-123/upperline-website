@@ -75,6 +75,8 @@ const signatureMap: Record<
 > = {
   'av@upperlineco.com':
     'alexander-vitenas',
+  'bh@upperlineco.com':
+  'brent-hodges',
   'sh@upperlineco.com':
     'spencer-harkness',
   'eh@upperlineco.com':
