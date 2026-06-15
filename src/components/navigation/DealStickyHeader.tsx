@@ -111,7 +111,7 @@ export default function DealStickyHeader({
                 ) : (
                     hasSignedCA ? (
                         <a
-                            href={`mailto:bh@upperline.com?cc=invest@upperlineco.com&subject=${encodeURIComponent(
+                            href={`mailto:bh@upperlineco.com?cc=invest@upperlineco.com&subject=${encodeURIComponent(
                                 `Interest in ${dealName}`
                             )}`}
                             style={cta}
@@ -244,7 +244,7 @@ export default function DealStickyHeader({
                         <div style={{ flex: 0.75 }} />
                         {hasSignedCA ? (
                             <a
-                                href={`mailto:bh@upperline.com?cc=invest@upperlineco.com&subject=${encodeURIComponent(
+                                href={`mailto:bh@upperlineco.com?cc=invest@upperlineco.com&subject=${encodeURIComponent(
                                     `Interest in ${dealName}`
                                 )}`}
                                 style={mobileCTA}
