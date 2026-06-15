@@ -51,7 +51,7 @@ export function buildInviteHtml(
               text-decoration:none;
             "
           >
-            View Colony Lakes Opportunity
+            View Investment Opportunity
           </a>
         </p>
       `);

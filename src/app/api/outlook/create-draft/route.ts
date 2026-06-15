@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { buildInviteHtml } from '@/lib/email/buildInviteHtml';
 import { createClient } from '@supabase/supabase-js';
+import fs from 'fs/promises';
+import path from 'path';
 
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -62,7 +64,51 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
+    const senderEmail =
+  (token as {
+    email?: string;
+  }).email?.toLowerCase() ?? '';
 
+const signatureMap: Record<
+  string,
+  string
+> = {
+  'av@upperlineco.com':
+    'alexander-vitenas',
+  'sh@upperlineco.com':
+    'spencer-harkness',
+  'eh@upperlineco.com':
+    'eric-mayfield',
+  'jk@upperlineco.com':
+    'jeremy-knapp',
+  'nm@upperlineco.com':
+    'nealy-mraz',
+};
+
+let signatureHtml = '';
+
+const signatureFile =
+  signatureMap[senderEmail];
+
+if (signatureFile) {
+  try {
+    signatureHtml =
+      await fs.readFile(
+        path.join(
+          process.cwd(),
+          'public',
+          'signatures',
+          `${signatureFile}.html`
+        ),
+        'utf8'
+      );
+  } catch (err) {
+    console.error(
+      '[SIGNATURE LOAD FAILED]',
+      err
+    );
+  }
+}
     const {
       to,
       subject,
@@ -130,14 +176,15 @@ export async function POST(req: NextRequest) {
     );
 
     const htmlBody =
-    buildInviteHtml(
-        renderedBody,
-            {
-            firstName,
-            dealUrl:
-                `https://portal.upperlineco.com/deals/${dealId}`,
-            }
-        );
+  buildInviteHtml(
+    renderedBody,
+    {
+      firstName,
+      dealUrl:
+        `https://portal.upperlineco.com/deals/${dealId}`,
+    }
+  ) +
+  signatureHtml;
 
     console.log(
         '[HTML BODY]',
