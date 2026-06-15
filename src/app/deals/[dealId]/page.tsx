@@ -15,6 +15,13 @@ export default function DealPage() {
 
   const [deal, setDeal] = useState<Deal | null>(null);
   const [loading, setLoading] = useState(true);
+  
+const getInitialTheme = () => {
+  if (typeof window === "undefined") return true; // SSR default = dark
+  const saved = localStorage.getItem("theme");
+  return saved !== "light"; // dark unless explicitly light
+};
+
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
