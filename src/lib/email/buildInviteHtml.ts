@@ -42,15 +42,19 @@ export function buildInviteHtml(
       }
 
       html.push(`
-  <p style="margin:0 0 24px 0;">
+  <p
+    style="
+      margin:0 0 24px 0;
+    "
+  >
     <a
       href="${options?.dealUrl ?? '#'}"
       style="
         display:inline-block;
         background:#31c8db;
         color:#0b2240;
-        padding:12px 20px;
-        border-radius:6px;
+        padding:14px 28px;
+        border-radius:8px;
         font-weight:700;
         text-decoration:none;
         font-family:Arial,sans-serif;
@@ -59,6 +63,8 @@ export function buildInviteHtml(
       View Investment Opportunity
     </a>
   </p>
+
+  <div style="height:12px;"></div>
 `);
 
       continue;
