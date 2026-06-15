@@ -175,6 +175,21 @@ if (signatureFile) {
         variables
     );
 
+    console.log(
+  '[SENDER EMAIL]',
+  senderEmail
+);
+
+console.log(
+  '[SIGNATURE FILE]',
+  signatureFile
+);
+
+console.log(
+  '[SIGNATURE LENGTH]',
+  signatureHtml.length
+);
+
     const htmlBody =
   buildInviteHtml(
     renderedBody,
