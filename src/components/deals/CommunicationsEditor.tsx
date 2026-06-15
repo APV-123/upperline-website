@@ -35,11 +35,13 @@ export default function CommunicationsEditor({
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [saveState, setSaveState] =
-    useState<
-        'idle' |
-        'saving' |
-        'saved'
-    >('idle');
+        useState<
+            'idle' |
+            'saving' |
+            'saved'
+        >('idle');
+
+    const [tokens, setTokens] = useState<string[]>([]);
 
     useEffect(() => {
         async function loadTemplates() {
@@ -55,6 +57,9 @@ export default function CommunicationsEditor({
                     res.ok &&
                     json.ok
                 ) {
+                    setTokens(
+                        json.tokens ?? []
+                    );
                     if (
                         json.templates?.length
                     ) {
@@ -96,6 +101,19 @@ export default function CommunicationsEditor({
 
         loadTemplates();
     }, [dealId]);
+
+    function prettifyToken(
+        token: string
+    ) {
+        return token
+            .split('_')
+            .map(
+                (w) =>
+                    w.charAt(0).toUpperCase() +
+                    w.slice(1)
+            )
+            .join(' ');
+    }
 
     function updateTemplate(
         index: number,
@@ -515,11 +533,11 @@ export default function CommunicationsEditor({
                                     }}
                                 >
                                     {[
-                                        '{{ first_name }}',
-                                        '{{ full_name }}',
-                                        '{{ deal_name }}',
-                                        '{{ opportunity_link }}',
-                                        '{{ bullet }}',
+                                        'first_name',
+                                        'full_name',
+                                        'opportunity_link',
+                                        'bullet',
+                                        ...tokens,
                                     ].map((v) => (
                                         <div
                                             key={v}
@@ -531,7 +549,19 @@ export default function CommunicationsEditor({
                                                 fontSize: 12,
                                             }}
                                         >
-                                            {v}
+                                            <div
+                                                style={{
+                                                    fontSize: 10,
+                                                    opacity: 0.7,
+                                                    marginBottom: 2,
+                                                }}
+                                            >
+                                                {prettifyToken(v)}
+                                            </div>
+
+                                            <div>
+                                                {`{{ ${v} }}`}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
