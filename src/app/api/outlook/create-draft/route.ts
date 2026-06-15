@@ -95,11 +95,12 @@ if (signatureFile) {
     signatureHtml =
       await fs.readFile(
         path.join(
-          process.cwd(),
-          'public',
-          'signatures',
-          `${signatureFile}.html`
-        ),
+        process.cwd(),
+        'public',
+        'assets',
+        'signatures',
+        `${signatureFile}.html`
+      ),
         'utf8'
       );
   } catch (err) {
