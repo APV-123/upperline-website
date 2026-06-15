@@ -327,6 +327,17 @@ export default function DealInvestorsPage() {
     const passedInvestors = investors.filter(
         (i) => i.bucket === 'passed'
     );
+    useEffect(() => {
+        if (
+            showPassed &&
+            passedInvestors.length === 0
+        ) {
+            setShowPassed(false);
+        }
+    }, [
+        showPassed,
+        passedInvestors.length,
+    ]);
     const committedTotal = useMemo(() => {
         return investors
             .filter((i) => i.bucket === 'committed')
@@ -746,8 +757,15 @@ export default function DealInvestorsPage() {
                             )}
 
                             {!loadingProspects && prospects.length === 0 && (
-                                <div style={{ fontSize: 12, opacity: 0.6 }}>
-                                    No prospective investors yet.
+                                <div
+                                    style={{
+                                        fontSize: 13,
+                                        color: colors.subtext,
+                                        padding: '8px 0',
+                                        fontWeight: 500,
+                                    }}
+                                >
+                                    No prospective investors yet. Click "Add Investor" to begin building your pipeline.
                                 </div>
                             )}
 
@@ -947,7 +965,8 @@ export default function DealInvestorsPage() {
                             marginBottom: 24,
                         }}
                     >
-                        {showPassed ? (
+                        {showPassed &&
+                            passedInvestors.length > 0 ? (
                             <div
                                 style={{
                                     display: 'flex',
