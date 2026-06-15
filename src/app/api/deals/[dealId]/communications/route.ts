@@ -19,6 +19,36 @@ export async function GET(
   const { dealId } =
     await context.params;
 
+  const { data: deal } =
+  await supabaseServer
+    .from('deals')
+    .select(`
+      name,
+      location,
+      asset_class,
+      strategy,
+      thesis
+    `)
+    .eq('id', dealId)
+    .single();
+
+  const { data: metrics } =
+    await supabaseServer
+      .from('deal_metrics')
+      .select('key')
+      .eq('deal_id', dealId);
+      
+  const tokens = [
+    'deal_name',
+    'location',
+    'asset_class',
+    'strategy',
+    'thesis',
+    ...(metrics ?? []).map(
+      (m) => m.key
+    ),
+  ];    
+
   const { data, error } =
     await supabaseServer
       .from(
@@ -39,10 +69,10 @@ export async function GET(
   }
 
   return NextResponse.json({
-    ok: true,
-    templates: data ?? [],
-  });
-}
+  ok: true,
+  templates: data ?? [],
+  tokens,
+});
 
 export async function POST(
   req: Request,
