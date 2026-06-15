@@ -140,14 +140,14 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
   }, []);
 
   useEffect(() => {
-  if (isMobile) {
-    setOpenProject(false);
-    setOpenCapital(false);
-  } else {
-    setOpenProject(true);
-    setOpenCapital(true);
-  }
-}, [isMobile]);
+    if (isMobile) {
+      setOpenProject(false);
+      setOpenCapital(false);
+    } else {
+      setOpenProject(true);
+      setOpenCapital(true);
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     if (!hasAccess) return;
@@ -233,11 +233,12 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
     <>
       <DealStickyHeader
         dealName={deal.name}
-        hasSignedCA={false}
-        onOpenCA={()=> {}}
+        hasSignedCA={hasAccess}
+        onOpenCA={() =>
+          setShowCA(true)
+        }
         isMobile={isMobile}
         isDark={isDark}
-
       />
 
       <div style={isDark ? containerDark : container}>
