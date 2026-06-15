@@ -1,6 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { buildInviteHtml } from '@/lib/email/buildInviteHtml';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+function replaceVariables(
+    text: string,
+    variables: Record<
+        string,
+        string | number | null
+    >
+) {
+    let rendered = text;
+
+    Object.entries(variables).forEach(
+        ([key, value]) => {
+            rendered = rendered.replaceAll(
+                `{{ ${key} }}`,
+                String(value ?? '')
+            );
+        }
+    );
+
+    return rendered;
+}
+
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,12 +70,68 @@ export async function POST(req: NextRequest) {
       firstName,
       dealId,
     } = await req.json();
-        
+
+    const { data: deal } =
+    await supabase
+        .from('deals')
+        .select(`
+            name,
+            location,
+            asset_class,
+            strategy,
+            thesis
+        `)
+        .eq('id', dealId)
+        .single();
+    const { data: metrics } =
+    await supabase
+        .from('deal_metrics')
+        .select(`
+            key,
+            value
+        `)
+        .eq('deal_id', dealId); 
     
+    const variables: Record<
+    string,
+    string | number | null
+> = {
+    deal_name:
+        deal?.name ?? '',
+    location:
+        deal?.location ?? '',
+    asset_class:
+        deal?.asset_class ?? '',
+    strategy:
+        deal?.strategy ?? '',
+    thesis:
+        deal?.thesis ?? '',
+};
+    
+    (metrics ?? []).forEach(
+    (metric) => {
+        variables[
+            metric.key
+        ] =
+            metric.value;
+    }
+);
+
+    const renderedSubject =
+    replaceVariables(
+        subject,
+        variables
+    );
+
+    const renderedBody =
+    replaceVariables(
+        body,
+        variables
+    );
 
     const htmlBody =
-        buildInviteHtml(
-            body,
+    buildInviteHtml(
+        renderedBody,
             {
             firstName,
             dealUrl:
@@ -63,7 +147,7 @@ export async function POST(req: NextRequest) {
     console.log(
         '[GRAPH PAYLOAD]',
         JSON.stringify({
-            subject,
+            subject: renderedSubject,
             body: {
             contentType: 'HTML',
             content: htmlBody,
@@ -97,7 +181,7 @@ export async function POST(req: NextRequest) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          subject,
+          subject: renderedSubject,
         body: {
             contentType: 'HTML',
             content: htmlBody,

@@ -1087,24 +1087,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                           onChange={(e) => setCaEmail(e.target.value)}
                         />
                       </div>
-                      <label
-                        style={{
-                          ...sheetCheckboxRow,
-                          marginBottom: 16,
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isAccredited}
-                          onChange={(e) =>
-                            setIsAccredited(
-                              e.target.checked
-                            )
-                          }
-                        />
 
-                        I certify that I am an accredited investor.
-                      </label>
                       <div style={sheetFormRow}>
                         <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Company (optional)</label>
                         <input
@@ -1186,7 +1169,24 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   </div>
                   {/* ACCEPTANCE + ACTIONS */}
                   <div style={sheetFooter}>
+                    <label
+                      style={{
+                        ...sheetCheckboxRow,
+                        marginBottom: 16,
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isAccredited}
+                        onChange={(e) =>
+                          setIsAccredited(
+                            e.target.checked
+                          )
+                        }
+                      />
 
+                      I certify that I am an accredited investor.
+                    </label>
                     <label style={sheetCheckboxRow}>
                       <input
                         type="checkbox"
