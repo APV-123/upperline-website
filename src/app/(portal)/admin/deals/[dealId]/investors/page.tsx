@@ -765,7 +765,7 @@ export default function DealInvestorsPage() {
                                         fontWeight: 500,
                                     }}
                                 >
-                                    No prospective investors yet. Click "Add Investor" to begin building your pipeline.
+                                    No prospective investors yet. Click &quot;Add Investor&quot; to begin building your pipeline.
                                 </div>
                             )}
 
