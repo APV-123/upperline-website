@@ -539,14 +539,26 @@ export default function CommunicationsEditor({
                                         'bullet',
                                         ...tokens,
                                     ].map((v) => (
-                                        <div
+                                        <button
+                                            type="button"
                                             key={v}
+                                            onClick={() =>
+                                                updateTemplate(
+                                                    index,
+                                                    'body',
+                                                    template.body +
+                                                    `{{ ${v} }}`
+                                                )
+                                            }
                                             style={{
                                                 padding: '4px 8px',
                                                 borderRadius: 6,
                                                 background: `${colors.accent}20`,
                                                 color: colors.accent,
                                                 fontSize: 12,
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                textAlign: 'left',
                                             }}
                                         >
                                             <div
@@ -562,7 +574,7 @@ export default function CommunicationsEditor({
                                             <div>
                                                 {`{{ ${v} }}`}
                                             </div>
-                                        </div>
+                                        </button>
                                     ))}
                                 </div>
                             </div>
