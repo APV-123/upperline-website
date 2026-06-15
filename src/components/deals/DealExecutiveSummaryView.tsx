@@ -929,7 +929,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                               ...(isDark ? { ...downloadBtn, ...buttonDark } : downloadBtn),
                               width: isMobile ? "100%" : "auto",
                             }}
-                          >Download</button>
+                          >Open</button>
                         </a>
                       </div>
 
