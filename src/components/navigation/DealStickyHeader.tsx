@@ -6,12 +6,18 @@ import Link from "next/link";
 
 type Props = {
     dealName: string;
+    hasSignedCA: boolean;
+    onOpenCA: () => void;
+
     isMobile?: boolean;
     isDark?: boolean;
 };
 
 export default function DealStickyHeader({
     dealName,
+    hasSignedCA,
+    onOpenCA,
+
     isMobile = false,
     isDark = false,
 }: Props) {
@@ -103,15 +109,29 @@ export default function DealStickyHeader({
                         {menuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
                 ) : (
-                    <a
-                        href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
-                            `Interest in ${dealName}`
-                        )}`}
-                        style={cta}
-                    >
-                        Request Full Memorandum
-                    </a>
+                    hasSignedCA ? (
+                        <a
+                            href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
+                                `Interest in ${dealName}`
+                            )}`}
+                            style={cta}
+                        >
+                            Schedule a Call
+                        </a>
+                    ) : (
+                        <button
+                            onClick={onOpenCA}
+                            style={{
+                                ...cta,
+                                border: 'none',
+                                cursor: 'pointer',
+                            }}
+                        >
+                            Request Full Memorandum
+                        </button>
+                    )
                 )}
+
             </div>
             {isMobile && menuOpen && (
                 <>
@@ -222,14 +242,30 @@ export default function DealStickyHeader({
                             </a>
                         </div>
                         <div style={{ flex: 0.75 }} />
-                        <a
-                            href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
-                                `Interest in ${dealName}`
-                            )}`}
-                            style={mobileCTA}
-                        >
-                            Request Full Memorandum
-                        </a>
+                        {hasSignedCA ? (
+                            <a
+                                href={`mailto:bh@upperline.com?subject=${encodeURIComponent(
+                                    `Interest in ${dealName}`
+                                )}`}
+                                style={mobileCTA}
+                            >
+                                Schedule a Call
+                            </a>
+                        ) : (
+                            <button
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    onOpenCA();
+                                }}
+                                style={{
+                                    ...mobileCTA,
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                Request Full Memorandum
+                            </button>
+                        )}
                     </div>
                 </>
             )}
