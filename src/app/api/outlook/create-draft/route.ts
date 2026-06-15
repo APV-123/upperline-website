@@ -103,6 +103,15 @@ if (signatureFile) {
       ),
         'utf8'
       );
+      signatureHtml = signatureHtml
+  .replaceAll(
+    'src="/',
+    'src="https://portal.upperlineco.com/'
+  )
+  .replaceAll(
+    'href="/',
+    'href="https://portal.upperlineco.com/'
+  );
   } catch (err) {
     console.error(
       '[SIGNATURE LOAD FAILED]',
