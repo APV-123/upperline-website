@@ -42,19 +42,24 @@ export function buildInviteHtml(
       }
 
       html.push(`
-        <p style="margin:0 0 16px 0;">
-          <a
-            href="${options?.dealUrl ?? '#'}"
-            style="
-              color:#0ea5e9;
-              font-weight:600;
-              text-decoration:none;
-            "
-          >
-            View Investment Opportunity
-          </a>
-        </p>
-      `);
+  <p style="margin:0 0 24px 0;">
+    <a
+      href="${options?.dealUrl ?? '#'}"
+      style="
+        display:inline-block;
+        background:#31c8db;
+        color:#0b2240;
+        padding:12px 20px;
+        border-radius:6px;
+        font-weight:700;
+        text-decoration:none;
+        font-family:Arial,sans-serif;
+      "
+    >
+      View Investment Opportunity
+    </a>
+  </p>
+`);
 
       continue;
     }
@@ -64,21 +69,26 @@ export function buildInviteHtml(
     ) {
       if (!inList) {
         html.push(
-          '<ul style="margin:0 0 16px 24px;">'
-        );
+  '<ul style="margin:0 0 16px 24px; list-style-type:square;">'
+);
         inList = true;
       }
 
       html.push(
-        `<li style="margin:0 0 8px 0;">
-          ${line
-            .replace(
-              '{{ bullet }}',
-              ''
-            )
-            .trim()}
-        </li>`
-      );
+  `<li
+      style="
+        margin:0 0 8px 0;
+        list-style-type:square;
+      "
+    >
+      ${line
+        .replace(
+          '{{ bullet }}',
+          ''
+        )
+        .trim()}
+    </li>`
+);
 
       continue;
     }
