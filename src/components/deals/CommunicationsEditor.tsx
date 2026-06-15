@@ -42,6 +42,18 @@ export default function CommunicationsEditor({
         >('idle');
 
     const [tokens, setTokens] = useState<string[]>([]);
+    const [
+        activeEditor,
+        setActiveEditor,
+    ] = useState<{
+        templateIndex: number;
+        field:
+        | 'subject'
+        | 'body';
+        start: number;
+        end: number;
+    } | null>(null);
+
 
     useEffect(() => {
         async function loadTemplates() {
@@ -131,7 +143,48 @@ export default function CommunicationsEditor({
             )
         );
     }
+    function insertToken(
+        token: string
+    ) {
+        if (!activeEditor) return;
 
+        const insertion =
+            `{{ ${token} }}`;
+
+        const {
+            templateIndex,
+            field,
+            start,
+            end,
+        } = activeEditor;
+
+        const current =
+            templates[
+            templateIndex
+            ][field];
+
+        const next =
+            current.slice(0, start) +
+            insertion +
+            current.slice(end);
+
+        updateTemplate(
+            templateIndex,
+            field,
+            next
+        );
+
+        setActiveEditor({
+            templateIndex,
+            field,
+            start:
+                start +
+                insertion.length,
+            end:
+                start +
+                insertion.length,
+        });
+    }
     function addTemplate() {
         const defaultNames = [
             'Initial Invite',
@@ -448,9 +501,39 @@ export default function CommunicationsEditor({
                                 Subject
                             </div>
                             <input
+                                onFocus={(e) =>
+                                    setActiveEditor({
+                                        templateIndex: index,
+                                        field: 'subject',
+                                        start:
+                                            e.currentTarget
+                                                .selectionStart ??
+                                            0,
+                                        end:
+                                            e.currentTarget
+                                                .selectionEnd ??
+                                            0,
+                                    })
+                                }
+                                onSelect={(e) =>
+                                    setActiveEditor({
+                                        templateIndex: index,
+                                        field: 'subject',
+                                        start:
+                                            e.currentTarget
+                                                .selectionStart ??
+                                            0,
+                                        end:
+                                            e.currentTarget
+                                                .selectionEnd ??
+                                            0,
+                                    })
+                                }
+
                                 value={
                                     template.subject
                                 }
+
                                 onChange={(
                                     e
                                 ) =>
@@ -477,6 +560,35 @@ export default function CommunicationsEditor({
                                 Email Body
                             </div>
                             <textarea
+                                onFocus={(e) =>
+                                    setActiveEditor({
+                                        templateIndex: index,
+                                        field: 'body',
+                                        start:
+                                            e.currentTarget
+                                                .selectionStart ??
+                                            0,
+                                        end:
+                                            e.currentTarget
+                                                .selectionEnd ??
+                                            0,
+                                    })
+                                }
+                                onSelect={(e) =>
+                                    setActiveEditor({
+                                        templateIndex: index,
+                                        field: 'body',
+                                        start:
+                                            e.currentTarget
+                                                .selectionStart ??
+                                            0,
+                                        end:
+                                            e.currentTarget
+                                                .selectionEnd ??
+                                            0,
+                                    })
+                                }
+
                                 rows={
                                     isMobile
                                         ? 8
@@ -543,12 +655,7 @@ export default function CommunicationsEditor({
                                             type="button"
                                             key={v}
                                             onClick={() =>
-                                                updateTemplate(
-                                                    index,
-                                                    'body',
-                                                    template.body +
-                                                    `{{ ${v} }}`
-                                                )
+                                                insertToken(v)
                                             }
                                             style={{
                                                 padding: '4px 8px',
