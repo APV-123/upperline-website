@@ -1010,10 +1010,9 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   }
                   onClick={(e) => e.stopPropagation()}
                 >
-
-
-                  {/* Handle */}
-                  <div style={sheetHandle} />
+                  {isMobile && (
+                    <div style={sheetHandle} />
+                  )}
 
                   {/* Header */}
                   <div
@@ -1634,13 +1633,13 @@ const sheetBackdrop: React.CSSProperties = {
   zIndex: 10001,
   display: "flex",
   justifyContent: "center",
-  alignItems: "flex-end",
+  alignItems: "center",
 };
 
 const sheet = {
   width: "100%",
-  maxWidth: 720,
-  maxHeight: "90vh",
+  maxWidth: 860,
+  maxHeight: "85vh",
   background: "#fff",
   borderTopLeftRadius: 16,
   borderTopRightRadius: 16,
