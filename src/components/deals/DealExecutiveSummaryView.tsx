@@ -5,7 +5,7 @@ import DealStickyHeader from "../navigation/DealStickyHeader";
 import {
   FileText,
   FileSpreadsheet,
-  Lock,
+  FileLock,
 } from 'lucide-react';
 
 type DealHighlight = {
@@ -723,7 +723,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                   >
                     <div style={{ marginBottom: 16 }}>
                       {doc.gated ? (
-                        <Lock
+                        <FileLock
                           size={34}
                           strokeWidth={1.75}
                           color="#31c8db"
