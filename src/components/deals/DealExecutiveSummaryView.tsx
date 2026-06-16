@@ -5,6 +5,7 @@ import DealStickyHeader from "../navigation/DealStickyHeader";
 import {
   FileText,
   FileSpreadsheet,
+  Lock,
 } from 'lucide-react';
 
 type DealHighlight = {
@@ -720,10 +721,31 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                       justifyContent: 'space-between',
                     }}
                   >
-                    <div style={{ fontSize: 34, marginBottom: 16, }}>
-                      {doc.gated ? '🔒' : doc.icon}
+                    <div style={{ marginBottom: 16 }}>
+                      {doc.gated ? (
+                        <Lock
+                          size={30}
+                          strokeWidth={1.75}
+                          color="#31c8db"
+                        />
+                      ) : (
+                        doc.icon
+                      )}
                     </div>
-
+                    {doc.gated && (
+                      <div
+                        style={{
+                          marginBottom: 12,
+                          fontSize: 11,
+                          color: '#31c8db',
+                          textTransform: 'uppercase',
+                          letterSpacing: '.08em',
+                          fontWeight: 700,
+                        }}
+                      >
+                        Confidential Document
+                      </div>
+                    )}
                     <div
                       style={{
                         fontWeight: 700,
