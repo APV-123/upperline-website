@@ -24,6 +24,7 @@ type UpdateBody = {
   pitch_book_url?: unknown;
   abridged_memo_url?: unknown;
   full_memo_url?: unknown;
+  proforma_url?: unknown;
   full_memo_requires_ca?: unknown;
 };
 
@@ -68,6 +69,7 @@ type DealUpdatePayload = {
   pitch_book_url?: string | null;
   abridged_memo_url?: string | null;
   full_memo_url?: string | null;
+  proforma_url?: string | null;
   full_memo_requires_ca?: boolean | null;
 };
 
@@ -145,6 +147,11 @@ export async function POST(
     if (body.full_memo_url !== undefined) {
       updatePayload.full_memo_url = cleanText(body.full_memo_url);
     }
+
+    if (body.proforma_url !== undefined) {
+  updatePayload.proforma_url =
+    cleanText(body.proforma_url);
+}
 
     if (body.full_memo_requires_ca !== undefined) {
       updatePayload.full_memo_requires_ca = cleanBool(body.full_memo_requires_ca);

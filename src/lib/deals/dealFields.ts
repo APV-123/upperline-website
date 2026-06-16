@@ -23,6 +23,7 @@ export const DEAL_SELECT = `
   pitch_book_url,
   abridged_memo_url,
   full_memo_url,
+  proforma_url,
   full_memo_requires_ca,
 
   deal_highlights (

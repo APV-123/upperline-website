@@ -42,6 +42,7 @@ export type DealFormValues = {
   pitch_book_url: string;
   abridged_memo_url: string;
   full_memo_url: string;
+  proforma_url: string;
   full_memo_requires_ca: boolean;
 };
 
@@ -75,6 +76,7 @@ export default function DealForm({
     pitch_book_url: initialDeal?.pitch_book_url ?? '',
     abridged_memo_url: initialDeal?.abridged_memo_url ?? '',
     full_memo_url: initialDeal?.full_memo_url ?? '',
+    proforma_url: initialDeal?.proforma_url ?? '',
     full_memo_requires_ca: Boolean(initialDeal?.full_memo_requires_ca ?? false),
   });
 
@@ -196,28 +198,33 @@ export default function DealForm({
         <Section title="Documents">
 
           <DocumentField
-            label="Deal Snapshot"
-            url={deal.abridged_memo_url}
-            bucket="deal-documents-public"
-            disabled={saving || loading}
-            onChange={(v) => setDeal((p) => ({ ...p, abridged_memo_url: v }))}
-          />
-          <DocumentField
-            label="Full Investment Memorandum"
+            label="Investment Memorandum"
             url={deal.full_memo_url}
             bucket="deal-documents-private"
             disabled={saving || loading}
-            onChange={(v) => setDeal((p) => ({ ...p, full_memo_url: v }))}
+            onChange={(v) =>
+              setDeal((p) => ({
+                ...p,
+                full_memo_url: v,
+              }))
+            }
           />
+
           <DocumentField
-            label="About Upperline"
-            url={deal.pitch_book_url}
-            bucket="deal-documents-public"
+            label="Financial Model"
+            url={deal.proforma_url}
+            bucket="deal-documents-private"
             disabled={saving || loading}
-            onChange={(v) => setDeal((p) => ({ ...p, pitch_book_url: v }))}
+            accept=".xlsx,.xls,.csv"
+            onChange={(v) =>
+              setDeal((p) => ({
+                ...p,
+                proforma_url: v,
+              }))
+            }
           />
           <Checkbox
-            label="Full Memo Requires CA"
+            label="Require Confidentiality Agreement Before Accessing Documents"
             checked={deal.full_memo_requires_ca}
             onChange={(v) =>
               setDeal((p) => ({ ...p, full_memo_requires_ca: v }))
