@@ -127,7 +127,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           gated:
             !hasAccess &&
             (deal.full_memo_requires_ca ?? true),
-          icon: <FileText size={28} />,
+          icon: <FileText size={30} strokeWidth={1.75} color="#31c8db" />,
         },
         {
           id: 'proforma',
@@ -138,7 +138,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           gated:
             !hasAccess &&
             (deal.full_memo_requires_ca ?? true),
-          icon: <FileSpreadsheet size={28} />,
+          icon: <FileSpreadsheet size={30} strokeWidth={1.75} color="#31c8db" />,
         },
       ];
     },
