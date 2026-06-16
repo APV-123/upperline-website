@@ -724,7 +724,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     <div style={{ marginBottom: 16 }}>
                       {doc.gated ? (
                         <Lock
-                          size={30}
+                          size={34}
                           strokeWidth={1.75}
                           color="#31c8db"
                         />
@@ -732,20 +732,20 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                         doc.icon
                       )}
                     </div>
-                    {doc.gated && (
-                      <div
-                        style={{
-                          marginBottom: 12,
-                          fontSize: 11,
-                          color: '#31c8db',
-                          textTransform: 'uppercase',
-                          letterSpacing: '.08em',
-                          fontWeight: 700,
-                        }}
-                      >
-                        Confidential Document
-                      </div>
-                    )}
+                    <div
+                      style={{
+                        marginBottom: 12,
+                        fontSize: 10,
+                        opacity: .75,
+                        color: '#31c8db',
+                        textTransform: 'uppercase',
+                        letterSpacing: '.12em',
+                        fontWeight: 700,
+                      }}
+                    >
+                      Confidential Document
+                    </div>
+                    
                     <div
                       style={{
                         fontWeight: 700,
