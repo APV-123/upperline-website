@@ -2,6 +2,10 @@ import React, { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
 import DealHero from "./DealHero";
 import DealStickyHeader from "../navigation/DealStickyHeader";
+import { 
+  FileText,
+  FileSpreadsheet,
+} from 'lucide-react';
 
 type DealHighlight = {
   id: string;
@@ -51,7 +55,7 @@ type Deal = {
 
 type Document = {
   id: string;
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   description: string;
   url: string;
@@ -123,7 +127,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           gated:
             !hasAccess &&
             (deal.full_memo_requires_ca ?? true),
-          icon: '📄',
+          icon: <FileText size={28} />,
         },
         {
           id: 'proforma',
@@ -134,7 +138,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           gated:
             !hasAccess &&
             (deal.full_memo_requires_ca ?? true),
-          icon: '📊',
+          icon: <FileSpreadsheet size={28} />,
         },
       ];
     },
