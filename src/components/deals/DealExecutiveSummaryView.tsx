@@ -123,7 +123,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           label: 'Investment Memorandum',
           description:
             'Offering details, market analysis, business plan, and projected returns.',
-          url: '',
+          url: deal.full_memo_url ||'',
           gated:
             !hasAccess &&
             (deal.full_memo_requires_ca ?? true),
