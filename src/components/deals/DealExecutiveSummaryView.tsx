@@ -47,18 +47,20 @@ type Deal = {
   abridged_memo_url?: string;
   full_memo_url?: string;
   full_memo_requires_ca?: boolean;
+  proforma_url?: string;
 };
 
 type Document = {
   id: string;
+  icon: string;
   label: string;
+  description: string;
   url: string;
   gated: boolean;
   alwaysShow?: boolean;
 };
 
 export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal; isDark?: boolean }) {
-  const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const images = useMemo(
     () =>
       [deal.image_1_url, deal.image_2_url, deal.image_3_url].filter(
@@ -110,29 +112,35 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
   const [openProject, setOpenProject] = useState(true);
   const [openCapital, setOpenCapital] = useState(true);
 
-  const buildDocuments = useCallback((deal: Deal): Document[] => {
-    return [
-      {
-        id: 'snapshot',
-        label: 'Deal Snapshot',
-        url: deal.abridged_memo_url || '',
-        gated: false,
-      },
-      {
-        id: 'full_memo',
-        label: 'Full Investment Memorandum',
-        url: '',
-        gated: !hasAccess && (deal.full_memo_requires_ca ?? true),
-        alwaysShow: true,
-      },
-      {
-        id: 'about_upperline',
-        label: 'About Upperline',
-        url: deal.pitch_book_url || '',
-        gated: false,
-      },
-    ].filter((doc) => doc.alwaysShow || Boolean(doc.url));
-  }, [hasAccess]);
+  const buildDocuments = useCallback(
+    (deal: Deal): Document[] => {
+      return [
+        {
+          id: 'full_memo',
+          label: 'Investment Memorandum',
+          description:
+            'Confidential offering memorandum',
+          url: '',
+          gated:
+            !hasAccess &&
+            (deal.full_memo_requires_ca ?? true),
+          icon: '📄',
+        },
+        {
+          id: 'proforma',
+          label: 'Financial Model',
+          description:
+            'Detailed underwriting model',
+          url: deal.proforma_url || '',
+          gated:
+            !hasAccess &&
+            (deal.full_memo_requires_ca ?? true),
+          icon: '📊',
+        },
+      ];
+    },
+    [hasAccess]
+  );
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -151,29 +159,6 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
     }
   }, [isMobile]);
 
-  useEffect(() => {
-    if (!hasAccess) return;
-
-    const savedEmail = localStorage.getItem(`ca:${deal.id}`);
-    if (!savedEmail) return;
-
-    fetch(`/api/deals/${deal.id}/ca/access`, {
-      method: "POST",
-    })
-      .then((r) => r.json())
-      .then((json) => {
-        if (json?.signedUrl) {
-          setSelectedDoc({
-            id: 'full_memo',
-            label: "Full Investment Memorandum",
-            url: json.signedUrl,
-            gated: false,
-          });
-        }
-      });
-
-  }, [hasAccess, deal.id]);
-
 
   useEffect(() => {
     const savedEmail = localStorage.getItem(`ca:${deal.id}`);
@@ -181,13 +166,6 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
       setHasAccess(true);
     }
   }, [deal.id]);
-
-  useEffect(() => {
-    const docs = buildDocuments(deal);
-    if (docs.length > 0 && !selectedDoc) {
-      setSelectedDoc(docs[0]);
-    }
-  }, [deal, selectedDoc, buildDocuments]);
 
 
   useEffect(() => {
@@ -810,150 +788,93 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               style={{
                 ...section,
                 scrollMarginTop: 90,
-              }}>
-              <h2 style={isDark ? { ...sectionTitle, ...textPrimaryDark } : sectionTitle}>Documents</h2>
+              }}
+            >
+              <h2
+                style={
+                  isDark
+                    ? { ...sectionTitle, ...textPrimaryDark }
+                    : sectionTitle
+                }
+              >
+                Documents
+              </h2>
 
-              <div style={{
-                ...docContainer,
-                gridTemplateColumns: isMobile ? "1fr" : "250px 1fr",
-                height: isMobile ? "auto" : 500,
-              }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns:
+                    isMobile
+                      ? '1fr'
+                      : 'repeat(2, 1fr)',
+                  gap: 20,
+                }}
+              >
+                {buildDocuments(deal).map((doc) => (
+                  <div
+                    key={doc.id}
+                    style={{
+                      background: '#10213d',
+                      border:
+                        doc.gated
+                          ? '1px solid rgba(255,255,255,.08)'
+                          : '1px solid rgba(49,200,219,.25)',
+                      borderRadius: 12,
+                      padding: 20,
+                    }}
+                  >
+                    <div style={{ fontSize: 24 }}>
+                      {doc.gated ? '🔒' : doc.icon}
+                    </div>
 
-                {/* LEFT: DOCUMENT LIST */}
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        color: '#fff',
+                        marginTop: 12,
+                      }}
+                    >
+                      {doc.label}
+                    </div>
 
-                <div
-                  style={
-                    isDark
-                      ? {
-                        ...docList,
-                        background: "#05070a",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                      }
-                      : docList
-                  }
-                >
+                    <div
+                      style={{
+                        color: 'rgba(255,255,255,.65)',
+                        marginTop: 6,
+                        fontSize: 14,
+                      }}
+                    >
+                      {doc.description}
+                    </div>
 
-                  {buildDocuments(deal).map((doc) => {
-                    const isActive = selectedDoc?.label === doc.label;
+                    <button
+                      style={{
+                        marginTop: 16,
+                        background: '#31c8db',
+                        color: '#081628',
+                        border: 'none',
+                        borderRadius: 8,
+                        padding: '10px 14px',
+                        cursor: 'pointer',
+                        fontWeight: 700,
+                      }}
+                      onClick={() => {
+                        if (doc.gated) {
+                          setShowCA(true);
+                          return;
+                        }
 
-                    return (
-                      <div
-                        key={doc.label}
-                        onClick={() => {
-                          // 🔥 SPECIAL CASE: FULL EQUITY MEMO
-                          if (doc.id === "full_memo") {
-                            const savedEmail = localStorage.getItem(`ca:${deal.id}`);
-
-                            // If user has not signed → show modal
-                            if (!savedEmail) {
-                              setShowCA(true);
-                              return;
-                            }
-
-                            // ✅ User HAS access → fetch signed URL
-                            fetch(`/api/deals/${deal.id}/ca/access`, {
-                              method: "POST",
-                            })
-                              .then((r) => r.json())
-                              .then((json) => {
-                                if (json?.signedUrl) {
-                                  setSelectedDoc({
-                                    id: 'full_memo',
-                                    label: "Full Investment Memorandum",
-                                    url: json.signedUrl,
-                                    gated: false,
-                                  });
-                                }
-                              });
-
-                            return;
-                          }
-
-                          // ✅ NORMAL DOCUMENTS
-                          setSelectedDoc(doc);
-                        }}
-
-
-                        style={{
-                          ...docItem,
-                          background: isDark
-                            ? (isActive ? "#0f172a" : "#05070a")
-                            : (isActive ? "#eef2f7" : "#fff"),
-                          color: isDark ? "#ffffff" : "#0f172a",
-                          borderBottom: isDark
-                            ? "1px solid rgba(255,255,255,0.12)"
-                            : "1px solid #e5e7eb",
-                          opacity: doc.gated ? 0.6 : 1,
-                          cursor: "pointer",
-                        }}
-
-                      >
-                        {doc.gated ? '🔒 ' : '📄 '}
-                        {doc.label}
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* RIGHT: PREVIEW */}
-
-                <div
-                  style={{
-                    ...docPreview,
-                    ...(isDark ? panelDarkAlt : {}),
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-
-                  {selectedDoc ? (
-                    <>
-                      <div
-                        style={{
-                          ...docHeader,
-                          ...(isDark
-                            ? {
-                              color: "#ffffff",
-                              borderBottom: "1px solid rgba(255,255,255,0.08)",
-                            }
-                            : {}),
-                          flexDirection: isMobile ? "column" : "row",
-                          alignItems: isMobile ? "flex-start" : "center",
-                          gap: isMobile ? 8 : 0,
-                        }}
-                      >
-                        <div>{selectedDoc.label}</div>
-                        <a href={selectedDoc.url} target="_blank">
-                          <button
-                            style={{
-                              ...(isDark ? { ...downloadBtn, ...buttonDark } : downloadBtn),
-                              width: isMobile ? "100%" : "auto",
-                            }}
-                          >Open</button>
-                        </a>
-                      </div>
-
-                      {selectedDoc.url ? (
-                        <iframe src={selectedDoc.url}
-                          style={{
-                            ...iframe,
-                            minHeight: isMobile ? 300 : undefined,
-                          }}
-                        />
-                      ) : (
-                        <div style={{ padding: 20, color: "#64748b" }}>
-                          {selectedDoc.id === "full_memo"
-                            ? "Click to load full memo."
-                            : "Select a document to preview."}
-                        </div>
-                      )}
-
-                    </>
-                  ) : (
-                    <div style={{ padding: 20 }}>Select a document</div>
-                  )}
-                </div>
-
+                        if (doc.url) {
+                          window.open(doc.url, '_blank');
+                        }
+                      }}
+                    >
+                      {doc.gated
+                        ? 'Sign CA to Access'
+                        : 'Open Document'}
+                    </button>
+                  </div>
+                ))}
               </div>
             </section>
             {lightboxOpen && images.length > 0 && (
@@ -1273,14 +1194,6 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 
                             localStorage.setItem(`ca:${deal.id}`, caEmail);
                             setHasAccess(true);
-
-                            setSelectedDoc({
-                              id: 'full_memo',
-                              label: "Full Investment Memorandum",
-                              url: json.signedUrl,
-                              gated: false,
-                            });
-
                             setShowCA(false);
 
                           } finally {
@@ -1512,56 +1425,6 @@ const smallImage = {
   borderRadius: 8,
 };
 
-const docContainer = {
-  display: 'grid',
-  gridTemplateColumns: '250px 1fr',
-  gap: 16,
-  height: 500,
-};
-
-const docList = {
-  border: '1px solid #e5e7eb',
-  borderRadius: 6,
-  overflow: 'auto',
-};
-
-const docItem = {
-  padding: 12,
-  borderBottom: '1px solid #e5e7eb',
-  cursor: 'pointer',
-  fontSize: 13,
-};
-
-const docPreview = {
-  border: '1px solid #e5e7eb',
-  borderRadius: 6,
-  overflow: 'hidden',
-  display: 'flex',
-  flexDirection: 'column' as const,
-  minHeight: 300,
-};
-
-const iframe = {
-  flex: 1,
-  width: '100%',
-  border: 'none',
-};
-
-const docHeader = {
-  padding: 12,
-  borderBottom: '1px solid #e5e7eb',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-};
-
-const downloadBtn = {
-  padding: '6px 10px',
-  borderRadius: 6,
-  border: '1px solid #e5e7eb',
-  background: '#fff',
-  cursor: 'pointer',
-};
 const lbBackdrop: React.CSSProperties = {
   position: "fixed",
   inset: 0,
