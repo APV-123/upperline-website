@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
 import DealHero from "./DealHero";
 import DealStickyHeader from "../navigation/DealStickyHeader";
-import { 
+import {
   FileText,
   FileSpreadsheet,
 } from 'lucide-react';
@@ -123,7 +123,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           label: 'Investment Memorandum',
           description:
             'Offering details, market analysis, business plan, and projected returns.',
-          url: deal.full_memo_url ||'',
+          url: deal.full_memo_url || '',
           gated:
             !hasAccess &&
             (deal.full_memo_requires_ca ?? true),
@@ -773,476 +773,515 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                         fontWeight: 700,
                         fontSize: 15,
                       }}
-                      onClick={() => {
+                      onClick={async () => {
                         if (doc.gated) {
                           setShowCA(true);
                           return;
                         }
 
+                        if (doc.id === 'full_memo') {
+                          try {
+                            const res = await fetch(
+                              `/api/deals/${deal.id}/ca/access`,
+                              {
+                                method: 'POST',
+                              }
+                            );
+
+                            const json = await res.json();
+
+                            if (!json?.ok || !json?.signedUrl) {
+                              alert(
+                                json?.error ||
+                                'Unable to open memorandum'
+                              );
+                              return;
+                            }
+
+                            window.open(
+                              json.signedUrl,
+                              '_blank',
+                              'noopener,noreferrer'
+                            );
+
+                            return;
+                          } catch (err) {
+                            console.error(err);
+                            alert(
+                              'Unable to open memorandum'
+                            );
+                            return;
+                          }
+                        }
+
                         if (doc.url) {
-                          window.open(doc.url, '_blank');
+                          window.open(
+                            doc.url,
+                            '_blank',
+                            'noopener,noreferrer'
+                          );
                         }
                       }}
                     >
-                      {doc.gated
-                        ? 'Sign CA to Access'
-                        : 'Open Document'}
-                    </button>
+                    {doc.gated
+                      ? 'Sign CA to Access'
+                      : 'Open Document'}
+                  </button>
                   </div>
                 ))}
-              </div>
-            </section>
+          </div>
+        </section>
 
-            <h2
-              style={
-                isDark
-                  ? { ...sectionTitle, ...textPrimaryDark }
-                  : sectionTitle
+        <h2
+          style={
+            isDark
+              ? { ...sectionTitle, ...textPrimaryDark }
+              : sectionTitle
+          }
+        >
+          About the Sponsor
+        </h2>
+        <section
+          id="about-upperline"
+          style={{
+            ...section,
+            scrollMarginTop: 90,
+            position: 'relative',
+            overflow: 'hidden',
+            padding: isMobile ? '20px 16px' : '48px',
+            borderRadius: 20,
+            background: isDark ? '#111827' : '#f8fafc',
+            border: isDark
+              ? '1px solid #1f2937'
+              : '1px solid #e2e8f0',
+            maxWidth: isMobile ? '100%' : 1000,
+            margin: '0 auto',
+          }}
+        >
+          {/* Top Accent */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 4,
+              background: '#31c8db',
+            }}
+          />
+
+          {/* Pattern Background */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              opacity: 0.02,
+              backgroundImage:
+                'url("/Upperline_IconPattern3Outline_Navy_RGB.png")',
+              backgroundRepeat: 'repeat',
+              backgroundSize: '420px',
+              pointerEvents: 'none',
+            }}
+          />
+
+          {/* Content */}
+          <div
+            style={{
+              position: 'relative',
+              zIndex: 2,
+              width: '100%',
+              maxWidth: isMobile ? '100%' : 800,
+              textAlign: 'left',
+            }}
+          >
+            <img
+              src={isDark
+                ? "/Upperline-logo-inverted.png"
+                : "/upperline-logo.png"
               }
-            >
-              About the Sponsor
-            </h2>
-            <section
-              id="about-upperline"
+              alt="Upperline"
               style={{
-                ...section,
-                scrollMarginTop: 90,
-                position: 'relative',
-                overflow: 'hidden',
-                padding: isMobile ? '20px 16px' : '48px',
-                borderRadius: 20,
-                background: isDark ? '#111827' : '#f8fafc',
-                border: isDark
-                  ? '1px solid #1f2937'
-                  : '1px solid #e2e8f0',
-                maxWidth: isMobile ? '100%' : 1000,
-                margin: '0 auto',
+                height: isMobile ? 32 : 56,
+                width: 'auto',
+                marginBottom: isMobile ? 20 : 32,
+              }}
+            />
+
+            <p
+              style={{
+                ...(isDark
+                  ? { ...paragraph, ...textSecondaryDark }
+                  : paragraph),
+                marginBottom: 24,
+                fontSize: isMobile ? 16 : 18,
+                lineHeight: isMobile ? 1.65 : 1.7,
+                maxWidth: isMobile ? '100%' : 700,
               }}
             >
-              {/* Top Accent */}
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: 4,
-                  background: '#31c8db',
-                }}
-              />
+              Upperline is a vertically integrated real estate investment,
+              development, and asset management firm focused on acquiring,
+              developing, and operating assets throughout high-growth Texas
+              markets. By combining investment expertise, development execution,
+              and active asset management, we seek to create long-term value for
+              our investors through disciplined capital allocation and operational
+              excellence.
+            </p>
 
-              {/* Pattern Background */}
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  opacity: 0.02,
-                  backgroundImage:
-                    'url("/Upperline_IconPattern3Outline_Navy_RGB.png")',
-                  backgroundRepeat: 'repeat',
-                  backgroundSize: '420px',
-                  pointerEvents: 'none',
-                }}
-              />
+            <a
+              href="https://www.upperlineco.com/who-we-are"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: '#31c8db',
+                textDecoration: 'none',
+                fontWeight: 700,
+                fontSize: 16,
+              }}
+            >
+              View Company Profile →
+            </a>
+          </div>
+        </section>
 
-              {/* Content */}
+
+        {lightboxOpen && images.length > 0 && (
+          <div style={lbBackdrop} onClick={() => setLightboxOpen(false)}>
+            <div style={lbTop} onClick={(e) => e.stopPropagation()}>
+              <div style={{ opacity: 0.85 }}>
+                {lightboxIndex + 1} / {images.length}
+              </div>
+              <button style={lbClose} onClick={() => setLightboxOpen(false)}>
+                ✕
+              </button>
+            </div>
+
+            <button
+              style={lbArrowLeft}
+              onClick={(e) => {
+                e.stopPropagation();
+                prevImage();
+              }}
+              aria-label="Previous image"
+            >
+              ‹
+            </button>
+
+            <img
+              src={images[lightboxIndex]}
+              style={lbImage}
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            <button
+              style={lbArrowRight}
+              onClick={(e) => {
+                e.stopPropagation();
+                nextImage();
+              }}
+              aria-label="Next image"
+            >
+              ›
+            </button>
+          </div>
+        )}
+        {showCA && (
+          <div style={sheetBackdrop} onClick={() => !caBusy && setShowCA(false)}>
+            <div
+              style={
+                isDark
+                  ? {
+                    ...sheet,
+                    background: "#0f172a",
+                    color: "#ffffff",
+                  }
+                  : sheet
+              }
+              onClick={(e) => e.stopPropagation()}
+            >
+              {isMobile && (
+                <div style={sheetHandle} />
+              )}
+
+              {/* Header */}
+              <div
+                style={
+                  isDark
+                    ? {
+                      ...sheetHeader,
+                      borderBottom: "1px solid rgba(255,255,255,0.08)",
+                    }
+                    : sheetHeader
+                }
+              >
+                <div style={{ fontWeight: 700 }}>
+                  {deal.name} Confidentiality Agreement
+                </div>
+                <button
+                  style={sheetClose}
+                  onClick={() => setShowCA(false)}
+                  disabled={caBusy}
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* FORM FIRST */}
+
               <div
                 style={{
-                  position: 'relative',
-                  zIndex: 2,
-                  width: '100%',
-                  maxWidth: isMobile ? '100%' : 800,
-                  textAlign: 'left',
+                  overflowY: "auto",
                 }}
               >
-                <img
-                  src={isDark
-                    ? "/Upperline-logo-inverted.png"
-                    : "/upperline-logo.png"
-                  }
-                  alt="Upperline"
-                  style={{
-                    height: isMobile ? 32 : 56,
-                    width: 'auto',
-                    marginBottom: isMobile ? 20 : 32,
-                  }}
-                />
-
-                <p
-                  style={{
-                    ...(isDark
-                      ? { ...paragraph, ...textSecondaryDark }
-                      : paragraph),
-                    marginBottom: 24,
-                    fontSize: isMobile ? 16 : 18,
-                    lineHeight: isMobile ? 1.65 : 1.7,
-                    maxWidth: isMobile ? '100%' : 700,
-                  }}
-                >
-                  Upperline is a vertically integrated real estate investment,
-                  development, and asset management firm focused on acquiring,
-                  developing, and operating assets throughout high-growth Texas
-                  markets. By combining investment expertise, development execution,
-                  and active asset management, we seek to create long-term value for
-                  our investors through disciplined capital allocation and operational
-                  excellence.
-                </p>
-
-                <a
-                  href="https://www.upperlineco.com/who-we-are"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    color: '#31c8db',
-                    textDecoration: 'none',
-                    fontWeight: 700,
-                    fontSize: 16,
-                  }}
-                >
-                  View Company Profile →
-                </a>
-              </div>
-            </section>
+                <div style={sheetFooter}>
 
 
-            {lightboxOpen && images.length > 0 && (
-              <div style={lbBackdrop} onClick={() => setLightboxOpen(false)}>
-                <div style={lbTop} onClick={(e) => e.stopPropagation()}>
-                  <div style={{ opacity: 0.85 }}>
-                    {lightboxIndex + 1} / {images.length}
+                  {/* FIRST / LAST ROW */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                      gap: 12,
+                    }}
+                  >
+                    <div>
+                      <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>First Name</label>
+                      <input
+                        style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                        value={caFirstName}
+                        onChange={(e) => setCaFirstName(e.target.value)}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Last Name</label>
+                      <input
+                        style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                        value={caLastName}
+                        onChange={(e) => setCaLastName(e.target.value)}
+                      />
+                    </div>
+
                   </div>
-                  <button style={lbClose} onClick={() => setLightboxOpen(false)}>
-                    ✕
-                  </button>
+
+                  <div style={sheetFormRow}>
+                    <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Email</label>
+                    <input
+                      style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                      value={caEmail}
+                      onChange={(e) => setCaEmail(e.target.value)}
+                    />
+                  </div>
+
+                  <div style={sheetFormRow}>
+                    <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Company (optional)</label>
+                    <input
+                      style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                      value={caCompany}
+                      onChange={(e) => setCaCompany(e.target.value)}
+                    />
+                  </div>
+                  {/* Job Title */}
+                  <div style={sheetFormRow}>
+                    <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Job Title (optional)</label>
+                    <input
+                      style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                      value={caJobTitle}
+                      onChange={(e) => setCaJobTitle(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Phone */}
+                  <div style={sheetFormRow}>
+                    <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Phone Number (optional)</label>
+                    <input
+                      style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+
+                      value={caPhone}
+                      onChange={(e) => setCaPhone(e.target.value)}
+                    />
+                  </div>
                 </div>
 
-                <button
-                  style={lbArrowLeft}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    prevImage();
-                  }}
-                  aria-label="Previous image"
-                >
-                  ‹
-                </button>
+                {/* LEGAL AGREEMENT SCROLLER */}
 
-                <img
-                  src={images[lightboxIndex]}
-                  style={lbImage}
-                  onClick={(e) => e.stopPropagation()}
-                />
-
-                <button
-                  style={lbArrowRight}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    nextImage();
-                  }}
-                  aria-label="Next image"
-                >
-                  ›
-                </button>
-              </div>
-            )}
-            {showCA && (
-              <div style={sheetBackdrop} onClick={() => !caBusy && setShowCA(false)}>
                 <div
                   style={
                     isDark
                       ? {
-                        ...sheet,
-                        background: "#0f172a",
-                        color: "#ffffff",
+                        ...agreementScroll,
+                        background: "#0b1220",
+                        border: "1px solid rgba(255,255,255,0.08)",
                       }
-                      : sheet
+                      : agreementScroll
                   }
-                  onClick={(e) => e.stopPropagation()}
                 >
-                  {isMobile && (
-                    <div style={sheetHandle} />
-                  )}
-
-                  {/* Header */}
-                  <div
-                    style={
-                      isDark
-                        ? {
-                          ...sheetHeader,
-                          borderBottom: "1px solid rgba(255,255,255,0.08)",
-                        }
-                        : sheetHeader
-                    }
-                  >
-                    <div style={{ fontWeight: 700 }}>
-                      {deal.name} Confidentiality Agreement
-                    </div>
-                    <button
-                      style={sheetClose}
-                      onClick={() => setShowCA(false)}
-                      disabled={caBusy}
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  {/* FORM FIRST */}
-
-                  <div
-                    style={{
-                      overflowY: "auto",
-                    }}
-                  >
-                    <div style={sheetFooter}>
 
 
-                      {/* FIRST / LAST ROW */}
-                      <div
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-                          gap: 12,
-                        }}
-                      >
-                        <div>
-                          <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>First Name</label>
-                          <input
-                            style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+                  <h4 style={agreementTitle}>Confidentiality Agreement</h4>
 
-                            value={caFirstName}
-                            onChange={(e) => setCaFirstName(e.target.value)}
-                          />
-                        </div>
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                    This Confidentiality and Non-Disclosure Agreement (“Agreement”) governs access to proprietary and non-public information for the purpose of evaluating a potential investment opportunity.
+                  </p>
 
-                        <div>
-                          <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Last Name</label>
-                          <input
-                            style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                    By accessing these materials, you acknowledge that all information provided constitutes confidential information, including but not limited to financial statements, projections, ownership structures, investment models, and all documents made available through this deal portal.
+                  </p>
 
-                            value={caLastName}
-                            onChange={(e) => setCaLastName(e.target.value)}
-                          />
-                        </div>
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                    You agree that such information shall be used solely for the purpose of evaluating a potential investment and shall not be disclosed, reproduced, or distributed to any third party without prior written consent.
+                  </p>
 
-                      </div>
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                    You further agree not to contact any tenants, lenders, investors, brokers, or other parties identified within the materials without explicit authorization from Upperline.
+                  </p>
 
-                      <div style={sheetFormRow}>
-                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Email</label>
-                        <input
-                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                    All confidential information remains the exclusive property of Upperline. No license or ownership rights are granted by access to these materials.
+                  </p>
 
-                          value={caEmail}
-                          onChange={(e) => setCaEmail(e.target.value)}
-                        />
-                      </div>
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                    This Agreement shall remain in effect for a period of two (2) years from the date of acceptance. Unauthorized use or disclosure may result in legal action and injunctive relief.
+                  </p>
 
-                      <div style={sheetFormRow}>
-                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Company (optional)</label>
-                        <input
-                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                          value={caCompany}
-                          onChange={(e) => setCaCompany(e.target.value)}
-                        />
-                      </div>
-                      {/* Job Title */}
-                      <div style={sheetFormRow}>
-                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Job Title (optional)</label>
-                        <input
-                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                          value={caJobTitle}
-                          onChange={(e) => setCaJobTitle(e.target.value)}
-                        />
-                      </div>
-
-                      {/* Phone */}
-                      <div style={sheetFormRow}>
-                        <label style={isDark ? { ...sheetLabel, ...mutedTextDark } : sheetLabel}>Phone Number (optional)</label>
-                        <input
-                          style={isDark ? { ...sheetInput, ...inputDark } : sheetInput}
-
-                          value={caPhone}
-                          onChange={(e) => setCaPhone(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    {/* LEGAL AGREEMENT SCROLLER */}
-
-                    <div
-                      style={
-                        isDark
-                          ? {
-                            ...agreementScroll,
-                            background: "#0b1220",
-                            border: "1px solid rgba(255,255,255,0.08)",
-                          }
-                          : agreementScroll
-                      }
-                    >
-
-
-                      <h4 style={agreementTitle}>Confidentiality Agreement</h4>
-
-                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                        This Confidentiality and Non-Disclosure Agreement (“Agreement”) governs access to proprietary and non-public information for the purpose of evaluating a potential investment opportunity.
-                      </p>
-
-                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                        By accessing these materials, you acknowledge that all information provided constitutes confidential information, including but not limited to financial statements, projections, ownership structures, investment models, and all documents made available through this deal portal.
-                      </p>
-
-                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                        You agree that such information shall be used solely for the purpose of evaluating a potential investment and shall not be disclosed, reproduced, or distributed to any third party without prior written consent.
-                      </p>
-
-                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                        You further agree not to contact any tenants, lenders, investors, brokers, or other parties identified within the materials without explicit authorization from Upperline.
-                      </p>
-
-                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                        All confidential information remains the exclusive property of Upperline. No license or ownership rights are granted by access to these materials.
-                      </p>
-
-                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                        This Agreement shall remain in effect for a period of two (2) years from the date of acceptance. Unauthorized use or disclosure may result in legal action and injunctive relief.
-                      </p>
-
-                      <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
-                        Acceptance of this Agreement electronically constitutes a legally binding agreement enforceable to the same extent as a manually executed agreement.
-                      </p>
-
-                    </div>
-                  </div>
-                  {/* ACCEPTANCE + ACTIONS */}
-                  <div style={sheetFooter}>
-                    <label
-                      style={{
-                        ...sheetCheckboxRow,
-                        marginBottom: 16,
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isAccredited}
-                        onChange={(e) =>
-                          setIsAccredited(
-                            e.target.checked
-                          )
-                        }
-                      />
-
-                      I certify that I am an accredited investor.
-                    </label>
-                    <label style={sheetCheckboxRow}>
-                      <input
-                        type="checkbox"
-                        checked={caAgree}
-                        onChange={(e) => setCaAgree(e.target.checked)}
-                      />
-                      I have read and accept the terms of the confidentiality agreement.
-                    </label>
-                    {caError && (
-                      <div style={caErrorStyle}>
-                        {caError}
-                      </div>
-                    )}
-                    <div
-                      style={{
-                        ...sheetActions,
-                        flexDirection: isMobile ? 'column' : 'row',
-                        gap: 12,
-                      }}
-                    >
-                      <button
-                        style={{
-                          ...sheetSecondaryBtn,
-                          width: isMobile ? '100%' : 'auto',
-                        }}
-                        onClick={() => setShowCA(false)}
-                        disabled={caBusy}
-                      >
-                        Cancel
-                      </button>
-
-                      <button
-                        style={{
-                          ...sheetPrimaryBtn,
-                          width: isMobile ? '100%' : 'auto',
-                        }}
-                        disabled={caBusy}
-                        onClick={async () => {
-
-                          // ✅ VALIDATION FIRST
-                          if (!caFirstName.trim() || !caLastName.trim()) {
-                            setCaError("First and last name are required.");
-                            return;
-                          }
-
-                          if (!caEmail.includes("@")) {
-                            setCaError("Valid email is required.");
-                            return;
-                          }
-                          if (!isAccredited) {
-                            setCaError(
-                              "You must certify accredited investor status."
-                            );
-                            return;
-                          }
-                          if (!caAgree) {
-                            setCaError("You must accept the confidentiality agreement.");
-                            return;
-                          }
-
-                          // ✅ CLEAR ERROR
-                          setCaError('');
-                          setCaBusy(true);
-
-                          try {
-                            const res = await fetch(`/api/deals/${deal.id}/ca/submit`, {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({
-                                firstname: caFirstName,
-                                lastname: caLastName,
-                                email: caEmail,
-                                company: caCompany,
-                                jobtitle: caJobTitle,
-                                phone: caPhone,
-                              }),
-                            });
-
-                            const json = await res.json().catch(() => null);
-
-                            if (!res.ok || !json?.ok || !json?.signedUrl) {
-                              setCaError(json?.error ?? "Unable to grant access");
-                              return;
-                            }
-
-                            localStorage.setItem(`ca:${deal.id}`, caEmail);
-                            setHasAccess(true);
-                            setShowCA(false);
-
-                          } finally {
-                            setCaBusy(false);
-                          }
-                        }}
-                      >
-                        {caBusy
-                          ? "Granting access…"
-                          : "Accept & Access Full Memorandum"}
-                      </button>
-                    </div>
-
-                  </div>
+                  <p style={isDark ? { ...agreementText, ...textSecondaryDark } : agreementText}>
+                    Acceptance of this Agreement electronically constitutes a legally binding agreement enforceable to the same extent as a manually executed agreement.
+                  </p>
 
                 </div>
               </div>
-            )}
+              {/* ACCEPTANCE + ACTIONS */}
+              <div style={sheetFooter}>
+                <label
+                  style={{
+                    ...sheetCheckboxRow,
+                    marginBottom: 16,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isAccredited}
+                    onChange={(e) =>
+                      setIsAccredited(
+                        e.target.checked
+                      )
+                    }
+                  />
+
+                  I certify that I am an accredited investor.
+                </label>
+                <label style={sheetCheckboxRow}>
+                  <input
+                    type="checkbox"
+                    checked={caAgree}
+                    onChange={(e) => setCaAgree(e.target.checked)}
+                  />
+                  I have read and accept the terms of the confidentiality agreement.
+                </label>
+                {caError && (
+                  <div style={caErrorStyle}>
+                    {caError}
+                  </div>
+                )}
+                <div
+                  style={{
+                    ...sheetActions,
+                    flexDirection: isMobile ? 'column' : 'row',
+                    gap: 12,
+                  }}
+                >
+                  <button
+                    style={{
+                      ...sheetSecondaryBtn,
+                      width: isMobile ? '100%' : 'auto',
+                    }}
+                    onClick={() => setShowCA(false)}
+                    disabled={caBusy}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    style={{
+                      ...sheetPrimaryBtn,
+                      width: isMobile ? '100%' : 'auto',
+                    }}
+                    disabled={caBusy}
+                    onClick={async () => {
+
+                      // ✅ VALIDATION FIRST
+                      if (!caFirstName.trim() || !caLastName.trim()) {
+                        setCaError("First and last name are required.");
+                        return;
+                      }
+
+                      if (!caEmail.includes("@")) {
+                        setCaError("Valid email is required.");
+                        return;
+                      }
+                      if (!isAccredited) {
+                        setCaError(
+                          "You must certify accredited investor status."
+                        );
+                        return;
+                      }
+                      if (!caAgree) {
+                        setCaError("You must accept the confidentiality agreement.");
+                        return;
+                      }
+
+                      // ✅ CLEAR ERROR
+                      setCaError('');
+                      setCaBusy(true);
+
+                      try {
+                        const res = await fetch(`/api/deals/${deal.id}/ca/submit`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            firstname: caFirstName,
+                            lastname: caLastName,
+                            email: caEmail,
+                            company: caCompany,
+                            jobtitle: caJobTitle,
+                            phone: caPhone,
+                          }),
+                        });
+
+                        const json = await res.json().catch(() => null);
+
+                        if (!res.ok || !json?.ok || !json?.signedUrl) {
+                          setCaError(json?.error ?? "Unable to grant access");
+                          return;
+                        }
+
+                        localStorage.setItem(`ca:${deal.id}`, caEmail);
+                        setHasAccess(true);
+                        setShowCA(false);
+
+                      } finally {
+                        setCaBusy(false);
+                      }
+                    }}
+                  >
+                    {caBusy
+                      ? "Granting access…"
+                      : "Accept & Access Full Memorandum"}
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
           </div>
-        </div>
+        )}
       </div>
+    </div >
+      </div >
     </>
   );
 }
