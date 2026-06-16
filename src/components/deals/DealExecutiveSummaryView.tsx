@@ -2,7 +2,6 @@ import React, { useState, useMemo, useEffect, useCallback } from "react";
 import Image from "next/image";
 import DealHero from "./DealHero";
 import DealStickyHeader from "../navigation/DealStickyHeader";
-import { Darker_Grotesque } from "next/font/google";
 
 type DealHighlight = {
   id: string;
@@ -119,7 +118,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           id: 'full_memo',
           label: 'Investment Memorandum',
           description:
-            'Confidential offering memorandum',
+            'Offering details, market analysis, business plan, and projected returns.',
           url: '',
           gated:
             !hasAccess &&
@@ -130,7 +129,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
           id: 'proforma',
           label: 'Financial Model',
           description:
-            'Detailed underwriting model',
+            'Cash flow projections, underwriting assumptions, and return sensitivity.',
           url: deal.proforma_url || '',
           gated:
             !hasAccess &&
@@ -671,6 +670,125 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 {deal.business_plan_text || "No business plan provided."}
               </p>
             </section>
+
+            {/* DOCUMENTS */}
+            <section
+              id="documents"
+              style={{
+                ...section,
+                scrollMarginTop: 90,
+              }}
+            >
+              <h2
+                style={
+                  isDark
+                    ? { ...sectionTitle, ...textPrimaryDark }
+                    : sectionTitle
+                }
+              >
+                Documents
+              </h2>
+
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns:
+                    isMobile
+                      ? '1fr'
+                      : 'repeat(2, 1fr)',
+                  gap: 20,
+                }}
+              >
+                {buildDocuments(deal).map((doc) => (
+                  <div
+                    key={doc.id}
+                    style={{
+                      background: '#10213d',
+                      border:
+                        doc.gated
+                          ? '1px solid rgba(255,255,255,.08)'
+                          : '1px solid rgba(49,200,219,.25)',
+                      borderRadius: 12,
+                      padding: 28,
+                      minHeight: 220,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <div style={{ fontSize: 34, marginBottom: 16, }}>
+                      {doc.gated ? '🔒' : doc.icon}
+                    </div>
+
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        fontSize: 20,
+                        color: '#fff',
+                        marginBottom: 10,
+
+                      }}
+                    >
+                      {doc.label}
+                    </div>
+
+                    <div
+                      style={{
+                        color: 'rgba(255,255,255,.65)',
+                        marginTop: 6,
+                        fontSize: 15,
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {doc.description}
+                      <div
+                        style={{
+                          marginTop: 14,
+                          fontSize: 12,
+                          color: 'rgba(255,255,255,.55)',
+                          textTransform: 'uppercase',
+                          letterSpacing: '.08em',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {doc.id === 'full_memo'
+                          ? 'PDF DOCUMENT'
+                          : 'EXCEL MODEL'}
+                      </div>
+                    </div>
+
+                    <button
+                      style={{
+                        marginTop: 16,
+                        background: '#31c8db',
+                        color: '#081628',
+                        border: 'none',
+                        borderRadius: 8,
+                        padding: '12px 18px',
+                        cursor: 'pointer',
+                        fontWeight: 700,
+                        fontSize: 15,
+                      }}
+                      onClick={() => {
+                        if (doc.gated) {
+                          setShowCA(true);
+                          return;
+                        }
+
+                        if (doc.url) {
+                          window.open(doc.url, '_blank');
+                        }
+                      }}
+                    >
+                      {doc.gated
+                        ? 'Sign CA to Access'
+                        : 'Open Document'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+
             <h2
               style={
                 isDark
@@ -782,101 +900,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
               </div>
             </section>
 
-            {/* DOCUMENTS */}
-            <section
-              id="documents"
-              style={{
-                ...section,
-                scrollMarginTop: 90,
-              }}
-            >
-              <h2
-                style={
-                  isDark
-                    ? { ...sectionTitle, ...textPrimaryDark }
-                    : sectionTitle
-                }
-              >
-                Documents
-              </h2>
 
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns:
-                    isMobile
-                      ? '1fr'
-                      : 'repeat(2, 1fr)',
-                  gap: 20,
-                }}
-              >
-                {buildDocuments(deal).map((doc) => (
-                  <div
-                    key={doc.id}
-                    style={{
-                      background: '#10213d',
-                      border:
-                        doc.gated
-                          ? '1px solid rgba(255,255,255,.08)'
-                          : '1px solid rgba(49,200,219,.25)',
-                      borderRadius: 12,
-                      padding: 20,
-                    }}
-                  >
-                    <div style={{ fontSize: 24 }}>
-                      {doc.gated ? '🔒' : doc.icon}
-                    </div>
-
-                    <div
-                      style={{
-                        fontWeight: 700,
-                        color: '#fff',
-                        marginTop: 12,
-                      }}
-                    >
-                      {doc.label}
-                    </div>
-
-                    <div
-                      style={{
-                        color: 'rgba(255,255,255,.65)',
-                        marginTop: 6,
-                        fontSize: 14,
-                      }}
-                    >
-                      {doc.description}
-                    </div>
-
-                    <button
-                      style={{
-                        marginTop: 16,
-                        background: '#31c8db',
-                        color: '#081628',
-                        border: 'none',
-                        borderRadius: 8,
-                        padding: '10px 14px',
-                        cursor: 'pointer',
-                        fontWeight: 700,
-                      }}
-                      onClick={() => {
-                        if (doc.gated) {
-                          setShowCA(true);
-                          return;
-                        }
-
-                        if (doc.url) {
-                          window.open(doc.url, '_blank');
-                        }
-                      }}
-                    >
-                      {doc.gated
-                        ? 'Sign CA to Access'
-                        : 'Open Document'}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </section>
             {lightboxOpen && images.length > 0 && (
               <div style={lbBackdrop} onClick={() => setLightboxOpen(false)}>
                 <div style={lbTop} onClick={(e) => e.stopPropagation()}>
