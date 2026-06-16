@@ -759,6 +759,21 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                           ? 'PDF DOCUMENT'
                           : 'EXCEL MODEL'}
                       </div>
+
+                      <div
+                        style={{
+                          marginTop: 4,
+                          fontSize: 11,
+                          color: 'rgba(255,255,255,.42)',
+                          textTransform: 'uppercase',
+                          letterSpacing: '.08em',
+                          fontWeight: 500,
+                        }}
+                      >
+                        {doc.id === 'full_memo'
+                          ? 'View in Browser'
+                          : 'Downloads Excel File'}
+                      </div>
                     </div>
 
                     <button
@@ -812,7 +827,9 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     >
                       {doc.gated
                         ? 'Sign CA to Access'
-                        : 'Open Document'}
+                        : doc.id === 'full_memo'
+                          ? 'View Memorandum'
+                          : 'Download Model'}
                     </button>
                   </div>
                 ))}
@@ -1248,6 +1265,13 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 
                             localStorage.setItem(`ca:${deal.id}`, caEmail);
                             setHasAccess(true);
+
+                            window.open(
+                              json.signedUrl,
+                              '_blank',
+                              'noopener,noreferrer'
+                            );
+
                             setShowCA(false);
 
                           } finally {
