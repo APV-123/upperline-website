@@ -269,28 +269,51 @@ export async function POST(req: Request, context: { params: Promise<Params> }) {
         syncWarnings.push("HubSpot contact not found after CA submission");
       } else {
         // 4c) upsert subscription directly
-        const { error: subErr } = await supabaseServer
-          .from("raise_subscriptions")
-          .upsert(
-            {
-              raise_id: deal.raise_id,
-              contact_id: String(contactId),
-              contact_name: name || null,
-              contact_email: email,
-              status: "subscribed",
-              // deal has effectively been sent already
-              invite_status: "invited",
-              invited_at: new Date().toISOString(),
-            },
-            {
-              onConflict: "raise_id,contact_id",
-            }
-          );
+        const { data: subscription, error: subErr } =
+  await supabaseServer
+    .from("raise_subscriptions")
+    .upsert(
+      {
+        raise_id: deal.raise_id,
+        contact_id: String(contactId),
+        contact_name: name || null,
+        contact_email: email,
+        status: "subscribed",
+        invite_status: "invited",
+        invited_at: new Date().toISOString(),
+      },
+      {
+        onConflict: "raise_id,contact_id",
+      }
+    )
+    .select("id")
+    .single();
 
         if (subErr) {
           console.error("[CA SUBSCRIPTION UPSERT FAILED]", subErr);
           syncWarnings.push(`Subscription upsert failed: ${subErr.message}`);
         }
+
+        if (subscription?.id) {
+  await supabaseServer
+    .from("raise_subscription_activity")
+    .insert({
+      raise_subscription_id: subscription.id,
+      activity_type: "ca_completed",
+      metadata: {
+        deal_id: dealId,
+        deal_name: deal.name,
+        email,
+      },
+    });
+
+  await supabaseServer
+    .from("raise_subscriptions")
+    .update({
+      last_activity_at: new Date().toISOString(),
+    })
+    .eq("id", subscription.id);
+}
 
         // 4d) guard against creating duplicate HubSpot investor deals
         const origin = new URL(req.url).origin;
