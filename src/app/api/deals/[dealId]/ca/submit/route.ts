@@ -296,16 +296,17 @@ export async function POST(req: Request, context: { params: Promise<Params> }) {
 
         if (subscription?.id) {
   await supabaseServer
-    .from("raise_subscription_activity")
-    .insert({
-      raise_subscription_id: subscription.id,
-      activity_type: "ca_completed",
-      metadata: {
-        deal_id: dealId,
-        deal_name: deal.name,
-        email,
-      },
-    });
+  .from("raise_subscription_activity")
+  .insert({
+    raise_subscription_id: subscription.id,
+    activity_type: "ca_completed",
+    activity_source: "portal",
+    metadata: {
+      deal_id: dealId,
+      deal_name: deal.name,
+      email,
+    },
+  });
 
   await supabaseServer
     .from("raise_subscriptions")
