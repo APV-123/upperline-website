@@ -14,10 +14,11 @@ export async function POST(
 
   const { data: deal, error } = await supabaseServer
   .from("deals")
-  .select("raise_id, full_memo_url")
+  .select("raise_id, name, full_memo_url")
   .eq("id", dealId)
   .single<{
     raise_id: string | null;
+    name: string | null;
     full_memo_url: string | null;
   }>();
 
@@ -57,7 +58,9 @@ export async function POST(
         activity_type: "im_viewed",
         activity_source: "portal",
         metadata: {
+          email,
           deal_id: dealId,
+          deal_name: deal.name,
         },
       });
 
