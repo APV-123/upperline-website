@@ -20,6 +20,7 @@ type Bucket = 'committed' | 'circling' | 'needs_touch' | 'passed';
 type ApiInvestorRow = {
     dealId: string;
     contactId: string | null;
+    raiseSubscriptionId: string | null;
     investorName: string;
     investorEmail: string | null;
     amount: number;
@@ -42,6 +43,7 @@ type Investor = {
     stageLabel?: string | null;
     stageId?: string | null;
     dealId?: string;
+    raiseSubscriptionId?: string | null;
     contactId?: string | null;
 };
 
@@ -311,6 +313,7 @@ export default function DealInvestorsPage() {
                 id: r.dealId,
                 dealId: r.dealId,
                 contactId: r.contactId,
+                raiseSubscriptionId: r.raiseSubscriptionId,
                 name: r.investorName,
                 email: r.investorEmail,
                 amount: Number(r.amount ?? 0),
@@ -411,6 +414,8 @@ export default function DealInvestorsPage() {
             body: JSON.stringify({
                 stageId,
                 amount: investor.amount,
+                raiseSubscriptionId:
+                    investor.raiseSubscriptionId,
             }),
         });
 
@@ -471,6 +476,8 @@ export default function DealInvestorsPage() {
                 body: JSON.stringify({
                     stageId: selectedStageId,
                     amount: commitAmount,
+                    raiseSubscriptionId:
+                        activeInvestor.raiseSubscriptionId,
                 }),
             });
         } finally {

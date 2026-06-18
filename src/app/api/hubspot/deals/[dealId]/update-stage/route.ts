@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { HUBSPOT_DEAL_STAGES } from '@/lib/hubspotStages';
+import { HUBSPOT_DEAL_STAGES,
+         STAGE_ID_TO_LABEL,
+ } from '@/lib/hubspotStages';
+import { supabaseServer } from '@/lib/SupabaseServer';
+import { getToken } from 'next-auth/jwt';
 
 type Params = { dealId: string };
 
@@ -45,6 +49,16 @@ export async function POST(
 ) {
   const { dealId } = await context.params;
 
+  const sessionToken = await getToken({
+  req,
+  secret: process.env.NEXTAUTH_SECRET,
+});
+
+const employeeEmail =
+  typeof sessionToken?.email === 'string'
+    ? sessionToken.email
+    : null;
+
   const token = getHubSpotToken();
   if (!token) {
     return NextResponse.json(
@@ -55,8 +69,11 @@ export async function POST(
 
   try {
     const body = await req.json();
+
     const stageId = body?.stageId;
     const amount = body?.amount;
+    const raiseSubscriptionId =
+      body?.raiseSubscriptionId ?? null;
 
     if (!dealId) {
       return NextResponse.json(
@@ -76,6 +93,46 @@ export async function POST(
         { status: 400 }
       );
     }
+
+    const currentDealRes = await fetch(
+  `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealstage`,
+  {
+    headers: authHeaders(),
+    cache: 'no-store',
+  }
+);
+
+const currentDealRead = await readJsonOrText<{
+  properties?: {
+    dealstage?: string;
+  };
+}>(currentDealRes);
+
+const previousStage =
+  currentDealRead.json?.properties?.dealstage ??
+  null;
+
+  const previousStageLabel =
+  previousStage
+    ? STAGE_ID_TO_LABEL[previousStage] ??
+      previousStage
+    : null;
+
+const newStageLabel =
+  stageId
+    ? STAGE_ID_TO_LABEL[stageId] ??
+      stageId
+    : null;
+
+    const { data: dealRecord } =
+  await supabaseServer
+    .from('deals')
+    .select('name')
+    .eq('id', dealId)
+    .single();
+
+const dealName =
+  dealRecord?.name ?? null;
 
     const hubspotRes = await fetch(
       `https://api.hubapi.com/crm/v3/objects/deals/${dealId}`,
@@ -111,7 +168,33 @@ export async function POST(
         { status: 502 }
       );
     }
+    if (raiseSubscriptionId) {
+  await supabaseServer
+    .from('raise_subscription_activity')
+    .insert({
+  raise_subscription_id:
+    raiseSubscriptionId,
 
+  activity_type: 'status_changed',
+  activity_source: 'admin',
+  created_by: employeeEmail,
+
+  metadata: {
+        from: previousStageLabel,
+        to: newStageLabel,
+        deal_id: dealId,
+        deal_name: dealName,
+      },
+    });
+
+  await supabaseServer
+    .from('raise_subscriptions')
+    .update({
+      last_activity_at:
+        new Date().toISOString(),
+    })
+    .eq('id', raiseSubscriptionId);
+}
     return NextResponse.json({ ok: true });
 
   } catch (e: unknown) {
