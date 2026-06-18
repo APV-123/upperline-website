@@ -445,6 +445,7 @@ export default function DealInvestorsPage() {
                 `Are you sure you want to move ${activeInvestor.name} to "${nextStageLabel}"?`
             )
         ) {
+            
             return;
         }
 
@@ -470,6 +471,19 @@ export default function DealInvestorsPage() {
         setActiveInvestor(null);
 
         try {
+            console.log(
+  '[UPDATE STAGE PAYLOAD]',
+  {
+    stageId: selectedStageId,
+    amount: commitAmount,
+    raiseSubscriptionId:
+      activeInvestor.raiseSubscriptionId,
+    investorName:
+      activeInvestor.name,
+    dealId:
+      activeInvestor.dealId,
+  }
+);
             await fetch(`/api/hubspot/deals/${dealId}/update-stage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
