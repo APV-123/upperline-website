@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { supabaseServer } from '@/lib/SupabaseServer';
 
 type Bucket = "committed" | "circling" | "needs_touch" | "passed";
 type Params = { raiseId: string };
@@ -283,6 +284,26 @@ export async function GET(
       (contactsRead.json?.results ?? []).map((c) => [String(c.id), c])
     );
 
+    const { data: subscriptions } = await supabaseServer
+  .from('raise_subscriptions')
+  .select('id, contact_id, contact_email')
+  .eq('raise_id', raiseId);
+
+const subscriptionByContactId = new Map(
+  (subscriptions ?? [])
+    .filter((s) => s.contact_id)
+    .map((s) => [String(s.contact_id), s.id])
+);
+
+const subscriptionByEmail = new Map(
+  (subscriptions ?? [])
+    .filter((s) => s.contact_email)
+    .map((s) => [
+      String(s.contact_email).toLowerCase(),
+      s.id,
+    ])
+);
+
     // 4) Normalize rows for portal
     const investors = deals.map((deal) => {
       const pipeline = deal.properties?.pipeline ?? null;
@@ -297,6 +318,16 @@ export async function GET(
       const first = contact?.properties?.firstname ?? "";
       const last = contact?.properties?.lastname ?? "";
       const email = contact?.properties?.email ?? null;
+      const raiseSubscriptionId =
+  (contactId
+    ? subscriptionByContactId.get(contactId)
+    : null) ??
+  (email
+    ? subscriptionByEmail.get(
+        email.toLowerCase()
+      )
+    : null) ??
+  null;
       const investorName = `${first} ${last}`.trim() || email || "Unknown Investor";
 
       const hsLastActivity = deal.properties?.hs_lastactivitydate ?? null;
@@ -305,6 +336,7 @@ export async function GET(
       return {
         dealId: deal.id,
         contactId,
+        raiseSubscriptionId,
         investorName,
         investorEmail: email,
         amount: deal.properties?.amount ? Number(deal.properties.amount) : 0,
