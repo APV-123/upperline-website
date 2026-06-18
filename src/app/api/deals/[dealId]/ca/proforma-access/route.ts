@@ -2,16 +2,26 @@ import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/SupabaseServer";
 
 export async function POST(
-  _req: Request,
+  req: Request,
   context: { params: Promise<{ dealId: string }> }
 ) {
   const { dealId } = await context.params;
+  const body = await req.json().catch(() => ({}));
+
+const email =
+  typeof body?.email === "string"
+    ? body.email.trim().toLowerCase()
+    : null;
 
   const { data: deal, error } = await supabaseServer
     .from("deals")
-    .select("proforma_url")
+    .select("raise_id, name, proforma_url")
     .eq("id", dealId)
-    .single<{ proforma_url: string | null }>();
+    .single<{
+  raise_id: string | null;
+  name: string | null;
+  proforma_url: string | null;
+}>();
 
   if (error || !deal?.proforma_url) {
     return NextResponse.json(
@@ -31,6 +41,37 @@ export async function POST(
       { status: 500 }
     );
   }
+  if (email && deal?.raise_id) {
+  const { data: subscription } =
+    await supabaseServer
+      .from("raise_subscriptions")
+      .select("id")
+      .eq("raise_id", deal.raise_id)
+      .eq("contact_email", email)
+      .single();
+
+  if (subscription?.id) {
+    await supabaseServer
+      .from("raise_subscription_activity")
+      .insert({
+        raise_subscription_id: subscription.id,
+        activity_type: "financial_model_downloaded",
+        activity_source: "portal",
+        metadata: {
+          email,
+          deal_id: dealId,
+          deal_name: deal.name,
+        },
+      });
+
+    await supabaseServer
+      .from("raise_subscriptions")
+      .update({
+        last_activity_at: new Date().toISOString(),
+      })
+      .eq("id", subscription.id);
+  }
+}
 
   return NextResponse.json({
     ok: true,
