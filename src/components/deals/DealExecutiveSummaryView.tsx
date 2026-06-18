@@ -745,7 +745,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                     >
                       Confidential Document
                     </div>
-                    
+
                     <div
                       style={{
                         fontWeight: 700,
@@ -824,6 +824,12 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
 
                           const res = await fetch(endpoint, {
                             method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                              email: localStorage.getItem(`ca:${deal.id}`),
+                            }),
                           });
 
                           const json = await res.json();
