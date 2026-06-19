@@ -105,7 +105,7 @@ const employeeEmail =
     }
 
     const currentDealRes = await fetch(
-  `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealstage`,
+  `https://api.hubapi.com/crm/v3/objects/deals/${dealId}?properties=dealstage,amount`,
   {
     headers: authHeaders(),
     cache: 'no-store',
@@ -115,6 +115,7 @@ const employeeEmail =
 const currentDealRead = await readJsonOrText<{
   properties?: {
     dealstage?: string;
+    amount?: string;
   };
 }>(currentDealRes);
 
@@ -127,6 +128,10 @@ const previousStage =
     ? STAGE_ID_TO_LABEL[previousStage] ??
       previousStage
     : null;
+    const previousAmount =
+  Number(
+    currentDealRead.json?.properties?.amount ?? 0
+  );
 
 const newStageLabel =
   stageId
@@ -198,42 +203,111 @@ const dealName =
         { status: 502 }
       );
     }
-    const { error: activityError } =
-  await supabaseServer
-    .from('raise_subscription_activity')
-    .insert({
-      raise_subscription_id:
-        raiseSubscriptionId,
+    if (previousStageLabel !== newStageLabel) {
+  const { error: activityError } =
+    await supabaseServer
+      .from('raise_subscription_activity')
+      .insert({
+        raise_subscription_id:
+          raiseSubscriptionId,
 
-      activity_type: 'status_changed',
-      activity_source: 'admin',
-      created_by: employeeEmail,
+        activity_type: 'status_changed',
+        activity_source: 'admin',
+        created_by: employeeEmail,
 
-      metadata: {
-        from: previousStageLabel,
-        to: newStageLabel,
-        deal_id: portalDealId,
-        deal_name: dealName,
-      },
-    });
+        metadata: {
+          from: previousStageLabel,
+          to: newStageLabel,
+          deal_id: portalDealId,
+          deal_name: dealName,
+        },
+      });
 
-console.log(
-  '[ACTIVITY INSERT]',
-  {
-    raiseSubscriptionId,
-    employeeEmail,
-    previousStageLabel,
-    newStageLabel,
-    dealName,
-  }
-);
-
-if (activityError) {
-  console.error(
-    '[ACTIVITY INSERT ERROR]',
-    activityError
+  console.log(
+    '[ACTIVITY INSERT]',
+    {
+      raiseSubscriptionId,
+      employeeEmail,
+      previousStageLabel,
+      newStageLabel,
+      dealName,
+    }
   );
+
+  if (activityError) {
+    console.error(
+      '[ACTIVITY INSERT ERROR]',
+      activityError
+    );
+  }
 }
+if (
+  previousStageLabel !== 'Committed' &&
+  newStageLabel === 'Committed'
+) {
+  const { error: commitmentError } =
+    await supabaseServer
+      .from('raise_subscription_activity')
+      .insert({
+        raise_subscription_id:
+          raiseSubscriptionId,
+
+        activity_type:
+          'commitment_created',
+
+        activity_source: 'admin',
+
+        created_by: employeeEmail,
+
+        metadata: {
+          amount: Number(amount ?? 0),
+          deal_id: portalDealId,
+          deal_name: dealName,
+        },
+      });
+
+  if (commitmentError) {
+    console.error(
+      '[COMMITMENT CREATED ERROR]',
+      commitmentError
+    );
+  }
+}
+if (
+  previousStageLabel === 'Committed' &&
+  newStageLabel === 'Committed' &&
+  previousAmount !== Number(amount)
+) {
+  const { error: commitmentUpdateError } =
+    await supabaseServer
+      .from('raise_subscription_activity')
+      .insert({
+        raise_subscription_id:
+          raiseSubscriptionId,
+
+        activity_type:
+          'commitment_updated',
+
+        activity_source: 'admin',
+
+        created_by: employeeEmail,
+
+        metadata: {
+          old_amount: previousAmount,
+          new_amount: Number(amount ?? 0),
+          deal_id: portalDealId,
+          deal_name: dealName,
+        },
+      });
+
+  if (commitmentUpdateError) {
+    console.error(
+      '[COMMITMENT UPDATED ERROR]',
+      commitmentUpdateError
+    );
+  }
+}
+
 
 await supabaseServer
     .from('raise_subscriptions')
