@@ -139,6 +139,16 @@ const newStageLabel =
       stageId
     : null;
 
+    console.log(
+  '[STAGE TRANSITION]',
+  {
+    previousStage,
+    previousStageLabel,
+    stageId,
+    newStageLabel,
+  }
+);
+
     const { data: subscription } =
   await supabaseServer
     .from('raise_subscriptions')
@@ -338,11 +348,22 @@ if (
     );
   }
 }
+console.log(
+  '[REMOVED CHECK]',
+  {
+    previousStageLabel,
+    newStageLabel,
+    previousAmount,
+    amount,
+  }
+);
+
 if (
   previousStageLabel === 'Committed' &&
   newStageLabel !== 'Committed' &&
   newStageLabel !== 'Funded'
 ) {
+
   const { error: removedError } =
     await supabaseServer
       .from('raise_subscription_activity')
@@ -364,6 +385,10 @@ if (
           deal_name: dealName,
         },
       });
+
+console.log(
+  '[COMMITMENT REMOVED INSERT COMPLETE]'
+);
 
   if (removedError) {
     console.error(
