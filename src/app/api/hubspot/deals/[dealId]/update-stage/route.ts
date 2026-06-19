@@ -307,7 +307,71 @@ if (
     );
   }
 }
+if (
+  previousStageLabel !== 'Funded' &&
+  newStageLabel === 'Funded'
+) {
+  const { error: fundedError } =
+    await supabaseServer
+      .from('raise_subscription_activity')
+      .insert({
+        raise_subscription_id:
+          raiseSubscriptionId,
 
+        activity_type: 'funded',
+
+        activity_source: 'admin',
+
+        created_by: employeeEmail,
+
+        metadata: {
+          amount: Number(amount ?? 0),
+          deal_id: portalDealId,
+          deal_name: dealName,
+        },
+      });
+
+  if (fundedError) {
+    console.error(
+      '[FUNDED ERROR]',
+      fundedError
+    );
+  }
+}
+if (
+  previousStageLabel === 'Committed' &&
+  newStageLabel !== 'Committed' &&
+  newStageLabel !== 'Funded'
+) {
+  const { error: removedError } =
+    await supabaseServer
+      .from('raise_subscription_activity')
+      .insert({
+        raise_subscription_id:
+          raiseSubscriptionId,
+
+        activity_type:
+          'commitment_removed',
+
+        activity_source: 'admin',
+
+        created_by: employeeEmail,
+
+        metadata: {
+          amount: previousAmount,
+          removed_to: newStageLabel,
+          deal_id: portalDealId,
+          deal_name: dealName,
+        },
+      });
+
+  if (removedError) {
+    console.error(
+      '[COMMITMENT REMOVED ERROR]',
+      removedError
+    );
+  }
+}
 
 await supabaseServer
     .from('raise_subscriptions')
