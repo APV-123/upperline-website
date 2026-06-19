@@ -168,24 +168,40 @@ const dealName =
         { status: 502 }
       );
     }
-    if (raiseSubscriptionId) {
+    const { error: activityError } =
   await supabaseServer
     .from('raise_subscription_activity')
     .insert({
-  raise_subscription_id:
-    raiseSubscriptionId,
+      raise_subscription_id:
+        raiseSubscriptionId,
 
-  activity_type: 'status_changed',
-  activity_source: 'admin',
-  created_by: employeeEmail,
+      activity_type: 'status_changed',
+      activity_source: 'admin',
+      created_by: employeeEmail,
 
-  metadata: {
+      metadata: {
         from: previousStageLabel,
         to: newStageLabel,
         deal_id: dealId,
         deal_name: dealName,
       },
     });
+
+console.log(
+  '[ACTIVITY INSERT]',
+  {
+    raiseSubscriptionId,
+    employeeEmail,
+    previousStageLabel,
+    newStageLabel,
+    dealName,
+  }
+);
+
+console.error(
+  '[ACTIVITY INSERT ERROR]',
+  activityError
+);
 
   await supabaseServer
     .from('raise_subscriptions')
