@@ -364,6 +364,10 @@ if (
   newStageLabel !== 'Funded'
 ) {
 
+  console.log(
+  '[COMMITMENT REMOVED BRANCH FIRED]'
+);
+
   const { error: removedError } =
     await supabaseServer
       .from('raise_subscription_activity')
