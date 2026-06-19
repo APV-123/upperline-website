@@ -210,7 +210,7 @@ console.error(
         new Date().toISOString(),
     })
     .eq('id', raiseSubscriptionId);
-}
+
     return NextResponse.json({ ok: true });
 
   } catch (e: unknown) {
