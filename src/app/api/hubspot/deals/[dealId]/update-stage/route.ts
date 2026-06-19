@@ -75,6 +75,16 @@ const employeeEmail =
     const raiseSubscriptionId =
       body?.raiseSubscriptionId ?? null;
 
+    if (!raiseSubscriptionId) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: 'Missing raiseSubscriptionId',
+    },
+    { status: 400 }
+  );
+}
+
     if (!dealId) {
       return NextResponse.json(
         { ok: false, error: 'Missing dealId' },
@@ -124,15 +134,35 @@ const newStageLabel =
       stageId
     : null;
 
-    const { data: dealRecord } =
+    const { data: subscription } =
   await supabaseServer
-    .from('deals')
-    .select('name')
-    .eq('id', dealId)
+    .from('raise_subscriptions')
+    .select('raise_id')
+    .eq('id', raiseSubscriptionId)
     .single();
 
+    if (!subscription?.raise_id) {
+  return NextResponse.json(
+    {
+      ok: false,
+      error: 'Subscription not found',
+    },
+    { status: 404 }
+  );
+}
+
+const { data: portalDeal } =
+  await supabaseServer
+    .from('deals')
+    .select('id,name')
+    .eq('raise_id', subscription?.raise_id)
+    .single();
+
+const portalDealId =
+  portalDeal?.id ?? null;
+
 const dealName =
-  dealRecord?.name ?? null;
+  portalDeal?.name ?? null;
 
     const hubspotRes = await fetch(
       `https://api.hubapi.com/crm/v3/objects/deals/${dealId}`,
@@ -182,7 +212,7 @@ const dealName =
       metadata: {
         from: previousStageLabel,
         to: newStageLabel,
-        deal_id: dealId,
+        deal_id: portalDealId,
         deal_name: dealName,
       },
     });
@@ -198,12 +228,14 @@ console.log(
   }
 );
 
-console.error(
-  '[ACTIVITY INSERT ERROR]',
-  activityError
-);
+if (activityError) {
+  console.error(
+    '[ACTIVITY INSERT ERROR]',
+    activityError
+  );
+}
 
-  await supabaseServer
+await supabaseServer
     .from('raise_subscriptions')
     .update({
       last_activity_at:
