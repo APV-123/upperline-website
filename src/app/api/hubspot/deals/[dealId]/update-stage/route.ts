@@ -308,7 +308,7 @@ if (
   }
 }
 if (
-  previousStageLabel !== 'Funded' &&
+  previousStageLabel === 'Committed' &&
   newStageLabel === 'Funded'
 ) {
   const { error: fundedError } =
@@ -359,7 +359,7 @@ if (
 
         metadata: {
           amount: previousAmount,
-          removed_to: newStageLabel,
+          new_status: newStageLabel,
           deal_id: portalDealId,
           deal_name: dealName,
         },
