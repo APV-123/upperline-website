@@ -384,7 +384,10 @@ if (
 
         metadata: {
           amount: previousAmount,
-          new_status: newStageLabel,
+
+          from_status: previousStageLabel, 
+          to_status: newStageLabel,
+
           deal_id: portalDealId,
           deal_name: dealName,
         },

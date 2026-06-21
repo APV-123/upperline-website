@@ -184,7 +184,9 @@ export default function DealInvestorsPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         body: text,
-                        dealId: activeInvestor.dealId ?? null, // ✅ attach to deal if present
+                        dealId: activeInvestor.dealId ?? null,
+                        raiseSubscriptionId:
+                            activeInvestor.raiseSubscriptionId ?? null,
                     }),
                 }
             );

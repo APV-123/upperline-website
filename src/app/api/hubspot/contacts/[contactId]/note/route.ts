@@ -1,5 +1,8 @@
 
 import { NextResponse } from "next/server";
+import { supabaseServer } from '@/lib/SupabaseServer';
+import { getToken } from 'next-auth/jwt';
+import { NextRequest } from 'next/server';
 
 const HUBSPOT_BASE = "https://api.hubapi.com";
 
@@ -111,13 +114,23 @@ async function getHubSpotDefinedUnlabeledTypeId(
 type NoteRequestBody = {
   body?: unknown;
   dealId?: unknown;
+  raiseSubscriptionId?: unknown;
 };
 
 export async function POST(
-  req: Request,
+  req: NextRequest,
   context: { params: Params | Promise<Params> }
 ) {
   const { contactId } = await context.params;
+  const sessionToken = await getToken({
+  req,
+  secret: process.env.NEXTAUTH_SECRET,
+});
+
+const employeeEmail =
+  typeof sessionToken?.email === 'string'
+    ? sessionToken.email
+    : null;
 
   const token = getHubSpotToken();
   if (!token) {
@@ -136,6 +149,11 @@ export async function POST(
     const dealId =
       typeof payload.dealId === "string" || typeof payload.dealId === "number"
         ? String(payload.dealId)
+        : null;
+
+    const raiseSubscriptionId =
+      typeof payload.raiseSubscriptionId === 'string'
+        ? payload.raiseSubscriptionId
         : null;
 
     if (!contactId) {
@@ -232,6 +250,34 @@ export async function POST(
         { status: 502 }
       );
     }
+    if (raiseSubscriptionId) {
+  const { error: activityError } =
+    await supabaseServer
+      .from('raise_subscription_activity')
+      .insert({
+        raise_subscription_id:
+          raiseSubscriptionId,
+
+        activity_type: 'note_added',
+
+        activity_source: 'admin',
+
+        created_by: employeeEmail,
+
+        metadata: {
+          deal_id: dealId,
+          note_id:
+            createRead.json?.id ?? null,
+        },
+      });
+
+  if (activityError) {
+    console.error(
+      '[NOTE ACTIVITY ERROR]',
+      activityError
+    );
+  }
+}
 
     return NextResponse.json({ ok: true, noteId: createRead.json?.id ?? null });
   } catch (e: unknown) {
