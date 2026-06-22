@@ -107,7 +107,48 @@ const BUCKETS: { key: Bucket; label: string }[] = [
     { key: 'committed', label: 'Committed' },
 ];
 
+function getActivityTitle(
+    activityType: string
+) {
+    switch (activityType) {
+        case 'investor_created':
+            return 'Investor Added';
 
+        case 'status_changed':
+            return 'Stage Changed';
+
+        case 'ca_completed':
+            return 'Confidentiality Agreement Signed';
+
+        case 'im_viewed':
+            return 'Investment Memorandum Viewed';
+
+        case 'financial_model_downloaded':
+            return 'Financial Model Downloaded';
+
+        case 'commitment_created':
+            return 'Commitment Created';
+
+        case 'commitment_updated':
+            return 'Commitment Updated';
+
+        case 'commitment_removed':
+            return 'Commitment Removed';
+
+        case 'funded':
+            return 'Funds Received';
+
+        case 'note_added':
+            return 'Internal Note Added';
+
+        default:
+            return activityType
+                .replaceAll('_', ' ')
+                .replace(/\b\w/g, c =>
+                    c.toUpperCase()
+                );
+    }
+}
 
 function formatDateMaybe(iso: string | null) {
     if (!iso) return '—';
@@ -1524,7 +1565,9 @@ export default function DealInvestorsPage() {
                                                                         color: colors.text,
                                                                     }}
                                                                 >
-                                                                    {item.activity_type}
+                                                                    {getActivityTitle(
+                                                                        item.activity_type
+                                                                    )}
                                                                 </div>
 
                                                                 <div
