@@ -1416,8 +1416,9 @@ export default function DealInvestorsPage() {
                                     >
                                         <div
                                             style={{
-                                                padding: 24,
+                                                padding: '16px 24px',
                                                 borderBottom: `1px solid ${colors.border}`,
+                                                background: '#12284a',
                                             }}
                                         >
                                             <div
@@ -1427,21 +1428,47 @@ export default function DealInvestorsPage() {
                                                 }}
                                             >
                                                 {[
-                                                    'history',
-                                                    'emails',
-                                                    'meetings',
-                                                    'notes',
-                                                    'tasks',
+                                                    { id: 'history', label: 'Relationship History' },
+                                                    { id: 'notes', label: 'Notes' },
+                                                    { id: 'emails', label: 'Emails' },
+                                                    { id: 'meetings', label: 'Meetings' },
+                                                    { id: 'tasks', label: 'Tasks' },
                                                 ].map(tab => (
                                                     <button
-                                                        key={tab}
+                                                        key={tab.id}
                                                         onClick={() =>
                                                             setActiveTab(
-                                                                tab as typeof activeTab
+                                                                tab.id as typeof activeTab
                                                             )
                                                         }
+                                                        style={{
+                                                            padding: '8px 14px',
+                                                            borderRadius: 8,
+                                                            border: 'none',
+                                                            cursor: 'pointer',
+
+                                                            background:
+                                                                activeTab === tab.id
+                                                                    ? 'rgba(49,200,219,.12)'
+                                                                    : 'transparent',
+
+                                                            color:
+                                                                activeTab === tab.id
+                                                                    ? colors.accent
+                                                                    : colors.subtext,
+
+                                                            fontWeight:
+                                                                activeTab === tab.id
+                                                                    ? 700
+                                                                    : 500,
+
+                                                            fontSize: 13,
+
+                                                            transition:
+                                                                'all 120ms ease',
+                                                        }}
                                                     >
-                                                        {tab}
+                                                        {tab.label}
                                                     </button>
                                                 ))}
                                             </div>
