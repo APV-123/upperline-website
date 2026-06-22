@@ -76,6 +76,19 @@ type ContactActivityResponse = {
     error?: string;
     activities?: HubSpotActivity[];
 };
+type SubscriptionActivity = {
+    id: string;
+
+    activity_type: string;
+
+    activity_at: string;
+
+    activity_source: string | null;
+
+    created_by: string | null;
+
+    metadata: Record<string, unknown> | null;
+};
 type SendInviteResponse = {
     ok?: boolean;
     error?: string;
@@ -128,6 +141,11 @@ export default function DealInvestorsPage() {
     const [loadingActivity, setLoadingActivity] = useState(false);
     const [activityError, setActivityError] = useState<string | null>(null);
 
+    const [
+        relationshipHistory,
+        setRelationshipHistory,
+    ] = useState<SubscriptionActivity[]>([]);
+
     //============================================
     // UI State / interaction state
     //============================================
@@ -153,6 +171,14 @@ export default function DealInvestorsPage() {
     // Internal notes
     const [noteDraft, setNoteDraft] = useState('');
     const [savingNote, setSavingNote] = useState(false);
+    const [activeTab, setActiveTab] =
+        useState<
+            'history' |
+            'emails' |
+            'meetings' |
+            'notes' |
+            'tasks'
+        >('history');
 
 
     async function handleSaveNote() {
@@ -206,7 +232,17 @@ export default function DealInvestorsPage() {
             }
 
             // ✅ Pull canonical data back from HubSpot
-            await loadContactActivity(activeInvestor.contactId);
+            await loadContactActivity(
+                activeInvestor.contactId
+            );
+
+            if (
+                activeInvestor.raiseSubscriptionId
+            ) {
+                await loadRelationshipHistory(
+                    activeInvestor.raiseSubscriptionId
+                );
+            }
 
         } catch (e) {
             console.error('[NOTE SAVE ERROR]', e);
@@ -275,6 +311,41 @@ export default function DealInvestorsPage() {
             setLoadingActivity(false);
         }
     }
+    async function loadRelationshipHistory(
+        raiseSubscriptionId: string
+    ) {
+        try {
+            const res = await fetch(
+                `/api/raise-subscriptions/${raiseSubscriptionId}/activity`,
+                {
+                    cache: 'no-store',
+                }
+            );
+
+            const json = await res.json();
+
+            if (!res.ok) {
+                console.error(
+                    '[RELATIONSHIP HISTORY ERROR]',
+                    json
+                );
+
+                setRelationshipHistory([]);
+                return;
+            }
+
+            setRelationshipHistory(
+                json.activity ?? []
+            );
+        } catch (err) {
+            console.error(
+                '[RELATIONSHIP HISTORY CRASH]',
+                err
+            );
+
+            setRelationshipHistory([]);
+        }
+    }
     useEffect(() => {
         const saved = localStorage.getItem('theme');
 
@@ -299,6 +370,16 @@ export default function DealInvestorsPage() {
         // ✅ Load HubSpot activity timeline for this deal
         if (activeInvestor.contactId) {
             loadContactActivity(activeInvestor.contactId);
+            if (
+                activeInvestor.raiseSubscriptionId
+            ) {
+                loadRelationshipHistory(
+                    activeInvestor.raiseSubscriptionId
+                );
+            } else {
+                setRelationshipHistory([]);
+            }
+
         } else {
             setActivity([]);
             setActivityError(null);
@@ -447,7 +528,7 @@ export default function DealInvestorsPage() {
                 `Are you sure you want to move ${activeInvestor.name} to "${nextStageLabel}"?`
             )
         ) {
-            
+
             return;
         }
 
@@ -474,18 +555,18 @@ export default function DealInvestorsPage() {
 
         try {
             console.log(
-  '[UPDATE STAGE PAYLOAD]',
-  {
-    stageId: selectedStageId,
-    amount: commitAmount,
-    raiseSubscriptionId:
-      activeInvestor.raiseSubscriptionId,
-    investorName:
-      activeInvestor.name,
-    dealId:
-      activeInvestor.dealId,
-  }
-);
+                '[UPDATE STAGE PAYLOAD]',
+                {
+                    stageId: selectedStageId,
+                    amount: commitAmount,
+                    raiseSubscriptionId:
+                        activeInvestor.raiseSubscriptionId,
+                    investorName:
+                        activeInvestor.name,
+                    dealId:
+                        activeInvestor.dealId,
+                }
+            );
             await fetch(`/api/hubspot/deals/${dealId}/update-stage`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1337,12 +1418,33 @@ export default function DealInvestorsPage() {
                                             style={{
                                                 padding: 24,
                                                 borderBottom: `1px solid ${colors.border}`,
-                                                fontWeight: 700,
-                                                fontSize: 18,
-                                                color: colors.text,
                                             }}
                                         >
-                                            Investor Activity
+                                            <div
+                                                style={{
+                                                    display: 'flex',
+                                                    gap: 24,
+                                                }}
+                                            >
+                                                {[
+                                                    'history',
+                                                    'emails',
+                                                    'meetings',
+                                                    'notes',
+                                                    'tasks',
+                                                ].map(tab => (
+                                                    <button
+                                                        key={tab}
+                                                        onClick={() =>
+                                                            setActiveTab(
+                                                                tab as typeof activeTab
+                                                            )
+                                                        }
+                                                    >
+                                                        {tab}
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
                                         <div
                                             style={{
@@ -1352,190 +1454,351 @@ export default function DealInvestorsPage() {
                                                 background: '#0f1f38',
                                             }}
                                         >
-                                            {/* Activity timeline */}
-                                            <div style={{ marginTop: 18 }}>
-                                                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
-                                                    Activity
-                                                </div>
-                                                {/*============================
-                                Log internal note (Hubspot write)
-                            ===============================*/}
-
+                                            {activeTab === 'history' && (
                                                 <div
                                                     style={{
-                                                        marginBottom: 16,
-                                                        padding: 12,
-                                                        borderRadius: 10,
-                                                        background: '#081326',
-                                                        border: `1px solid ${colors.border}`,
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        gap: 12,
                                                     }}
                                                 >
-                                                    <textarea
-                                                        placeholder="Log internal note…"
-                                                        value={noteDraft}
-                                                        onChange={(e) => setNoteDraft(e.target.value)}
-                                                        rows={3}
-                                                        style={{
-                                                            width: '100%',
-                                                            resize: 'none',
-                                                            background: 'transparent',
-                                                            border: 'none',
-                                                            color: '#f1f3f4',
-                                                            fontSize: 13,
-                                                            outline: 'none',
-                                                            lineHeight: 1.4,
-                                                        }}
-                                                    />
-
-                                                    <div
-                                                        style={{
-                                                            display: 'flex',
-                                                            justifyContent: 'flex-end',
-                                                            marginTop: 8,
-                                                        }}
-                                                    >
-                                                        <button
-                                                            disabled={!noteDraft.trim() || savingNote}
-                                                            onClick={handleSaveNote}
+                                                    {relationshipHistory.length === 0 && (
+                                                        <div
                                                             style={{
-                                                                fontSize: 12,
-                                                                padding: '6px 12px',
-                                                                borderRadius: 8,
-                                                                border: '1px solid rgba(255,255,255,0.2)',
-                                                                background: colors.accent,
-                                                                color: '#071426',
-                                                                fontWeight: 700,
-                                                                cursor: savingNote ? 'not-allowed' : 'pointer',
+                                                                fontSize: 13,
+                                                                color: colors.subtext,
                                                             }}
                                                         >
-                                                            {savingNote ? 'Saving…' : 'Save note'}
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                                            No relationship history yet.
+                                                        </div>
+                                                    )}
 
-                                                {loadingActivity && (
-                                                    <div style={{ fontSize: 12, opacity: 0.65 }}>Loading activity…</div>
-                                                )}
-
-                                                {!loadingActivity && activityError && (
-                                                    <div style={{ fontSize: 12, color: '#fb7185' }}>{activityError}</div>
-                                                )}
-
-                                                {!loadingActivity && !activityError && activity.length === 0 && (
-                                                    <div style={{ fontSize: 12, opacity: 0.65 }}>No activity found.</div>
-                                                )}
-                                                {/*===========================
-                                Activity feed (read-only)
-                            ==============================*/}
-                                                {!loadingActivity && activity.map((a) => {
-                                                    const isEmail = a.type === 'EMAIL';
-                                                    const isOpen = openActivityId === a.id;
-
-                                                    return (
+                                                    {relationshipHistory.map(item => (
                                                         <div
-                                                            key={a.id}
-                                                            onClick={() => {
-                                                                if (!isEmail) return;
-
-                                                                // Toggle this email open/closed
-                                                                setOpenActivityId(prev => (prev === a.id ? null : a.id));
-
-                                                                // If panel is compact, expand it for reading
-                                                                if (!isSliderExpanded) setIsSliderExpanded(true);
-                                                            }}
+                                                            key={item.id}
                                                             style={{
                                                                 padding: 12,
                                                                 borderRadius: 10,
-                                                                background:
-                                                                    isOpen
-                                                                        ? '#16304f'
-                                                                        : '#12284a',
+                                                                background: '#12284a',
                                                                 border: `1px solid ${colors.border}`,
-                                                                marginBottom: 12,
-                                                                cursor: isEmail ? 'pointer' : 'default',
-                                                                opacity: isEmail ? 1 : 0.65,
-                                                                transition: 'background 120ms ease',
                                                             }}
                                                         >
-                                                            {/* Header row */}
                                                             <div
                                                                 style={{
-                                                                    fontSize: 12,
-                                                                    fontWeight: 600,
                                                                     display: 'flex',
                                                                     justifyContent: 'space-between',
+                                                                    marginBottom: 6,
                                                                 }}
                                                             >
-                                                                <span>
-                                                                    <span
-                                                                        style={{
-                                                                            display: 'inline-block',
-                                                                            padding: '2px 8px',
-                                                                            borderRadius: 999,
-                                                                            background:
-                                                                                a.type === 'EMAIL'
-                                                                                    ? 'rgba(49,200,219,.12)'
-                                                                                    : 'rgba(251,191,36,.12)',
-                                                                            color:
-                                                                                a.type === 'EMAIL'
-                                                                                    ? colors.accent
-                                                                                    : '#fbbf24',
-                                                                            fontSize: 11,
-                                                                            fontWeight: 700,
-                                                                            letterSpacing: '.3px',
-                                                                        }}
-                                                                    >
-                                                                        {a.type}
-                                                                    </span>
-                                                                    {a.ownerName ? ` · ${a.ownerName}` : ''}
-                                                                </span>
-
-                                                                {isEmail && (
-                                                                    <span style={{ fontSize: 11, opacity: 0.7, letterSpacing: '0.3px' }}>
-                                                                        {isOpen ? 'Hide' : 'Open'}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-
-                                                            {/* Timestamp */}
-                                                            <div style={{ fontSize: 11, opacity: 0.55, color: colors.subtext, }}>
-                                                                {new Date(a.timestamp).toLocaleString()}
-                                                            </div>
-
-                                                            {/* Subject */}
-                                                            {a.subject && (
                                                                 <div
                                                                     style={{
-                                                                        fontSize: 15,
-                                                                        marginTop: 4,
+                                                                        fontSize: 12,
                                                                         fontWeight: 700,
                                                                         color: colors.text,
                                                                     }}
                                                                 >
-                                                                    {a.subject}
+                                                                    {item.activity_type}
+                                                                </div>
+
+                                                                <div
+                                                                    style={{
+                                                                        fontSize: 11,
+                                                                        color: colors.subtext,
+                                                                    }}
+                                                                >
+                                                                    {new Date(
+                                                                        item.activity_at
+                                                                    ).toLocaleString()}
+                                                                </div>
+                                                            </div>
+
+                                                            {item.created_by && (
+                                                                <div
+                                                                    style={{
+                                                                        fontSize: 11,
+                                                                        color: colors.subtext,
+                                                                        marginBottom: 8,
+                                                                    }}
+                                                                >
+                                                                    {item.created_by}
                                                                 </div>
                                                             )}
 
-                                                            {/* Body preview */}
-                                                            {a.preview && (
+                                                            <pre
+                                                                style={{
+                                                                    margin: 0,
+                                                                    fontSize: 11,
+                                                                    color: colors.subtext,
+                                                                    whiteSpace: 'pre-wrap',
+                                                                }}
+                                                            >
+                                                                {JSON.stringify(
+                                                                    item.metadata,
+                                                                    null,
+                                                                    2
+                                                                )}
+                                                            </pre>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {activeTab === 'meetings' && (
+                                                <div>Meetings Coming Soon</div>
+                                            )}
+                                            {activeTab === 'tasks' && (
+                                                <div>Monday.com Integration Coming Soon</div>
+                                            )}
+                                            {/* Activity timeline */}
+                                            {activeTab === 'emails' && (
+                                                <div style={{ marginTop: 18 }}>
+                                                    <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
+                                                        Activity
+                                                    </div>
+
+
+                                                    {loadingActivity && (
+                                                        <div style={{ fontSize: 12, opacity: 0.65 }}>Loading activity…</div>
+                                                    )}
+
+                                                    {!loadingActivity && activityError && (
+                                                        <div style={{ fontSize: 12, color: '#fb7185' }}>{activityError}</div>
+                                                    )}
+
+                                                    {!loadingActivity && !activityError && activity.length === 0 && (
+                                                        <div style={{ fontSize: 12, opacity: 0.65 }}>No activity found.</div>
+                                                    )}
+                                                    {/*===========================
+                                Activity feed (read-only)
+                            ==============================*/}
+                                                    {!loadingActivity && activity.map((a) => {
+                                                        const isEmail = a.type === 'EMAIL';
+                                                        const isOpen = openActivityId === a.id;
+
+                                                        return (
+                                                            <div
+                                                                key={a.id}
+                                                                onClick={() => {
+                                                                    if (!isEmail) return;
+
+                                                                    // Toggle this email open/closed
+                                                                    setOpenActivityId(prev => (prev === a.id ? null : a.id));
+
+                                                                    // If panel is compact, expand it for reading
+                                                                    if (!isSliderExpanded) setIsSliderExpanded(true);
+                                                                }}
+                                                                style={{
+                                                                    padding: 12,
+                                                                    borderRadius: 10,
+                                                                    background:
+                                                                        isOpen
+                                                                            ? '#16304f'
+                                                                            : '#12284a',
+                                                                    border: `1px solid ${colors.border}`,
+                                                                    marginBottom: 12,
+                                                                    cursor: isEmail ? 'pointer' : 'default',
+                                                                    opacity: isEmail ? 1 : 0.65,
+                                                                    transition: 'background 120ms ease',
+                                                                }}
+                                                            >
+                                                                {/* Header row */}
                                                                 <div
                                                                     style={{
-                                                                        fontSize: 13,
-                                                                        color: colors.subtext,
-                                                                        lineHeight: 1.6,
-                                                                        marginTop: 8,
-                                                                        whiteSpace: isOpen ? 'pre-wrap' : 'normal',
-                                                                        ...(isOpen ? {} : CLAMP_3),
+                                                                        fontSize: 12,
+                                                                        fontWeight: 600,
+                                                                        display: 'flex',
+                                                                        justifyContent: 'space-between',
                                                                     }}
                                                                 >
-                                                                    {a.preview}
+                                                                    <span>
+                                                                        <span
+                                                                            style={{
+                                                                                display: 'inline-block',
+                                                                                padding: '2px 8px',
+                                                                                borderRadius: 999,
+                                                                                background:
+                                                                                    a.type === 'EMAIL'
+                                                                                        ? 'rgba(49,200,219,.12)'
+                                                                                        : 'rgba(251,191,36,.12)',
+                                                                                color:
+                                                                                    a.type === 'EMAIL'
+                                                                                        ? colors.accent
+                                                                                        : '#fbbf24',
+                                                                                fontSize: 11,
+                                                                                fontWeight: 700,
+                                                                                letterSpacing: '.3px',
+                                                                            }}
+                                                                        >
+                                                                            {a.type}
+                                                                        </span>
+                                                                        {a.ownerName ? ` · ${a.ownerName}` : ''}
+                                                                    </span>
+
+                                                                    {isEmail && (
+                                                                        <span style={{ fontSize: 11, opacity: 0.7, letterSpacing: '0.3px' }}>
+                                                                            {isOpen ? 'Hide' : 'Open'}
+                                                                        </span>
+                                                                    )}
                                                                 </div>
-                                                            )}
+
+                                                                {/* Timestamp */}
+                                                                <div style={{ fontSize: 11, opacity: 0.55, color: colors.subtext, }}>
+                                                                    {new Date(a.timestamp).toLocaleString()}
+                                                                </div>
+
+                                                                {/* Subject */}
+                                                                {a.subject && (
+                                                                    <div
+                                                                        style={{
+                                                                            fontSize: 15,
+                                                                            marginTop: 4,
+                                                                            fontWeight: 700,
+                                                                            color: colors.text,
+                                                                        }}
+                                                                    >
+                                                                        {a.subject}
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Body preview */}
+                                                                {a.preview && (
+                                                                    <div
+                                                                        style={{
+                                                                            fontSize: 13,
+                                                                            color: colors.subtext,
+                                                                            lineHeight: 1.6,
+                                                                            marginTop: 8,
+                                                                            whiteSpace: isOpen ? 'pre-wrap' : 'normal',
+                                                                            ...(isOpen ? {} : CLAMP_3),
+                                                                        }}
+                                                                    >
+                                                                        {a.preview}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                            {activeTab === 'notes' && (
+                                                <>
+                                                    {/*============================
+                                Log internal note (Hubspot write)
+                            ===============================*/}
+
+                                                    <div
+                                                        style={{
+                                                            marginBottom: 16,
+                                                            padding: 12,
+                                                            borderRadius: 10,
+                                                            background: '#081326',
+                                                            border: `1px solid ${colors.border}`,
+                                                        }}
+                                                    >
+                                                        <textarea
+                                                            placeholder="Log internal note…"
+                                                            value={noteDraft}
+                                                            onChange={(e) => setNoteDraft(e.target.value)}
+                                                            rows={3}
+                                                            style={{
+                                                                width: '100%',
+                                                                resize: 'none',
+                                                                background: 'transparent',
+                                                                border: 'none',
+                                                                color: '#f1f3f4',
+                                                                fontSize: 13,
+                                                                outline: 'none',
+                                                                lineHeight: 1.4,
+                                                            }}
+                                                        />
+
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                justifyContent: 'flex-end',
+                                                                marginTop: 8,
+                                                            }}
+                                                        >
+                                                            <button
+                                                                disabled={!noteDraft.trim() || savingNote}
+                                                                onClick={handleSaveNote}
+                                                                style={{
+                                                                    fontSize: 12,
+                                                                    padding: '6px 12px',
+                                                                    borderRadius: 8,
+                                                                    border: '1px solid rgba(255,255,255,0.2)',
+                                                                    background: colors.accent,
+                                                                    color: '#071426',
+                                                                    fontWeight: 700,
+                                                                    cursor: savingNote ? 'not-allowed' : 'pointer',
+                                                                }}
+                                                            >
+                                                                {savingNote ? 'Saving…' : 'Save note'}
+                                                            </button>
                                                         </div>
-                                                    );
-                                                })}
-                                            </div>
+
+                                                    </div>
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            gap: 12,
+                                                        }}
+                                                    >
+                                                        {activity
+                                                            .filter(a => a.type === 'NOTE')
+                                                            .map(a => (
+                                                                <div
+                                                                    key={a.id}
+                                                                    style={{
+                                                                        padding: 12,
+                                                                        borderRadius: 10,
+                                                                        background: '#12284a',
+                                                                        border: `1px solid ${colors.border}`,
+                                                                    }}
+                                                                >
+                                                                    <div
+                                                                        style={{
+                                                                            display: 'flex',
+                                                                            justifyContent: 'space-between',
+                                                                            marginBottom: 6,
+                                                                        }}
+                                                                    >
+                                                                        <div
+                                                                            style={{
+                                                                                fontSize: 12,
+                                                                                fontWeight: 700,
+                                                                                color: colors.text,
+                                                                            }}
+                                                                        >
+                                                                            {a.ownerName ?? 'Unknown'}
+                                                                        </div>
+
+                                                                        <div
+                                                                            style={{
+                                                                                fontSize: 11,
+                                                                                color: colors.subtext,
+                                                                            }}
+                                                                        >
+                                                                            {new Date(a.timestamp).toLocaleString()}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div
+                                                                        style={{
+                                                                            fontSize: 13,
+                                                                            lineHeight: 1.5,
+                                                                            color: colors.text,
+                                                                        }}
+                                                                    >
+                                                                        {a.preview}
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
