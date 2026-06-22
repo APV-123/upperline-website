@@ -149,7 +149,56 @@ function getActivityTitle(
                 );
     }
 }
+function getActivityDescription(
+    item: SubscriptionActivity
+) {
+    const m = item.metadata ?? {};
 
+    switch (item.activity_type) {
+        case 'status_changed':
+            return `Stage changed from ${m.from} to ${m.to}`;
+
+        case 'commitment_created':
+            return `$${Number(
+                m.amount ?? 0
+            ).toLocaleString()} commitment recorded`;
+
+        case 'commitment_updated':
+            return `Commitment updated from $${Number(
+                m.old_amount ?? 0
+            ).toLocaleString()} to $${Number(
+                m.new_amount ?? 0
+            ).toLocaleString()}`;
+
+        case 'commitment_removed':
+            return `$${Number(
+                m.amount ?? 0
+            ).toLocaleString()} commitment removed`;
+
+        case 'im_viewed':
+            return 'Viewed Investment Memorandum';
+
+        case 'financial_model_downloaded':
+            return 'Downloaded Financial Model';
+
+        case 'ca_completed':
+            return 'Executed Confidentiality Agreement';
+
+        case 'investor_created':
+            return 'Added to investor pipeline';
+
+        case 'funded':
+            return `$${Number(
+                m.amount ?? 0
+            ).toLocaleString()} funded`;
+
+        case 'note_added':
+            return 'Internal note added';
+
+        default:
+            return null;
+    }
+}
 function formatDateMaybe(iso: string | null) {
     if (!iso) return '—';
     const d = new Date(iso);
@@ -1594,20 +1643,15 @@ export default function DealInvestorsPage() {
                                                                 </div>
                                                             )}
 
-                                                            <pre
+                                                            <div
                                                                 style={{
-                                                                    margin: 0,
-                                                                    fontSize: 11,
-                                                                    color: colors.subtext,
-                                                                    whiteSpace: 'pre-wrap',
+                                                                    fontSize: 13,
+                                                                    color: colors.text,
+                                                                    lineHeight: 1.5,
                                                                 }}
                                                             >
-                                                                {JSON.stringify(
-                                                                    item.metadata,
-                                                                    null,
-                                                                    2
-                                                                )}
-                                                            </pre>
+                                                                {getActivityDescription(item)}
+                                                            </div>
                                                         </div>
                                                     ))}
                                                 </div>
