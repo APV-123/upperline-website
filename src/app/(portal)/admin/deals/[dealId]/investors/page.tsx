@@ -199,51 +199,7 @@ function getActivityDescription(
             return null;
     }
 }
-function getActivityBadge(
-    activityType: string
-) {
-    switch (activityType) {
-        case 'note_added':
-            return {
-                label: 'NOTE',
-                color: '#fbbf24',
-            };
 
-        case 'status_changed':
-            return {
-                label: 'STATUS',
-                color: '#60a5fa',
-            };
-
-        case 'commitment_created':
-        case 'commitment_updated':
-        case 'commitment_removed':
-            return {
-                label: 'COMMITMENT',
-                color: '#22c55e',
-            };
-
-        case 'ca_completed':
-        case 'im_viewed':
-        case 'financial_model_downloaded':
-            return {
-                label: 'DOCUMENT',
-                color: colors.accent,
-            };
-
-        case 'funded':
-            return {
-                label: 'FUNDED',
-                color: '#22c55e',
-            };
-
-        default:
-            return {
-                label: 'EVENT',
-                color: colors.subtext,
-            };
-    }
-}
 function formatDateMaybe(iso: string | null) {
     if (!iso) return '—';
     const d = new Date(iso);
@@ -299,6 +255,52 @@ export default function DealInvestorsPage() {
     const colors = isDark
         ? ADMIN_THEME.dark
         : ADMIN_THEME.light;
+
+    function getActivityBadge(
+        activityType: string
+    ) {
+        switch (activityType) {
+            case 'note_added':
+                return {
+                    label: 'NOTE',
+                    color: '#fbbf24',
+                };
+
+            case 'status_changed':
+                return {
+                    label: 'STATUS',
+                    color: '#60a5fa',
+                };
+
+            case 'commitment_created':
+            case 'commitment_updated':
+            case 'commitment_removed':
+                return {
+                    label: 'COMMITMENT',
+                    color: '#22c55e',
+                };
+
+            case 'ca_completed':
+            case 'im_viewed':
+            case 'financial_model_downloaded':
+                return {
+                    label: 'DOCUMENT',
+                    color: colors.accent,
+                };
+
+            case 'funded':
+                return {
+                    label: 'FUNDED',
+                    color: '#22c55e',
+                };
+
+            default:
+                return {
+                    label: 'EVENT',
+                    color: colors.subtext,
+                };
+        }
+    }
 
     // =======================
     // HubSpot writes (mutations)
@@ -1658,8 +1660,17 @@ export default function DealInvestorsPage() {
                                                                             display: 'inline-block',
                                                                             padding: '2px 8px',
                                                                             borderRadius: 999,
-                                                                            background: 'rgba(49,200,219,.12)',
-                                                                            color: colors.accent,
+
+                                                                            background: `${getActivityBadge(
+                                                                                item.activity_type
+                                                                            ).color
+                                                                                }20`,
+
+                                                                            color:
+                                                                                getActivityBadge(
+                                                                                    item.activity_type
+                                                                                ).color,
+
                                                                             fontSize: 10,
                                                                             fontWeight: 700,
                                                                             marginBottom: 6,
