@@ -12,7 +12,6 @@ import { useCallback } from 'react';
 import InvestorCard from '@/components/investors/InvestorCard';
 import AddProspectsModal from '@/components/investors/AddProspectsModal';
 import InviteDraftForm from '@/components/investors/InviteDraftForm';
-import { color } from 'framer-motion';
 
 
 type Bucket = 'committed' | 'circling' | 'needs_touch' | 'passed';
