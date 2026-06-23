@@ -155,7 +155,7 @@ function getActivityDescription(
 
     switch (item.activity_type) {
         case 'status_changed':
-            return `Stage changed from ${m.from} to ${m.to}`;
+            return `${m.from} → ${m.to}`;
 
         case 'commitment_created':
             return `$${Number(
@@ -1644,6 +1644,10 @@ export default function DealInvestorsPage() {
                                                                 borderRadius: 10,
                                                                 background: '#12284a',
                                                                 border: `1px solid ${colors.border}`,
+
+                                                                borderLeft: `4px solid ${
+                                                                    getActivityBadge(item.activity_type).color
+                                                                }`,
                                                             }}
                                                         >
                                                             <div
@@ -1657,7 +1661,7 @@ export default function DealInvestorsPage() {
                                                                     <div
                                                                         style={{
                                                                             display: 'inline-block',
-                                                                            padding: '2px 8px',
+                                                                            padding: '4px 10px',
                                                                             borderRadius: 999,
 
                                                                             background: `${getActivityBadge(
@@ -1670,7 +1674,7 @@ export default function DealInvestorsPage() {
                                                                                     item.activity_type
                                                                                 ).color,
 
-                                                                            fontSize: 10,
+                                                                            fontSize: 11,
                                                                             fontWeight: 700,
                                                                             marginBottom: 6,
                                                                         }}
@@ -1682,8 +1686,9 @@ export default function DealInvestorsPage() {
 
                                                                     <div
                                                                         style={{
-                                                                            fontSize: 14,
+                                                                            fontSize: 15,
                                                                             fontWeight: 700,
+                                                                            lineHeight: 1.2,
                                                                             color: colors.text,
                                                                         }}
                                                                     >
@@ -1699,9 +1704,16 @@ export default function DealInvestorsPage() {
                                                                         color: colors.subtext,
                                                                     }}
                                                                 >
-                                                                    {new Date(
-                                                                        item.activity_at
-                                                                    ).toLocaleString()}
+                                                                    {new Date(item.activity_at).toLocaleString(
+                                                                        'en-US',
+                                                                        {
+                                                                            month: 'short',
+                                                                            day: 'numeric',
+                                                                            year: 'numeric',
+                                                                            hour: 'numeric',
+                                                                            minute: '2-digit',
+                                                                        }
+                                                                    )}
                                                                 </div>
                                                             </div>
 
