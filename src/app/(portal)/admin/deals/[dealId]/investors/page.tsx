@@ -12,7 +12,13 @@ import { useCallback } from 'react';
 import InvestorCard from '@/components/investors/InvestorCard';
 import AddProspectsModal from '@/components/investors/AddProspectsModal';
 import InviteDraftForm from '@/components/investors/InviteDraftForm';
-
+import {
+    FileText,
+    MessageSquare,
+    RefreshCw,
+    DollarSign,
+    CheckCircle2,
+} from 'lucide-react';
 
 type Bucket = 'committed' | 'circling' | 'needs_touch' | 'passed';
 
@@ -274,12 +280,14 @@ export default function DealInvestorsPage() {
                 return {
                     label: 'NOTE',
                     color: '#fbbf24',
+                    icon: MessageSquare,
                 };
 
             case 'status_changed':
                 return {
                     label: 'STATUS',
                     color: '#60a5fa',
+                    icon: RefreshCw,
                 };
 
             case 'commitment_created':
@@ -288,6 +296,7 @@ export default function DealInvestorsPage() {
                 return {
                     label: 'COMMITMENT',
                     color: '#22c55e',
+                    icon: DollarSign,
                 };
 
             case 'ca_completed':
@@ -296,12 +305,14 @@ export default function DealInvestorsPage() {
                 return {
                     label: 'DOCUMENT',
                     color: colors.accent,
+                    icon: FileText,
                 };
 
             case 'funded':
                 return {
                     label: 'FUNDED',
                     color: '#22c55e',
+                    icon: CheckCircle2,
                 };
 
             default:
@@ -1685,148 +1696,156 @@ export default function DealInvestorsPage() {
                                                         </div>
                                                     )}
 
-                                                    {relationshipHistory.map(item => (
-                                                        <div
-                                                            key={item.id}
-                                                            style={{
-                                                                padding: 12,
-                                                                borderRadius: 10,
-                                                                background: '#12284a',
-                                                                border: `1px solid ${colors.border}`,
+                                                    {relationshipHistory.map(item => {
+                                                        const badge =
+                                                            getActivityBadge(
+                                                                item.activity_type
+                                                            );
 
-                                                                borderLeft: `4px solid ${getActivityBadge(item.activity_type).color
-                                                                    }`,
-                                                            }}
-                                                        >
+                                                        const Icon =
+                                                            badge.icon;
+
+                                                        return (
                                                             <div
+                                                                key={item.id}
                                                                 style={{
-                                                                    display: 'flex',
-                                                                    justifyContent: 'space-between',
-                                                                    alignItems: 'flex-start',
-                                                                    marginBottom: 8,
+                                                                    padding: 12,
+                                                                    borderRadius: 10,
+                                                                    background: '#12284a',
+                                                                    border: `1px solid ${colors.border}`,
+
+                                                                    borderLeft: `4px solid ${badge.color}`,
                                                                 }}
                                                             >
-                                                                <div>
-                                                                    <div
-                                                                        style={{
-                                                                            display: 'inline-block',
-                                                                            padding: '4px 10px',
-                                                                            borderRadius: 999,
-                                                                            background: `${getActivityBadge(
-                                                                                item.activity_type
-                                                                            ).color
-                                                                                }20`,
-                                                                            color:
-                                                                                getActivityBadge(
-                                                                                    item.activity_type
-                                                                                ).color,
-                                                                            fontSize: 11,
-                                                                            fontWeight: 700,
-                                                                            marginBottom: 8,
-                                                                        }}
-                                                                    >
-                                                                        {getActivityBadge(
-                                                                            item.activity_type
-                                                                        ).label}
-                                                                    </div>
-
-                                                                    <div
-                                                                        style={{
-                                                                            fontSize: 15,
-                                                                            fontWeight: 700,
-                                                                            lineHeight: 1.2,
-                                                                            color: colors.text,
-                                                                        }}
-                                                                    >
-                                                                        {getActivityTitle(
-                                                                            item.activity_type
-                                                                        )}
-                                                                    </div>
-                                                                </div>
                                                                 <div
                                                                     style={{
                                                                         display: 'flex',
-                                                                        alignItems: 'center',
-                                                                        gap: 10,
-                                                                        paddingLeft: 16,
-                                                                        whiteSpace: 'nowrap',
+                                                                        justifyContent: 'space-between',
+                                                                        alignItems: 'flex-start',
+                                                                        marginBottom: 8,
                                                                     }}
                                                                 >
-                                                                    {item.created_by && (
-                                                                        <>
-                                                                            <div
-                                                                                style={{
-                                                                                    width: 20,
-                                                                                    height: 20,
-                                                                                    borderRadius: '50%',
-                                                                                    background:
-                                                                                        'rgba(49,200,219,.15)',
-                                                                                    color: colors.accent,
-                                                                                    display: 'flex',
-                                                                                    alignItems: 'center',
-                                                                                    justifyContent: 'center',
-                                                                                    fontSize: 10,
-                                                                                    fontWeight: 700,
-                                                                                }}
-                                                                            >
-                                                                                {
-                                                                                    employeeDirectory[
-                                                                                        item.created_by ?? ''
-                                                                                    ]?.initials ?? '?'
-                                                                                }
-                                                                            </div>
+                                                                    <div>
 
-                                                                            <div
-                                                                                style={{
-                                                                                    fontSize: 11,
-                                                                                    color: colors.subtext,
-                                                                                    fontWeight: 600,
-                                                                                }}
-                                                                            >
-                                                                                {
-                                                                                    employeeDirectory[
-                                                                                        item.created_by ?? ''
-                                                                                    ]?.displayName ??
-                                                                                    item.created_by
-                                                                                }
-                                                                            </div>
-                                                                        </>
-                                                                    )}
+                                                                        <div
+                                                                            style={{
+                                                                                display: 'inline-block',
+                                                                                padding: '4px 10px',
+                                                                                borderRadius: 999,
+                                                                                background: `${badge.color}20`,
+                                                                                color: badge.color,
+                                                                                fontSize: 11,
+                                                                                fontWeight: 700,
+                                                                                marginBottom: 8,
+                                                                            }}
+                                                                        >
+                                                                            {badge.label}
+                                                                        </div>
 
+                                                                        <div
+                                                                            style={{
+                                                                                fontSize: 15,
+                                                                                fontWeight: 700,
+                                                                                lineHeight: 1.2,
+                                                                                color: colors.text,
+                                                                            }}
+                                                                        >
+                                                                            {getActivityTitle(
+                                                                                item.activity_type
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
                                                                     <div
                                                                         style={{
-                                                                            fontSize: 11,
-                                                                            color: colors.subtext,
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            gap: 10,
+                                                                            paddingLeft: 16,
+                                                                            whiteSpace: 'nowrap',
                                                                         }}
                                                                     >
-                                                                        {new Date(
-                                                                            item.activity_at
-                                                                        ).toLocaleString(
-                                                                            'en-US',
-                                                                            {
-                                                                                month: 'short',
-                                                                                day: 'numeric',
-                                                                                year: 'numeric',
-                                                                                hour: 'numeric',
-                                                                                minute: '2-digit',
-                                                                            }
+                                                                        {item.created_by && (
+                                                                            <>
+                                                                                <div
+                                                                                    style={{
+                                                                                        width: 20,
+                                                                                        height: 20,
+                                                                                        borderRadius: '50%',
+                                                                                        background:
+                                                                                            'rgba(49,200,219,.15)',
+                                                                                        color: colors.accent,
+                                                                                        display: 'flex',
+                                                                                        alignItems: 'center',
+                                                                                        justifyContent: 'center',
+                                                                                        fontSize: 10,
+                                                                                        fontWeight: 700,
+                                                                                    }}
+                                                                                >
+                                                                                    {
+                                                                                        employeeDirectory[
+                                                                                            item.created_by ?? ''
+                                                                                        ]?.initials ?? '?'
+                                                                                    }
+                                                                                </div>
+
+                                                                                <div
+                                                                                    style={{
+                                                                                        fontSize: 11,
+                                                                                        color: colors.subtext,
+                                                                                        fontWeight: 600,
+                                                                                    }}
+                                                                                >
+                                                                                    {
+                                                                                        employeeDirectory[
+                                                                                            item.created_by ?? ''
+                                                                                        ]?.displayName ??
+                                                                                        item.created_by
+                                                                                    }
+                                                                                </div>
+                                                                            </>
                                                                         )}
+
+                                                                        <div
+                                                                            style={{
+                                                                                fontSize: 11,
+                                                                                color: colors.subtext,
+                                                                            }}
+                                                                        >
+                                                                            {new Date(
+                                                                                item.activity_at
+                                                                            ).toLocaleString(
+                                                                                'en-US',
+                                                                                {
+                                                                                    month: 'short',
+                                                                                    day: 'numeric',
+                                                                                    year: 'numeric',
+                                                                                    hour: 'numeric',
+                                                                                    minute: '2-digit',
+                                                                                }
+                                                                            )}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
 
-                                                            <div
-                                                                style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    color: colors.text,
-                                                                    lineHeight: 1.6,
-                                                                }}
-                                                            >
-                                                                {getActivityDescription(item)}
+                                                                {![
+                                                                    'im_viewed',
+                                                                    'financial_model_downloaded',
+                                                                    'ca_completed',
+                                                                ].includes(item.activity_type) && (
+                                                                        <div
+                                                                            style={{
+                                                                                fontSize: 15,
+                                                                                fontWeight: 500,
+                                                                                color: colors.text,
+                                                                                lineHeight: 1.6,
+                                                                            }}
+                                                                        >
+                                                                            {getActivityDescription(item)}
+                                                                        </div>
+                                                                    )}
                                                             </div>
-                                                        </div>
-                                                    ))}
+                                                        );
+                                                    })}
                                                 </div>
                                             )}
                                             {activeTab === 'meetings' && (
