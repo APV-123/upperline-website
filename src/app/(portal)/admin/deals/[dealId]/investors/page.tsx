@@ -1598,11 +1598,26 @@ export default function DealInvestorsPage() {
                                                 }}
                                             >
                                                 {[
-                                                    { id: 'history', label: 'Relationship History' },
-                                                    { id: 'notes', label: 'Notes' },
-                                                    { id: 'emails', label: 'Emails' },
-                                                    { id: 'meetings', label: 'Meetings' },
-                                                    { id: 'tasks', label: 'Tasks' },
+                                                    {
+                                                        id: 'history',
+                                                        label: `Relationship History (${relationshipHistory.length})`,
+                                                    },
+                                                    {
+                                                        id: 'notes',
+                                                        label: `Notes (${activity.filter(a => a.type === 'NOTE').length})`,
+                                                    },
+                                                    {
+                                                        id: 'emails',
+                                                        label: `Emails (${activity.filter(a => a.type === 'EMAIL').length})`,
+                                                    },
+                                                    {
+                                                        id: 'meetings',
+                                                        label: 'Meetings',
+                                                    },
+                                                    {
+                                                        id: 'tasks',
+                                                        label: 'Tasks',
+                                                    },
                                                 ].map(tab => (
                                                     <button
                                                         key={tab.id}
@@ -1730,79 +1745,82 @@ export default function DealInvestorsPage() {
                                                                 </div>
                                                                 <div
                                                                     style={{
-                                                                        fontSize: 11,
-                                                                        color: colors.subtext,
-                                                                        whiteSpace: 'nowrap',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: 10,
                                                                         paddingLeft: 16,
+                                                                        whiteSpace: 'nowrap',
                                                                     }}
                                                                 >
-                                                                    {new Date(
-                                                                        item.activity_at
-                                                                    ).toLocaleString(
-                                                                        'en-US',
-                                                                        {
-                                                                            month: 'short',
-                                                                            day: 'numeric',
-                                                                            year: 'numeric',
-                                                                            hour: 'numeric',
-                                                                            minute: '2-digit',
-                                                                        }
+                                                                    {item.created_by && (
+                                                                        <>
+                                                                            <div
+                                                                                style={{
+                                                                                    width: 20,
+                                                                                    height: 20,
+                                                                                    borderRadius: '50%',
+                                                                                    background:
+                                                                                        'rgba(49,200,219,.15)',
+                                                                                    color: colors.accent,
+                                                                                    display: 'flex',
+                                                                                    alignItems: 'center',
+                                                                                    justifyContent: 'center',
+                                                                                    fontSize: 10,
+                                                                                    fontWeight: 700,
+                                                                                }}
+                                                                            >
+                                                                                {
+                                                                                    employeeDirectory[
+                                                                                        item.created_by ?? ''
+                                                                                    ]?.initials ?? '?'
+                                                                                }
+                                                                            </div>
+
+                                                                            <div
+                                                                                style={{
+                                                                                    fontSize: 11,
+                                                                                    color: colors.subtext,
+                                                                                    fontWeight: 600,
+                                                                                }}
+                                                                            >
+                                                                                {
+                                                                                    employeeDirectory[
+                                                                                        item.created_by ?? ''
+                                                                                    ]?.displayName ??
+                                                                                    item.created_by
+                                                                                }
+                                                                            </div>
+                                                                        </>
                                                                     )}
+
+                                                                    <div
+                                                                        style={{
+                                                                            fontSize: 11,
+                                                                            color: colors.subtext,
+                                                                        }}
+                                                                    >
+                                                                        {new Date(
+                                                                            item.activity_at
+                                                                        ).toLocaleString(
+                                                                            'en-US',
+                                                                            {
+                                                                                month: 'short',
+                                                                                day: 'numeric',
+                                                                                year: 'numeric',
+                                                                                hour: 'numeric',
+                                                                                minute: '2-digit',
+                                                                            }
+                                                                        )}
+                                                                    </div>
                                                                 </div>
                                                             </div>
 
-                                                            {item.created_by && (
-                                                                <div
-                                                                    style={{
-                                                                        display: 'flex',
-                                                                        alignItems: 'center',
-                                                                        gap: 8,
-                                                                        marginBottom: 8,
-                                                                    }}
-                                                                >
-                                                                    <div
-                                                                        style={{
-                                                                            width: 22,
-                                                                            height: 22,
-                                                                            borderRadius: '50%',
-                                                                            background: 'rgba(49,200,219,.15)',
-                                                                            color: colors.accent,
-                                                                            display: 'flex',
-                                                                            alignItems: 'center',
-                                                                            justifyContent: 'center',
-                                                                            fontSize: 11,
-                                                                            fontWeight: 700,
-                                                                        }}
-                                                                    >
-                                                                        {
-                                                                        employeeDirectory[
-                                                                        item.created_by ?? ''
-                                                                        ]?.initials ?? '?'
-                                                                    }
-                                                                    </div>
-
-                                                                    <div
-                                                                        style={{
-                                                                            fontSize: 12,
-                                                                            color: colors.subtext,
-                                                                            fontWeight: 600,
-                                                                        }}
-                                                                    >
-                                                                        {
-                                                                        employeeDirectory[
-                                                                        item.created_by ?? ''
-                                                                        ]?.displayName ??
-                                                                        item.created_by
-                                                                    }
-                                                                    </div>
-                                                                </div>
-                                                            )}
-
                                                             <div
                                                                 style={{
-                                                                    fontSize: 13,
+                                                                    fontSize: 17,
+                                                                    fontWeight: 500,
                                                                     color: colors.text,
-                                                                    lineHeight: 1.5,
+                                                                    lineHeight: 1.6,
                                                                 }}
                                                             >
                                                                 {getActivityDescription(item)}
@@ -1812,10 +1830,51 @@ export default function DealInvestorsPage() {
                                                 </div>
                                             )}
                                             {activeTab === 'meetings' && (
-                                                <div>Meetings Coming Soon</div>
+                                                <div
+                                                    style={{
+                                                        textAlign: 'center',
+                                                        paddingTop: 80,
+                                                        color: colors.subtext,
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            fontSize: 16,
+                                                            fontWeight: 700,
+                                                            marginBottom: 8,
+                                                        }}
+                                                    >
+                                                        No Meetings Recorded
+                                                    </div>
+
+                                                    <div style={{ fontSize: 13 }}>
+                                                        Outlook and Microsoft Graph
+                                                        meetings will appear here.
+                                                    </div>
+                                                </div>
                                             )}
                                             {activeTab === 'tasks' && (
-                                                <div>Monday.com Integration Coming Soon</div>
+                                                <div
+                                                    style={{
+                                                        textAlign: 'center',
+                                                        paddingTop: 80,
+                                                        color: colors.subtext,
+                                                    }}
+                                                >
+                                                    <div
+                                                        style={{
+                                                            fontSize: 16,
+                                                            fontWeight: 700,
+                                                            marginBottom: 8,
+                                                        }}
+                                                    >
+                                                        No Tasks Yet
+                                                    </div>
+
+                                                    <div style={{ fontSize: 13 }}>
+                                                        Monday.com integration coming soon.
+                                                    </div>
+                                                </div>
                                             )}
                                             {/* Activity timeline */}
                                             {activeTab === 'emails' && (
