@@ -493,6 +493,28 @@ export default function DealInvestorsPage() {
             setRelationshipHistory([]);
         }
     }
+    async function loadEmployeeDirectory() {
+        try {
+            const res = await fetch(
+                '/api/employees',
+                {
+                    cache: 'no-store',
+                }
+            );
+
+            const json = await res.json();
+
+            setEmployeeDirectory(
+                json.directory ?? {}
+            );
+        } catch (err) {
+            console.error(
+                '[EMPLOYEE DIRECTORY]',
+                err
+            );
+        }
+    }
+
     useEffect(() => {
         const saved = localStorage.getItem('theme');
 
@@ -506,6 +528,7 @@ export default function DealInvestorsPage() {
     useEffect(() => {
         if (!dealId) return;
         loadDashboard();
+        loadEmployeeDirectory();
     }, [dealId, loadDashboard]);
 
     useEffect(() => {
@@ -1751,9 +1774,11 @@ export default function DealInvestorsPage() {
                                                                             fontWeight: 700,
                                                                         }}
                                                                     >
-                                                                        {getEmployeeName(
-                                                                            item.created_by
-                                                                        )?.charAt(0)}
+                                                                        {
+                                                                        employeeDirectory[
+                                                                        item.created_by ?? ''
+                                                                        ]?.initials ?? '?'
+                                                                    }
                                                                     </div>
 
                                                                     <div
@@ -1763,9 +1788,12 @@ export default function DealInvestorsPage() {
                                                                             fontWeight: 600,
                                                                         }}
                                                                     >
-                                                                        {getEmployeeName(
-                                                                            item.created_by
-                                                                        )}
+                                                                        {
+                                                                        employeeDirectory[
+                                                                        item.created_by ?? ''
+                                                                        ]?.displayName ??
+                                                                        item.created_by
+                                                                    }
                                                                     </div>
                                                                 </div>
                                                             )}
