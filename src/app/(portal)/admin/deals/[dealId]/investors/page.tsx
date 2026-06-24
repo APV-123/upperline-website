@@ -1729,7 +1729,9 @@ export default function DealInvestorsPage() {
 
                                                                         <div
                                                                             style={{
-                                                                                display: 'inline-block',
+                                                                                display: 'inline-flex',
+                                                                                alignItems: 'center',
+                                                                                gap: 6,
                                                                                 padding: '4px 10px',
                                                                                 borderRadius: 999,
                                                                                 background: `${badge.color}20`,
@@ -1739,6 +1741,7 @@ export default function DealInvestorsPage() {
                                                                                 marginBottom: 8,
                                                                             }}
                                                                         >
+                                                                            {Icon && <Icon size={12} />}
                                                                             {badge.label}
                                                                         </div>
 
