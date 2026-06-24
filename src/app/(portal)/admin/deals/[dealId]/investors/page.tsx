@@ -1645,66 +1645,57 @@ export default function DealInvestorsPage() {
                                                                 background: '#12284a',
                                                                 border: `1px solid ${colors.border}`,
 
-                                                                borderLeft: `4px solid ${
-                                                                    getActivityBadge(item.activity_type).color
-                                                                }`,
+                                                                borderLeft: `4px solid ${getActivityBadge(item.activity_type).color
+                                                                    }`,
                                                             }}
                                                         >
-                                                            <div
-                                                                style={{
-                                                                    display: 'flex',
-                                                                    justifyContent: 'space-between',
-                                                                    marginBottom: 6,
-                                                                }}
-                                                            >
-                                                                <div>
-                                                                    <div
-                                                                        style={{
-                                                                            display: 'inline-block',
-                                                                            padding: '4px 10px',
-                                                                            borderRadius: 999,
-
-                                                                            background: `${getActivityBadge(
+                                                            <div style={{ marginBottom: 8 }}>
+                                                                <div
+                                                                    style={{
+                                                                        display: 'inline-block',
+                                                                        padding: '4px 10px',
+                                                                        borderRadius: 999,
+                                                                        background: `${getActivityBadge(
+                                                                            item.activity_type
+                                                                        ).color
+                                                                            }20`,
+                                                                        color:
+                                                                            getActivityBadge(
                                                                                 item.activity_type
-                                                                            ).color
-                                                                                }20`,
+                                                                            ).color,
+                                                                        fontSize: 11,
+                                                                        fontWeight: 700,
+                                                                        marginBottom: 8,
+                                                                    }}
+                                                                >
+                                                                    {getActivityBadge(
+                                                                        item.activity_type
+                                                                    ).label}
+                                                                </div>
 
-                                                                            color:
-                                                                                getActivityBadge(
-                                                                                    item.activity_type
-                                                                                ).color,
-
-                                                                            fontSize: 11,
-                                                                            fontWeight: 700,
-                                                                            marginBottom: 6,
-                                                                        }}
-                                                                    >
-                                                                        {getActivityBadge(
-                                                                            item.activity_type
-                                                                        ).label}
-                                                                    </div>
-
-                                                                    <div
-                                                                        style={{
-                                                                            fontSize: 15,
-                                                                            fontWeight: 700,
-                                                                            lineHeight: 1.2,
-                                                                            color: colors.text,
-                                                                        }}
-                                                                    >
-                                                                        {getActivityTitle(
-                                                                            item.activity_type
-                                                                        )}
-                                                                    </div>
+                                                                <div
+                                                                    style={{
+                                                                        fontSize: 15,
+                                                                        fontWeight: 700,
+                                                                        lineHeight: 1.2,
+                                                                        color: colors.text,
+                                                                    }}
+                                                                >
+                                                                    {getActivityTitle(
+                                                                        item.activity_type
+                                                                    )}
                                                                 </div>
 
                                                                 <div
                                                                     style={{
                                                                         fontSize: 11,
                                                                         color: colors.subtext,
+                                                                        marginTop: 2,
                                                                     }}
                                                                 >
-                                                                    {new Date(item.activity_at).toLocaleString(
+                                                                    {new Date(
+                                                                        item.activity_at
+                                                                    ).toLocaleString(
                                                                         'en-US',
                                                                         {
                                                                             month: 'short',
