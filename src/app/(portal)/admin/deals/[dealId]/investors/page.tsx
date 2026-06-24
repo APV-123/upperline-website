@@ -105,18 +105,7 @@ const BUCKETS: { key: Bucket; label: string }[] = [
     { key: 'needs_touch', label: 'Needs Touch' },
     { key: 'committed', label: 'Committed' },
 ];
-function getEmployeeName(
-    email: string | null
-) {
-    if (!email) return null;
 
-    return email
-        .replace('@upperlineco.com', '')
-        .replace(/\./g, ' ')
-        .replace(/\b\w/g, c =>
-            c.toUpperCase()
-        );
-}
 function getActivityTitle(
     activityType: string
 ) {
@@ -246,7 +235,18 @@ export default function DealInvestorsPage() {
         relationshipHistory,
         setRelationshipHistory,
     ] = useState<SubscriptionActivity[]>([]);
-
+    const [
+        employeeDirectory,
+        setEmployeeDirectory,
+    ] = useState<
+        Record<
+            string,
+            {
+                displayName: string;
+                initials: string;
+            }
+        >
+    >({});
     //============================================
     // UI State / interaction state
     //============================================
