@@ -1649,48 +1649,57 @@ export default function DealInvestorsPage() {
                                                                     }`,
                                                             }}
                                                         >
-                                                            <div style={{ marginBottom: 8 }}>
-                                                                <div
-                                                                    style={{
-                                                                        display: 'inline-block',
-                                                                        padding: '4px 10px',
-                                                                        borderRadius: 999,
-                                                                        background: `${getActivityBadge(
-                                                                            item.activity_type
-                                                                        ).color
-                                                                            }20`,
-                                                                        color:
-                                                                            getActivityBadge(
+                                                            <div
+                                                                style={{
+                                                                    display: 'flex',
+                                                                    justifyContent: 'space-between',
+                                                                    alignItems: 'flex-start',
+                                                                    marginBottom: 8,
+                                                                }}
+                                                            >
+                                                                <div>
+                                                                    <div
+                                                                        style={{
+                                                                            display: 'inline-block',
+                                                                            padding: '4px 10px',
+                                                                            borderRadius: 999,
+                                                                            background: `${getActivityBadge(
                                                                                 item.activity_type
-                                                                            ).color,
-                                                                        fontSize: 11,
-                                                                        fontWeight: 700,
-                                                                        marginBottom: 8,
-                                                                    }}
-                                                                >
-                                                                    {getActivityBadge(
-                                                                        item.activity_type
-                                                                    ).label}
-                                                                </div>
+                                                                            ).color
+                                                                                }20`,
+                                                                            color:
+                                                                                getActivityBadge(
+                                                                                    item.activity_type
+                                                                                ).color,
+                                                                            fontSize: 11,
+                                                                            fontWeight: 700,
+                                                                            marginBottom: 8,
+                                                                        }}
+                                                                    >
+                                                                        {getActivityBadge(
+                                                                            item.activity_type
+                                                                        ).label}
+                                                                    </div>
 
-                                                                <div
-                                                                    style={{
-                                                                        fontSize: 15,
-                                                                        fontWeight: 700,
-                                                                        lineHeight: 1.2,
-                                                                        color: colors.text,
-                                                                    }}
-                                                                >
-                                                                    {getActivityTitle(
-                                                                        item.activity_type
-                                                                    )}
+                                                                    <div
+                                                                        style={{
+                                                                            fontSize: 15,
+                                                                            fontWeight: 700,
+                                                                            lineHeight: 1.2,
+                                                                            color: colors.text,
+                                                                        }}
+                                                                    >
+                                                                        {getActivityTitle(
+                                                                            item.activity_type
+                                                                        )}
+                                                                    </div>
                                                                 </div>
-
                                                                 <div
                                                                     style={{
                                                                         fontSize: 11,
                                                                         color: colors.subtext,
-                                                                        marginTop: 2,
+                                                                        whiteSpace: 'nowrap',
+                                                                        paddingLeft: 16,
                                                                     }}
                                                                 >
                                                                     {new Date(
@@ -1714,9 +1723,14 @@ export default function DealInvestorsPage() {
                                                                         fontSize: 11,
                                                                         color: colors.subtext,
                                                                         marginBottom: 8,
+                                                                        fontWeight: 600,
                                                                     }}
                                                                 >
-                                                                    {item.created_by}
+                                                                    {item.created_by
+                                                                        .replace('@upperlineco.com', '')
+                                                                        .replace('.', ' ')
+                                                                        .replace(/\b\w/g, c => c.toUpperCase())
+                                                                    }
                                                                 </div>
                                                             )}
 
