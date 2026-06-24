@@ -105,7 +105,18 @@ const BUCKETS: { key: Bucket; label: string }[] = [
     { key: 'needs_touch', label: 'Needs Touch' },
     { key: 'committed', label: 'Committed' },
 ];
+function getEmployeeName(
+    email: string | null
+) {
+    if (!email) return null;
 
+    return email
+        .replace('@upperlineco.com', '')
+        .replace(/\./g, ' ')
+        .replace(/\b\w/g, c =>
+            c.toUpperCase()
+        );
+}
 function getActivityTitle(
     activityType: string
 ) {
@@ -1720,17 +1731,42 @@ export default function DealInvestorsPage() {
                                                             {item.created_by && (
                                                                 <div
                                                                     style={{
-                                                                        fontSize: 11,
-                                                                        color: colors.subtext,
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: 8,
                                                                         marginBottom: 8,
-                                                                        fontWeight: 600,
                                                                     }}
                                                                 >
-                                                                    {item.created_by
-                                                                        .replace('@upperlineco.com', '')
-                                                                        .replace('.', ' ')
-                                                                        .replace(/\b\w/g, c => c.toUpperCase())
-                                                                    }
+                                                                    <div
+                                                                        style={{
+                                                                            width: 22,
+                                                                            height: 22,
+                                                                            borderRadius: '50%',
+                                                                            background: 'rgba(49,200,219,.15)',
+                                                                            color: colors.accent,
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'center',
+                                                                            fontSize: 11,
+                                                                            fontWeight: 700,
+                                                                        }}
+                                                                    >
+                                                                        {getEmployeeName(
+                                                                            item.created_by
+                                                                        )?.charAt(0)}
+                                                                    </div>
+
+                                                                    <div
+                                                                        style={{
+                                                                            fontSize: 12,
+                                                                            color: colors.subtext,
+                                                                            fontWeight: 600,
+                                                                        }}
+                                                                    >
+                                                                        {getEmployeeName(
+                                                                            item.created_by
+                                                                        )}
+                                                                    </div>
                                                                 </div>
                                                             )}
 
