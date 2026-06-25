@@ -51,17 +51,16 @@ export async function GET() {
 
     const json = await res.json();
 
-    return NextResponse.json(
-      {
-        ok: res.ok,
-        status: res.status,
-        count: json.total ?? json.results?.length ?? 0,
-        results: json.results,
-      },
-      {
-        status: res.status,
-      }
-    );
+return NextResponse.json(
+  {
+    ok: res.ok,
+    status: res.status,
+    response: json,
+  },
+  {
+    status: res.status,
+  }
+);
   } catch (e) {
     return NextResponse.json(
       {
