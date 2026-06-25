@@ -100,7 +100,11 @@ async function upsertCommunication(
         subject: communication.subject,
         sender: communication.fromEmail,
         recipient: communication.toEmail,
-        direction: communication.direction,
+        direction:
+    communication.direction ===
+    "INCOMING_EMAIL"
+        ? "inbound"
+        : "outbound",
     });
 
     const { data, error } =
