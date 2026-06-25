@@ -14,6 +14,28 @@ function authHeaders() {
     "Content-Type": "application/json",
   };
 }
+type HubSpotEmail = {
+  id: string;
+  properties: {
+    hs_timestamp?: string;
+    hs_createdate?: string;
+    hs_email_subject?: string;
+    hs_email_text?: string;
+    hs_email_status?: string;
+    hs_email_direction?: string;
+    hs_email_headers?: string;
+    hs_email_from_email?: string;
+    hs_email_to_email?: string;
+    hs_email_cc_email?: string;
+    hs_email_bcc_email?: string;
+    hs_email_open_count?: string;
+    hs_email_click_count?: string;
+  };
+};
+
+type HubSpotSearchResponse = {
+  results?: HubSpotEmail[];
+};
 
 export async function GET() {
   try {
@@ -50,7 +72,8 @@ export async function GET() {
       }
     );
 
-    const json = await res.json();
+    const json =
+  (await res.json()) as HubSpotSearchResponse;
 
     if (!res.ok) {
       return NextResponse.json(
@@ -65,7 +88,7 @@ export async function GET() {
       );
     }
 
-    const emails = (json.results ?? []).map((email: any) => {
+    const emails = (json.results ?? []).map((email: HubSpotEmail) => {
       const p = email.properties ?? {};
 
       const headers =
@@ -109,7 +132,7 @@ export async function GET() {
     });
 
     const withBcc = emails.filter(
-      (e: any) => e.hasHubSpotBcc
+      (e) => e.hasHubSpotBcc
     );
 
     return NextResponse.json({
@@ -124,7 +147,7 @@ export async function GET() {
       uniqueSenders: [
         ...new Set(
           emails.map(
-            (e: any) => e.from
+            (e) => e.from
           )
         ),
       ],
