@@ -24,21 +24,26 @@ export async function GET() {
         headers: authHeaders(),
         cache: "no-store",
         body: JSON.stringify({
-          limit: 10,
+          limit: 25,
           properties: [
-            "hs_timestamp",
-            "hs_createdate",
             "hs_email_subject",
-            "hs_email_text",
-            "hs_email_status",
-            "hs_email_direction",
-            "hs_email_headers",
-            "hs_email_from_email",
             "hs_email_to_email",
-            "hs_email_cc_email",
-            "hs_email_bcc_email",
+            "hs_email_from_email",
+            "hs_email_headers",
             "hs_email_open_count",
             "hs_email_click_count",
+            "hs_timestamp",
+          ],
+          filterGroups: [
+            {
+              filters: [
+                {
+                  propertyName: "hs_email_headers",
+                  operator: "CONTAINS_TOKEN",
+                  value: "243869924@bcc.na2.hubspot.com",
+                },
+              ],
+            },
           ],
         }),
       }
@@ -50,7 +55,8 @@ export async function GET() {
       {
         ok: res.ok,
         status: res.status,
-        results: json,
+        count: json.total ?? json.results?.length ?? 0,
+        results: json.results,
       },
       {
         status: res.status,
@@ -65,9 +71,7 @@ export async function GET() {
             ? e.message
             : "Unknown error",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }
