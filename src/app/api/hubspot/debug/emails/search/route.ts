@@ -46,7 +46,7 @@ export async function GET() {
         headers: authHeaders(),
         cache: "no-store",
         body: JSON.stringify({
-          limit: 250,
+          limit: 200,
           properties: [
             "hs_timestamp",
             "hs_createdate",
