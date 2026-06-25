@@ -94,17 +94,20 @@ async function upsertCommunication(
 ) {
     const now = new Date().toISOString();
 
+    const databaseDirection =
+        communication.direction ===
+        "INCOMING_EMAIL"
+            ? "inbound"
+            : "outbound";
+
     console.log("[UPSERT ATTEMPT]", {
         raiseSubscriptionId: subscription.id,
         hubspotEmailId: communication.hubspotEmailId,
         subject: communication.subject,
         sender: communication.fromEmail,
         recipient: communication.toEmail,
-        direction:
-    communication.direction ===
-    "INCOMING_EMAIL"
-        ? "inbound"
-        : "outbound",
+        hubspotDirection: communication.direction,
+        databaseDirection,
     });
 
     const { data, error } =
@@ -128,7 +131,7 @@ async function upsertCommunication(
                         communication.toEmail,
 
                     direction:
-                        communication.direction,
+                        databaseDirection,
 
                     sent_at:
                         communication.sentAt,
@@ -162,29 +165,12 @@ async function upsertCommunication(
             .select();
 
     if (error) {
-        console.error(
-            "[SUPABASE UPSERT ERROR]"
-        );
-
+        console.error("[SUPABASE UPSERT ERROR]");
         console.error(error);
-
-        console.error(
-            JSON.stringify(
-                error,
-                null,
-                2
-            )
-        );
-
-        throw new Error(
-            error.message
-        );
+        throw new Error(error.message);
     }
 
-    console.log(
-        "[UPSERT SUCCESS]",
-        data
-    );
+    console.log("[UPSERT SUCCESS]", data);
 }
 
 export async function syncHubspotCommunications(
