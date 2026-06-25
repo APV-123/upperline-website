@@ -145,11 +145,7 @@ async function upsertCommunication(
                     communication_type:
                         "EMAIL",
 
-                    status:
-                        communication.direction ===
-                        "INCOMING_EMAIL"
-                            ? "received"
-                            : "sent",
+                    status: "sent",
 
                     sync_status:
                         "synced",
