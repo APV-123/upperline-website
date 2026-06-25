@@ -9,14 +9,26 @@ export async function POST() {
             );
 
         return NextResponse.json(result);
-    } catch (e) {
+    } catch (e: unknown) {
+        console.error("[SYNC ERROR]", e);
+
+        if (e instanceof Error) {
+            return NextResponse.json(
+                {
+                    ok: false,
+                    message: e.message,
+                    stack: e.stack,
+                },
+                {
+                    status: 500,
+                }
+            );
+        }
+
         return NextResponse.json(
             {
                 ok: false,
-                error:
-                    e instanceof Error
-                        ? e.message
-                        : "Unknown error",
+                error: String(e),
             },
             {
                 status: 500,
