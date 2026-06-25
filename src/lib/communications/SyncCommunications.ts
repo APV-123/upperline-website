@@ -94,11 +94,18 @@ async function upsertCommunication(
 ) {
     const now = new Date().toISOString();
 
-    const { error } =
+    console.log("[UPSERT ATTEMPT]", {
+        raiseSubscriptionId: subscription.id,
+        hubspotEmailId: communication.hubspotEmailId,
+        subject: communication.subject,
+        sender: communication.fromEmail,
+        recipient: communication.toEmail,
+        direction: communication.direction,
+    });
+
+    const { data, error } =
         await supabaseServer
-            .from(
-                "raise_subscription_communications"
-            )
+            .from("raise_subscription_communications")
             .upsert(
                 {
                     raise_subscription_id:
@@ -147,11 +154,33 @@ async function upsertCommunication(
                     onConflict:
                         "hubspot_email_id",
                 }
-            );
+            )
+            .select();
 
     if (error) {
-        throw error;
+        console.error(
+            "[SUPABASE UPSERT ERROR]"
+        );
+
+        console.error(error);
+
+        console.error(
+            JSON.stringify(
+                error,
+                null,
+                2
+            )
+        );
+
+        throw new Error(
+            error.message
+        );
     }
+
+    console.log(
+        "[UPSERT SUCCESS]",
+        data
+    );
 }
 
 export async function syncHubspotCommunications(
@@ -161,14 +190,26 @@ export async function syncHubspotCommunications(
         await loadRaiseSubscriptions(
             raiseId
         );
+    
+    console.log(
+    "[SYNC] subscriptions",
+    subscriptions.length
+);
 
     const hubspotEmails =
         await loadHubspotEmails();
+
+    console.log(
+    "[SYNC] hubspot emails",
+    hubspotEmails.length
+);
 
     const subscriptionsByEmail =
     buildSubscriptionLookup(
         subscriptions
     );
+
+
 
 let matched = 0;
 
@@ -194,11 +235,21 @@ for (const hubspotEmail of hubspotEmails) {
 
     if (!subscription)
         continue;
+console.log(
+    "[UPSERT]",
+    {
+        email:
+            communication.hubspotEmailId,
+        subject:
+            communication.subject,
+    }
+);
 
     await upsertCommunication(
     subscription,
     communication
 );
+
 
 matched++;
 }
