@@ -119,15 +119,7 @@ async function upsertCommunication(
             ? "inbound"
             : "outbound";
 
-    console.log("[UPSERT ATTEMPT]", {
-        raiseSubscriptionId: subscription.id,
-        hubspotEmailId: communication.hubspotEmailId,
-        subject: communication.subject,
-        sender: communication.fromEmail,
-        recipient: communication.toEmail,
-        hubspotDirection: communication.direction,
-        databaseDirection,
-    });
+
 
     const { data, error } =
         await supabaseServer
@@ -193,7 +185,6 @@ async function upsertCommunication(
         throw new Error(error.message);
     }
 
-    console.log("[UPSERT SUCCESS]", data);
 }
 
 export async function syncHubspotCommunications(
@@ -226,9 +217,7 @@ export async function syncHubspotCommunications(
         )
     );
 
-console.log(
-    "[FIRST EMAIL FROM SEARCH]"
-);
+
 
 console.log(
     JSON.stringify(
@@ -250,51 +239,17 @@ console.log(
 
 
 let matched = 0;
+let skipped = 0;
+let updated = 0;
 
 for (const hubspotEmail of hubspotEmails) {
     const communication =
         toCommunication(
             hubspotEmail
         );
-        console.log(
-    "[LAST MODIFIED]",
-    communication.hubspotEmailId,
-    communication.hubspotLastModifiedAt
-);
-    const existing =
-    existingByHubspotId.get(
-        communication.hubspotEmailId
-    );
-
-const needsHistory =
-    !existing ||
-    existing.hubspot_last_modified_at !==
-        communication.hubspotLastModifiedAt;
-
-        if (needsHistory) {
-    const history =
-        await loadCommunicationHistory(
-            communication.hubspotEmailId
-        );
-
-    communication.openHistory =
-        history.propertiesWithHistory
-            ?.hs_email_open_count ?? [];
-
-    communication.clickHistory =
-        history.propertiesWithHistory
-            ?.hs_email_click_count ?? [];
-
-    communication.replyHistory =
-        history.propertiesWithHistory
-            ?.hs_email_reply_count ?? [];
-}
-    console.log(
-    "[HISTORY]",
-    communication.hubspotEmailId
-);
-
-    const investorEmail =
+        
+    
+const investorEmail =
         communication.direction ===
         "INCOMING_EMAIL"
             ? communication.fromEmail
@@ -310,6 +265,42 @@ const needsHistory =
 
     if (!subscription)
         continue;
+
+    matched++;
+
+    const existing =
+    existingByHubspotId.get(
+        communication.hubspotEmailId
+    );
+
+
+const needsHistory =
+    !existing ||
+    existing.hubspot_last_modified_at !==
+        communication.hubspotLastModifiedAt;
+        if (!needsHistory) {
+            skipped++;
+    continue;
+}
+
+const history =
+    await loadCommunicationHistory(
+        communication.hubspotEmailId
+    );
+
+communication.openHistory =
+    history.propertiesWithHistory
+        ?.hs_email_open_count ?? [];
+
+communication.clickHistory =
+    history.propertiesWithHistory
+        ?.hs_email_click_count ?? [];
+
+communication.replyHistory =
+    history.propertiesWithHistory
+        ?.hs_email_reply_count ?? [];
+
+    
 console.log(
     "[UPSERT]",
     {
@@ -324,11 +315,11 @@ console.log(
     subscription,
     communication
 );
-
-
-matched++;
+updated++
 }
-
+console.log(
+    `[SYNC] ${updated} updated, ${skipped} skipped`
+);
 return {
     subscriptions:
         subscriptions.length,
@@ -337,6 +328,8 @@ return {
         hubspotEmails.length,
 
     matched,
+    skipped,
+    updated,
 };
 }
 
@@ -491,7 +484,7 @@ async function loadCommunicationHistory(
         "?properties=hs_email_open_count,hs_email_click_count,hs_email_reply_count" +
         "&propertiesWithHistory=hs_email_open_count,hs_email_click_count,hs_email_reply_count";
 
-    console.log("[HISTORY URL]", url);
+
 
     const res = await fetch(url, {
         headers: authHeaders(),
@@ -499,9 +492,6 @@ async function loadCommunicationHistory(
     });
 
     const text = await res.text();
-
-    console.log("[HISTORY STATUS]", res.status);
-    console.log("[HISTORY BODY]", text);
 
     if (!res.ok) {
         throw new Error(
