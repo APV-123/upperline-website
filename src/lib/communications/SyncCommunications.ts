@@ -214,7 +214,16 @@ export async function syncHubspotCommunications(
 
     const existingCommunications =
     await loadExistingCommunications(
-        raiseId
+        subscriptions
+    );
+    const existingByHubspotId =
+    new Map(
+        existingCommunications.map(
+            (c) => [
+                c.hubspot_email_id,
+                c,
+            ]
+        )
     );
 
 console.log(
@@ -253,7 +262,7 @@ for (const hubspotEmail of hubspotEmails) {
     communication.hubspotLastModifiedAt
 );
     const existing =
-    existingCommunications.get(
+    existingByHubspotId.get(
         communication.hubspotEmailId
     );
 
@@ -361,46 +370,33 @@ type ExistingCommunication = {
 };
 
 async function loadExistingCommunications(
-    raiseId: string
+    subscriptions: RaiseSubscription[]
 ) {
+    const subscriptionIds =
+        subscriptions.map((s) => s.id);
+
     const { data, error } =
         await supabaseServer
             .from(
                 "raise_subscription_communications"
             )
             .select(`
+                raise_subscription_id,
                 hubspot_email_id,
                 open_count,
                 click_count,
-                hubspot_last_modified_at,
-                raise_subscription!inner(
-                    raise_id
-                )
+                hubspot_last_modified_at
             `)
-            .eq(
-                "raise_subscription.raise_id",
-                raiseId
+            .in(
+                "raise_subscription_id",
+                subscriptionIds
             );
 
     if (error) {
-        throw new Error (error.message);
+        throw new Error(error.message);
     }
 
-    const lookup = new Map<
-        string,
-        ExistingCommunication
-    >();
-
-    for (const row of
-        (data ??
-            []) as ExistingCommunication[]) {
-        lookup.set(
-            row.hubspot_email_id,
-            row
-        );
-    }
-
-    return lookup;
+    return data ?? [];
 }
 
 const HUBSPOT_BASE =
