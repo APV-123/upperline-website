@@ -23,6 +23,7 @@ type HubSpotEmail = {
         hs_email_to_email?: string;
         hs_email_open_count?: string;
         hs_email_click_count?: string;
+        hs_lastmodifieddate?: string;
     };
 
     propertiesWithHistory?: {
@@ -53,6 +54,7 @@ type Communication = {
     openHistory: unknown;
     clickHistory: unknown;
     replyHistory: unknown;
+    hubspotLastModifiedAt: string | null;
 };
 
 function toCommunication(
@@ -172,6 +174,8 @@ async function upsertCommunication(
                         communication.clickHistory,
                     reply_history:
                         communication.replyHistory,
+                    hubspot_last_modified_at:
+                        communication.hubspotLastModifiedAt,
                 },
                 {
                     onConflict:
@@ -247,10 +251,8 @@ for (const hubspotEmail of hubspotEmails) {
 
 const needsHistory =
     !existing ||
-    existing.open_count !==
-        communication.openCount ||
-    existing.click_count !==
-        communication.clickCount;
+    existing.hubspot_last_modified_at !==
+        communication.hubspotLastModifiedAt;
 
         if (needsHistory) {
     const history =
@@ -347,6 +349,7 @@ type ExistingCommunication = {
     hubspot_email_id: string;
     open_count: number | null;
     click_count: number | null;
+    hubspot_last_modified_at: string | null;
 };
 
 async function loadExistingCommunications(
@@ -361,6 +364,7 @@ async function loadExistingCommunications(
                 hubspot_email_id,
                 open_count,
                 click_count,
+                hubspot_last_modified_at,
                 raise_subscription!inner(
                     raise_id
                 )
