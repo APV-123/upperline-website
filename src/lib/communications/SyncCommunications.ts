@@ -476,30 +476,31 @@ async function loadHubspotEmails(): Promise<
 async function loadCommunicationHistory(
     emailId: string
 ): Promise<HubSpotEmail> {
-    const res = await fetch(
-        `${HUBSPOT_BASE}/crm/v3/objects/emails/${emailId}` +
-            "?properties=hs_email_open_count" +
-            "&properties=hs_email_click_count" +
-            "&properties=hs_email_reply_count" +
-            "&propertiesWithHistory=hs_email_open_count" +
-            "&propertiesWithHistory=hs_email_click_count" +
-            "&propertiesWithHistory=hs_email_reply_count",
-        {
-            headers: authHeaders(),
-            cache: "no-store",
-        }
-    );
 
-    const json =
-        (await res.json()) as HubSpotEmail;
+    const url =
+        `${HUBSPOT_BASE}/crm/v3/objects/emails/${emailId}` +
+        "?properties=hs_email_open_count,hs_email_click_count,hs_email_reply_count" +
+        "&propertiesWithHistory=hs_email_open_count,hs_email_click_count,hs_email_reply_count";
+
+    console.log("[HISTORY URL]", url);
+
+    const res = await fetch(url, {
+        headers: authHeaders(),
+        cache: "no-store",
+    });
+
+    const text = await res.text();
+
+    console.log("[HISTORY STATUS]", res.status);
+    console.log("[HISTORY BODY]", text);
 
     if (!res.ok) {
         throw new Error(
-            JSON.stringify(json)
+            `HubSpot ${res.status}: ${text}`
         );
     }
 
-    return json;
+    return JSON.parse(text) as HubSpotEmail;
 }
 
 function buildSubscriptionLookup(
