@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/internal/sync?secret=c7bb7c03-50d4-45a8-a0e0-0b18c4ef0e7c",
-      "schedule": "*/10 * * * *"
+      "schedule": "*/0 3 * * *"
     }
   ]
 }
