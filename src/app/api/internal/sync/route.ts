@@ -36,7 +36,11 @@ export async function GET(
         }
 
         const raiseIds =
-            deals?.map((d) => d.raise_id) ?? [];
+    deals
+        ?.map((d) => d.raise_id)
+        .filter(
+            (id): id is string => !!id
+        ) ?? [];
 
         const results = [];
 
