@@ -8,13 +8,14 @@ type RaiseSubscription = {
 
 type HubSpotEmail = {
     id: string;
+
     properties: {
         hs_timestamp?: string;
         hs_createdate?: string;
         hs_email_subject?: string;
         hs_email_text?: string;
         hs_email_status?: string;
-        hs_email_direction?: 
+        hs_email_direction?:
             | "EMAIL"
             | "INCOMING_EMAIL";
         hs_email_headers?: string;
@@ -22,6 +23,12 @@ type HubSpotEmail = {
         hs_email_to_email?: string;
         hs_email_open_count?: string;
         hs_email_click_count?: string;
+    };
+
+    propertiesWithHistory?: {
+        hs_email_open_count?: unknown[];
+        hs_email_click_count?: unknown[];
+        hs_email_reply_count?: unknown[];
     };
 };
 
@@ -197,7 +204,17 @@ export async function syncHubspotCommunications(
 
     const hubspotEmails =
         await loadHubspotEmails();
+console.log(
+    "[FIRST EMAIL FROM SEARCH]"
+);
 
+console.log(
+    JSON.stringify(
+        hubspotEmails[0],
+        null,
+        2
+    )
+);
     console.log(
     "[SYNC] hubspot emails",
     hubspotEmails.length
@@ -217,27 +234,22 @@ for (const hubspotEmail of hubspotEmails) {
         toCommunication(
             hubspotEmail
         );
+
+        communication.openHistory =
+    hubspotEmail.propertiesWithHistory
+        ?.hs_email_open_count ?? [];
+
+communication.clickHistory =
+    hubspotEmail.propertiesWithHistory
+        ?.hs_email_click_count ?? [];
+
+communication.replyHistory =
+    hubspotEmail.propertiesWithHistory
+        ?.hs_email_reply_count ?? [];
     console.log(
     "[HISTORY]",
     communication.hubspotEmailId
 );
-
-    const history =
-    await loadCommunicationHistory(
-        communication.hubspotEmailId
-    );
-
-communication.openHistory =
-    history.propertiesWithHistory
-        ?.hs_email_open_count ?? [];
-
-communication.clickHistory =
-    history.propertiesWithHistory
-        ?.hs_email_click_count ?? [];
-
-communication.replyHistory =
-    history.propertiesWithHistory
-        ?.hs_email_reply_count ?? [];
 
     const investorEmail =
         communication.direction ===
@@ -356,6 +368,11 @@ async function loadHubspotEmails(): Promise<
                     "hs_email_open_count",
                     "hs_email_click_count",
                 ],
+                propertiesWithHistory: [
+                    "hs_email_open_count",
+                    "hs_email_click_count",
+                    "hs_email_reply_count",
+                ],
 
                 sorts: [
                     {
@@ -384,29 +401,7 @@ async function loadHubspotEmails(): Promise<
     return json.results ?? [];
 }
 
-async function loadCommunicationHistory(
-    emailId: string
-) {
-    const res = await fetch(
-        `${HUBSPOT_BASE}/crm/objects/2026-03/emails/${emailId}` +
-            "?properties=hs_email_open_count,hs_email_click_count,hs_email_reply_count" +
-            "&propertiesWithHistory=hs_email_open_count,hs_email_click_count,hs_email_reply_count",
-        {
-            headers: authHeaders(),
-            cache: "no-store",
-        }
-    );
 
-    const json = await res.json();
-
-    if (!res.ok) {
-        throw new Error(
-            JSON.stringify(json)
-        );
-    }
-
-    return json;
-}
 
 function buildSubscriptionLookup(
     subscriptions: RaiseSubscription[]
