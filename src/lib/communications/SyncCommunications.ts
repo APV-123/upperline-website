@@ -87,7 +87,7 @@ function toCommunication(
         p.hs_timestamp ??
         p.hs_createdate ??
         null,
-        
+
     hubspotLastModifiedAt:
     p.hs_lastmodifieddate ?? null,
 
@@ -247,6 +247,11 @@ for (const hubspotEmail of hubspotEmails) {
         toCommunication(
             hubspotEmail
         );
+        console.log(
+    "[LAST MODIFIED]",
+    communication.hubspotEmailId,
+    communication.hubspotLastModifiedAt
+);
     const existing =
     existingCommunications.get(
         communication.hubspotEmailId
@@ -342,7 +347,7 @@ async function loadRaiseSubscriptions(
             .eq("raise_id", raiseId);
 
     if (error) {
-        throw error;
+        throw new Error(error.message);
     }
 
     return data ?? [];
@@ -378,7 +383,7 @@ async function loadExistingCommunications(
             );
 
     if (error) {
-        throw error;
+        throw new Error (error.message);
     }
 
     const lookup = new Map<
@@ -446,6 +451,7 @@ async function loadHubspotEmails(): Promise<
                     "hs_email_to_email",
                     "hs_email_open_count",
                     "hs_email_click_count",
+                    "hs_lastmodifieddate",
                 ],
                 propertiesWithHistory: [
                     "hs_email_open_count",
