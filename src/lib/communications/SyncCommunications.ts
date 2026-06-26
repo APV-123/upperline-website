@@ -29,11 +29,9 @@ type Communication = {
     hubspotEmailId: string;
 
     subject: string | null;
-
     body: string | null;
 
     fromEmail: string | null;
-
     toEmail: string | null;
 
     direction:
@@ -43,8 +41,11 @@ type Communication = {
     sentAt: string | null;
 
     openCount: number;
-
     clickCount: number;
+
+    openHistory: unknown;
+    clickHistory: unknown;
+    replyHistory: unknown;
 };
 
 function toCommunication(
@@ -53,39 +54,45 @@ function toCommunication(
     const p = email.properties;
 
     return {
-        hubspotEmailId: email.id,
+    hubspotEmailId: email.id,
 
-        subject:
-            p.hs_email_subject ?? null,
+    subject:
+        p.hs_email_subject ?? null,
 
-        body:
-            p.hs_email_text ?? null,
+    body:
+        p.hs_email_text ?? null,
 
-        fromEmail:
-            p.hs_email_from_email ??
-            null,
+    fromEmail:
+        p.hs_email_from_email ??
+        null,
 
-        toEmail:
-            p.hs_email_to_email ??
-            null,
+    toEmail:
+        p.hs_email_to_email ??
+        null,
 
-        direction:
-            p.hs_email_direction ??
-            "EMAIL",
+    direction:
+        p.hs_email_direction ??
+        "EMAIL",
 
-        sentAt:
-            p.hs_timestamp ??
-            p.hs_createdate ??
-            null,
+    sentAt:
+        p.hs_timestamp ??
+        p.hs_createdate ??
+        null,
 
-        openCount: Number(
-            p.hs_email_open_count ?? 0
-        ),
+    openCount: Number(
+        p.hs_email_open_count ?? 0
+    ),
 
-        clickCount: Number(
-            p.hs_email_click_count ?? 0
-        ),
-    };
+    clickCount: Number(
+        p.hs_email_click_count ?? 0
+    ),
+
+    openHistory: [],
+
+    clickHistory: [],
+
+    replyHistory: [],
+};
 }
 
 async function upsertCommunication(
@@ -152,6 +159,12 @@ async function upsertCommunication(
 
                     last_synced_at:
                         now,
+                    open_history:
+                        communication.openHistory,
+                    click_history:
+                        communication.clickHistory,
+                    reply_history:
+                        communication.replyHistory,
                 },
                 {
                     onConflict:
@@ -204,6 +217,27 @@ for (const hubspotEmail of hubspotEmails) {
         toCommunication(
             hubspotEmail
         );
+    console.log(
+    "[HISTORY]",
+    communication.hubspotEmailId
+);
+
+    const history =
+    await loadCommunicationHistory(
+        communication.hubspotEmailId
+    );
+
+communication.openHistory =
+    history.propertiesWithHistory
+        ?.hs_email_open_count ?? [];
+
+communication.clickHistory =
+    history.propertiesWithHistory
+        ?.hs_email_click_count ?? [];
+
+communication.replyHistory =
+    history.propertiesWithHistory
+        ?.hs_email_reply_count ?? [];
 
     const investorEmail =
         communication.direction ===
@@ -350,6 +384,29 @@ async function loadHubspotEmails(): Promise<
     return json.results ?? [];
 }
 
+async function loadCommunicationHistory(
+    emailId: string
+) {
+    const res = await fetch(
+        `${HUBSPOT_BASE}/crm/objects/2026-03/emails/${emailId}` +
+            "?properties=hs_email_open_count,hs_email_click_count,hs_email_reply_count" +
+            "&propertiesWithHistory=hs_email_open_count,hs_email_click_count,hs_email_reply_count",
+        {
+            headers: authHeaders(),
+            cache: "no-store",
+        }
+    );
+
+    const json = await res.json();
+
+    if (!res.ok) {
+        throw new Error(
+            JSON.stringify(json)
+        );
+    }
+
+    return json;
+}
 
 function buildSubscriptionLookup(
     subscriptions: RaiseSubscription[]
