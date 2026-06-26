@@ -204,6 +204,12 @@ export async function syncHubspotCommunications(
 
     const hubspotEmails =
         await loadHubspotEmails();
+
+    const existingCommunications =
+    await loadExistingCommunications(
+        raiseId
+    );
+
 console.log(
     "[FIRST EMAIL FROM SEARCH]"
 );
@@ -234,18 +240,36 @@ for (const hubspotEmail of hubspotEmails) {
         toCommunication(
             hubspotEmail
         );
+    const existing =
+    existingCommunications.get(
+        communication.hubspotEmailId
+    );
 
-        communication.openHistory =
-    hubspotEmail.propertiesWithHistory
-        ?.hs_email_open_count ?? [];
+const needsHistory =
+    !existing ||
+    existing.open_count !==
+        communication.openCount ||
+    existing.click_count !==
+        communication.clickCount;
 
-communication.clickHistory =
-    hubspotEmail.propertiesWithHistory
-        ?.hs_email_click_count ?? [];
+        if (needsHistory) {
+    const history =
+        await loadCommunicationHistory(
+            communication.hubspotEmailId
+        );
 
-communication.replyHistory =
-    hubspotEmail.propertiesWithHistory
-        ?.hs_email_reply_count ?? [];
+    communication.openHistory =
+        history.propertiesWithHistory
+            ?.hs_email_open_count ?? [];
+
+    communication.clickHistory =
+        history.propertiesWithHistory
+            ?.hs_email_click_count ?? [];
+
+    communication.replyHistory =
+        history.propertiesWithHistory
+            ?.hs_email_reply_count ?? [];
+}
     console.log(
     "[HISTORY]",
     communication.hubspotEmailId
@@ -317,6 +341,54 @@ async function loadRaiseSubscriptions(
     }
 
     return data ?? [];
+}
+
+type ExistingCommunication = {
+    hubspot_email_id: string;
+    open_count: number | null;
+    click_count: number | null;
+};
+
+async function loadExistingCommunications(
+    raiseId: string
+) {
+    const { data, error } =
+        await supabaseServer
+            .from(
+                "raise_subscription_communications"
+            )
+            .select(`
+                hubspot_email_id,
+                open_count,
+                click_count,
+                raise_subscription!inner(
+                    raise_id
+                )
+            `)
+            .eq(
+                "raise_subscription.raise_id",
+                raiseId
+            );
+
+    if (error) {
+        throw error;
+    }
+
+    const lookup = new Map<
+        string,
+        ExistingCommunication
+    >();
+
+    for (const row of
+        (data ??
+            []) as ExistingCommunication[]) {
+        lookup.set(
+            row.hubspot_email_id,
+            row
+        );
+    }
+
+    return lookup;
 }
 
 const HUBSPOT_BASE =
@@ -401,7 +473,34 @@ async function loadHubspotEmails(): Promise<
     return json.results ?? [];
 }
 
+async function loadCommunicationHistory(
+    emailId: string
+): Promise<HubSpotEmail> {
+    const res = await fetch(
+        `${HUBSPOT_BASE}/crm/v3/objects/emails/${emailId}` +
+            "?properties=hs_email_open_count" +
+            "&properties=hs_email_click_count" +
+            "&properties=hs_email_reply_count" +
+            "&propertiesWithHistory=hs_email_open_count" +
+            "&propertiesWithHistory=hs_email_click_count" +
+            "&propertiesWithHistory=hs_email_reply_count",
+        {
+            headers: authHeaders(),
+            cache: "no-store",
+        }
+    );
 
+    const json =
+        (await res.json()) as HubSpotEmail;
+
+    if (!res.ok) {
+        throw new Error(
+            JSON.stringify(json)
+        );
+    }
+
+    return json;
+}
 
 function buildSubscriptionLookup(
     subscriptions: RaiseSubscription[]
