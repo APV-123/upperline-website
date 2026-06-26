@@ -87,6 +87,9 @@ function toCommunication(
         p.hs_timestamp ??
         p.hs_createdate ??
         null,
+        
+    hubspotLastModifiedAt:
+    p.hs_lastmodifieddate ?? null,
 
     openCount: Number(
         p.hs_email_open_count ?? 0
