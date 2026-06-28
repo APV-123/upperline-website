@@ -36,20 +36,78 @@ export default function InvestorV2Page() {
 
                     <aside className={styles.sidebar}>
 
-                        <div className={styles.card}>
-                            <h3>Investor</h3>
-                        </div>
+                        <div className={styles.profileCard}>
 
-                        <div className={styles.card}>
-                            <h3>Opportunity</h3>
-                        </div>
+                            <div className={styles.avatar}>
+                                AV
+                            </div>
 
-                        <div className={styles.card}>
-                            <h3>Relationship</h3>
-                        </div>
+                            <h2 className={styles.profileName}>
+                                Alexander Vitenas
+                            </h2>
 
-                        <div className={styles.card}>
-                            <h3>Quick Actions</h3>
+                            <div className={styles.profileTitle}>
+                                Managing Partner
+                            </div>
+
+                            <div className={styles.profileCompany}>
+                                Upperline Capital
+                            </div>
+
+                            <div className={styles.profileEmail}>
+                                alex@upperlineco.com
+                            </div>
+
+                            <div className={styles.divider} />
+
+                            <div className={styles.sectionTitle}>
+                                Opportunity
+                            </div>
+
+                            <div className={styles.statRow}>
+                                <span>Stage</span>
+                                <strong>Committed</strong>
+                            </div>
+
+                            <div className={styles.statRow}>
+                                <span>Amount</span>
+                                <strong>$250,000</strong>
+                            </div>
+
+                            <div className={styles.divider} />
+
+                            <div className={styles.sectionTitle}>
+                                Relationship
+                            </div>
+
+                            <div className={styles.statRow}>
+                                <span>Health</span>
+                                <strong>Excellent</strong>
+                            </div>
+
+                            <div className={styles.statRow}>
+                                <span>Last Activity</span>
+                                <strong>2h ago</strong>
+                            </div>
+
+                            <div className={styles.divider} />
+
+                            <div className={styles.sectionTitle}>
+                                Quick Actions
+                            </div>
+
+                            <button className={styles.sidebarButton}>
+                                Send Email
+                            </button>
+
+                            <button className={styles.sidebarButton}>
+                                Add Note
+                            </button>
+
+                            <button className={styles.sidebarButton}>
+                                Schedule Meeting
+                            </button>
+
                         </div>
 
                     </aside>

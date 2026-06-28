@@ -131,3 +131,155 @@
 
     font-weight: 600;
 }
+.profileCard{
+
+    background:#10233d;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    border-radius:18px;
+
+    padding:28px;
+
+    display:flex;
+
+    flex-direction:column;
+}
+
+.avatar{
+
+    width:72px;
+
+    height:72px;
+
+    border-radius:50%;
+
+    background:#37c5dd;
+
+    color:#071321;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-weight:700;
+
+    font-size:26px;
+
+    margin-bottom:20px;
+}
+
+.profileName{
+
+    margin:0;
+
+    color:white;
+
+    font-size:28px;
+
+    line-height:1.2;
+}
+
+.profileTitle{
+
+    margin-top:8px;
+
+    color:rgba(255,255,255,.75);
+
+    font-size:15px;
+}
+
+.profileCompany{
+
+    margin-top:2px;
+
+    color:rgba(255,255,255,.75);
+
+    font-size:15px;
+}
+
+.profileEmail{
+
+    margin-top:18px;
+
+    color:#56d4ff;
+
+    font-size:14px;
+}
+
+.divider{
+
+    height:1px;
+
+    background:rgba(255,255,255,.08);
+
+    margin:28px 0;
+}
+
+.sectionTitle{
+
+    color:white;
+
+    font-weight:700;
+
+    margin-bottom:18px;
+
+    font-size:15px;
+
+    text-transform:uppercase;
+
+    letter-spacing:.08em;
+}
+
+.statRow{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:14px;
+
+    font-size:15px;
+}
+
+.statRow span{
+
+    color:rgba(255,255,255,.65);
+}
+
+.statRow strong{
+
+    color:white;
+
+    font-weight:600;
+}
+
+.sidebarButton{
+
+    margin-bottom:10px;
+
+    padding:12px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#183252;
+
+    color:white;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.sidebarButton:hover{
+
+    background:#234267;
+}
