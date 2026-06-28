@@ -9,7 +9,7 @@
 .header {
     max-width: 1700px;
 
-    margin: 0 auto 32px auto;
+    margin: 0 auto 52px auto;
 
     display: flex;
 
@@ -282,4 +282,58 @@
 .sidebarButton:hover{
 
     background:#234267;
+}
+.metricsBar{
+
+    background:#10233d;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    border-radius:18px;
+
+    padding:26px 32px;
+
+    display:grid;
+
+    grid-template-columns:repeat(5,1fr);
+
+    gap:24px;
+}
+
+.metric{
+
+    display:flex;
+
+    flex-direction:column;
+}
+
+.metricLabel{
+
+    font-size:12px;
+
+    letter-spacing:.08em;
+
+    text-transform:uppercase;
+
+    color:rgba(255,255,255,.55);
+
+    margin-bottom:10px;
+}
+
+.metricValue{
+
+    color:white;
+
+    font-size:20px;
+
+    font-weight:600;
+}
+
+.metricValueGreen{
+
+    color:#45d483;
+
+    font-size:20px;
+
+    font-weight:700;
 }

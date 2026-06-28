@@ -26,10 +26,6 @@ export default function InvestorV2Page() {
                         </div>
                     </div>
 
-                    <button className={styles.actionButton}>
-                        Actions
-                    </button>
-
                 </div>
 
                 <div className={styles.workspace}>
@@ -114,8 +110,58 @@ export default function InvestorV2Page() {
 
                     <main className={styles.main}>
 
-                        <div className={styles.card}>
-                            <h2>Relationship Snapshot</h2>
+                        <div className={styles.metricsBar}>
+
+                            <div className={styles.metric}>
+                                <div className={styles.metricLabel}>
+                                    Stage
+                                </div>
+
+                                <div className={styles.metricValue}>
+                                    Committed
+                                </div>
+                            </div>
+
+                            <div className={styles.metric}>
+                                <div className={styles.metricLabel}>
+                                    Amount
+                                </div>
+
+                                <div className={styles.metricValue}>
+                                    $250,000
+                                </div>
+                            </div>
+
+                            <div className={styles.metric}>
+                                <div className={styles.metricLabel}>
+                                    Relationship
+                                </div>
+
+                                <div className={styles.metricValueGreen}>
+                                    ● Healthy
+                                </div>
+                            </div>
+
+                            <div className={styles.metric}>
+                                <div className={styles.metricLabel}>
+                                    Last Activity
+                                </div>
+
+                                <div className={styles.metricValue}>
+                                    2 hours ago
+                                </div>
+                            </div>
+
+                            <div className={styles.metric}>
+                                <div className={styles.metricLabel}>
+                                    Next Action
+                                </div>
+
+                                <div className={styles.metricValue}>
+                                    Follow Up
+                                </div>
+                            </div>
+
                         </div>
 
                         <div className={styles.cardLarge}>
