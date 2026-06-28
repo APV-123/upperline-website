@@ -1,3 +1,5 @@
+'use client';
+
 import {
     ListFilter,
     Mail,
@@ -7,7 +9,7 @@ import {
     CheckSquare,
     ArrowRightLeft,
 } from 'lucide-react';
-'use client';
+
 
 import AdminNav from '@/components/navigation/AdminNav';
 import styles from './page.module.css';
