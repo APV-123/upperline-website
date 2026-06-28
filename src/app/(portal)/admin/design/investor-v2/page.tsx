@@ -1,3 +1,12 @@
+import {
+    ListFilter,
+    Mail,
+    FileText,
+    NotebookPen,
+    CalendarDays,
+    CheckSquare,
+    ArrowRightLeft,
+} from 'lucide-react';
 'use client';
 
 import AdminNav from '@/components/navigation/AdminNav';
@@ -185,32 +194,41 @@ export default function InvestorV2Page() {
 
                             <div className={styles.timelineHeader}>
 
-                                <h2>Relationship Timeline</h2>
+                                <div>
+                                    <h2 className={styles.timelineTitle}>
+                                        Relationship Timeline
+                                    </h2>
+
+                                    <div className={styles.timelineSubtitle}>
+                                        Every interaction with this investor in one place.
+                                    </div>
+                                </div>
 
                                 <div className={styles.timelineFilters}>
 
                                     <button className={styles.filterActive}>
-                                        All
+                                        <ListFilter size={15} />   All
                                     </button>
 
                                     <button className={styles.filter}>
+                                        <Mail size={15} />
                                         Emails
                                     </button>
 
                                     <button className={styles.filter}>
-                                        Notes
+                                        <NotebookPen size={15} />  Notes
                                     </button>
 
                                     <button className={styles.filter}>
-                                        Meetings
+                                        <CalendarDays size={15} /> Meetings
                                     </button>
 
                                     <button className={styles.filter}>
-                                        Documents
+                                        <FileText size={15} />     Documents
                                     </button>
 
                                     <button className={styles.filter}>
-                                        Tasks
+                                        <CheckSquare size={15} />  Tasks
                                     </button>
 
                                 </div>
@@ -224,7 +242,8 @@ export default function InvestorV2Page() {
                                     <div className={styles.eventTop}>
 
                                         <span className={styles.eventBadge}>
-                                            📄 DOCUMENT
+                                            <FileText size={13} />
+                                            DOCUMENT
                                         </span>
 
                                         <span className={styles.eventTime}>
@@ -282,7 +301,8 @@ export default function InvestorV2Page() {
                                     <div className={styles.eventTop}>
 
                                         <span className={styles.eventBadge}>
-                                            📝 NOTE
+                                            <NotebookPen size={13} />
+                                            NOTE
                                         </span>
 
                                         <span className={styles.eventTime}>
@@ -311,7 +331,8 @@ export default function InvestorV2Page() {
                                     <div className={styles.eventTop}>
 
                                         <span className={styles.eventBadge}>
-                                            📧 EMAIL
+                                            <Mail size={13} />
+                                            EMAIL
                                         </span>
 
                                         <span className={styles.eventTime}>
@@ -340,7 +361,8 @@ export default function InvestorV2Page() {
                                     <div className={styles.eventTop}>
 
                                         <span className={styles.eventBadge}>
-                                            🔄 STAGE
+                                            <ArrowRightLeft size={13} />
+                                            STAGE
                                         </span>
 
                                         <span className={styles.eventTime}>
