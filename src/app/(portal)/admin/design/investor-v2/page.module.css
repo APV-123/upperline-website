@@ -1,0 +1,28 @@
+.page{
+    min-height:calc(100vh - 64px);
+    background:#071321;
+    padding:28px;
+}
+
+.workspace{
+    max-width:1700px;
+    margin:0 auto;
+
+    display:grid;
+
+    grid-template-columns:340px 1fr;
+
+    gap:28px;
+}
+
+.summary{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.content{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
