@@ -13,17 +13,15 @@ export default function InvestorV2Page() {
                 <div className={styles.header}>
 
                     <div>
+
                         <div className={styles.breadcrumb}>
                             ← Colony Lakes
                         </div>
 
-                        <h1 className={styles.title}>
-                            Alexander Vitenas
+                        <h1 className={styles.dealTitle}>
+                            Investor Workspace
                         </h1>
 
-                        <div className={styles.subtitle}>
-                            Managing Partner • Upperline Capital
-                        </div>
                     </div>
 
                 </div>
@@ -60,15 +58,34 @@ export default function InvestorV2Page() {
                                 Opportunity
                             </div>
 
-                            <div className={styles.statRow}>
-                                <span>Stage</span>
-                                <strong>Committed</strong>
+                            <div className={styles.field}>
+
+                                <label>Stage</label>
+
+                                <select className={styles.input}>
+                                    <option>Introduced</option>
+                                    <option>Interested</option>
+                                    <option>Circling</option>
+                                    <option>Committed</option>
+                                    <option>Funded</option>
+                                </select>
+
                             </div>
 
-                            <div className={styles.statRow}>
-                                <span>Amount</span>
-                                <strong>$250,000</strong>
+                            <div className={styles.field}>
+
+                                <label>Amount</label>
+
+                                <input
+                                    className={styles.input}
+                                    defaultValue="$250,000"
+                                />
+
                             </div>
+
+                            <button className={styles.primaryButton}>
+                                Save Changes
+                            </button>
 
                             <div className={styles.divider} />
 
@@ -111,15 +128,16 @@ export default function InvestorV2Page() {
                     <main className={styles.main}>
 
                         <div className={styles.metricsBar}>
-
                             <div className={styles.metric}>
+
                                 <div className={styles.metricLabel}>
-                                    Stage
+                                    Last Contact
                                 </div>
 
                                 <div className={styles.metricValue}>
-                                    Committed
+                                    Jun 23
                                 </div>
+
                             </div>
 
                             <div className={styles.metric}>
