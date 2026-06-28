@@ -325,7 +325,7 @@ export default function InvestorV2Page() {
                                     </div>
 
                                     <div className={styles.eventDescription}>
-                                        "I'll review everything over the weekend."
+                                        Investor replied that they&apos;ll review everything over the weekend.
                                     </div>
 
                                     <div className={styles.eventMeta}>
