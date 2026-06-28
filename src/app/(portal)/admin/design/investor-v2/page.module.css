@@ -393,3 +393,65 @@
 
     cursor:pointer;
 }
+.eventTop{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+}
+
+.eventBadge{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+
+    padding:4px 10px;
+
+    border-radius:999px;
+
+    background:#214165;
+    color:#8fd6ff;
+}
+
+.eventTime{
+    font-size:12px;
+    color:#8fa6c4;
+}
+
+.eventDescription{
+    margin-top:8px;
+    color:#b9c7da;
+    line-height:1.55;
+}
+
+.eventMeta{
+    margin-top:14px;
+    font-size:12px;
+    color:#7f93ad;
+}
+
+.timelineEvent{
+    background:#142743;
+    border-radius:14px;
+    padding:20px 22px;
+    margin-bottom:18px;
+
+    border-left:5px solid transparent;
+}
+
+.document{
+    border-left-color:#29c7ff;
+}
+
+.note{
+    border-left-color:#f7c948;
+}
+
+.email{
+    border-left-color:#5fa8ff;
+}
+
+.stage{
+    border-left-color:#7c8cff;
+}

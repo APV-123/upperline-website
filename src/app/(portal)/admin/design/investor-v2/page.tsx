@@ -119,7 +119,7 @@ export default function InvestorV2Page() {
                                 Schedule Meeting
                             </button>
                             <button className={styles.sidebarButton}>
-                                Log Commitment
+                                Invite to Appfolio
                             </button>
                         </div>
 
@@ -219,74 +219,148 @@ export default function InvestorV2Page() {
 
                             <div className={styles.timeline}>
 
-                                <div className={styles.timelineEvent}>
-                                    <div className={styles.eventType}>
-                                        📄 Document
+                                <div className={`${styles.timelineEvent} ${styles.document}`}>
+
+                                    <div className={styles.eventTop}>
+
+                                        <span className={styles.eventBadge}>
+                                            📄 DOCUMENT
+                                        </span>
+
+                                        <span className={styles.eventTime}>
+                                            Today • 9:42 AM
+                                        </span>
+
                                     </div>
 
                                     <div className={styles.eventTitle}>
                                         Financial Model Downloaded
                                     </div>
 
-                                    <div className={styles.eventMeta}>
-                                        Today • 9:42 AM • Portal
+                                    <div className={styles.eventDescription}>
+                                        Downloaded from the Investor Portal.
                                     </div>
+
+                                    <div className={styles.eventMeta}>
+                                        Portal
+                                    </div>
+
                                 </div>
 
-                                <div className={styles.timelineEvent}>
-                                    <div className={styles.eventType}>
-                                        📄 Document
+
+                                <div className={`${styles.timelineEvent} ${styles.document}`}>
+
+                                    <div className={styles.eventTop}>
+
+                                        <span className={styles.eventBadge}>
+                                            📄 DOCUMENT
+                                        </span>
+
+                                        <span className={styles.eventTime}>
+                                            Today • 9:38 AM
+                                        </span>
+
                                     </div>
 
                                     <div className={styles.eventTitle}>
                                         Investment Memorandum Viewed
                                     </div>
 
-                                    <div className={styles.eventMeta}>
-                                        Today • 9:38 AM • Portal
+                                    <div className={styles.eventDescription}>
+                                        Investor has viewed the memorandum 11 times.
                                     </div>
+
+                                    <div className={styles.eventMeta}>
+                                        Portal
+                                    </div>
+
                                 </div>
 
-                                <div className={styles.timelineEvent}>
-                                    <div className={styles.eventType}>
-                                        📝 Note
+
+                                <div className={`${styles.timelineEvent} ${styles.note}`}>
+
+                                    <div className={styles.eventTop}>
+
+                                        <span className={styles.eventBadge}>
+                                            📝 NOTE
+                                        </span>
+
+                                        <span className={styles.eventTime}>
+                                            Jun 22 • 4:17 PM
+                                        </span>
+
                                     </div>
 
                                     <div className={styles.eventTitle}>
                                         Internal Note Added
                                     </div>
 
-                                    <div className={styles.eventMeta}>
-                                        Jun 22 • Alex Vitenas
-                                    </div>
-                                </div>
-
-                                <div className={styles.timelineEvent}>
-                                    <div className={styles.eventType}>
-                                        📧 Email
-                                    </div>
-
-                                    <div className={styles.eventTitle}>
-                                        Investor replied to follow-up email
+                                    <div className={styles.eventDescription}>
+                                        Waiting on investment committee feedback before scheduling another call.
                                     </div>
 
                                     <div className={styles.eventMeta}>
-                                        Jun 20 • Outlook
+                                        Alex Vitenas
                                     </div>
+
                                 </div>
 
-                                <div className={styles.timelineEvent}>
-                                    <div className={styles.eventType}>
-                                        🔄 Stage
+
+                                <div className={`${styles.timelineEvent} ${styles.email}`}>
+
+                                    <div className={styles.eventTop}>
+
+                                        <span className={styles.eventBadge}>
+                                            📧 EMAIL
+                                        </span>
+
+                                        <span className={styles.eventTime}>
+                                            Jun 20 • 2:49 PM
+                                        </span>
+
                                     </div>
 
                                     <div className={styles.eventTitle}>
+                                        Investor Replied
+                                    </div>
+
+                                    <div className={styles.eventDescription}>
+                                        "I'll review everything over the weekend."
+                                    </div>
+
+                                    <div className={styles.eventMeta}>
+                                        Outlook
+                                    </div>
+
+                                </div>
+
+
+                                <div className={`${styles.timelineEvent} ${styles.stage}`}>
+
+                                    <div className={styles.eventTop}>
+
+                                        <span className={styles.eventBadge}>
+                                            🔄 STAGE
+                                        </span>
+
+                                        <span className={styles.eventTime}>
+                                            Jun 19 • 4:38 PM
+                                        </span>
+
+                                    </div>
+
+                                    <div className={styles.eventTitle}>
+                                        Stage Changed
+                                    </div>
+
+                                    <div className={styles.eventDescription}>
                                         Introduced → Interested
                                     </div>
 
                                     <div className={styles.eventMeta}>
-                                        Jun 19 • Alex Vitenas
+                                        Alex Vitenas
                                     </div>
+
                                 </div>
 
                             </div>
