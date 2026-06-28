@@ -274,7 +274,8 @@ export default function InvestorV2Page() {
                                     <div className={styles.eventTop}>
 
                                         <span className={styles.eventBadge}>
-                                            📄 DOCUMENT
+                                            <FileText size={13} />
+                                            DOCUMENT
                                         </span>
 
                                         <span className={styles.eventTime}>

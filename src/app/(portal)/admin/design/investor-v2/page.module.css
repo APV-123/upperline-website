@@ -45,20 +45,9 @@
     font-size: 16px;
 }
 
-.actionButton {
-    background: #37c5dd;
+.good{
 
-    color: #071321;
-
-    border: none;
-
-    border-radius: 10px;
-
-    padding: 12px 18px;
-
-    font-weight: 600;
-
-    cursor: pointer;
+    color:#45d483;
 }
 
 .workspace {
@@ -94,44 +83,6 @@
     gap: 20px;
 }
 
-.card {
-
-    background: #10233d;
-
-    border: 1px solid rgba(255,255,255,.06);
-
-    border-radius: 18px;
-
-    padding: 24px;
-
-    min-height: 150px;
-}
-
-.cardLarge {
-
-    background: #10233d;
-
-    border: 1px solid rgba(255,255,255,.06);
-
-    border-radius: 18px;
-
-    padding: 24px;
-
-    min-height: 520px;
-}
-
-.card h2,
-.card h3,
-.cardLarge h2 {
-
-    margin: 0;
-
-    color: white;
-
-    font-size: 18px;
-
-    font-weight: 600;
-}
 .profileCard{
 
     background:#10233d;
@@ -172,34 +123,6 @@
     margin-bottom:20px;
 }
 
-.profileName{
-
-    margin:0;
-
-    color:white;
-
-    font-size:28px;
-
-    line-height:1.2;
-}
-
-.profileTitle{
-
-    margin-top:8px;
-
-    color:rgba(255,255,255,.75);
-
-    font-size:15px;
-}
-
-.profileCompany{
-
-    margin-top:2px;
-
-    color:rgba(255,255,255,.75);
-
-    font-size:15px;
-}
 
 .profileEmail{
 
@@ -401,17 +324,24 @@
 }
 
 .eventBadge{
-    font-size:11px;
-    font-weight:700;
-    letter-spacing:.08em;
-    text-transform:uppercase;
 
-    padding:4px 10px;
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    padding:5px 10px;
 
     border-radius:999px;
 
-    background:#214165;
-    color:#8fd6ff;
+    font-size:11px;
+
+    font-weight:700;
+
+    letter-spacing:.08em;
+
+    text-transform:uppercase;
 }
 
 .eventTime{
@@ -434,7 +364,7 @@
 .timelineEvent{
     background:#142743;
     border-radius:14px;
-    padding:20px 22px;
+    padding:22px 24px;
     margin-bottom:18px;
 
     border-left:5px solid transparent;
@@ -465,7 +395,11 @@
     align-items:center;
     gap:8px;
 
-    padding:10px 18px;
+    padding: 8px 14px;
+
+    font-size: 13px;
+
+    font-weight: 600;
 
     border-radius:999px;
 
@@ -474,8 +408,6 @@
     background:#132745;
 
     color:#d7e5ff;
-
-    font-size:14px;
 
     cursor:pointer;
 
@@ -487,7 +419,7 @@
 }
 .filterActive{
 
-    composes:filter;
+    composes: filter;
 
     background:#0d7ea5;
 
@@ -503,21 +435,91 @@
 
     align-items:flex-end;
 
-    margin-bottom:28px;
+    padding:28px 32px 20px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
 }
 .timelineTitle{
 
-    font-size:30px;
+    font-size:32px;
 
     font-weight:700;
+
+    color: white;
 
     margin:0;
 }
 .timelineSubtitle{
 
-    margin-top:6px;
+    margin-top:10px;
 
-    color:#7e96b8;
+    color:#89a6c7;
 
-    font-size:14px;
+    font-size:15px;
+}
+.timelineCard{
+
+    background:#10233d;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    border-radius:18px;
+
+    overflow:hidden;
+}
+.timeline{
+
+    padding:26px;
+}
+.filter svg{
+
+    width:14px;
+
+    height:14px;
+
+    flex-shrink:0;
+}
+.eventTitle{
+
+    color:white;
+
+    font-size:19px;
+
+    font-weight:700;
+
+    margin-bottom:8px;
+}
+.document .eventBadge{
+
+    background:rgba(41,199,255,.14);
+
+    color:#4bd4ff;
+}
+.note .eventBadge{
+
+    background:rgba(247,201,72,.14);
+
+    color:#ffd65a;
+}
+.email .eventBadge{
+
+    background:rgba(95,168,255,.14);
+
+    color:#7ab8ff;
+}
+.stage .eventBadge{
+
+    background:rgba(124,140,255,.14);
+
+    color:#95a2ff;
+}
+.timelineEvent{
+
+    transition:.18s ease;
+}
+.timelineEvent:hover{
+
+    transform:translateY(-1px);
+
+    background:#183252;
 }
