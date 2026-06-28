@@ -17,10 +17,13 @@ export default function InvestorV2Page() {
                         <div className={styles.breadcrumb}>
                             ← Colony Lakes
                         </div>
-
                         <h1 className={styles.dealTitle}>
-                            Investor Workspace
+                            Alexander Vitenas
                         </h1>
+
+                        <div className={styles.subtitle}>
+                            Managing Partner • Upperline Capital
+                        </div>
 
                     </div>
 
@@ -36,18 +39,6 @@ export default function InvestorV2Page() {
                                 AV
                             </div>
 
-                            <h2 className={styles.profileName}>
-                                Alexander Vitenas
-                            </h2>
-
-                            <div className={styles.profileTitle}>
-                                Managing Partner
-                            </div>
-
-                            <div className={styles.profileCompany}>
-                                Upperline Capital
-                            </div>
-
                             <div className={styles.profileEmail}>
                                 alex@upperlineco.com
                             </div>
@@ -55,7 +46,7 @@ export default function InvestorV2Page() {
                             <div className={styles.divider} />
 
                             <div className={styles.sectionTitle}>
-                                Opportunity
+                                Investment
                             </div>
 
                             <div className={styles.field}>
@@ -94,13 +85,20 @@ export default function InvestorV2Page() {
                             </div>
 
                             <div className={styles.statRow}>
-                                <span>Health</span>
-                                <strong>Excellent</strong>
+                                <span>Status</span>
+                                <strong className={styles.good}>
+                                    ● Highly Engaged
+                                </strong>
                             </div>
 
                             <div className={styles.statRow}>
                                 <span>Last Activity</span>
-                                <strong>2h ago</strong>
+                                <strong>Viewed Financial Model</strong>
+                            </div>
+
+                            <div className={styles.statRow}>
+                                <span>When</span>
+                                <strong>2 hours ago</strong>
                             </div>
 
                             <div className={styles.divider} />
@@ -128,17 +126,6 @@ export default function InvestorV2Page() {
                     <main className={styles.main}>
 
                         <div className={styles.metricsBar}>
-                            <div className={styles.metric}>
-
-                                <div className={styles.metricLabel}>
-                                    Last Contact
-                                </div>
-
-                                <div className={styles.metricValue}>
-                                    Jun 23
-                                </div>
-
-                            </div>
 
                             <div className={styles.metric}>
                                 <div className={styles.metricLabel}>
@@ -162,28 +149,38 @@ export default function InvestorV2Page() {
 
                             <div className={styles.metric}>
                                 <div className={styles.metricLabel}>
-                                    Last Activity
+                                    Documents Viewed
                                 </div>
 
                                 <div className={styles.metricValue}>
-                                    2 hours ago
+                                    IM • 11&nbsp;&nbsp;FM • 2
                                 </div>
                             </div>
 
                             <div className={styles.metric}>
                                 <div className={styles.metricLabel}>
-                                    Next Action
+                                    Last Contact
                                 </div>
 
                                 <div className={styles.metricValue}>
-                                    Follow Up
+                                    Jun&nbsp;23
+                                </div>
+                            </div>
+
+                            <div className={styles.metric}>
+                                <div className={styles.metricLabel}>
+                                    Next Follow-Up
+                                </div>
+
+                                <div className={styles.metricValue}>
+                                    Tomorrow
                                 </div>
                             </div>
 
                         </div>
 
                         <div className={styles.cardLarge}>
-                            <h2>Timeline</h2>
+                            <h2>Relationship Timeline</h2>
                         </div>
 
                         <div className={styles.card}>
