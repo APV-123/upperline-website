@@ -8,6 +8,7 @@ import {
     CalendarDays,
     CheckSquare,
     ArrowRightLeft,
+    Building2,
 } from 'lucide-react';
 
 
@@ -119,18 +120,22 @@ export default function InvestorV2Page() {
                             </div>
 
                             <button className={styles.sidebarButton}>
+                                <Mail size={16} />
                                 Send Email
                             </button>
 
                             <button className={styles.sidebarButton}>
+                                <NotebookPen size={16} />
                                 Add Note
                             </button>
 
                             <button className={styles.sidebarButton}>
+                                <CalendarDays size={16} />
                                 Schedule Meeting
                             </button>
                             <button className={styles.sidebarButton}>
-                                Invite to Appfolio
+                                <Building2 size={16} />
+                                Invite to AppFolio
                             </button>
                         </div>
 
@@ -196,20 +201,19 @@ export default function InvestorV2Page() {
 
                             <div className={styles.timelineHeader}>
 
-                                <div>
-                                    <h2 className={styles.timelineTitle}>
-                                        Relationship Timeline
-                                    </h2>
+                                <h2 className={styles.timelineTitle}>
+                                    Relationship Timeline
+                                </h2>
 
-                                    <div className={styles.timelineSubtitle}>
-                                        Every interaction with this investor in one place.
-                                    </div>
+                                <div className={styles.timelineSubtitle}>
+                                    Every interaction with this investor in one place.
                                 </div>
 
                                 <div className={styles.timelineFilters}>
 
                                     <button className={styles.filterActive}>
-                                        <ListFilter size={15} />   All
+                                        <ListFilter size={15} />
+                                        All
                                     </button>
 
                                     <button className={styles.filter}>
@@ -218,19 +222,23 @@ export default function InvestorV2Page() {
                                     </button>
 
                                     <button className={styles.filter}>
-                                        <NotebookPen size={15} />  Notes
+                                        <NotebookPen size={15} />
+                                        Notes
                                     </button>
 
                                     <button className={styles.filter}>
-                                        <CalendarDays size={15} /> Meetings
+                                        <CalendarDays size={15} />
+                                        Meetings
                                     </button>
 
                                     <button className={styles.filter}>
-                                        <FileText size={15} />     Documents
+                                        <FileText size={15} />
+                                        Documents
                                     </button>
 
                                     <button className={styles.filter}>
-                                        <CheckSquare size={15} />  Tasks
+                                        <CheckSquare size={15} />
+                                        Tasks
                                     </button>
 
                                 </div>
