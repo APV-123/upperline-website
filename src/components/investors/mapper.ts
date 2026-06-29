@@ -23,7 +23,7 @@ function getInitials(name: string) {
 type HubSpotContact = {
     company?: string | null;
     jobtitle?: string | null;
-    hs_avatar_url?: string | null;
+    photo?: string | null;
 };
 
 export function mapInvestor(
@@ -42,7 +42,7 @@ export function mapInvestor(
 
     title: contact.jobtitle ?? null,
 
-    avatarUrl: contact.hs_avatar_url ?? null,
+    avatarUrl: contact.photo ?? null,
 
     initials: getInitials(
         subscription.contact_name

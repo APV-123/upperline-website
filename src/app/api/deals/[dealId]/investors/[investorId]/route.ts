@@ -135,10 +135,10 @@ const investor = mapInvestor(
                 ? hubspotProperties.jobtitle
                 : null,
 
-        hs_avatar_url:
-            typeof hubspotProperties.hs_avatar_url === 'string'
-                ? hubspotProperties.hs_avatar_url
-                : null,
+        photo:
+    typeof hubspotProperties.photo === 'string'
+        ? hubspotProperties.photo
+        : null,
     }
 );
 
