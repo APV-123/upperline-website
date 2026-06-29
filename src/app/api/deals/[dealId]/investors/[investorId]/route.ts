@@ -109,6 +109,57 @@ let hubspotProperties: Record<string, unknown> = {};
 if (hubspotRes.ok) {
     const hubspot = await hubspotRes.json();
 
-    return NextResponse.json(hubspot);
+console.log(
+    '[HUBSPOT RAW]',
+    JSON.stringify(hubspot, null, 2)
+);
+
+hubspotProperties = hubspot.properties ?? {};
+
+    
+
+    console.log(
+        '[HUBSPOT CONTACT]',
+        hubspotProperties
+    );
+} else {
+    console.error(
+        '[HUBSPOT CONTACT FAILED]',
+        hubspotRes.status
+    );
 }
+
+const investor = mapInvestor(
+    subscription,
+    {
+        company:
+            typeof hubspotProperties.company === 'string'
+                ? hubspotProperties.company
+                : null,
+
+        jobtitle:
+            typeof hubspotProperties.jobtitle === 'string'
+                ? hubspotProperties.jobtitle
+                : null,
+
+        photo:
+    typeof hubspotProperties.photo === 'string'
+        ? hubspotProperties.photo
+        : null,
+    }
+);
+
+return NextResponse.json<InvestorWorkspaceResponse>({
+    ok: true,
+    investor,
+    metrics: {
+        amount: 0,
+        relationship: "Healthy",
+        memorandumViews: 0,
+        modelDownloads: 0,
+        lastContact: "",
+        nextFollowUp: "",
+    },
+    timeline: [],
+});
 }
