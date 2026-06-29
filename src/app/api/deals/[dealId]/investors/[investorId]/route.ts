@@ -7,6 +7,28 @@ import type {
 } from "@/components/investors/types";
 import { mapInvestor } from '@/components/investors/mapper';
 
+const HUBSPOT_BASE = 'https://api.hubapi.com';
+
+function getHubSpotToken(): string | null {
+    const raw =
+        process.env.HUBSPOT_PRIVATE_APP_TOKEN;
+
+    if (!raw) return null;
+
+    return raw
+        .replace(/^['"]|['"]$/g, '')
+        .trim();
+}
+
+function authHeaders() {
+    const token = getHubSpotToken();
+
+    return {
+        authorization: `Bearer ${token}`,
+        accept: 'application/json',
+    };
+}
+
 type InvestorWorkspaceResponse = {
     ok: true;
     investor: Investor;
@@ -71,7 +93,26 @@ export async function GET(
         }
     );
 }
-    const investor = mapInvestor(subscription);
+
+// ✅ Fetch HubSpot contact
+const hubspotRes = await fetch(
+    `${HUBSPOT_BASE}/crm/v3/objects/contacts/${investorId}` +
+        `?properties=firstname,lastname,company,jobtitle,hs_avatar_url,email`,
+    {
+        headers: authHeaders(),
+        cache: 'no-store',
+    }
+);
+
+const hubspot = await hubspotRes.json();
+
+console.log(
+    '[HUBSPOT CONTACT]',
+    hubspot.properties
+);
+
+// Temporary — we'll change this next
+const investor = mapInvestor(subscription);
 
 return NextResponse.json<InvestorWorkspaceResponse>({
     ok: true,
