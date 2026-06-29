@@ -40,12 +40,10 @@ export default function InvestorPage() {
 
         const json = await res.json();
 
-        console.log(json);
+        setInvestor(json.investor);
+        setMetrics(json.metrics);
+        setTimeline(json.timeline);
 
-        // Next commit:
-        // setInvestor(json.investor);
-        // setMetrics(json.metrics);
-        // setTimeline(json.timeline);
     }
 
     if (!investor || !metrics) {
