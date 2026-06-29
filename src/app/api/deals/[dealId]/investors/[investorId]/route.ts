@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { supabaseServer } from '@/lib/SupabaseServer';
 import type {
     Investor,
     InvestorMetrics,
@@ -31,13 +32,47 @@ export async function GET(
     const { dealId, investorId } =
     await context.params;
 
-    return NextResponse.json<{
-    ok: true;
-    dealId: string;
-    investorId: string;
-}>({
+    const { data: deal, error: dealError } =
+    await supabaseServer
+        .from('deals')
+        .select('raise_id')
+        .eq('id', dealId)
+        .single();
+
+    if (dealError || !deal) {
+    return NextResponse.json<InvestorWorkspaceError>(
+        {
+            ok: false,
+            error: 'Deal not found',
+        },
+        {
+            status: 404,
+        }
+    );
+}    
+    const { data: subscription, error } =
+    await supabaseServer
+        .from('raise_subscriptions')
+        .select('*')
+        .eq('raise_id', deal.raise_id)
+        .eq('contact_id', investorId)
+        .single();
+
+
+    if (error || !subscription) {
+    return NextResponse.json<InvestorWorkspaceError>(
+        {
+            ok: false,
+            error: 'Investor not found',
+        },
+        {
+            status: 404,
+        }
+    );
+}
+    return NextResponse.json({
     ok: true,
-    dealId,
-    investorId,
+    deal,
+    subscription,
 });
 }
