@@ -19,7 +19,7 @@ type InvestorWorkspaceError = {
 
 type Params = {
     dealId: string;
-    contactId: string;
+    investorId: string;
 };
 
 export async function GET(
@@ -28,16 +28,16 @@ export async function GET(
         params: Params | Promise<Params>;
     }
 ) {
-    const { dealId, contactId } =
-        await context.params;
+    const { dealId, investorId } =
+    await context.params;
 
     return NextResponse.json<{
     ok: true;
     dealId: string;
-    contactId: string;
+    investorId: string;
 }>({
     ok: true,
     dealId,
-    contactId,
+    investorId,
 });
 }
