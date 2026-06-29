@@ -7,7 +7,6 @@ type SubscriptionRow = {
     contact_name: string;
     contact_email: string;
     status: string;
-    amount: number | null;
     last_activity_at: string | null;
 };
 
@@ -50,7 +49,7 @@ export function mapInvestor(
 
     stage: subscription.status,
 
-    amount: subscription.amount ?? 0,
+    amount: 250000,
 
     relationship: 'Healthy',
 

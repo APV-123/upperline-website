@@ -157,7 +157,7 @@ return NextResponse.json<InvestorWorkspaceResponse>({
     ok: true,
     investor,
     metrics: {
-        amount: subscription.amount ?? 0,
+        amount: 250000,
         relationship: "Healthy",
         memorandumViews: 0,
         modelDownloads: 0,
