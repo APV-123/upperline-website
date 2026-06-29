@@ -122,12 +122,37 @@ if (hubspotRes.ok) {
     );
 }
 
-// Temporary
-const investor = mapInvestor(subscription);
-
-return NextResponse.json({
-    ok: true,
+const investor = mapInvestor(
     subscription,
-    hubspot: hubspotProperties,
+    {
+        company:
+            typeof hubspotProperties.company === 'string'
+                ? hubspotProperties.company
+                : null,
+
+        jobtitle:
+            typeof hubspotProperties.jobtitle === 'string'
+                ? hubspotProperties.jobtitle
+                : null,
+
+        hs_avatar_url:
+            typeof hubspotProperties.hs_avatar_url === 'string'
+                ? hubspotProperties.hs_avatar_url
+                : null,
+    }
+);
+
+return NextResponse.json<InvestorWorkspaceResponse>({
+    ok: true,
+    investor,
+    metrics: {
+        amount: 0,
+        relationship: "Healthy",
+        memorandumViews: 0,
+        modelDownloads: 0,
+        lastContact: "",
+        nextFollowUp: "",
+    },
+    timeline: [],
 });
 }

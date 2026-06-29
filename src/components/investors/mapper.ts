@@ -7,6 +7,7 @@ type SubscriptionRow = {
     contact_name: string;
     contact_email: string;
     status: string;
+    amount: number | null;
     last_activity_at: string | null;
 };
 
@@ -19,8 +20,15 @@ function getInitials(name: string) {
         .toUpperCase();
 }
 
+type HubSpotContact = {
+    company?: string | null;
+    jobtitle?: string | null;
+    hs_avatar_url?: string | null;
+};
+
 export function mapInvestor(
-    subscription: SubscriptionRow
+    subscription: SubscriptionRow,
+    contact: HubSpotContact
 ): Investor {
 
     return {
@@ -30,9 +38,11 @@ export function mapInvestor(
 
     email: subscription.contact_email,
 
-    company: null,
+    company: contact.company ?? null,
 
-    title: null,
+    title: contact.jobtitle ?? null,
+
+    avatarUrl: contact.hs_avatar_url ?? null,
 
     initials: getInitials(
         subscription.contact_name
@@ -40,11 +50,12 @@ export function mapInvestor(
 
     stage: subscription.status,
 
-    amount: 0,
+    amount: subscription.amount ?? 0,
 
     relationship: 'Healthy',
 
-    lastTouch: '',
+    lastTouch: formatActivityDate(
+    subscription.last_activity_at),
 
     lastUpdated: formatActivityDate(
     subscription.last_activity_at),
