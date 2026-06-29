@@ -97,7 +97,7 @@ export async function GET(
 // ✅ Fetch HubSpot contact
 const hubspotRes = await fetch(
     `${HUBSPOT_BASE}/crm/v3/objects/contacts/${investorId}` +
-        `?properties=firstname,lastname,company,jobtitle,hs_avatar_url,email`,
+        `?properties=firstname,lastname,company,jobtitle,email,photo,twitterprofilephoto`,
     {
         headers: authHeaders(),
         cache: 'no-store',
