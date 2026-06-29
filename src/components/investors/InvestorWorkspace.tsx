@@ -1,0 +1,290 @@
+'use client';
+
+import {
+    ListFilter,
+    Mail,
+    FileText,
+    NotebookPen,
+    CalendarDays,
+    CheckSquare,
+    ArrowRightLeft,
+    Building2,
+} from 'lucide-react';
+
+import {
+    Investor,
+    InvestorMetrics,
+    TimelineEvent,
+} from "./types";
+
+import styles from './InvestorWorkspace.module.css';
+import TimelineCard from "./TimelineCard";
+
+type InvestorWorkspaceProps = {
+    investor: Investor;
+    metrics: InvestorMetrics;
+    timeline: TimelineEvent[];
+};
+
+function formatCurrency(value: number) {
+    return value.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0,
+    });
+}
+
+export default function InvestorWorkspace({
+    investor,
+    metrics,
+    timeline,
+}: InvestorWorkspaceProps) {
+
+
+    return (
+
+        <div className={styles.page}>
+
+            <div className={styles.header}>
+
+                <div>
+                    <div className={styles.breadcrumb}>
+                        ← Colony Lakes
+                    </div>
+                    <h1 className={styles.dealTitle}>
+                        {investor.name}
+                    </h1>
+
+                    <div className={styles.subtitle}>
+                        {investor.title} • {investor.company}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div className={styles.workspace}>
+
+                <aside className={styles.sidebar}>
+
+                    <div className={styles.profileCard}>
+
+                        <div className={styles.avatar}>
+                            {investor.initials}
+                        </div>
+
+                        <div className={styles.profileEmail}>
+                            {investor.email}
+                        </div>
+
+                        <div className={styles.divider} />
+
+                        <div className={styles.sectionTitle}>
+                            Investment
+                        </div>
+
+                        <div className={styles.field}>
+
+                            <label>Current Stage</label>
+
+                            <select className={styles.input}
+                                defaultValue={investor.stage}
+                            >
+                                <option>Introduced</option>
+                                <option>Interested</option>
+                                <option>Circling</option>
+                                <option>Committed</option>
+                                <option>Funded</option>
+                            </select>
+
+                        </div>
+
+                        <div className={styles.field}>
+
+                            <label>Investment Amount</label>
+
+                            <input
+                                className={styles.input}
+                                defaultValue={formatCurrency(metrics.amount)}
+                            />
+
+                        </div>
+
+                        <button className={styles.primaryButton}>
+                            Save Changes
+                        </button>
+
+                        <div className={styles.divider} />
+
+                        <div className={styles.sectionTitle}>
+                            Relationship
+                        </div>
+
+                        <div className={styles.statRow}>
+                            <span>Relationship</span>
+                            <strong className={styles.good}>
+                                ● {investor.relationship}
+                            </strong>
+                        </div>
+
+                        <div className={styles.statRow}>
+                            <span>Last Touch</span>
+                            <strong>{investor.lastTouch}</strong>
+                        </div>
+
+                        <div className={styles.statRow}>
+                            <span>Updated</span>
+                            <strong>{investor.lastUpdated}</strong>
+                        </div>
+
+                        <div className={styles.divider} />
+
+                        <div className={styles.sectionTitle}>
+                            Quick Actions
+                        </div>
+
+                        <button className={styles.sidebarButton}>
+                            <Mail size={16} />
+                            Send Email
+                        </button>
+
+                        <button className={styles.sidebarButton}>
+                            <NotebookPen size={16} />
+                            Add Note
+                        </button>
+
+                        <button className={styles.sidebarButton}>
+                            <CalendarDays size={16} />
+                            Schedule Meeting
+                        </button>
+                        <button className={styles.sidebarButton}>
+                            <Building2 size={16} />
+                            Invite to AppFolio
+                        </button>
+                    </div>
+
+                </aside>
+
+                <main className={styles.main}>
+
+                    <div className={styles.metricsBar}>
+
+                        <div className={styles.metric}>
+                            <div className={styles.metricLabel}>
+                                Amount
+                            </div>
+
+                            <div className={styles.metricValue}>
+                                {formatCurrency(metrics.amount)}
+                            </div>
+                        </div>
+
+                        <div className={styles.metric}>
+                            <div className={styles.metricLabel}>
+                                Relationship
+                            </div>
+
+                            <div className={styles.metricValueGreen}>
+                                {metrics.relationship}
+                            </div>
+                        </div>
+
+                        <div className={styles.metric}>
+                            <div className={styles.metricLabel}>
+                                Documents Viewed
+                            </div>
+
+                            <div className={styles.metricValue}>
+                                IM • {metrics.memorandumViews} &nbsp;&nbsp;FM • {metrics.modelDownloads}
+                            </div>
+                        </div>
+
+                        <div className={styles.metric}>
+                            <div className={styles.metricLabel}>
+                                Last Contact
+                            </div>
+
+                            <div className={styles.metricValue}>
+                                {metrics.lastContact}
+                            </div>
+                        </div>
+
+                        <div className={styles.metric}>
+                            <div className={styles.metricLabel}>
+                                Next Follow-Up
+                            </div>
+
+                            <div className={styles.metricValue}>
+                                {metrics.nextFollowUp}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div className={styles.timelineCard}>
+
+                        <div className={styles.timelineHeader}>
+
+                            <h2 className={styles.timelineTitle}>
+                                Relationship Timeline
+                            </h2>
+
+                            <div className={styles.timelineSubtitle}>
+                                Every interaction with this investor in one place.
+                            </div>
+
+                            <div className={styles.timelineFilters}>
+
+                                <button className={styles.filterActive}>
+                                    <ListFilter size={15} />
+                                    All
+                                </button>
+
+                                <button className={styles.filter}>
+                                    <Mail size={15} />
+                                    Emails
+                                </button>
+
+                                <button className={styles.filter}>
+                                    <NotebookPen size={15} />
+                                    Notes
+                                </button>
+
+                                <button className={styles.filter}>
+                                    <CalendarDays size={15} />
+                                    Meetings
+                                </button>
+
+                                <button className={styles.filter}>
+                                    <FileText size={15} />
+                                    Documents
+                                </button>
+
+                                <button className={styles.filter}>
+                                    <CheckSquare size={15} />
+                                    Tasks
+                                </button>
+
+                            </div>
+
+                        </div>
+                        <div className={styles.timeline}>
+
+                            {timeline.map((event) => (
+                                <TimelineCard
+                                    key={event.id}
+                                    event={event}
+                                />
+                            ))}
+
+                        </div>
+
+                    </div>
+
+                </main>
+
+            </div>
+
+        </div>
+    );
+}

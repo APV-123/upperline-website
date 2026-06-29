@@ -1,3 +1,7 @@
+/* ========================================================================
+       PAGE LAYOUT
+========================================================================= */
+
 .page {
     min-height: calc(100vh - 64px);
 
@@ -83,6 +87,10 @@
     gap: 20px;
 }
 
+
+/* =========================================================================
+     SIDE BAR
+==========================================================================*/
 .profileCard{
 
     background:#10233d;
@@ -228,7 +236,9 @@
 
     flex-shrink:0;
 }
-
+/*=============================================================================================
+    METRICS
+=============================================================================================== */
 .metricsBar{
 
     background:#10233d;
@@ -338,74 +348,45 @@
 
     cursor:pointer;
 }
-.eventTop{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:14px;
+
+
+/*=============================================================
+     TIMELINE
+============================================================= */
+.timelineCard{
+
+    background:#10233d;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    border-radius:18px;
+
+    overflow:hidden;
 }
 
-.eventBadge{
+.timelineHeader{
 
-    display:inline-flex;
+    padding:32px 32px 24px;
 
-    align-items:center;
+    border-bottom:1px solid rgba(255,255,255,.06);
+}
+.timelineTitle{
 
-    gap:6px;
-
-    padding:5px 10px;
-
-    border-radius:999px;
-
-    font-size:11px;
+    font-size:32px;
 
     font-weight:700;
 
-    letter-spacing:.08em;
+    color: white;
 
-    text-transform:uppercase;
+    margin:0;
 }
+.timelineSubtitle{
 
-.eventTime{
-    font-size:12px;
-    color:#8fa6c4;
-}
+    margin-top:10px;
 
-.eventDescription{
-    margin-top:8px;
-    color:#b9c7da;
-    line-height:1.55;
-}
+    color:#89a6c7;
 
-.eventMeta{
-    margin-top:14px;
-    font-size:12px;
-    color:#7f93ad;
-}
-
-.timelineEvent{
-    background:#142743;
-    border-radius:14px;
-    padding:22px 24px;
-    margin-bottom:18px;
-
-    border-left:5px solid transparent;
-}
-
-.document{
-    border-left-color:#29c7ff;
-}
-
-.note{
-    border-left-color:#f7c948;
-}
-
-.email{
-    border-left-color:#5fa8ff;
-}
-
-.stage{
-    border-left-color:#7c8cff;
+    font-size:15px;
 }
 .timelineFilters{
 
@@ -454,40 +435,137 @@
 
     border-color:#26d3ff;
 }
-.timelineHeader{
 
-    padding:32px 32px 24px;
+/*==========================================================
+    TIMELINE CARD
+============================================================*/
+.timelineEvent{
+    background:#142743;
 
-    border-bottom:1px solid rgba(255,255,255,.06);
+    border-radius:14px;
+    
+    padding:22px 24px;
+    
+    margin-bottom:18px;
+
+    border-left:5px solid transparent;
+
+    transition: .18s ease;
 }
-.timelineTitle{
+.timelineEvent:hover{
 
-    font-size:32px;
+    transform:translateY(-1px);
+
+    box-shadow:0 10px 30px rgba(0,0,0,.18);
+
+    background:#183252;
+}
+.eventTop{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+}
+
+.eventBadge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    padding:5px 10px;
+
+    border-radius:999px;
+
+    font-size:11px;
 
     font-weight:700;
 
-    color: white;
+    letter-spacing:.08em;
 
-    margin:0;
+    text-transform:uppercase;
 }
-.timelineSubtitle{
 
-    margin-top:10px;
-
-    color:#89a6c7;
-
-    font-size:15px;
+.eventTime{
+    font-size:12px;
+    color:#8fa6c4;
 }
-.timelineCard{
+.eventTitle{
 
-    background:#10233d;
+    color:white;
 
-    border:1px solid rgba(255,255,255,.06);
+    font-size:19px;
 
-    border-radius:18px;
+    font-weight:700;
 
-    overflow:hidden;
+    margin-bottom:8px;
 }
+.eventDescription{
+    margin-top:8px;
+    color:#b9c7da;
+    line-height:1.55;
+}
+
+.eventMeta{
+    margin-top:14px;
+    font-size:12px;
+    color:#7f93ad;
+}
+/*============================================================
+    TIMELINE EVENT TYPES
+=============================================================*/
+
+.document{
+    border-left-color:#29c7ff;
+}
+
+.note{
+    border-left-color:#f7c948;
+}
+
+.email{
+    border-left-color:#5fa8ff;
+}
+
+.stage{
+    border-left-color:#7c8cff;
+}
+
+.meeting{
+    border-left-color:#45d483;
+}
+
+.task{
+    border-left-color:#ff9f43;
+}
+
+.commitment{
+    border-left-color:#20c997;
+}
+
+.meeting .eventBadge{
+
+    background:rgba(69,212,131,.14);
+
+    color:#6de8a2;
+}
+
+.task .eventBadge{
+
+    background:rgba(255,159,67,.14);
+
+    color:#ffb66e;
+}
+
+.commitment .eventBadge{
+
+    background:rgba(32,201,151,.14);
+
+    color:#47e5b3;
+}
+
 .timeline{
 
     padding:26px;
@@ -500,16 +578,7 @@
 
     flex-shrink:0;
 }
-.eventTitle{
 
-    color:white;
-
-    font-size:19px;
-
-    font-weight:700;
-
-    margin-bottom:8px;
-}
 .document .eventBadge{
 
     background:rgba(41,199,255,.14);
@@ -534,13 +603,4 @@
 
     color:#95a2ff;
 }
-.timelineEvent{
 
-    transition:.18s ease;
-}
-.timelineEvent:hover{
-
-    transform:translateY(-1px);
-
-    background:#183252;
-}
