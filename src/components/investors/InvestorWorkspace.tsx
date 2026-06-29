@@ -185,6 +185,7 @@ export default function InvestorWorkspace({
                             </div>
 
                             <div className={styles.metricValueGreen}>
+                                <span className={styles.statusDot}></span>
                                 {metrics.relationship}
                             </div>
                         </div>

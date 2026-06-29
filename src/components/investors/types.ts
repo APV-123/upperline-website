@@ -6,13 +6,13 @@ export type Investor = {
 
     name: string;
 
-    email: string;
+    email?: string | null;
 
-    company: string;
+    company?: string | null;
 
-    title: string;
+    title?: string | null;
 
-    avatarUrl?: string;
+    avatarUrl?: string | null;
 
     initials: string;
 
@@ -25,7 +25,6 @@ export type Investor = {
     lastTouch: string;
 
     lastUpdated: string;
-
 };
 
 export type InvestorMetrics = {
