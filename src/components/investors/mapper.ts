@@ -1,4 +1,5 @@
 import { Investor } from "./types";
+import { formatActivityDate } from "./formatters";
 
 type SubscriptionRow = {
     id: string;
@@ -45,8 +46,8 @@ export function mapInvestor(
 
     lastTouch: '',
 
-    lastUpdated:
-        subscription.last_activity_at ?? '',
+    lastUpdated: formatActivityDate(
+    subscription.last_activity_at),
 };
 
 }

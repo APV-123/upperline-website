@@ -17,6 +17,8 @@ import {
     TimelineEvent,
 } from "./types";
 
+import { formatCurrency } from "./formatters";
+
 import styles from './InvestorWorkspace.module.css';
 import TimelineCard from "./TimelineCard";
 
@@ -25,14 +27,6 @@ type InvestorWorkspaceProps = {
     metrics: InvestorMetrics;
     timeline: TimelineEvent[];
 };
-
-function formatCurrency(value: number) {
-    return value.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 0,
-    });
-}
 
 export default function InvestorWorkspace({
     investor,
@@ -56,7 +50,11 @@ export default function InvestorWorkspace({
                     </h1>
 
                     <div className={styles.subtitle}>
-                        {investor.title} • {investor.company}
+                        {investor.title && investor.company
+                            ? `${investor.title} • ${investor.company}`
+                            : investor.title ??
+                            investor.company ??
+                            ""}
                     </div>
 
                 </div>
