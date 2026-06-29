@@ -76,7 +76,16 @@ export async function GET(
     const { data: subscription, error } =
     await supabaseServer
         .from('raise_subscriptions')
-        .select('*')
+        .select(`
+            id,
+            raise_id,
+            contact_id,
+            contact_name,
+            contact_email,
+            status,
+            amount,
+            last_activity_at
+            `)
         .eq('raise_id', deal.raise_id)
         .eq('contact_id', investorId)
         .single();
@@ -109,10 +118,6 @@ let hubspotProperties: Record<string, unknown> = {};
 if (hubspotRes.ok) {
     const hubspot = await hubspotRes.json();
 
-console.log(
-    '[HUBSPOT RAW]',
-    JSON.stringify(hubspot, null, 2)
-);
 
 hubspotProperties = hubspot.properties ?? {};
 
@@ -153,7 +158,7 @@ return NextResponse.json<InvestorWorkspaceResponse>({
     ok: true,
     investor,
     metrics: {
-        amount: 0,
+        amount: subscription.amount ?? 0,
         relationship: "Healthy",
         memorandumViews: 0,
         modelDownloads: 0,
