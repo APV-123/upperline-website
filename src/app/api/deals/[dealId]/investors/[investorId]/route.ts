@@ -104,27 +104,30 @@ const hubspotRes = await fetch(
     }
 );
 
-const hubspot = await hubspotRes.json();
+let hubspotProperties: Record<string, unknown> = {};
 
-console.log(
-    '[HUBSPOT CONTACT]',
-    hubspot.properties
-);
+if (hubspotRes.ok) {
+    const hubspot = await hubspotRes.json();
 
-// Temporary — we'll change this next
+    hubspotProperties = hubspot.properties ?? {};
+
+    console.log(
+        '[HUBSPOT CONTACT]',
+        hubspotProperties
+    );
+} else {
+    console.error(
+        '[HUBSPOT CONTACT FAILED]',
+        hubspotRes.status
+    );
+}
+
+// Temporary
 const investor = mapInvestor(subscription);
 
-return NextResponse.json<InvestorWorkspaceResponse>({
+return NextResponse.json({
     ok: true,
-    investor,
-    metrics: {
-        amount: 0,
-        relationship: "Healthy",
-        memorandumViews: 0,
-        modelDownloads: 0,
-        lastContact: "",
-        nextFollowUp: "",
-    },
-    timeline: [],
+    subscription,
+    hubspot: hubspotProperties,
 });
 }
