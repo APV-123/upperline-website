@@ -5,6 +5,7 @@ import type {
     InvestorMetrics,
     TimelineEvent,
 } from "@/components/investors/types";
+import { mapInvestor } from '@/components/investors/mapper';
 
 type InvestorWorkspaceResponse = {
     ok: true;
@@ -70,9 +71,19 @@ export async function GET(
         }
     );
 }
-    return NextResponse.json({
+    const investor = mapInvestor(subscription);
+
+return NextResponse.json<InvestorWorkspaceResponse>({
     ok: true,
-    deal,
-    subscription,
+    investor,
+    metrics: {
+        amount: 0,
+        relationship: "Healthy",
+        memorandumViews: 0,
+        modelDownloads: 0,
+        lastContact: "",
+        nextFollowUp: "",
+    },
+    timeline: [],
 });
 }
