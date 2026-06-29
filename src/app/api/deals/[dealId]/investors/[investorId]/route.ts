@@ -83,7 +83,6 @@ export async function GET(
             contact_name,
             contact_email,
             status,
-            amount,
             last_activity_at
             `)
         .eq('raise_id', deal.raise_id)
