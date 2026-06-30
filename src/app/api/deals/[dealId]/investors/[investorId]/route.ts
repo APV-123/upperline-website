@@ -152,6 +152,21 @@ const investor = mapInvestor(
         : null,
     }
 );
+const raiseRes = await fetch(
+    `${new URL(req.url).origin}/api/hubspot/raises/${deal.raise_id}`,
+    {
+        headers: {
+            cookie: req.headers.get('cookie') ?? '',
+        },
+        cache: 'no-store',
+    }
+);
+
+const raiseJson = await raiseRes.json();
+console.log(
+    '[RAISE]',
+    raiseJson
+);
 
 return NextResponse.json<InvestorWorkspaceResponse>({
     ok: true,
