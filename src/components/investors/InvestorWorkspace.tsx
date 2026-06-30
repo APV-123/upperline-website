@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, } from 'react';
+
 import {
     ListFilter,
     Mail,
@@ -17,6 +19,8 @@ import {
     TimelineEvent,
 } from "./types";
 
+import { HUBSPOT_DEAL_STAGES } from '@/lib/hubspotStages';
+
 import { formatCurrency } from "./formatters";
 
 import styles from './InvestorWorkspace.module.css';
@@ -33,6 +37,8 @@ export default function InvestorWorkspace({
     metrics,
     timeline,
 }: InvestorWorkspaceProps) {
+
+    const [stage, setStage] = useState(investor.hubspotStageId ?? '');
 
 
     return (
@@ -85,14 +91,21 @@ export default function InvestorWorkspace({
 
                             <label>Current Stage</label>
 
-                            <select className={styles.input}
-                                defaultValue={investor.stage}
+                            <select
+                                className={styles.input}
+                                value={stage}
+                                onChange={(e) =>
+                                    setStage(e.target.value)
+                                }
                             >
-                                <option>Introduced</option>
-                                <option>Interested</option>
-                                <option>Circling</option>
-                                <option>Committed</option>
-                                <option>Funded</option>
+                                {HUBSPOT_DEAL_STAGES.map((stage) => (
+                                    <option
+                                        key={stage.id}
+                                        value={stage.id}
+                                    >
+                                        {stage.label}
+                                    </option>
+                                ))}
                             </select>
 
                         </div>
@@ -108,7 +121,12 @@ export default function InvestorWorkspace({
 
                         </div>
 
-                        <button className={styles.primaryButton}>
+                        <button
+                            className={styles.primaryButton}
+                            onClick={async () => {
+
+                            }}
+                        >
                             Save Changes
                         </button>
 
