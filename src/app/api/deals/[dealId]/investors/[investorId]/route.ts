@@ -133,25 +133,7 @@ hubspotProperties = hubspot.properties ?? {};
     );
 }
 
-const investor = mapInvestor(
-    subscription,
-    {
-        company:
-            typeof hubspotProperties.company === 'string'
-                ? hubspotProperties.company
-                : null,
 
-        jobtitle:
-            typeof hubspotProperties.jobtitle === 'string'
-                ? hubspotProperties.jobtitle
-                : null,
-
-        photo:
-    typeof hubspotProperties.photo === 'string'
-        ? hubspotProperties.photo
-        : null,
-    }
-);
 const raiseRes = await fetch(
     `${new URL(req.url).origin}/api/hubspot/raises/${deal.raise_id}`,
     {
@@ -185,11 +167,31 @@ console.log(
     '[HUBSPOT INVESTOR]',
     hubspotInvestor
 );
+
+const investor = mapInvestor(
+    subscription,    
+    {
+        company:
+            typeof hubspotProperties.company === 'string'
+                ? hubspotProperties.company
+                : null,
+
+        jobtitle:
+            typeof hubspotProperties.jobtitle === 'string'
+                ? hubspotProperties.jobtitle
+                : null,
+
+        photo:
+    typeof hubspotProperties.photo === 'string'
+        ? hubspotProperties.photo
+        : null,
+    }
+);
 return NextResponse.json<InvestorWorkspaceResponse>({
     ok: true,
     investor,
     metrics: {
-        amount: 250000,
+        amount: hubspotInvestor?.amount ?? 250000,
         relationship: "Healthy",
         memorandumViews: 0,
         modelDownloads: 0,

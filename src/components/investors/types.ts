@@ -18,8 +18,6 @@ export type Investor = {
 
     stage: string;
 
-    amount: number;
-
     relationship: string;
 
     lastTouch: string;
