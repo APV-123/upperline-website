@@ -185,6 +185,12 @@ const investor = mapInvestor(
     typeof hubspotProperties.photo === 'string'
         ? hubspotProperties.photo
         : null,
+        hubspotDealId:
+            hubspotInvestor?.dealId ?? null,
+        raiseSubscriptionId:
+            hubspotInvestor?.raiseSubscriptionId ?? null,
+        hubspotStageId:
+            hubspotInvestor?.dealstage ?? null,
     }
 );
 return NextResponse.json<InvestorWorkspaceResponse>({

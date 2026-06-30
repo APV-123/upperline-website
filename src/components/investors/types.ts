@@ -4,6 +4,12 @@ export type Investor = {
 
     id: string;
 
+    hubspotDealId: string | null;
+
+    raiseSubscriptionId: string | null;
+
+    hubspotStageId: string | null;
+
     name: string;
 
     email?: string | null;

@@ -24,6 +24,10 @@ type HubSpotContact = {
     company?: string | null;
     jobtitle?: string | null;
     photo?: string | null;
+
+    hubspotDealId?: string | null;
+    raiseSubscriptionId?: string | null;
+    hubspotStageId?: string | null;
 };
 
 export function mapInvestor(
@@ -43,6 +47,15 @@ export function mapInvestor(
     title: contact.jobtitle ?? null,
 
     avatarUrl: contact.photo ?? null,
+
+    hubspotDealId:
+        contact.hubspotDealId ?? null,
+
+    raiseSubscriptionId:
+        contact.raiseSubscriptionId ?? null,
+
+    hubspotStageId:
+        contact.hubspotStageId ?? null,
 
     initials: getInitials(
         subscription.contact_name
