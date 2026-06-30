@@ -121,6 +121,11 @@ if (activityError) {
     );
 }
 
+console.log(
+    '[ACTIVITIES]',
+    activities
+);
+
 // ✅ Fetch HubSpot contact
 const hubspotRes = await fetch(
     `${HUBSPOT_BASE}/crm/v3/objects/contacts/${investorId}` +
