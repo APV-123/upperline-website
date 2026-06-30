@@ -126,6 +126,42 @@ console.log(
     activities
 );
 
+const timeline: TimelineEvent[] =
+    (activities ?? []).map((activity) => ({
+        id: activity.id,
+
+        type:
+            activity.activity_type ===
+            'status_changed'
+                ? 'stage'
+                : activity.activity_type ===
+                  'commitment_created'
+                ? 'commitment'
+                : activity.activity_type ===
+                  'im_viewed'
+                ? 'document'
+                : 'note',
+
+        source:
+            activity.activity_source ===
+            'portal'
+                ? 'portal'
+                : 'employee',
+
+        title: activity.activity_type,
+
+        description: '',
+
+        actor:
+            activity.created_by ?? undefined,
+
+        timestamp:
+            activity.activity_at,
+
+        metadata:
+            activity.metadata ?? {},
+    }));
+
 // ✅ Fetch HubSpot contact
 const hubspotRes = await fetch(
     `${HUBSPOT_BASE}/crm/v3/objects/contacts/${investorId}` +
@@ -228,6 +264,6 @@ return NextResponse.json<InvestorWorkspaceResponse>({
         lastContact: "",
         nextFollowUp: "",
     },
-    timeline: [],
+    timeline,
 });
 }
