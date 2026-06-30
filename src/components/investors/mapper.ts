@@ -61,7 +61,7 @@ export function mapInvestor(
         subscription.contact_name
     ),
 
-    stage: subscription.status,
+    stage: contact.hubspotStageId ?? '',
 
     relationship: 'Healthy',
 
