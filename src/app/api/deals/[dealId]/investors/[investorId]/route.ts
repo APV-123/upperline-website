@@ -167,10 +167,18 @@ console.log(
     '[RAISE]',
     raiseJson
 );
+
+type RaiseInvestor = {
+    dealId: string;
+    contactId: string;
+    raiseSubscriptionId: string;
+    amount: number;
+    dealstage: string;
+};
+
 const hubspotInvestor =
-    raiseJson.investors.find(
-        (i: any) =>
-            i.contactId === investorId
+    (raiseJson.investors as RaiseInvestor[]).find(
+        (i) => i.contactId === investorId
     );
 
 console.log(
