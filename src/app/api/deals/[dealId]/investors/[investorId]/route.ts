@@ -167,7 +167,16 @@ console.log(
     '[RAISE]',
     raiseJson
 );
+const hubspotInvestor =
+    raiseJson.investors.find(
+        (i: any) =>
+            i.contactId === investorId
+    );
 
+console.log(
+    '[HUBSPOT INVESTOR]',
+    hubspotInvestor
+);
 return NextResponse.json<InvestorWorkspaceResponse>({
     ok: true,
     investor,
