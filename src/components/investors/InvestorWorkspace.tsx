@@ -125,18 +125,43 @@ export default function InvestorWorkspace({
                         <button
                             className={styles.primaryButton}
                             onClick={async () => {
-                                console.log({
-                                    hubspotDealId:
-                                        investor.hubspotDealId,
+                                if (
+                                    !investor.hubspotDealId ||
+                                    !investor.raiseSubscriptionId
+                                ) {
+                                    return;
+                                }
 
-                                    raiseSubscriptionId:
-                                        investor.raiseSubscriptionId,
+                                setSaving(true);
 
-                                    stage,
+                                try {
+                                    const res = await fetch(
+                                        `/api/hubspot/deals/${investor.hubspotDealId}/update-stage`,
+                                        {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type':
+                                                    'application/json',
+                                            },
+                                            body: JSON.stringify({
+                                                stageId: stage,
+                                                amount: metrics.amount,
+                                                raiseSubscriptionId:
+                                                    investor.raiseSubscriptionId,
+                                            }),
+                                        }
+                                    );
 
-                                    amount:
-                                        metrics.amount,
-                                });
+                                    const json = await res.json();
+
+                                    console.log(
+                                        '[SAVE RESPONSE]',
+                                        json
+                                    );
+
+                                } finally {
+                                    setSaving(false);
+                                }
                             }}
                         >
                             Save Changes
