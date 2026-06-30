@@ -11,6 +11,10 @@ import {
     CheckSquare,
     ArrowRightLeft,
     Building2,
+    MessageSquare,
+    RefreshCw,
+    DollarSign,
+    CheckCircle2,
 } from 'lucide-react';
 
 import {
@@ -25,6 +29,150 @@ import { formatCurrency } from "./formatters";
 
 import styles from './InvestorWorkspace.module.css';
 import TimelineCard from "./TimelineCard";
+
+function getActivityTitle(
+    activityType: string
+) {
+    switch (activityType) {
+        case 'investor_created':
+            return 'Investor Added';
+
+        case 'status_changed':
+            return 'Stage Changed';
+
+        case 'ca_completed':
+            return 'Confidentiality Agreement Signed';
+
+        case 'im_viewed':
+            return 'Investment Memorandum Viewed';
+
+        case 'financial_model_downloaded':
+            return 'Financial Model Downloaded';
+
+        case 'commitment_created':
+            return 'Commitment Created';
+
+        case 'commitment_updated':
+            return 'Commitment Updated';
+
+        case 'commitment_removed':
+            return 'Commitment Removed';
+
+        case 'funded':
+            return 'Funds Received';
+
+        case 'note_added':
+            return 'Internal Note Added';
+
+        default:
+            return activityType
+                .replaceAll('_', ' ')
+                .replace(/\b\w/g, c =>
+                    c.toUpperCase()
+                );
+    }
+}
+function getActivityDescription(
+    item: TimelineEvent
+) {
+    const m = item.metadata ?? {};
+
+    switch (item.activity_type) {
+        case 'status_changed':
+            return `${m.from} → ${m.to}`;
+
+        case 'commitment_created':
+            return `$${Number(
+                m.amount ?? 0
+            ).toLocaleString()} commitment recorded`;
+
+        case 'commitment_updated':
+            return `Commitment updated from $${Number(
+                m.old_amount ?? 0
+            ).toLocaleString()} to $${Number(
+                m.new_amount ?? 0
+            ).toLocaleString()}`;
+
+        case 'commitment_removed':
+            return `$${Number(
+                m.amount ?? 0
+            ).toLocaleString()} commitment removed`;
+
+        case 'im_viewed':
+            return 'Viewed Investment Memorandum';
+
+        case 'financial_model_downloaded':
+            return 'Downloaded Financial Model';
+
+        case 'ca_completed':
+            return 'Executed Confidentiality Agreement';
+
+        case 'investor_created':
+            return 'Added to investor pipeline';
+
+        case 'funded':
+            return `$${Number(
+                m.amount ?? 0
+            ).toLocaleString()} funded`;
+
+        case 'note_added':
+            return 'Internal note added';
+
+        default:
+            return null;
+    }
+}
+
+function getActivityBadge(
+        activityType: string
+    ) {
+        switch (activityType) {
+            case 'note_added':
+                return {
+                    label: 'NOTE',
+                    color: '#fbbf24',
+                    icon: MessageSquare,
+                };
+
+            case 'status_changed':
+                return {
+                    label: 'STATUS',
+                    color: '#60a5fa',
+                    icon: RefreshCw,
+                };
+
+            case 'commitment_created':
+            case 'commitment_updated':
+            case 'commitment_removed':
+                return {
+                    label: 'COMMITMENT',
+                    color: '#22c55e',
+                    icon: DollarSign,
+                };
+
+            case 'ca_completed':
+            case 'im_viewed':
+            case 'financial_model_downloaded':
+                return {
+                    label: 'DOCUMENT',
+                    color: colors.accent,
+                    icon: FileText,
+                };
+
+            case 'funded':
+                return {
+                    label: 'FUNDED',
+                    color: '#22c55e',
+                    icon: CheckCircle2,
+                };
+
+            default:
+                return {
+                    label: 'EVENT',
+                    color: colors.subtext,
+                };
+        }
+    }
 
 type InvestorWorkspaceProps = {
     investor: Investor;
@@ -154,10 +302,15 @@ export default function InvestorWorkspace({
 
                                     const json = await res.json();
 
-                                    console.log(
-                                        '[SAVE RESPONSE]',
-                                        json
-                                    );
+                                    if (!json.ok) {
+                                        alert(
+                                            json.error ??
+                                            'Unable to save changes.'
+                                        );
+                                        return;
+                                    }
+
+                                    window.location.reload();
 
                                 } finally {
                                     setSaving(false);

@@ -102,6 +102,25 @@ export async function GET(
     );
 }
 
+const { data: activities, error: activityError } =
+    await supabaseServer
+        .from('raise_subscription_activity')
+        .select('*')
+        .eq(
+            'raise_subscription_id',
+            subscription.id
+        )
+        .order('activity_at', {
+            ascending: false,
+        });
+
+if (activityError) {
+    console.error(
+        '[ACTIVITY ERROR]',
+        activityError
+    );
+}
+
 // ✅ Fetch HubSpot contact
 const hubspotRes = await fetch(
     `${HUBSPOT_BASE}/crm/v3/objects/contacts/${investorId}` +
