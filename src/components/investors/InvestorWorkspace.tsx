@@ -39,6 +39,7 @@ export default function InvestorWorkspace({
 }: InvestorWorkspaceProps) {
 
     const [stage, setStage] = useState(investor.hubspotStageId ?? '');
+    const [saving, setSaving] = useState(false);
 
 
     return (
@@ -124,7 +125,18 @@ export default function InvestorWorkspace({
                         <button
                             className={styles.primaryButton}
                             onClick={async () => {
+                                console.log({
+                                    hubspotDealId:
+                                        investor.hubspotDealId,
 
+                                    raiseSubscriptionId:
+                                        investor.raiseSubscriptionId,
+
+                                    stage,
+
+                                    amount:
+                                        metrics.amount,
+                                });
                             }}
                         >
                             Save Changes
