@@ -125,22 +125,105 @@ console.log(
     '[ACTIVITIES]',
     activities
 );
+function getActivityTitle(
+    activity: {
+        activity_type: string;
+    }
+) {
+    switch (activity.activity_type) {
+        case 'status_changed':
+            return 'Stage Changed';
+
+        case 'im_viewed':
+            return 'Investment Memorandum Viewed';
+
+        case 'financial_model_downloaded':
+            return 'Financial Model Downloaded';
+
+        case 'commitment_created':
+            return 'Commitment Created';
+
+        case 'commitment_updated':
+            return 'Commitment Updated';
+
+        case 'commitment_removed':
+            return 'Commitment Removed';
+
+        case 'ca_completed':
+            return 'Confidentiality Agreement Executed';
+
+        case 'note_added':
+            return 'Internal Note Added';
+
+        default:
+            return activity.activity_type;
+    }
+}
+
+function getActivityDescription(
+    activity: {
+        activity_type: string;
+        metadata: Record<string, unknown> | null;
+    }
+) {
+    const m = activity.metadata ?? {};
+
+    switch (activity.activity_type) {
+        case 'status_changed':
+            return `${m.from} → ${m.to}`;
+
+        case 'commitment_created':
+            return `$${Number(
+                m.amount ?? 0
+            ).toLocaleString()} committed`;
+
+        case 'commitment_updated':
+            return `$${Number(
+                m.old_amount ?? 0
+            ).toLocaleString()} → $${Number(
+                m.new_amount ?? 0
+            ).toLocaleString()}`;
+
+        case 'commitment_removed':
+            return `$${Number(
+                m.amount ?? 0
+            ).toLocaleString()} commitment removed`;
+
+        case 'im_viewed':
+            return 'Viewed Investment Memorandum';
+
+        case 'financial_model_downloaded':
+            return 'Downloaded Financial Model';
+
+        case 'ca_completed':
+            return 'Executed Confidentiality Agreement';
+
+        case 'note_added':
+            return 'Internal note added';
+
+        default:
+            return '';
+    }
+}
 
 const timeline: TimelineEvent[] =
     (activities ?? []).map((activity) => ({
         id: activity.id,
 
         type:
-            activity.activity_type ===
-            'status_changed'
-                ? 'stage'
-                : activity.activity_type ===
-                  'commitment_created'
-                ? 'commitment'
-                : activity.activity_type ===
-                  'im_viewed'
-                ? 'document'
-                : 'note',
+    activity.activity_type === 'status_changed'
+        ? 'stage'
+        : activity.activity_type ===
+          'commitment_created'
+        ? 'commitment'
+        : activity.activity_type ===
+              'im_viewed' ||
+          activity.activity_type ===
+              'financial_model_downloaded' ||
+          activity.activity_type ===
+              'ca_completed'
+        ? 'document'
+        : 'note',
 
         source:
             activity.activity_source ===
@@ -148,9 +231,9 @@ const timeline: TimelineEvent[] =
                 ? 'portal'
                 : 'employee',
 
-        title: activity.activity_type,
+        title: getActivityTitle(activity),
 
-        description: '',
+        description: getActivityDescription(activity),
 
         actor:
             activity.created_by ?? undefined,
