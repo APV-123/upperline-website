@@ -47,6 +47,15 @@ export default function InvestorWorkspace({
 
     const [stage, setStage] = useState(investor.hubspotStageId ?? '');
     const [saving, setSaving] = useState(false);
+    const [selectedFilter, setSelectedFilter] =
+        useState<
+            | 'all'
+            | 'email'
+            | 'note'
+            | 'meeting'
+            | 'document'
+            | 'task'
+        >('all');
     const [employeeDirectory, setEmployeeDirectory] =
         useState<
             Record<
@@ -78,6 +87,15 @@ export default function InvestorWorkspace({
     ).length;
 
     const totalCount = timeline.length;
+
+    const filteredTimeline =
+        selectedFilter === 'all'
+            ? timeline
+            : timeline.filter(
+                (t) =>
+                    t.type ===
+                    selectedFilter
+            );
 
     useEffect(() => {
         async function loadEmployees() {
@@ -349,32 +367,87 @@ export default function InvestorWorkspace({
 
                             <div className={styles.timelineFilters}>
 
-                                <button className={styles.filterActive}>
+                                <button
+                                    className={
+                                        selectedFilter === 'all'
+                                            ? styles.filterActive
+                                            : styles.filter
+                                    }
+                                    onClick={() =>
+                                        setSelectedFilter('all')
+                                    }
+                                >
                                     <ListFilter size={15} />
                                     All
                                 </button>
 
-                                <button className={styles.filter}>
+                                <button
+                                    className={
+                                        selectedFilter === 'email'
+                                            ? styles.filterActive
+                                            : styles.filter
+                                    }
+                                    onClick={() =>
+                                        setSelectedFilter('email')
+                                    }
+                                >
                                     <Mail size={15} />
                                     Emails ({emailCount})
                                 </button>
 
-                                <button className={styles.filter}>
+                                <button
+                                    className={
+                                        selectedFilter === 'note'
+                                            ? styles.filterActive
+                                            : styles.filter
+                                    }
+                                    onClick={() =>
+                                        setSelectedFilter('note')
+                                    }
+                                >
                                     <NotebookPen size={15} />
                                     Notes ({noteCount})
                                 </button>
 
-                                <button className={styles.filter}>
+                                <button
+                                    className={
+                                        selectedFilter === 'meeting'
+                                            ? styles.filterActive
+                                            : styles.filter
+                                    }
+                                    onClick={() =>
+                                        setSelectedFilter('meeting')
+                                    }
+                                >
+
                                     <CalendarDays size={15} />
                                     Meetings ({meetingCount})
                                 </button>
 
-                                <button className={styles.filter}>
+                                <button
+                                    className={
+                                        selectedFilter === 'document'
+                                            ? styles.filterActive
+                                            : styles.filter
+                                    }
+                                    onClick={() =>
+                                        setSelectedFilter('document')
+                                    }
+                                >
                                     <FileText size={15} />
                                     Documents ({documentCount})
                                 </button>
 
-                                <button className={styles.filter}>
+                                <button
+                                    className={
+                                        selectedFilter === 'task'
+                                            ? styles.filterActive
+                                            : styles.filter
+                                    }
+                                    onClick={() =>
+                                        setSelectedFilter('task')
+                                    }
+                                >
                                     <CheckSquare size={15} />
                                     Tasks ({taskCount})
                                 </button>
@@ -384,7 +457,7 @@ export default function InvestorWorkspace({
                         </div>
                         <div className={styles.timeline}>
 
-                            {timeline.map((event) => (
+                            {filteredTimeline.map((event) => (
                                 <TimelineCard
                                     key={event.id}
                                     event={event}
