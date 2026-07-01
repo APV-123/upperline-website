@@ -89,7 +89,9 @@ export default function InvestorWorkspace({
 
             const json = await res.json();
 
-            setEmployeeDirectory(json);
+            setEmployeeDirectory(
+                json.directory ?? {}
+            );
         }
 
         loadEmployees();
