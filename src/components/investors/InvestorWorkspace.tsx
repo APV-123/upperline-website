@@ -44,7 +44,27 @@ export default function InvestorWorkspace({
 
     const [stage, setStage] = useState(investor.hubspotStageId ?? '');
     const [saving, setSaving] = useState(false);
+    const emailCount = timeline.filter(
+        (t) => t.type === 'email'
+    ).length;
 
+    const noteCount = timeline.filter(
+        (t) => t.type === 'note'
+    ).length;
+
+    const meetingCount = timeline.filter(
+        (t) => t.type === 'meeting'
+    ).length;
+
+    const documentCount = timeline.filter(
+        (t) => t.type === 'document'
+    ).length;
+
+    const taskCount = timeline.filter(
+        (t) => t.type === 'task'
+    ).length;
+
+    const totalCount = timeline.length;
 
     return (
 
@@ -300,32 +320,32 @@ export default function InvestorWorkspace({
 
                                 <button className={styles.filterActive}>
                                     <ListFilter size={15} />
-                                    All
+                                    All ({totalCount})
                                 </button>
 
                                 <button className={styles.filter}>
                                     <Mail size={15} />
-                                    Emails
+                                    Emails ({emailCount})
                                 </button>
 
                                 <button className={styles.filter}>
                                     <NotebookPen size={15} />
-                                    Notes
+                                    Notes ({noteCount})
                                 </button>
 
                                 <button className={styles.filter}>
                                     <CalendarDays size={15} />
-                                    Meetings
+                                    Meetings ({meetingCount})
                                 </button>
 
                                 <button className={styles.filter}>
                                     <FileText size={15} />
-                                    Documents
+                                    Documents ({documentCount})
                                 </button>
 
                                 <button className={styles.filter}>
                                     <CheckSquare size={15} />
-                                    Tasks
+                                    Tasks ({taskCount})
                                 </button>
 
                             </div>
