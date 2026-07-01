@@ -1,6 +1,9 @@
 'use client';
 
-import { useState, } from 'react';
+import {
+    useEffect,
+    useState,
+} from 'react';
 
 import {
     ListFilter,
@@ -44,6 +47,16 @@ export default function InvestorWorkspace({
 
     const [stage, setStage] = useState(investor.hubspotStageId ?? '');
     const [saving, setSaving] = useState(false);
+    const [employeeDirectory, setEmployeeDirectory] =
+        useState<
+            Record<
+                string,
+                {
+                    displayName: string;
+                    initials: string;
+                }
+            >
+        >({});
     const emailCount = timeline.filter(
         (t) => t.type === 'email'
     ).length;
@@ -65,6 +78,22 @@ export default function InvestorWorkspace({
     ).length;
 
     const totalCount = timeline.length;
+
+    useEffect(() => {
+        async function loadEmployees() {
+            const res = await fetch(
+                '/api/employees'
+            );
+
+            if (!res.ok) return;
+
+            const json = await res.json();
+
+            setEmployeeDirectory(json);
+        }
+
+        loadEmployees();
+    }, []);
 
     return (
 
@@ -309,7 +338,7 @@ export default function InvestorWorkspace({
                         <div className={styles.timelineHeader}>
 
                             <h2 className={styles.timelineTitle}>
-                                Relationship Timeline
+                                Relationship History ({totalCount})
                             </h2>
 
                             <div className={styles.timelineSubtitle}>
@@ -320,7 +349,7 @@ export default function InvestorWorkspace({
 
                                 <button className={styles.filterActive}>
                                     <ListFilter size={15} />
-                                    All ({totalCount})
+                                    All
                                 </button>
 
                                 <button className={styles.filter}>
@@ -357,6 +386,9 @@ export default function InvestorWorkspace({
                                 <TimelineCard
                                     key={event.id}
                                     event={event}
+                                    employeeDirectory={
+                                        employeeDirectory
+                                    }
                                 />
                             ))}
 

@@ -128,7 +128,7 @@ export default function InviteDraftForm({
             .split('{{ first_name }}')
             .join(firstName)
             .split('{{ opportunity_link }}')
-            .join('View Colony Lakes Opportunity');
+            .join('View Investment Opportunity');
     }
 
 

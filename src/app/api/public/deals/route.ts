@@ -5,8 +5,11 @@ type PublicDeal = {
   id: string;
   name: string;
   target_amount: number;
-  raise_id: string;
-  created_at: string | null;
+
+  location?: string;
+  asset_class?: string;
+  strategy?: string;
+  estimated_closing_date?: string;
 };
 
 export async function GET() {
@@ -20,10 +23,9 @@ export async function GET() {
         name,
         target_amount,
         location,
-        estimated_closing_date,
-        overview_text,
-        raise_id,
-        created_at
+        asset_class,
+        strategy,
+        estimated_closing_date
       `)
       .eq('is_public', true)
       .order('created_at', { ascending: false });

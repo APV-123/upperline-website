@@ -9,16 +9,29 @@ import {
 } from "lucide-react";
 
 import { TimelineEvent } from "./types";
+import { formatActivityDate } from "./formatters";
 import styles from "./InvestorWorkspace.module.css";
 
 type TimelineCardProps = {
     event: TimelineEvent;
+
+    employeeDirectory: Record<
+        string,
+        {
+            displayName: string;
+            initials: string;
+        }
+    >;
 };
 
 export default function TimelineCard({
     event,
+    employeeDirectory,
 }: TimelineCardProps) {
-
+    const employee =
+        event.actor
+            ? employeeDirectory[event.actor]
+            : null;
     let Icon = FileText;
     let accentClass = styles.document;
     let badge = "Document";
@@ -60,38 +73,39 @@ export default function TimelineCard({
             break;
     }
     return (
-    <div
-        className={`${styles.timelineEvent} ${accentClass}`}
-    >
-        <div className={styles.eventTop}>
+        <div
+            className={`${styles.timelineEvent} ${accentClass}`}
+        >
+            <div className={styles.eventTop}>
 
-            <span className={styles.eventBadge}>
-                <Icon size={13} />
-                {badge}
-            </span>
+                <span className={styles.eventBadge}>
+                    <Icon size={13} />
+                    {badge}
+                </span>
 
-            <span className={styles.eventTime}>
-                {event.timestamp}
-            </span>
+                <span className={styles.eventTime}>
+                    {formatActivityDate(event.timestamp)}
+                </span>
 
-        </div>
-
-        <div className={styles.eventTitle}>
-            {event.title}
-        </div>
-
-        <div className={styles.eventDescription}>
-            {event.description}
-        </div>
-
-        {event.actor && (
-
-            <div className={styles.eventMeta}>
-                {event.actor}
             </div>
 
-        )}
+            <div className={styles.eventTitle}>
+                {event.title}
+            </div>
 
-    </div>
-);
+            <div className={styles.eventDescription}>
+                {event.description}
+            </div>
+
+            {(event.actor || event.source === 'portal') && (
+                <div className={styles.eventMeta}>
+                    {event.source === 'portal'
+                        ? 'Portal'
+                        : employee?.displayName ??
+                        event.actor}
+                </div>
+            )}
+
+        </div>
+    );
 }
