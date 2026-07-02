@@ -25,11 +25,14 @@ type TimelineCardProps = {
             initials: string;
         }
     >;
+
+    onClick?: () => void;
 };
 
 export default function TimelineCard({
     event,
     employeeDirectory,
+    onClick,
 }: TimelineCardProps) {
     const employee =
         event.actor
@@ -78,6 +81,7 @@ export default function TimelineCard({
     return (
         <div
             className={`${styles.timelineEvent} ${accentClass}`}
+            onClick={onClick}
         >
             <div className={styles.eventTop}>
 

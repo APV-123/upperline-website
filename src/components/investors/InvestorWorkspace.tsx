@@ -66,6 +66,8 @@ export default function InvestorWorkspace({
                 }
             >
         >({});
+    const [selectedEvent, setSelectedEvent] =
+        useState<TimelineEvent | null>(null);
     const emailCount = timeline.filter(
         (t) => t.type === 'email'
     ).length;
@@ -455,21 +457,49 @@ export default function InvestorWorkspace({
                             </div>
 
                         </div>
-                        <div className={styles.timeline}>
+                        <div className={styles.timelineLayout}>
 
-                            {filteredTimeline.map((event) => (
-                                <TimelineCard
-                                    key={event.id}
-                                    event={event}
-                                    employeeDirectory={
-                                        employeeDirectory
-                                    }
-                                />
-                            ))}
+                            <div className={styles.timeline}>
 
+                                {filteredTimeline.map((event) => (
+                                    <TimelineCard
+                                        key={event.id}
+                                        event={event}
+                                        employeeDirectory={
+                                            employeeDirectory
+                                        }
+                                        onClick={() => setSelectedEvent(event)}
+                                    />
+                                ))}
+
+                            </div>
+                            </div>
+                            {selectedEvent && (
+                                <div className={styles.drawer}>
+                                    <div className={styles.drawerHeader}>
+
+                                        <h2>
+                                            {selectedEvent.title}
+                                        </h2>
+
+                                        <button
+                                            onClick={() =>
+                                                setSelectedEvent(null)
+                                            }
+                                        >
+                                            ×
+                                        </button>
+
+                                    </div>
+
+                                    <div className={styles.drawerBody}>
+
+                                        {selectedEvent.description}
+
+                                    </div>
+                                </div>
+                            )}
                         </div>
-
-                    </div>
 
                 </main>
 
