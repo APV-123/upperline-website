@@ -628,16 +628,16 @@
     display: inline-flex;
     align-items: center;
 
-    gap: 5px;
+    gap: 6px;
 
-    padding: 3px 8px;
+    padding: 4px 10px;
 
     border-radius: 999px;
 
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(67, 205, 255, .08);
+    border: 1px solid rgba(67,205,255,.12);
 
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
 
     color: rgba(255,255,255,0.72);
