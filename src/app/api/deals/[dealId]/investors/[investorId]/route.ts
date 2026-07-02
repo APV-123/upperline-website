@@ -244,6 +244,22 @@ const timeline: TimelineEvent[] =
         metadata:
             activity.metadata ?? {},
     }));
+    const memorandumViews =
+    (activities ?? []).filter(
+        (a) =>
+            a.activity_type ===
+            'im_viewed'
+    ).length;
+
+const modelDownloads =
+    (activities ?? []).filter(
+        (a) =>
+            a.activity_type ===
+            'financial_model_downloaded'
+    ).length;
+
+const lastContact =
+    activities?.[0]?.activity_at ?? '';
 
 // ✅ Fetch HubSpot contact
 const hubspotRes = await fetch(
@@ -342,9 +358,9 @@ return NextResponse.json<InvestorWorkspaceResponse>({
     metrics: {
         amount: hubspotInvestor?.amount ?? 250000,
         relationship: "Healthy",
-        memorandumViews: 0,
-        modelDownloads: 0,
-        lastContact: "",
+        memorandumViews,
+        modelDownloads,
+        lastContact,
         nextFollowUp: "",
     },
     timeline,
