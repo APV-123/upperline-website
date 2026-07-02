@@ -81,7 +81,17 @@ export default function TimelineCard({
     return (
         <div
             className={`${styles.timelineEvent} ${accentClass}`}
-            onClick={onClick}
+            onClick={
+                event.type === "email"
+                    ? onClick
+                    : undefined
+            }
+            style={{
+                cursor:
+                    event.type === "email"
+                        ? "pointer"
+                        : "default",
+            }}
         >
             <div className={styles.eventTop}>
 
