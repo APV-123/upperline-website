@@ -468,14 +468,28 @@ export default function InvestorWorkspace({
                                         employeeDirectory={
                                             employeeDirectory
                                         }
-                                        onClick={() => setSelectedEvent(event)}
+                                        onClick={
+                                            event.type === "email"
+                                                ? () => setSelectedEvent(event)
+                                                : undefined
+                                        }
                                     />
                                 ))}
 
                             </div>
 
-                            {selectedEvent && (
-                                <div className={styles.drawer}>
+                        </div>
+                        {selectedEvent && (
+                            <>
+                                <div
+                                    className={styles.drawerBackdrop}
+                                    onClick={() =>
+                                        setSelectedEvent(null)
+                                    }
+                                />
+
+                                <aside className={styles.drawer}>
+
                                     <div className={styles.drawerHeader}>
 
                                         <h2>
@@ -493,13 +507,12 @@ export default function InvestorWorkspace({
                                     </div>
 
                                     <div className={styles.drawerBody}>
-
                                         {selectedEvent.description}
-
                                     </div>
-                                </div>
-                            )}
-                        </div>
+
+                                </aside>
+                            </>
+                        )}
                     </div>
                 </main>
 

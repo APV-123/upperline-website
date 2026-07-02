@@ -649,28 +649,41 @@
     opacity: 0.7;
 }
 .timelineLayout {
-    display: grid;
-
-    grid-template-columns: minmax(0, 1fr) 380px;
-
-    align-items: start;
+    position: relative;
 }
 .drawer {
-    background: #132742;
+    position: fixed;
 
-    border-left: 1px solid rgba(255,255,255,.08);
+    top: 64px;
 
-    padding: 24px;
+    right: 0;
 
-    position: sticky;
-
-    top: 0;
-
-    align-self: start;
+    width: 520px;
 
     height: calc(100vh - 64px);
 
+    background: #10233d;
+
+    border-left: 1px solid rgba(255,255,255,.08);
+
+    z-index: 201;
+
     overflow-y: auto;
+
+    padding: 28px;
+
+    box-shadow:
+        -18px 0 40px rgba(0,0,0,.35);
+}
+.drawerBackdrop {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(3,10,18,.45);
+
+    backdrop-filter: blur(3px);
+
+    z-index: 200;
 }
 .drawerHeader {
     display: flex;
@@ -700,6 +713,21 @@
     font-size: 28px;
 
     cursor: pointer;
+}
+.drawer {
+    transform: translateX(0);
+
+    animation: slideDrawer .18s ease;
+}
+
+@keyframes slideDrawer {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
 }
 .timelineEvent {
     cursor: pointer;
