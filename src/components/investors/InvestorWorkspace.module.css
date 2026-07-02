@@ -365,6 +365,11 @@
 /*=============================================================
      TIMELINE
 ============================================================= */
+.timeline {
+    padding: 26px;
+
+    min-width: 0;
+}
 .timelineCard{
 
     background:#10233d;
@@ -648,16 +653,48 @@
 }
 .timelineLayout {
     display: grid;
-    grid-template-columns: 1fr;
+
+    grid-template-columns: minmax(0, 1fr) 420px;
+
+    align-items: start;
 }
 .drawer {
-    width: 420px;
-
     background: #132742;
 
     border-left: 1px solid rgba(255,255,255,.08);
 
     padding: 24px;
+
+    min-height: 100%;
+}
+.drawerHeader {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 24px;
+}
+
+.drawerHeader h2 {
+    margin: 0;
+
+    color: white;
+
+    font-size: 22px;
+}
+
+.drawerHeader button {
+    background: transparent;
+
+    border: none;
+
+    color: rgba(255,255,255,.65);
+
+    font-size: 28px;
+
+    cursor: pointer;
 }
 .timelineEvent {
     cursor: pointer;
