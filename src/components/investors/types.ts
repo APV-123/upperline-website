@@ -73,5 +73,11 @@ export type TimelineEvent = {
 
     timestamp: string;
 
-    metadata?: Record<string, unknown>;
+    metadata?: {
+    opens?: number;
+    clicks?: number;
+    replied?: boolean;
+
+    [key: string]: unknown;
+};
 };

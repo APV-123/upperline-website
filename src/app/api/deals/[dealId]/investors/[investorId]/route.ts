@@ -294,31 +294,37 @@ const activityTimeline: TimelineEvent[] =
 
             source: 'employee',
 
-            title: 'Email Sent',
+            title:
+    email.direction === "inbound"
+        ? "Email Received"
+        : "Email Sent",
 
             description:
                 email.subject ??
                 'No subject',
 
             actor:
-                email.sender_email ??
-                undefined,
+    email.sender_email ?? undefined,
 
             timestamp:
                 email.sent_at ??
                 email.created_at,
 
             metadata: {
-                status: email.status,
-                direction:
-                    email.direction,
-                opens:
-                    email.open_count,
-                clicks:
-                    email.click_count,
-                replied:
-                    !!email.replied_at,
-            },
+    status: email.status ?? undefined,
+
+    direction:
+        email.direction ?? undefined,
+
+    opens:
+        email.open_count ?? undefined,
+
+    clicks:
+        email.click_count ?? undefined,
+
+    replied:
+        !!email.replied_at,
+},
         }));
 
         const timeline = [

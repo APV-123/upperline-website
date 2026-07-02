@@ -96,7 +96,27 @@ export default function TimelineCard({
             <div className={styles.eventDescription}>
                 {event.description}
             </div>
+            {event.type === "email" && (
+                <div className={styles.emailMetrics}>
+                    {Number(event.metadata?.opens ?? 0) > 0 && (
+                        <span>
+                            👁 {event.metadata?.opens}
+                        </span>
+                    )}
 
+                    {Number(event.metadata?.clicks ?? 0) > 0 && (
+                        <span>
+                            🔗 {event.metadata?.clicks}
+                        </span>
+                    )}
+
+                    {event.metadata?.replied && (
+                        <span>
+                            ↩ Replied
+                        </span>
+                    )}
+                </div>
+            )}
             {(event.actor || event.source === 'portal') && (
                 <div className={styles.eventMeta}>
                     {event.source === 'portal'

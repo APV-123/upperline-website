@@ -616,3 +616,15 @@
     color:#95a2ff;
 }
 
+.emailMetrics {
+    display: flex;
+    gap: 14px;
+
+    margin-top: 8px;
+
+    font-size: 12px;
+
+    color: rgba(255,255,255,0.72);
+
+    font-weight: 500;
+}
