@@ -246,7 +246,7 @@ function getActivityDescription(
     }
 }
 
-const timeline: TimelineEvent[] =
+const activityTimeline: TimelineEvent[] =
     (activities ?? []).map((activity) => ({
         id: activity.id,
 
@@ -320,6 +320,15 @@ const timeline: TimelineEvent[] =
                     !!email.replied_at,
             },
         }));
+
+        const timeline = [
+    ...activityTimeline,
+    ...communicationTimeline,
+].sort(
+    (a, b) =>
+        new Date(b.timestamp).getTime() -
+        new Date(a.timestamp).getTime()
+);
 
 
     console.log(
