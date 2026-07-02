@@ -6,6 +6,9 @@ import {
     CheckSquare,
     ArrowRightLeft,
     CircleDollarSign,
+    Eye,
+    MousePointerClick,
+    Reply,
 } from "lucide-react";
 
 import { TimelineEvent } from "./types";
@@ -99,24 +102,28 @@ export default function TimelineCard({
             {event.type === "email" && (
                 <div className={styles.emailMetrics}>
                     {Number(event.metadata?.opens ?? 0) > 0 && (
-                        <span>
-                            Opened x{event.metadata?.opens}
+                        <span className={styles.emailMetric}>
+                            <Eye size={12} />
+                            Opened: {event.metadata?.opens}×
                         </span>
                     )}
 
                     {Number(event.metadata?.clicks ?? 0) > 0 && (
-                        <span>
-                            Clicked x{event.metadata?.clicks}
+                        <span className={styles.emailMetric}>
+                            <MousePointerClick size={12} />
+                            Clicked: {event.metadata?.clicks}×
                         </span>
                     )}
 
                     {event.metadata?.replied && (
-                        <span>
-                            ↩ Replied
+                        <span className={styles.emailMetric}>
+                            <Reply size={12} />
+                            Replied
                         </span>
                     )}
                 </div>
             )}
+
             {(event.actor || event.source === 'portal') && (
                 <div className={styles.eventMeta}>
                     {event.source === 'portal'

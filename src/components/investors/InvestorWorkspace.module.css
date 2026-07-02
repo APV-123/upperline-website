@@ -618,13 +618,31 @@
 
 .emailMetrics {
     display: flex;
-    gap: 14px;
+    flex-wrap: wrap;
 
-    margin-top: 8px;
+    gap: 8px;
 
-    font-size: 12px;
+    margin-top: 10px;
+}
+.emailMetric {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 3px 8px;
+
+    border-radius: 999px;
+
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+
+    font-size: 11px;
+    font-weight: 600;
 
     color: rgba(255,255,255,0.72);
+}
 
-    font-weight: 500;
+.emailMetric svg {
+    opacity: 0.7;
 }
