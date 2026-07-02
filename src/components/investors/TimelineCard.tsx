@@ -100,13 +100,13 @@ export default function TimelineCard({
                 <div className={styles.emailMetrics}>
                     {Number(event.metadata?.opens ?? 0) > 0 && (
                         <span>
-                            👁 {event.metadata?.opens}
+                            Opened x{event.metadata?.opens}
                         </span>
                     )}
 
                     {Number(event.metadata?.clicks ?? 0) > 0 && (
                         <span>
-                            🔗 {event.metadata?.clicks}
+                            Clicked x{event.metadata?.clicks}
                         </span>
                     )}
 
