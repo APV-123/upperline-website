@@ -6,6 +6,7 @@ import type {
     TimelineEvent,
 } from "@/components/investors/types";
 import { mapInvestor } from '@/components/investors/mapper';
+import { formatActivityDate } from "@/components/investors/formatters";
 
 const HUBSPOT_BASE = 'https://api.hubapi.com';
 
@@ -259,7 +260,9 @@ const modelDownloads =
     ).length;
 
 const lastContact =
-    activities?.[0]?.activity_at ?? '';
+    formatActivityDate(
+        activities?.[0]?.activity_at ?? null
+    );
 
 // ✅ Fetch HubSpot contact
 const hubspotRes = await fetch(
