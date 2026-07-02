@@ -114,7 +114,46 @@ const { data: activities, error: activityError } =
         .order('activity_at', {
             ascending: false,
         });
+const {
+    data: communications,
+    error: communicationsError,
+} = await supabaseServer
+    .from('raise_subscription_communications')
+    .select(`
+        id,
+        subject,
+        status,
+        direction,
+        sent_at,
+        delivered_at,
+        opened_at,
+        replied_at,
+        clicked_at,
+        open_count,
+        click_count,
+        sender_email,
+        recipient_email,
+        created_at
+    `)
+    .eq(
+        'raise_subscription_id',
+        subscription.id
+    )
+    .order('sent_at', {
+        ascending: false,
+    });
 
+if (communicationsError) {
+    console.error(
+        '[COMMUNICATIONS ERROR]',
+        communicationsError
+    );
+}
+
+console.log(
+    '[COMMUNICATIONS]',
+    communications
+);
 if (activityError) {
     console.error(
         '[ACTIVITY ERROR]',

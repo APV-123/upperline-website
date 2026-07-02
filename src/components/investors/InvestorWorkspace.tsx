@@ -327,7 +327,7 @@ export default function InvestorWorkspace({
                             </div>
 
                             <div className={styles.metricValue}>
-                                IM:{metrics.memorandumViews} &nbsp;&nbsp;FM: {metrics.modelDownloads}
+                                IM: {metrics.memorandumViews} &nbsp;&nbsp;FM: {metrics.modelDownloads}
                             </div>
                         </div>
 
