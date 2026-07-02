@@ -473,7 +473,7 @@ export default function InvestorWorkspace({
                                 ))}
 
                             </div>
-                            </div>
+
                             {selectedEvent && (
                                 <div className={styles.drawer}>
                                     <div className={styles.drawerHeader}>
@@ -500,7 +500,7 @@ export default function InvestorWorkspace({
                                 </div>
                             )}
                         </div>
-
+                    </div>
                 </main>
 
             </div>
