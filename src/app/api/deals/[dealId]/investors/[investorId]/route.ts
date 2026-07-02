@@ -284,6 +284,49 @@ const timeline: TimelineEvent[] =
         metadata:
             activity.metadata ?? {},
     }));
+
+    const communicationTimeline: TimelineEvent[] =
+    (communications as CommunicationRow[] ?? [])
+        .map((email) => ({
+            id: email.id,
+
+            type: 'email',
+
+            source: 'employee',
+
+            title: 'Email Sent',
+
+            description:
+                email.subject ??
+                'No subject',
+
+            actor:
+                email.sender_email ??
+                undefined,
+
+            timestamp:
+                email.sent_at ??
+                email.created_at,
+
+            metadata: {
+                status: email.status,
+                direction:
+                    email.direction,
+                opens:
+                    email.open_count,
+                clicks:
+                    email.click_count,
+                replied:
+                    !!email.replied_at,
+            },
+        }));
+
+
+    console.log(
+    '[COMMUNICATION TIMELINE]',
+    communicationTimeline
+);
+
     const memorandumViews =
     (activities ?? []).filter(
         (a) =>
@@ -357,6 +400,27 @@ type RaiseInvestor = {
     raiseSubscriptionId: string;
     amount: number;
     dealstage: string;
+};
+
+type CommunicationRow = {
+    id: string;
+    subject: string | null;
+    status: string | null;
+    direction: string | null;
+
+    sent_at: string | null;
+    delivered_at: string | null;
+    opened_at: string | null;
+    replied_at: string | null;
+    clicked_at: string | null;
+
+    created_at: string;
+
+    open_count: number | null;
+    click_count: number | null;
+
+    sender_email: string | null;
+    recipient_email: string | null;
 };
 
 const hubspotInvestor =
