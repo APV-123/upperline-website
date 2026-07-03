@@ -313,18 +313,33 @@ const activityTimeline: TimelineEvent[] =
             metadata: {
     status: email.status ?? undefined,
 
-    direction:
-        email.direction ?? undefined,
+    direction: email.direction ?? undefined,
 
-    opens:
-        email.open_count ?? undefined,
+    senderEmail: email.sender_email ?? undefined,
 
-    clicks:
-        email.click_count ?? undefined,
+    recipientEmail:
+        email.recipient_email ?? undefined,
 
-    replied:
-        !!email.replied_at,
-},
+    sentAt: email.sent_at ?? undefined,
+
+    deliveredAt:
+        email.delivered_at ?? undefined,
+
+    notes: email.notes ?? undefined,
+
+    opens: email.open_count || undefined,
+
+    clicks: email.click_count || undefined,
+
+    replied: !!email.replied_at,
+
+    graphMessageId:
+        email.graph_message_id ?? undefined,
+
+    graphConversationId:
+        email.graph_conversation_id ??
+        undefined,
+}
         }));
 
         const timeline = [

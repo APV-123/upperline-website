@@ -74,9 +74,33 @@ export type TimelineEvent = {
     timestamp: string;
 
     metadata?: {
+    communicationId?: string;
+
+    subject?: string;
+
+    status?: string;
+
+    direction?: string;
+
+    senderEmail?: string;
+
+    recipientEmail?: string;
+
+    sentAt?: string;
+
+    deliveredAt?: string;
+
+    notes?: string;
+
     opens?: number;
+
     clicks?: number;
+
     replied?: boolean;
+
+    graphMessageId?: string;
+
+    graphConversationId?: string;
 
     [key: string]: unknown;
 };

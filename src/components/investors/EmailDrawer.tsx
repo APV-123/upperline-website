@@ -43,7 +43,47 @@ export default function EmailDrawer({
                         </div>
 
                         <div className={styles.drawerValue}>
-                            {event.title}
+                            {event.description}
+                        </div>
+                    </div>
+
+                    <div className={styles.drawerSection}>
+                        <div className={styles.drawerLabel}>
+                            Status
+                        </div>
+
+                        <div className={styles.drawerValue}>
+                            {event.metadata?.status ?? "Unknown"}
+                        </div>
+                    </div>
+
+                    <div className={styles.drawerSection}>
+                        <div className={styles.drawerLabel}>
+                            Direction
+                        </div>
+
+                        <div className={styles.drawerValue}>
+                            {event.metadata?.direction ?? "—"}
+                        </div>
+                    </div>
+
+                    <div className={styles.drawerSection}>
+                        <div className={styles.drawerLabel}>
+                            From
+                        </div>
+
+                        <div className={styles.drawerValue}>
+                            {event.metadata?.senderEmail ?? "—"}
+                        </div>
+                    </div>
+
+                    <div className={styles.drawerSection}>
+                        <div className={styles.drawerLabel}>
+                            To
+                        </div>
+
+                        <div className={styles.drawerValue}>
+                            {event.metadata?.recipientEmail ?? "—"}
                         </div>
                     </div>
 
@@ -53,17 +93,9 @@ export default function EmailDrawer({
                         </div>
 
                         <div className={styles.drawerValue}>
-                            {formatActivityDate(event.timestamp)}
-                        </div>
-                    </div>
-
-                    <div className={styles.drawerSection}>
-                        <div className={styles.drawerLabel}>
-                            Activity
-                        </div>
-
-                        <div className={styles.drawerValue}>
-                            {event.description}
+                            {formatActivityDate(
+                                event.metadata?.sentAt ?? event.timestamp
+                            )}
                         </div>
                     </div>
 
@@ -95,6 +127,16 @@ export default function EmailDrawer({
                                 </span>
                             )}
 
+                        </div>
+                    </div>
+
+                    <div className={styles.drawerSection}>
+                        <div className={styles.drawerLabel}>
+                            Notes
+                        </div>
+
+                        <div className={styles.drawerValue}>
+                            {event.metadata?.notes ?? "—"}
                         </div>
                     </div>
 
