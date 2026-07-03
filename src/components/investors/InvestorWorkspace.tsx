@@ -32,6 +32,7 @@ import { formatCurrency } from "./formatters";
 
 import styles from './InvestorWorkspace.module.css';
 import TimelineCard from "./TimelineCard";
+import EmailDrawer from "./EmailDrawer";
 
 type InvestorWorkspaceProps = {
     investor: Investor;
@@ -479,39 +480,13 @@ export default function InvestorWorkspace({
                             </div>
 
                         </div>
-                        {selectedEvent && (
-                            <>
-                                <div
-                                    className={styles.drawerBackdrop}
-                                    onClick={() =>
-                                        setSelectedEvent(null)
-                                    }
-                                />
-
-                                <aside className={styles.drawer}>
-
-                                    <div className={styles.drawerHeader}>
-
-                                        <h2>
-                                            {selectedEvent.title}
-                                        </h2>
-
-                                        <button
-                                            onClick={() =>
-                                                setSelectedEvent(null)
-                                            }
-                                        >
-                                            ×
-                                        </button>
-
-                                    </div>
-
-                                    <div className={styles.drawerBody}>
-                                        {selectedEvent.description}
-                                    </div>
-
-                                </aside>
-                            </>
+                        {selectedEvent?.type === "email" && (
+                            <EmailDrawer
+                                event={selectedEvent}
+                                onClose={() =>
+                                    setSelectedEvent(null)
+                                }
+                            />
                         )}
                     </div>
                 </main>
