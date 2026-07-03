@@ -46,6 +46,48 @@ type Params = {
     dealId: string;
     investorId: string;
 };
+type RaiseInvestor = {
+    dealId: string;
+    contactId: string;
+    raiseSubscriptionId: string;
+    amount: number;
+    dealstage: string;
+};
+type CommunicationRow = {
+    id: string;
+
+    subject: string | null;
+
+    status: string | null;
+
+    direction: string | null;
+
+    sent_at: string | null;
+
+    delivered_at: string | null;
+
+    opened_at: string | null;
+
+    replied_at: string | null;
+
+    clicked_at: string | null;
+
+    created_at: string;
+
+    open_count: number | null;
+
+    click_count: number | null;
+
+    sender_email: string | null;
+
+    recipient_email: string | null;
+
+    graph_message_id: string | null;
+
+    graph_conversation_id: string | null;
+
+    notes: string | null;
+};
 
 export async function GET(
     req: Request,
@@ -120,21 +162,24 @@ const {
 } = await supabaseServer
     .from('raise_subscription_communications')
     .select(`
-        id,
-        subject,
-        status,
-        direction,
-        sent_at,
-        delivered_at,
-        opened_at,
-        replied_at,
-        clicked_at,
-        open_count,
-        click_count,
-        sender_email,
-        recipient_email,
-        created_at
-    `)
+    id,
+    subject,
+    status,
+    direction,
+    sent_at,
+    delivered_at,
+    opened_at,
+    replied_at,
+    clicked_at,
+    open_count,
+    click_count,
+    sender_email,
+    recipient_email,
+    graph_message_id,
+    graph_conversation_id,
+    notes,
+    created_at
+`)
     .eq(
         'raise_subscription_id',
         subscription.id
@@ -424,34 +469,7 @@ console.log(
     raiseJson
 );
 
-type RaiseInvestor = {
-    dealId: string;
-    contactId: string;
-    raiseSubscriptionId: string;
-    amount: number;
-    dealstage: string;
-};
 
-type CommunicationRow = {
-    id: string;
-    subject: string | null;
-    status: string | null;
-    direction: string | null;
-
-    sent_at: string | null;
-    delivered_at: string | null;
-    opened_at: string | null;
-    replied_at: string | null;
-    clicked_at: string | null;
-
-    created_at: string;
-
-    open_count: number | null;
-    click_count: number | null;
-
-    sender_email: string | null;
-    recipient_email: string | null;
-};
 
 const hubspotInvestor =
     (raiseJson.investors as RaiseInvestor[]).find(
