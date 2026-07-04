@@ -90,6 +90,15 @@ const graphRes = await fetch(
 );
 
 const graphJson = await graphRes.json();
+console.log(
+    "[GRAPH FETCH STATUS]",
+    graphRes.status
+);
+
+console.log(
+    "[GRAPH FETCH BODY]",
+    JSON.stringify(graphJson, null, 2)
+);
 if (!graphRes.ok) {
     console.error(
         "[GRAPH GET MESSAGE]",
