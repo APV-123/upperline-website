@@ -132,7 +132,15 @@ const previousStage =
   Number(
     currentDealRead.json?.properties?.amount ?? 0
   );
+const COMMITTED_STAGE_ID =
+  HUBSPOT_DEAL_STAGES.find(
+    (stage) => stage.label === "Committed"
+  )?.id;
 
+const FUNDED_STAGE_ID =
+  HUBSPOT_DEAL_STAGES.find(
+    (stage) => stage.label === "Funded"
+  )?.id;
 const newStageLabel =
   stageId
     ? STAGE_ID_TO_LABEL[stageId] ??
@@ -252,8 +260,8 @@ const dealName =
   }
 }
 if (
-  previousStageLabel !== 'Committed' &&
-  newStageLabel === 'Committed'
+  previousStage !== COMMITTED_STAGE_ID &&
+  stageId === COMMITTED_STAGE_ID
 ) {
   const { error: commitmentError } =
     await supabaseServer
@@ -284,8 +292,8 @@ if (
   }
 }
 if (
-  previousStageLabel === 'Committed' &&
-  newStageLabel === 'Committed' &&
+  previousStage === COMMITTED_STAGE_ID &&
+  stageId === COMMITTED_STAGE_ID &&
   previousAmount !== Number(amount)
 ) {
   const { error: commitmentUpdateError } =
@@ -318,8 +326,8 @@ if (
   }
 }
 if (
-  previousStageLabel === 'Committed' &&
-  newStageLabel === 'Funded'
+  previousStage === COMMITTED_STAGE_ID &&
+  stageId === FUNDED_STAGE_ID
 ) {
   const { error: fundedError } =
     await supabaseServer
@@ -359,9 +367,9 @@ console.log(
 );
 
 if (
-  previousStageLabel === 'Committed' &&
-  newStageLabel !== 'Committed' &&
-  newStageLabel !== 'Funded'
+  previousStage === COMMITTED_STAGE_ID &&
+  stageId !== COMMITTED_STAGE_ID &&
+  stageId !== FUNDED_STAGE_ID
 ) {
 
   console.log(
