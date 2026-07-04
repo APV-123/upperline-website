@@ -8,6 +8,8 @@ import {
 import { formatActivityDate } from "./formatters";
 import styles from "./InvestorWorkspace.module.css";
 import { TimelineEvent } from "./types";
+import { useEffect, useState } from "react";
+
 
 function formatStatus(status?: unknown) {
     if (typeof status !== "string") return "Unknown";
@@ -42,7 +44,43 @@ export default function EmailDrawer({
 }: {
     event: TimelineEvent;
     onClose: () => void;
+
 }) {
+
+    const [loading, setLoading] =
+        useState(false);
+
+    const [emailHtml, setEmailHtml] =
+        useState<string | null>(null);
+
+    useEffect(() => {
+        async function loadEmail() {
+            if (!event.id) return;
+
+            setLoading(true);
+
+            try {
+                const res = await fetch(
+                    `/api/communications/${event.id}`
+                );
+
+                if (!res.ok) return;
+
+                const data = await res.json();
+
+                setEmailHtml(
+                    data.bodyHtml ?? null
+                );
+
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadEmail();
+
+    }, [event.id]);
+
     return (
         <>
             <div
@@ -153,8 +191,18 @@ export default function EmailDrawer({
                         </div>
 
                         <div className={styles.drawerPreview}>
-                            {event.metadata?.notes ??
-                                "Email preview will appear here once this message has been synchronized with Outlook."}
+                            {loading ? (
+                                "Loading email..."
+                            ) : emailHtml ? (
+                                <div
+                                    dangerouslySetInnerHTML={{
+                                        __html: emailHtml,
+                                    }}
+                                />
+                            ) : (
+                                event.metadata?.notes ??
+                                "Email preview will appear here once this message has been synchronized with Outlook."
+                            )}
                         </div>
                     </div>
                     <div className={styles.drawerFooter}>

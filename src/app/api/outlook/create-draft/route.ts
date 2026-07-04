@@ -124,12 +124,13 @@ if (signatureFile) {
   }
 }
     const {
-      to,
-      subject,
-      body,
-      firstName,
-      dealId,
-    } = await req.json();
+    to,
+    subject,
+    body,
+    firstName,
+    dealId,
+    communicationId,
+} = await req.json();
 
     const { data: deal } =
     await supabase
@@ -290,7 +291,7 @@ console.log(
             '[GRAPH CREATE DRAFT FAILED]',
             graphJson
         );
-
+    
         return NextResponse.json(
             {
             ok: false,
@@ -303,7 +304,36 @@ console.log(
             { status: 500 }
         );
         }
+if (communicationId) {
+    await supabase
+    .from("raise_subscription_communications")
+    .update({
+        graph_message_id:
+            graphJson.id,
 
+        graph_conversation_id:
+            graphJson.conversationId,
+
+        graph_web_link:
+            graphJson.webLink,
+
+        graph_internet_message_id:
+            graphJson.internetMessageId,
+
+        outlook_draft_id:
+            graphJson.id,
+
+        sender_email:
+            senderEmail,
+
+        sync_status:
+            "synced",
+
+        last_synced_at:
+            new Date().toISOString(),
+    })
+    .eq("id", communicationId);
+}
     return NextResponse.json({
       ok: true,
       draftId: graphJson?.id ?? null,

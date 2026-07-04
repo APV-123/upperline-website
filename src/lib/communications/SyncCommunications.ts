@@ -36,6 +36,11 @@ type HubSpotEmail = {
 type Communication = {
     hubspotEmailId: string;
 
+    graphMessageId: string | null;
+    graphConversationId: string | null;
+    graphWebLink: string | null;
+    graphInternetMessageId: string | null;
+
     subject: string | null;
     body: string | null;
 
@@ -64,6 +69,14 @@ function toCommunication(
 
     return {
     hubspotEmailId: email.id,
+
+    graphMessageId: null,
+
+    graphConversationId: null,
+
+    graphWebLink: null,
+
+    graphInternetMessageId: null,
 
     subject:
         p.hs_email_subject ?? null,
@@ -131,6 +144,18 @@ async function upsertCommunication(
 
                     hubspot_email_id:
                         communication.hubspotEmailId,
+
+                    graph_message_id:
+                        communication.graphMessageId,
+
+                    graph_conversation_id:
+                        communication.graphConversationId,
+
+                    graph_web_link:
+                        communication.graphWebLink,
+
+                    graph_internet_message_id:
+                        communication.graphInternetMessageId,
 
                     subject:
                         communication.subject,

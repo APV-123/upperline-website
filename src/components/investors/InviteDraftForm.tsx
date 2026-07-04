@@ -161,6 +161,37 @@ export default function InviteDraftForm({
                 setError(json?.error ?? 'Failed to save draft');
                 return;
             }
+            const communicationRes = await fetch(
+                `/api/deals/${dealId}/prospects/${prospect.contact_id}/communications`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        subject,
+                        body,
+                        recipientEmail: prospect.contact_email,
+                    }),
+                }
+            );
+
+            const communicationJson =
+                await communicationRes.json();
+
+            if (
+                !communicationRes.ok ||
+                !communicationJson.ok
+            ) {
+                setError(
+                    "Failed to create communication record."
+                );
+
+                return;
+            }
+
+            const communicationId =
+                communicationJson.communicationId;
             console.log(
                 '[CALLING OUTLOOK]',
                 {
@@ -176,10 +207,16 @@ export default function InviteDraftForm({
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
+                        communicationId,
+
                         to: prospect.contact_email,
+
                         subject,
+
                         body,
+
                         firstName,
+
                         dealId,
                     }),
                 }
