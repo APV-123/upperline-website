@@ -214,6 +214,7 @@ console.log(
     '[COMMUNICATIONS]',
     communications
 );
+
 if (activityError) {
     console.error(
         '[ACTIVITY ERROR]',
@@ -225,6 +226,20 @@ console.log(
     '[ACTIVITIES]',
     activities
 );
+
+const hubspotActivityRes = await fetch(
+    `${new URL(req.url).origin}/api/hubspot/contacts/${investorId}/activity`,
+    {
+        headers: {
+            cookie: req.headers.get("cookie") ?? "",
+        },
+        cache: "no-store",
+    }
+);
+
+const hubspotActivityJson =
+    await hubspotActivityRes.json();
+
 function getActivityTitle(
     activity: {
         activity_type: string;
@@ -402,9 +417,58 @@ const activityTimeline: TimelineEvent[] =
 }
         }));
 
+        const hubspotTimeline: TimelineEvent[] =
+    (hubspotActivityJson.activities ?? [])
+        .filter(
+            (a: {
+                type: string;
+            }) => a.type !== "EMAIL"
+        )
+        .map(
+            (a: {
+                id: string;
+                type: string;
+                subject?: string | null;
+                preview?: string | null;
+                timestamp: string;
+                ownerName?: string | null;
+            }): TimelineEvent => ({
+                id: a.id,
+
+                source: "hubspot",
+
+                type:
+                    a.type === "NOTE"
+                        ? "note"
+                        : a.type === "MEETING"
+                        ? "meeting"
+                        : a.type === "TASK"
+                        ? "task"
+                        : "note",
+
+                title:
+                    a.subject ??
+                    (a.type === "NOTE"
+                        ? "Internal Note"
+                        : a.type === "MEETING"
+                        ? "Meeting"
+                        : "Task"),
+
+                description:
+                    a.preview ?? "",
+
+                actor:
+                    a.ownerName ?? undefined,
+
+                timestamp:
+                    a.timestamp,
+            })
+        );
+
         const timeline = [
     ...activityTimeline,
     ...communicationTimeline,
+    ...hubspotTimeline,
 ].sort(
     (a, b) =>
         new Date(b.timestamp).getTime() -
@@ -415,6 +479,16 @@ const activityTimeline: TimelineEvent[] =
     console.log(
     '[COMMUNICATION TIMELINE]',
     communicationTimeline
+);
+
+    console.log(
+    "[HUBSPOT TIMELINE]",
+    hubspotTimeline
+);
+
+console.log(
+    "[FINAL TIMELINE]",
+    timeline
 );
 
     const memorandumViews =
