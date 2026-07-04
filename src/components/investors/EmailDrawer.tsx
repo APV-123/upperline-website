@@ -9,6 +9,33 @@ import { formatActivityDate } from "./formatters";
 import styles from "./InvestorWorkspace.module.css";
 import { TimelineEvent } from "./types";
 
+function formatStatus(status?: unknown) {
+    if (typeof status !== "string") return "Unknown";
+
+    switch (status.toLowerCase()) {
+        case "sent":
+            return "Sent";
+
+        case "draft":
+            return "Draft";
+
+        case "scheduled":
+            return "Scheduled";
+
+        case "delivered":
+            return "Delivered";
+
+        case "completed":
+            return "Completed";
+
+        case "failed":
+            return "Failed";
+
+        default:
+            return status;
+    }
+}
+
 export default function EmailDrawer({
     event,
     onClose,
@@ -42,7 +69,7 @@ export default function EmailDrawer({
                             Subject
                         </div>
 
-                        <div className={styles.drawerValue}>
+                        <div className={styles.drawerSubject}>
                             {event.description}
                         </div>
                     </div>
@@ -52,18 +79,8 @@ export default function EmailDrawer({
                             Status
                         </div>
 
-                        <div className={styles.drawerValue}>
-                            {event.metadata?.status ?? "Unknown"}
-                        </div>
-                    </div>
-
-                    <div className={styles.drawerSection}>
-                        <div className={styles.drawerLabel}>
-                            Direction
-                        </div>
-
-                        <div className={styles.drawerValue}>
-                            {event.metadata?.direction ?? "—"}
+                        <div className={styles.drawerStatus}>
+                            {formatStatus(event.metadata?.status)}
                         </div>
                     </div>
 
@@ -98,7 +115,7 @@ export default function EmailDrawer({
                             )}
                         </div>
                     </div>
-
+                    <div className={styles.drawerDivider} />
                     <div className={styles.drawerSection}>
                         <div className={styles.drawerLabel}>
                             Engagement
@@ -129,17 +146,26 @@ export default function EmailDrawer({
 
                         </div>
                     </div>
-
+                    <div className={styles.drawerDivider} />
                     <div className={styles.drawerSection}>
                         <div className={styles.drawerLabel}>
-                            Notes
+                            Email
                         </div>
 
-                        <div className={styles.drawerValue}>
-                            {event.metadata?.notes ?? "—"}
+                        <div className={styles.drawerPreview}>
+                            {event.metadata?.notes ??
+                                "Email content is not available for this message yet."}
                         </div>
                     </div>
+                    <div className={styles.drawerFooter}>
 
+                        {event.metadata?.graphMessageId && (
+                            <button className={styles.drawerPrimaryButton}>
+                                Open in Outlook
+                            </button>
+                        )}
+
+                    </div>
                 </div>
 
             </aside>
