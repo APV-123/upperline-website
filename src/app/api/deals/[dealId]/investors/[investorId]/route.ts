@@ -101,9 +101,24 @@ export async function GET(
     const { data: deal, error: dealError } =
     await supabaseServer
         .from('deals')
-        .select('raise_id')
-        .eq('id', dealId)
-        .single();
+        .select(`
+            raise_id,
+            name
+        `)
+                .eq('id', dealId)
+                .single();
+        
+            if (dealError || !deal) {
+            return NextResponse.json<InvestorWorkspaceError>(
+                {
+                    ok: false,
+                    error: 'Deal not found',
+                },
+                {
+                    status: 404,
+                }
+            );
+        }    
 
     if (dealError || !deal) {
     return NextResponse.json<InvestorWorkspaceError>(
@@ -484,6 +499,7 @@ console.log(
 const investor = mapInvestor(
     subscription,    
     {
+        dealName: deal.name,
         company:
             typeof hubspotProperties.company === 'string'
                 ? hubspotProperties.company
