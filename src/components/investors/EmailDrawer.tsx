@@ -52,6 +52,9 @@ export default function EmailDrawer({
 
     const [emailHtml, setEmailHtml] =
         useState<string | null>(null);
+        
+    const [graphWebLink, setGraphWebLink] =
+        useState<string | null>(null);
 
     useEffect(() => {
         async function loadEmail() {
