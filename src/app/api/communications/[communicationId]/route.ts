@@ -71,15 +71,61 @@ if (!accessToken) {
         { status: 401 }
     );
 }
+if (!communication.graph_message_id) {
+    return NextResponse.json({
+        ok: true,
+        communication,
+        bodyHtml: communication.notes,
+        outlookReady: false,
+    });
+}
+const graphRes = await fetch(
+    `https://graph.microsoft.com/v1.0/me/messages/${communication.graph_message_id}`,
+    {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+        cache: "no-store",
+    }
+);
+
+const graphJson = await graphRes.json();
+if (!graphRes.ok) {
+    console.error(
+        "[GRAPH GET MESSAGE]",
+        graphJson
+    );
+
+    return NextResponse.json({
+        ok: true,
+
+        communication,
+
+        bodyHtml:
+            communication.notes,
+
+        outlookReady: false,
+    });
+}
 return NextResponse.json({
     ok: true,
 
     communication,
 
-    bodyHtml: communication.notes,
+    bodyHtml:
+        graphJson.body?.content ??
+        communication.notes,
+
+    bodyPreview:
+        graphJson.bodyPreview ?? null,
 
     graphMessageId:
         communication.graph_message_id,
+
+    graphWebLink:
+        communication.graph_web_link,
+
+    outlookReady: true,
 });
 
 }
