@@ -209,6 +209,7 @@ export default function EmailDrawer({
                                 "Loading email..."
                             ) : emailHtml ? (
                                 <div
+                                    className={styles.emailHtml}
                                     dangerouslySetInnerHTML={{
                                         __html: emailHtml,
                                     }}

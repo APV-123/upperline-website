@@ -789,7 +789,7 @@
 }
 .drawerSection {
 
-    margin-bottom: 28px;
+    margin-bottom: 20px;
 }
 
 .drawerLabel {
@@ -833,35 +833,47 @@
 .drawerDivider {
     height: 1px;
 
-    margin: 28px 0;
+    margin: 18px 0;
 
     background: rgba(255,255,255,.06);
 }
 .drawerPreview {
-    background: #ffffff;
+    flex: 1;
 
-    border: 1px solid rgba(255,255,255,.08);
+    display: flex;
 
-    border-radius: 12px;
+    flex-direction: column;
 
     margin-top: 10px;
 
     min-height: 420px;
 
-    overflow: auto;
+    background: #0d1f35;
 
-    padding: 0;
+    border: 1px solid rgba(255,255,255,.06);
+
+    border-radius: 12px;
+
+    padding: 8px;
+
+    overflow: hidden;
 }
 .emailHtml {
-    background: white;
+    flex: 1;
+
+    overflow: auto;
+
+    background: #ffffff;
 
     color: #111827;
 
+    border-radius: 8px;
+
     padding: 24px;
 
-    font-size: 15px;
-
     line-height: 1.65;
+
+    font-size: 15px;
 }
 
 .emailHtml img {
@@ -875,4 +887,10 @@
 
 .emailHtml a {
     color: #0d7ea5;
+}
+
+.drawerEmpty {
+    color: rgba(255,255,255,.45);
+    font-size: 13px;
+    font-style: italic;
 }
