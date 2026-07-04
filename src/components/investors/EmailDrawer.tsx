@@ -52,7 +52,7 @@ export default function EmailDrawer({
 
     const [emailHtml, setEmailHtml] =
         useState<string | null>(null);
-        
+
     const [graphWebLink, setGraphWebLink] =
         useState<string | null>(null);
 
@@ -187,6 +187,14 @@ export default function EmailDrawer({
                                     Replied
                                 </span>
                             )}
+
+                            {Number(event.metadata?.opens ?? 0) === 0 &&
+                                Number(event.metadata?.clicks ?? 0) === 0 &&
+                                !event.metadata?.replied && (
+                                    <div className={styles.drawerEmpty}>
+                                        No engagement yet
+                                    </div>
+                                )}
 
                         </div>
                     </div>

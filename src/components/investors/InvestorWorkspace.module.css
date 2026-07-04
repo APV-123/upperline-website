@@ -658,7 +658,7 @@
 
     right: 0;
 
-    width: 520px;
+    width: min(680px, 45vw);
 
     height: calc(100vh - 64px);
 
@@ -812,12 +812,9 @@
     line-height: 1.6;
 }
 .drawerSubject {
-    font-size: 22px;
+    font-size: 30px;
     font-weight: 700;
-    line-height: 1.35;
-    color: white;
-
-    margin-top: 6px;
+    line-height: 1.2;
 }
 .drawerStatus {
     display: inline-flex;
@@ -841,21 +838,41 @@
     background: rgba(255,255,255,.06);
 }
 .drawerPreview {
-    background: #0d1f35;
+    background: #ffffff;
 
-    border: 1px solid rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.08);
 
     border-radius: 12px;
 
-    padding: 18px;
-
     margin-top: 10px;
 
-    min-height: 120px;
+    min-height: 420px;
 
-    color: #d4e3f8;
+    overflow: auto;
 
-    line-height: 1.7;
+    padding: 0;
+}
+.emailHtml {
+    background: white;
 
-    white-space: pre-wrap;
+    color: #111827;
+
+    padding: 24px;
+
+    font-size: 15px;
+
+    line-height: 1.65;
+}
+
+.emailHtml img {
+    max-width: 100%;
+    height: auto;
+}
+
+.emailHtml table {
+    max-width: 100%;
+}
+
+.emailHtml a {
+    color: #0d7ea5;
 }
