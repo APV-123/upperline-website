@@ -12,6 +12,8 @@ export type Investor = {
 
     name: string;
 
+    dealName: string;
+
     email?: string | null;
 
     company?: string | null;

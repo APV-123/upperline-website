@@ -1,9 +1,8 @@
 'use client';
 
-import {
-    useEffect,
-    useState,
-} from 'react';
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 
 import {
     ListFilter,
@@ -38,15 +37,23 @@ type InvestorWorkspaceProps = {
     investor: Investor;
     metrics: InvestorMetrics;
     timeline: TimelineEvent[];
+    refresh: () => Promise<void>;
 };
 
 export default function InvestorWorkspace({
+
     investor,
     metrics,
     timeline,
+    refresh,
 }: InvestorWorkspaceProps) {
 
     const [stage, setStage] = useState(investor.hubspotStageId ?? '');
+
+    useEffect(() => {
+        setStage(investor.hubspotStageId ?? "");
+    }, [investor.hubspotStageId]);
+
     const [saving, setSaving] = useState(false);
     const [selectedFilter, setSelectedFilter] =
         useState<
@@ -69,6 +76,11 @@ export default function InvestorWorkspace({
         >({});
     const [selectedEvent, setSelectedEvent] =
         useState<TimelineEvent | null>(null);
+
+    const { dealId } = useParams<{
+        dealId: string;
+    }>();
+
     const emailCount = timeline.filter(
         (t) => t.type === 'email'
     ).length;
@@ -125,9 +137,12 @@ export default function InvestorWorkspace({
             <div className={styles.header}>
 
                 <div>
-                    <div className={styles.breadcrumb}>
-                        ← Colony Lakes
-                    </div>
+                    <Link
+                        href={`/admin/deals/${dealId}/investors`}
+                        className={styles.breadcrumb}
+                    >
+                        ← {investor.dealName}
+                    </Link>
                     <h1 className={styles.dealTitle}>
                         {investor.name}
                     </h1>
@@ -238,7 +253,7 @@ export default function InvestorWorkspace({
                                         return;
                                     }
 
-                                    window.location.reload();
+                                    await refresh();
 
                                 } finally {
                                     setSaving(false);

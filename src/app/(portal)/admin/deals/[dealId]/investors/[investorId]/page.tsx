@@ -26,11 +26,7 @@ export default function InvestorPage() {
     const [timeline, setTimeline] =
         useState<TimelineEvent[]>([]);
 
-    useEffect(() => {
-        loadInvestor();
-    }, [dealId, investorId]);
-
-    async function loadInvestor() {
+    const loadInvestor = async () => {
         const res = await fetch(
             `/api/deals/${dealId}/investors/${investorId}`,
             {
@@ -43,18 +39,23 @@ export default function InvestorPage() {
         setInvestor(json.investor);
         setMetrics(json.metrics);
         setTimeline(json.timeline);
+    };
 
-    }
+    useEffect(() => {
+        loadInvestor();
+    }, [dealId, investorId]);
+    
 
-    if (!investor || !metrics) {
-        return <div>Loading...</div>;
-    }
+if (!investor || !metrics) {
+    return <div>Loading...</div>;
+}
 
-    return (
-        <InvestorWorkspace
-            investor={investor}
-            metrics={metrics}
-            timeline={timeline}
-        />
-    );
+return (
+    <InvestorWorkspace
+        investor={investor}
+        metrics={metrics}
+        timeline={timeline}
+        refresh={loadInvestor}
+    />
+);
 }
