@@ -149,12 +149,12 @@ export default function EmailDrawer({
                     <div className={styles.drawerDivider} />
                     <div className={styles.drawerSection}>
                         <div className={styles.drawerLabel}>
-                            Email
+                            Message
                         </div>
 
                         <div className={styles.drawerPreview}>
                             {event.metadata?.notes ??
-                                "Email content is not available for this message yet."}
+                                "Email preview will appear here once this message has been synchronized with Outlook."}
                         </div>
                     </div>
                     <div className={styles.drawerFooter}>

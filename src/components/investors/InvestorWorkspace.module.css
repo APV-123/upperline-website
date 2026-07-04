@@ -849,11 +849,13 @@
 
     padding: 18px;
 
+    margin-top: 10px;
+
+    min-height: 120px;
+
     color: #d4e3f8;
 
     line-height: 1.7;
 
     white-space: pre-wrap;
-
-    min-height: 180px;
 }
