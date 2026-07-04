@@ -165,38 +165,42 @@ export default function EmailDrawer({
                             Engagement
                         </div>
 
-                        <div className={styles.emailMetrics}>
+                        {Number(event.metadata?.opens ?? 0) === 0 &&
+                            Number(event.metadata?.clicks ?? 0) === 0 &&
+                            !event.metadata?.replied ? (
 
-                            {Number(event.metadata?.opens ?? 0) > 0 && (
-                                <span className={styles.emailMetric}>
-                                    <Eye size={13} />
-                                    Opened: {event.metadata?.opens}
-                                </span>
-                            )}
+                            <div className={styles.drawerEmpty}>
+                                Awaiting recipient engagement.
+                            </div>
 
-                            {Number(event.metadata?.clicks ?? 0) > 0 && (
-                                <span className={styles.emailMetric}>
-                                    <MousePointerClick size={13} />
-                                    Clicked: {event.metadata?.clicks}
-                                </span>
-                            )}
+                        ) : (
 
-                            {event.metadata?.replied && (
-                                <span className={styles.emailMetric}>
-                                    <Reply size={13} />
-                                    Replied
-                                </span>
-                            )}
+                            <div className={styles.emailMetrics}>
 
-                            {Number(event.metadata?.opens ?? 0) === 0 &&
-                                Number(event.metadata?.clicks ?? 0) === 0 &&
-                                !event.metadata?.replied && (
-                                    <div className={styles.drawerEmpty}>
-                                        No engagement yet
-                                    </div>
+                                {Number(event.metadata?.opens ?? 0) > 0 && (
+                                    <span className={styles.emailMetric}>
+                                        <Eye size={13} />
+                                        Opened: {event.metadata?.opens}
+                                    </span>
                                 )}
 
-                        </div>
+                                {Number(event.metadata?.clicks ?? 0) > 0 && (
+                                    <span className={styles.emailMetric}>
+                                        <MousePointerClick size={13} />
+                                        Clicked: {event.metadata?.clicks}
+                                    </span>
+                                )}
+
+                                {event.metadata?.replied && (
+                                    <span className={styles.emailMetric}>
+                                        <Reply size={13} />
+                                        Replied
+                                    </span>
+                                )}
+
+                            </div>
+
+                        )}
                     </div>
                     <div className={styles.drawerDivider} />
                     <div className={styles.drawerSection}>

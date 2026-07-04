@@ -815,6 +815,7 @@
     font-size: 30px;
     font-weight: 700;
     line-height: 1.2;
+    color: #f8fafc;
 }
 .drawerStatus {
     display: inline-flex;
@@ -837,12 +838,11 @@
 
     background: rgba(255,255,255,.06);
 }
+
 .drawerPreview {
     flex: 1;
 
     display: flex;
-
-    flex-direction: column;
 
     margin-top: 10px;
 
@@ -854,9 +854,9 @@
 
     border-radius: 12px;
 
-    padding: 8px;
-
     overflow: hidden;
+
+    padding: 16px;
 }
 .emailHtml {
     flex: 1;
@@ -868,12 +868,6 @@
     color: #111827;
 
     border-radius: 8px;
-
-    padding: 24px;
-
-    line-height: 1.65;
-
-    font-size: 15px;
 }
 
 .emailHtml img {
@@ -882,6 +876,11 @@
 }
 
 .emailHtml table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.emailHtml td {
     max-width: 100%;
 }
 
