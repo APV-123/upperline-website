@@ -54,7 +54,14 @@ export default function InvestorWorkspace({
         setStage(investor.hubspotStageId ?? "");
     }, [investor.hubspotStageId]);
 
+    const [amount, setAmount] = useState(metrics.amount);
+
+    useEffect(() => {
+    setAmount(metrics.amount);
+}, [metrics.amount]);
+
     const [saving, setSaving] = useState(false);
+    const [saved, setSaved] = useState(false);
     const [selectedFilter, setSelectedFilter] =
         useState<
             | 'all'
@@ -208,13 +215,25 @@ export default function InvestorWorkspace({
 
                             <input
                                 className={styles.input}
-                                defaultValue={formatCurrency(metrics.amount)}
+                                value={amount}
+                                onChange={(e) =>
+                                    setAmount(
+                                        Number(
+                                            e.target.value.replace(/[^0-9.]/g, "")
+                                        )
+                                    )
+                                }
                             />
 
                         </div>
 
                         <button
-                            className={styles.primaryButton}
+                            disabled={saving}
+                            className={
+                                saved
+                                    ? styles.primaryButtonSuccess
+                                    : styles.primaryButton
+                            }
                             onClick={async () => {
                                 if (
                                     !investor.hubspotDealId ||
@@ -236,7 +255,7 @@ export default function InvestorWorkspace({
                                             },
                                             body: JSON.stringify({
                                                 stageId: stage,
-                                                amount: metrics.amount,
+                                                amount,
                                                 raiseSubscriptionId:
                                                     investor.raiseSubscriptionId,
                                             }),
@@ -255,12 +274,22 @@ export default function InvestorWorkspace({
 
                                     await refresh();
 
+                                    setSaved(true);
+
+                                    setTimeout(() => {
+                                        setSaved(false);
+                                    }, 1500);
+
                                 } finally {
                                     setSaving(false);
                                 }
                             }}
                         >
-                            Save Changes
+                            {saving
+                                ? "Saving..."
+                                : saved
+                                    ? "✓ Saved"
+                                    : "Save Changes"}
                         </button>
 
                         <div className={styles.divider} />

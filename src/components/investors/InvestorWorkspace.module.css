@@ -360,7 +360,11 @@
 
     cursor:pointer;
 }
-
+.primaryButton:disabled,
+.primaryButtonSuccess:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+}
 
 /*=============================================================
      TIMELINE
