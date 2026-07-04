@@ -73,17 +73,25 @@ if (!accessToken) {
 }
 if (!communication.graph_message_id) {
     return NextResponse.json({
-        ok: true,
-        communication,
-        bodyHtml: communication.notes,
-        outlookReady: false,
-    });
+    ok: true,
+
+    communication,
+
+    bodyHtml: communication.notes,
+
+    graphWebLink:
+        communication.graph_web_link,
+
+    outlookReady: false,
+});
 }
 const graphRes = await fetch(
-    `https://graph.microsoft.com/v1.0/me/messages/${communication.graph_message_id}`,
+    `https://graph.microsoft.com/v1.0/me/messages/${communication.graph_message_id}?$select=body,bodyPreview,webLink`,
     {
         headers: {
             Authorization: `Bearer ${accessToken}`,
+            Prefer:
+                'outlook.body-content-type="html"',
         },
         cache: "no-store",
     }
@@ -112,6 +120,9 @@ if (!graphRes.ok) {
 
         bodyHtml:
             communication.notes,
+
+        graphWebLink:
+            communication.graph_web_link,
 
         outlookReady: false,
     });

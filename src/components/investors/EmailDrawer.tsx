@@ -71,6 +71,9 @@ export default function EmailDrawer({
                 setEmailHtml(
                     data.bodyHtml ?? null
                 );
+                setGraphWebLink(
+                    data.graphWebLink ?? null
+                );
 
             } finally {
                 setLoading(false);
@@ -207,8 +210,17 @@ export default function EmailDrawer({
                     </div>
                     <div className={styles.drawerFooter}>
 
-                        {event.metadata?.graphMessageId && (
-                            <button className={styles.drawerPrimaryButton}>
+                        {graphWebLink && (
+                            <button
+                                className={styles.drawerPrimaryButton}
+                                onClick={() =>
+                                    window.open(
+                                        graphWebLink,
+                                        "_blank",
+                                        "noopener,noreferrer"
+                                    )
+                                }
+                            >
                                 Open in Outlook
                             </button>
                         )}
