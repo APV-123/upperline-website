@@ -160,6 +160,8 @@ export async function GET(
     );
 }
 
+console.log("[SUBSCRIPTION]", subscription);
+
 const { data: activities, error: activityError } =
     await supabaseServer
         .from('raise_subscription_activity')
@@ -222,10 +224,11 @@ if (activityError) {
     );
 }
 
-console.log(
-    '[ACTIVITIES]',
-    activities
-);
+console.log("[ACTIVITY QUERY]", {
+    subscriptionId: subscription.id,
+    count: activities?.length ?? 0,
+    activities,
+});
 
 const hubspotActivityRes = await fetch(
     `${new URL(req.url).origin}/api/hubspot/contacts/${investorId}/activity`,
