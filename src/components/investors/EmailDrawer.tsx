@@ -219,8 +219,10 @@ export default function EmailDrawer({
                                     }}
                                 />
                             ) : (
-                                event.metadata?.notes ??
-                                "Email preview will appear here once this message has been synchronized with Outlook."
+                                <div className={styles.drawerEmpty}>
+                                    {event.metadata?.notes ??
+                                        "Email preview will appear here once this message has been synchronized with Outlook."}
+                                </div>
                             )}
                         </div>
                     </div>
