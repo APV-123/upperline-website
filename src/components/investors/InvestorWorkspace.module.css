@@ -909,9 +909,19 @@
 }
 
 .drawerEmpty {
-    color: rgba(255,255,255,.45);
-    font-size: 13px;
-    font-style: italic;
+    flex: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: rgba(255,255,255,.60);
+
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: center;
+
+    padding: 32px;
 }
 .profileCompany {
     margin-top: 18px;
