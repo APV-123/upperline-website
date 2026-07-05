@@ -459,21 +459,18 @@ for (const activity of activities ?? []) {
         ownerName?: string | null;
     }): TimelineEvent => {
 
-        console.log("[HUBSPOT NOTE ID]", a.id);
-
-console.log(
-    "[LOOKUP KEYS]",
-    [...noteActivityLookup.keys()]
-);
+        console.log("[NOTE MATCH]", {
+    hubspotId: String(a.id),
+    lookupKeys: [...noteActivityLookup.keys()],
+});
 
 const noteActivity =
     noteActivityLookup.get(String(a.id));
 
-console.log(
-    "[NOTE LOOKUP RESULT]",
-    noteActivity
-);
-
+console.log("[NOTE RESULT]", {
+    matched: !!noteActivity,
+    activity: noteActivity,
+});
         return {
 
             id: a.id,
