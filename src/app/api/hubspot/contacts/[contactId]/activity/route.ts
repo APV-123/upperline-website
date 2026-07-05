@@ -169,13 +169,15 @@ async function batchRead<TProps>(
   if (ids.length === 0) return [];
 
   const url =
-    `${HUBSPOT_BASE}/crm/v3/objects/${objectType}/batch/read` +
-    `?properties=${encodeURIComponent(properties.join(","))}`;
+    `${HUBSPOT_BASE}/crm/v3/objects/${objectType}/batch/read`;
 
   const res = await fetch(url, {
     method: "POST",
     headers: authHeaders("POST"),
-    body: JSON.stringify({ inputs: ids.map((id) => ({ id })) }),
+    body: JSON.stringify({
+    properties,
+    inputs: ids.map((id) => ({ id })),
+}),
     cache: "no-store",
   });
 
