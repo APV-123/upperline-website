@@ -221,7 +221,7 @@ export default function EmailDrawer({
                             ) : (
                                 <div className={styles.drawerEmpty}>
                                     <div className={styles.drawerEmptyTitle}>
-                                        No message body available
+                                        Message body unavailable
                                     </div>
 
                                     <div className={styles.drawerEmptyText}>

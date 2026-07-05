@@ -925,14 +925,14 @@
     font-size: 16px;
     font-weight: 600;
 
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 .drawerEmptyText {
     color: rgba(255,255,255,.60);
 
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.7;
 
     max-width: 260px;
 }
