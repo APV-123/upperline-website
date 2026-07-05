@@ -505,7 +505,11 @@ console.log("[NOTE RESULT]", {
 
                 title:
                     a.type === "MEETING"
-                        ? stripHtml(a.preview) || "Meeting"
+                        ? (
+                            a.subject ||
+                            stripHtml(a.preview) ||
+                            "Meeting"
+                        )
                         : a.subject ??
                         (a.type === "NOTE"
                             ? "Note"
@@ -513,8 +517,8 @@ console.log("[NOTE RESULT]", {
 
                 description:
                     a.type === "MEETING"
-                        ? stripHtml(a.preview)
-                        : a.preview ?? "",
+                        ? ""
+                        : stripHtml(a.preview),
 
                 actor:
                     noteActivity?.created_by ??
