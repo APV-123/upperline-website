@@ -156,14 +156,6 @@ export default function InvestorWorkspace({
                         {investor.name}
                     </h1>
 
-                    <div className={styles.subtitle}>
-                        {investor.title && investor.company
-                            ? `${investor.title} • ${investor.company}`
-                            : investor.title ??
-                            investor.company ??
-                            ""}
-                    </div>
-
                 </div>
 
             </div>
@@ -181,6 +173,17 @@ export default function InvestorWorkspace({
                         <div className={styles.profileEmail}>
                             {investor.email}
                         </div>
+                        {investor.company && (
+                            <div className={styles.profileCompany}>
+                                {investor.company}
+                            </div>
+                        )}
+
+                        {investor.title && (
+                            <div className={styles.profileTitle}>
+                                {investor.title}
+                            </div>
+                        )}
 
                         <div className={styles.divider} />
 
