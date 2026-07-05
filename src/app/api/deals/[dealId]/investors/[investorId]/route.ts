@@ -416,7 +416,32 @@ const activityTimeline: TimelineEvent[] =
         undefined,
 }
         }));
+    type ActivityRow = NonNullable<
+    typeof activities
+>[number];
 
+const noteActivityLookup = new Map<
+    string,
+    ActivityRow
+>();
+
+for (const activity of activities ?? []) {
+    if (activity.activity_type !== "note_added") continue;
+
+    const metadata =
+        activity.metadata as
+            | Record<string, unknown>
+            | null;
+
+    const noteId = metadata?.note_id;
+
+    if (!noteId) continue;
+
+    noteActivityLookup.set(
+        String(noteId),
+        activity
+    );
+}
         const hubspotTimeline: TimelineEvent[] =
     (hubspotActivityJson.activities ?? [])
         .filter(
@@ -425,16 +450,33 @@ const activityTimeline: TimelineEvent[] =
             }) => a.type !== "EMAIL"
         )
         .map(
-            (a: {
-                id: string;
-                type: string;
-                subject?: string | null;
-                preview?: string | null;
-                timestamp: string;
-                ownerName?: string | null;
-            }): TimelineEvent => ({
-                id: a.id,
+    (a: {
+        id: string;
+        type: string;
+        subject?: string | null;
+        preview?: string | null;
+        timestamp: string;
+        ownerName?: string | null;
+    }): TimelineEvent => {
 
+        console.log("[HUBSPOT NOTE ID]", a.id);
+
+console.log(
+    "[LOOKUP KEYS]",
+    [...noteActivityLookup.keys()]
+);
+
+const noteActivity =
+    noteActivityLookup.get(String(a.id));
+
+console.log(
+    "[NOTE LOOKUP RESULT]",
+    noteActivity
+);
+
+        return {
+
+            id: a.id,
                 source: "hubspot",
 
                 type:
@@ -458,12 +500,15 @@ const activityTimeline: TimelineEvent[] =
                     a.preview ?? "",
 
                 actor:
-                    a.ownerName ?? undefined,
+                    noteActivity?.created_by ??
+                    a.ownerName ??
+                    undefined,
 
                 timestamp:
                     a.timestamp,
-            })
-        );
+            };
+    }
+        )
 
         const timeline = [
     ...activityTimeline,
