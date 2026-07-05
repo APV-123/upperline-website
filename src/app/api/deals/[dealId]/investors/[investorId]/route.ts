@@ -325,7 +325,13 @@ function getActivityDescription(
 }
 
 const activityTimeline: TimelineEvent[] =
-    (activities ?? []).map((activity) => ({
+    (activities ?? [])
+        .filter(
+            (activity) =>
+                activity.activity_type !==
+                "note_added"
+        )
+        .map((activity) => ({
         id: activity.id,
 
         type:
@@ -489,12 +495,12 @@ console.log("[NOTE RESULT]", {
                         : "note",
 
                 title:
-                    a.subject ??
-                    (a.type === "NOTE"
-                        ? "Internal Note"
-                        : a.type === "MEETING"
-                        ? "Meeting"
-                        : "Task"),
+                    a.type === "NOTE"
+                        ? "Note"
+                        : a.subject ??
+                        (a.type === "MEETING"
+                            ? "Meeting"
+                            : "Task"),
 
                 description:
                     a.preview ?? "",
