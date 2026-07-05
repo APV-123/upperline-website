@@ -11,6 +11,8 @@ import type {
     TimelineEvent,
 } from '@/components/investors/types';
 
+import AdminNav from '@/components/navigation/AdminNav';
+
 export default function InvestorPage() {
     const { dealId, investorId } = useParams<{
         dealId: string;
@@ -44,18 +46,23 @@ export default function InvestorPage() {
     useEffect(() => {
         loadInvestor();
     }, [dealId, investorId]);
-    
 
-if (!investor || !metrics) {
-    return <div>Loading...</div>;
-}
 
-return (
-    <InvestorWorkspace
-        investor={investor}
-        metrics={metrics}
-        timeline={timeline}
-        refresh={loadInvestor}
-    />
-);
+    if (!investor || !metrics) {
+        return <div>Loading...</div>;
+    }
+
+    return (
+        <>
+            <AdminNav />
+
+            <InvestorWorkspace
+                investor={investor}
+                metrics={metrics}
+                timeline={timeline}
+                refresh={loadInvestor}
+            />
+        </>
+
+    );
 }
