@@ -13,7 +13,7 @@
 .header {
     max-width: 1700px;
 
-    margin: 0 auto 52px auto;
+    margin: 0 auto 36px auto;
 
     display: flex;
 
@@ -30,10 +30,10 @@
     color: #56d4ff;
     text-decoration: none;
 
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
 
-    margin-bottom: 14px;
+    margin-bottom: 8px;
 
     transition: color .15s ease,
         opacity .15s ease,
@@ -58,7 +58,7 @@
 }
 
 .subtitle {
-    margin-top: 6px;
+    margin-top: 2px;
 
     color: rgba(255,255,255,.65);
 
@@ -80,7 +80,7 @@
 
     grid-template-columns: 340px 1fr;
 
-    gap: 28px;
+    gap: 24px;
 
     align-items: start;
 }
@@ -100,7 +100,7 @@
 
     flex-direction: column;
 
-    gap: 20px;
+    gap: 16px;
 }
 
 
@@ -163,7 +163,7 @@
 
     background:rgba(255,255,255,.08);
 
-    margin:28px 0;
+    margin:24px 0;
 }
 
 .sectionTitle{
@@ -263,7 +263,7 @@
 
     border-radius:18px;
 
-    padding:26px 32px;
+    padding:22px 28px;
 
     display:grid;
 
@@ -289,7 +289,7 @@
 
     color:rgba(255,255,255,.55);
 
-    margin-bottom:10px;
+    margin-bottom:6px;
 }
 
 .metricValue{
@@ -403,7 +403,7 @@
 
 .timelineHeader{
 
-    padding:32px 32px 24px;
+    padding:28px 28px 20px;
 
     border-bottom:1px solid rgba(255,255,255,.06);
 }
@@ -419,7 +419,7 @@
 }
 .timelineSubtitle{
 
-    margin-top:10px;
+    margin-top:6px;
 
     color:#89a6c7;
 
@@ -433,7 +433,7 @@
 
     gap:10px;
 
-    margin-top:22px;
+    margin-top:16px;
 }
 .filter{
     display:flex;
