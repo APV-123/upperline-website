@@ -264,6 +264,11 @@ export async function GET(
       batchRead<TaskProps>("tasks", taskIds, ["hs_timestamp", "hs_createdate", "hs_task_subject"]),
     ]);
 
+console.log(
+    "[NOTES RAW]",
+    JSON.stringify(notes, null, 2)
+);
+
     const activities: HubSpotActivity[] = [
       ...emails.map((r) => ({
         id: r.id,
