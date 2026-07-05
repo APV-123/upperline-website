@@ -451,6 +451,15 @@ for (const activity of activities ?? []) {
         activity
     );
 }
+function stripHtml(html?: string | null) {
+    if (!html) return "";
+
+    return html
+        .replace(/<[^>]+>/g, " ")
+        .replace(/&nbsp;/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
         const hubspotTimeline: TimelineEvent[] =
     (hubspotActivityJson.activities ?? [])
         .filter(
@@ -495,15 +504,17 @@ console.log("[NOTE RESULT]", {
                         : "note",
 
                 title:
-                    a.type === "NOTE"
-                        ? "Note"
+                    a.type === "MEETING"
+                        ? stripHtml(a.preview) || "Meeting"
                         : a.subject ??
-                        (a.type === "MEETING"
-                            ? "Meeting"
+                        (a.type === "NOTE"
+                            ? "Note"
                             : "Task"),
 
                 description:
-                    a.preview ?? "",
+                    a.type === "MEETING"
+                        ? stripHtml(a.preview)
+                        : a.preview ?? "",
 
                 actor:
                     noteActivity?.created_by ??
