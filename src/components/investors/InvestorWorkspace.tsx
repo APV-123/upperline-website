@@ -17,6 +17,7 @@ import {
     RefreshCw,
     DollarSign,
     CheckCircle2,
+    ArrowLeft,
 } from 'lucide-react';
 
 import {
@@ -57,8 +58,8 @@ export default function InvestorWorkspace({
     const [amount, setAmount] = useState(metrics.amount);
 
     useEffect(() => {
-    setAmount(metrics.amount);
-}, [metrics.amount]);
+        setAmount(metrics.amount);
+    }, [metrics.amount]);
 
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -148,7 +149,8 @@ export default function InvestorWorkspace({
                         href={`/admin/deals/${dealId}/investors`}
                         className={styles.breadcrumb}
                     >
-                        ← {investor.dealName}
+                        <ArrowLeft size={16} />
+                        {investor.dealName} Investors
                     </Link>
                     <h1 className={styles.dealTitle}>
                         {investor.name}

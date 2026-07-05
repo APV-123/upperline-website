@@ -23,11 +23,27 @@
 }
 
 .breadcrumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
     color: #56d4ff;
+    text-decoration: none;
 
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 600;
 
-    margin-bottom: 8px;
+    margin-bottom: 14px;
+
+    transition: color .15s ease,
+        opacity .15s ease,
+        transform .15s ease;
+}
+
+.breadcrumb:hover {
+    color: #7fe2ff;
+    opacity: .95;
+    transform: translateX(-2px);
 }
 
 .dealTitle{
