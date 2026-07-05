@@ -11,7 +11,7 @@
 }
 
 .header {
-    max-width: 1700px;
+    max-width: 1800px;
 
     margin: 0 auto 36px auto;
 
@@ -72,13 +72,13 @@
 
 .workspace {
 
-    max-width: 1700px;
+    max-width: 1800px;
 
     margin: 0 auto;
 
     display: grid;
 
-    grid-template-columns: 340px 1fr;
+    grid-template-columns: 360px 1fr;
 
     gap: 24px;
 
@@ -296,7 +296,7 @@
 
     color:white;
 
-    font-size:20px;
+    font-size:22px;
 
     font-weight:600;
 }
@@ -305,7 +305,7 @@
 
     color:#45d483;
 
-    font-size:20px;
+    font-size:22px;
 
     font-weight:700;
 }
@@ -409,7 +409,7 @@
 }
 .timelineTitle{
 
-    font-size:32px;
+    font-size:34px;
 
     font-weight:700;
 
@@ -481,9 +481,9 @@
 
     border-radius:14px;
     
-    padding:22px 24px;
+    padding:20px 22px;
     
-    margin-bottom:18px;
+    margin-bottom:14px;
 
     border-left:5px solid transparent;
 
