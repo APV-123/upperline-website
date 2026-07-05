@@ -913,3 +913,15 @@
     font-size: 13px;
     font-style: italic;
 }
+.profileCompany {
+    margin-top: 18px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.profileTitle {
+    margin-top: 4px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.65);
+}
