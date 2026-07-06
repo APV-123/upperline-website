@@ -58,3 +58,9 @@
         transform: translateX(100%);
     }
 }
+
+.page {
+    min-height: calc(100vh - 72px); /* adjust if your nav is a different height */
+    background: #0b1220;
+    padding: 32px;
+}

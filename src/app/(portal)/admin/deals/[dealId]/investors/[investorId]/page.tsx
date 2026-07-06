@@ -78,32 +78,33 @@ export default function InvestorPage() {
     }, [dealId, investorId]);
 
     useEffect(() => {
-    loadInvestor();
-}, [loadInvestor]);
+        loadInvestor();
+    }, [loadInvestor]);
 
 
     if (loading) {
         return (
             <>
                 <AdminNav />
+                <div className={styles.page}>
+                    <div className={styles.loadingPage}>
 
-                <div className={styles.loadingPage}>
+                        <div className={styles.loadingSidebar} />
 
-                    <div className={styles.loadingSidebar} />
+                        <div className={styles.loadingContent}>
 
-                    <div className={styles.loadingContent}>
+                            <div className={styles.loadingMetrics} />
 
-                        <div className={styles.loadingMetrics} />
+                            <div className={styles.loadingTimeline}>
+                                <div className={styles.loadingCard} />
+                                <div className={styles.loadingCard} />
+                                <div className={styles.loadingCard} />
+                                <div className={styles.loadingCard} />
+                            </div>
 
-                        <div className={styles.loadingTimeline}>
-                            <div className={styles.loadingCard} />
-                            <div className={styles.loadingCard} />
-                            <div className={styles.loadingCard} />
-                            <div className={styles.loadingCard} />
                         </div>
 
                     </div>
-
                 </div>
             </>
         );
