@@ -1,0 +1,60 @@
+.loadingPage {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 24px;
+}
+
+.loadingSidebar,
+.loadingMetrics,
+.loadingCard {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.05);
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.loadingSidebar {
+    height: 720px;
+}
+
+.loadingMetrics {
+    height: 96px;
+    margin-bottom: 24px;
+}
+
+.loadingTimeline {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.loadingCard {
+    height: 110px;
+}
+
+.loadingSidebar::after,
+.loadingMetrics::after,
+.loadingCard::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,.06),
+        transparent
+    );
+    animation: shimmer 1.3s infinite;
+}
+.loadingContent {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
