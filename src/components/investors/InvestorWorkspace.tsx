@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
@@ -84,6 +84,23 @@ export default function InvestorWorkspace({
         >({});
     const [selectedEvent, setSelectedEvent] =
         useState<TimelineEvent | null>(null);
+
+    const [showNoteComposer, setShowNoteComposer] =
+        useState(false);
+
+    const [note, setNote] = useState("");
+
+    const [savingNote, setSavingNote] =
+        useState(false);
+
+    const noteInputRef =
+        useRef<HTMLTextAreaElement>(null);
+
+    useEffect(() => {
+        if (showNoteComposer) {
+            noteInputRef.current?.focus();
+        }
+    }, [showNoteComposer]);
 
     const { dealId } = useParams<{
         dealId: string;
@@ -331,7 +348,12 @@ export default function InvestorWorkspace({
                             Send Email
                         </button>
 
-                        <button className={styles.sidebarButton}>
+                        <button
+                            className={styles.sidebarButton}
+                            onClick={() =>
+                                setShowNoteComposer((v) => !v)
+                            }
+                        >
                             <NotebookPen size={16} />
                             Add Note
                         </button>
@@ -507,6 +529,94 @@ export default function InvestorWorkspace({
                             </div>
 
                         </div>
+                        {showNoteComposer && (
+                            <div className={styles.noteComposer}>
+
+                                <textarea
+                                    ref={noteInputRef}
+                                    className={styles.noteInput}
+                                    placeholder="Add an internal note..."
+                                    value={note}
+                                    onChange={(e) =>
+                                        setNote(e.target.value)
+                                    }
+                                    rows={5}
+                                />
+
+                                <div className={styles.noteActions}>
+
+                                    <button
+                                        className={styles.secondaryButton}
+                                        onClick={() => {
+                                            setShowNoteComposer(false);
+                                            setNote("");
+                                        }}
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        className={styles.primaryButton}
+                                        disabled={
+                                            savingNote ||
+                                            !note.trim()
+                                        }
+                                        onClick={async () => {
+                                            if (
+                                                !investor.hubspotDealId ||
+                                                !investor.raiseSubscriptionId
+                                            ) {
+                                                return;
+                                            }
+
+                                            setSavingNote(true);
+
+                                            try {
+                                                const res = await fetch(
+                                                    `/api/hubspot/contacts/${investor.id}/note`,
+                                                    {
+                                                        method: "POST",
+                                                        headers: {
+                                                            "Content-Type": "application/json",
+                                                        },
+                                                        body: JSON.stringify({
+                                                            body: note,
+                                                            dealId: investor.hubspotDealId,
+                                                            raiseSubscriptionId:
+                                                                investor.raiseSubscriptionId,
+                                                        }),
+                                                    }
+                                                );
+
+                                                const json =
+                                                    await res.json();
+
+                                                if (!json.ok) {
+                                                    alert(
+                                                        json.error ??
+                                                        "Unable to save note."
+                                                    );
+                                                    return;
+                                                }
+
+                                                setNote("");
+                                                setShowNoteComposer(false);
+
+                                                await refresh();
+                                            } finally {
+                                                setSavingNote(false);
+                                            }
+                                        }}
+                                    >
+                                        {savingNote
+                                            ? "Saving..."
+                                            : "Save Note"}
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        )}
                         <div className={styles.timelineLayout}>
 
                             <div className={styles.timeline}>
