@@ -119,12 +119,10 @@ function Divider() {
 export default function InvestorCard({
     investor,
     onOpen,
-    onQuickStage,
     colors,
 }: {
     investor: Investor;
     onOpen: () => void;
-    onQuickStage: (stageId: string) => void;
     colors: {
         surface: string;
         input: string;
@@ -241,7 +239,6 @@ export default function InvestorCard({
                                             <MenuItem
                                                 label="Mark Engaged"
                                                 onClick={() => {
-                                                    onQuickStage(STAGE_LABEL_TO_ID['Engaged']);
                                                     setMenuOpen(false);
                                                 }}
 
@@ -252,7 +249,6 @@ export default function InvestorCard({
                                             <MenuItem
                                                 label="Mark Committed"
                                                 onClick={() => {
-                                                    onQuickStage(STAGE_LABEL_TO_ID['Committed']);
                                                     setMenuOpen(false);
                                                 }}
                                             />
@@ -262,7 +258,6 @@ export default function InvestorCard({
                                             <MenuItem
                                                 label="Mark Funded"
                                                 onClick={() => {
-                                                    onQuickStage(STAGE_LABEL_TO_ID['Funded']);
                                                     setMenuOpen(false);
                                                 }}
                                             />
@@ -273,7 +268,6 @@ export default function InvestorCard({
                                                 label="↩ Revert to Introduced"
                                                 tone="warning"
                                                 onClick={() => {
-                                                    onQuickStage(STAGE_LABEL_TO_ID['Introduced']);
                                                     setMenuOpen(false);
                                                 }}
                                             />
@@ -284,7 +278,6 @@ export default function InvestorCard({
                                                 label="Pass Investor"
                                                 tone="danger"
                                                 onClick={() => {
-                                                    onQuickStage(STAGE_LABEL_TO_ID['Passed']);
                                                     setMenuOpen(false);
                                                 }}
                                             />
