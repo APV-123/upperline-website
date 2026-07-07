@@ -115,11 +115,19 @@ async function findGraphMessage(
         return null;
     }
 
-    const mailbox = isUpperline(
-    communication.sender_email
-)
-    ? communication.sender_email
-    : communication.recipient_email;
+    const recipientAddresses =
+    communication.recipient_email
+        .split(";")
+        .map((email) => email.trim());
+
+const mailbox =
+    isUpperline(communication.sender_email)
+        ? communication.sender_email
+        : recipientAddresses.find(isUpperline);
+
+if (!mailbox) {
+    return null;
+}
 
 if (!mailbox) {
     return null;
@@ -152,9 +160,19 @@ const messages = await graphFetch(
     if (!candidates?.length) {
         return null;
     }
-    const match = candidates.find(
-    (message) =>
-        message.subject === communication.subject
+    const recipients =
+    communication.recipient_email
+        .split(";")
+        .map((email) =>
+            email.trim().toLowerCase()
+        );
+    const match = candidates.find((message) =>
+    message.subject === communication.subject &&
+    message.toRecipients.some((r) =>
+        recipients.includes(
+            r.emailAddress.address.toLowerCase()
+        )
+    )
 );
 
     return match ?? null;
