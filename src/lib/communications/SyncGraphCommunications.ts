@@ -95,6 +95,36 @@ console.log(
     "[GRAPH MATCH]",
     graphMessage
 );
+if (!graphMessage) {
+    return;
+}
+
+await supabaseServer
+    .from("raise_subscription_communications")
+    .update({
+        graph_message_id:
+            graphMessage.id,
+
+        graph_conversation_id:
+            graphMessage.conversationId,
+
+        graph_web_link:
+            graphMessage.webLink,
+
+        graph_internet_message_id:
+            graphMessage.internetMessageId,
+
+        sync_status: "synced",
+
+        last_synced_at:
+            new Date().toISOString(),
+    })
+    .eq("id", communication.id);
+
+console.log(
+    "[GRAPH BACKFILLED]",
+    communication.id
+);
 }
 function isUpperline(
     email?: string | null
