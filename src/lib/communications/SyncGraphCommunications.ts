@@ -6,6 +6,15 @@ type GraphMessage = {
     conversationId: string;
     internetMessageId: string;
     webLink: string;
+
+    subject: string;
+    sentDateTime: string;
+
+    toRecipients: {
+        emailAddress: {
+            address: string;
+        };
+    }[];
 };
 
 type Communication = {
@@ -128,6 +137,16 @@ const messages = await graphFetch(
         "[GRAPH MESSAGES]",
         messages
     );
+    const candidates =
+    messages.value as GraphMessage[] | undefined;
 
-    return null;
+    if (!candidates?.length) {
+        return null;
+    }
+    const match = candidates.find(
+    (message) =>
+        message.subject === communication.subject
+);
+
+    return match ?? null;
 }
