@@ -13,6 +13,7 @@ type Communication = {
 
     sender_email: string | null;
     recipient_email: string | null;
+    direction: string |null;
 
     subject: string | null;
 
@@ -35,6 +36,7 @@ export async function syncGraphCommunications() {
                 id,
                 sender_email,
                 recipient_email,
+                direction,
                 subject,
                 graph_message_id,
                 graph_conversation_id,
@@ -69,7 +71,12 @@ async function syncCommunication(
     ) {
         return;
     }
-
+    console.log("[SYNCING]", {
+    id: communication.id,
+    sender: communication.sender_email,
+    recipient: communication.recipient_email,
+    subject: communication.subject,
+});
     const graphMessage =
     await findGraphMessage(
         communication
@@ -80,7 +87,15 @@ console.log(
     graphMessage
 );
 }
-
+function isUpperline(
+    email?: string | null
+) {
+    return (
+        email
+            ?.toLowerCase()
+            .endsWith("@upperlineco.com") ?? false
+    );
+}
 async function findGraphMessage(
     communication: Communication
 ): Promise<GraphMessage | null> {
@@ -91,11 +106,23 @@ async function findGraphMessage(
         return null;
     }
 
-    const messages = await graphFetch(
-        `/users/${encodeURIComponent(
-            communication.sender_email
-        )}/messages?$top=25`
-    );
+    const mailbox = isUpperline(
+    communication.sender_email
+)
+    ? communication.sender_email
+    : communication.recipient_email;
+
+if (!mailbox) {
+    return null;
+}
+console.log("[GRAPH MAILBOX]", mailbox);
+const messages = await graphFetch(
+    `/users/${encodeURIComponent(
+        mailbox
+    )}/messages` +
+        `?$top=25` +
+        `&$select=id,conversationId,internetMessageId,webLink,subject,sentDateTime,toRecipients`
+);
 
     console.log(
         "[GRAPH MESSAGES]",
