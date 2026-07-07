@@ -105,6 +105,13 @@ function isUpperline(
             .endsWith("@upperlineco.com") ?? false
     );
 }
+function normalizeSubject(
+    subject: string
+) {
+    return subject
+        .trim()
+        .toLowerCase();
+}
 async function findGraphMessage(
     communication: Communication
 ): Promise<GraphMessage | null> {
@@ -129,9 +136,6 @@ if (!mailbox) {
     return null;
 }
 
-if (!mailbox) {
-    return null;
-}
 console.log("[GRAPH MAILBOX]", mailbox);
 const escapedSubject =
     (communication.subject ?? "")
@@ -166,6 +170,10 @@ const messages = await graphFetch(
         .map((email) =>
             email.trim().toLowerCase()
         );
+    console.log(
+    "[EXPECTED RECIPIENTS]",
+    recipients
+);
     for (const message of candidates) {
     console.log(
         "[GRAPH RECIPIENTS]",
@@ -177,7 +185,10 @@ const messages = await graphFetch(
 }
 
 const match = candidates.find((message) =>
-    message.subject === communication.subject &&
+    normalizeSubject(message.subject) ===
+        normalizeSubject(
+            communication.subject ?? ""
+        ) &&
     message.toRecipients.some((r) =>
         recipients.includes(
             r.emailAddress.address.toLowerCase()
