@@ -67,6 +67,16 @@ export default function InvestorCard({
                 borderTop: `3px solid ${getStageAccent(investor.bucket)}`,
                 boxShadow: 'none',
                 cursor: 'pointer',
+                transition: 'transform .15s ease, box-shadow .15s ease',
+            }}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow =
+                    '0 10px 24px rgba(0,0,0,.28)';
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.transform = '';
+                e.currentTarget.style.boxShadow = '';
             }}
         >
             <div style={{ fontSize: 18, fontWeight: 600, marginBottom: 6 }}>
