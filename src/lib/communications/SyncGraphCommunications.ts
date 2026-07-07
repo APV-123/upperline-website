@@ -125,12 +125,21 @@ if (!mailbox) {
     return null;
 }
 console.log("[GRAPH MAILBOX]", mailbox);
+const escapedSubject =
+    (communication.subject ?? "")
+        .replaceAll("'", "''");
+if (!communication.subject) {
+    return null;
+}
+const filter =
+    encodeURIComponent(
+        `subject eq '${escapedSubject}'`
+    );
+
 const messages = await graphFetch(
-    `/users/${encodeURIComponent(
-        mailbox
-    )}/messages` +
-        `?$top=25` +
-        `&$select=id,conversationId,internetMessageId,webLink,subject,sentDateTime,toRecipients`
+    `/users/${encodeURIComponent(mailbox)}/messages` +
+    `?$filter=${filter}` +
+    `&$select=id,conversationId,internetMessageId,webLink,subject,sentDateTime,toRecipients`
 );
 
     console.log(
