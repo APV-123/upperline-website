@@ -166,7 +166,17 @@ const messages = await graphFetch(
         .map((email) =>
             email.trim().toLowerCase()
         );
-    const match = candidates.find((message) =>
+    for (const message of candidates) {
+    console.log(
+        "[GRAPH RECIPIENTS]",
+        message.subject,
+        message.toRecipients.map(
+            (r) => r.emailAddress.address
+        )
+    );
+}
+
+const match = candidates.find((message) =>
     message.subject === communication.subject &&
     message.toRecipients.some((r) =>
         recipients.includes(
