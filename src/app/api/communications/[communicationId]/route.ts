@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { getGraphAppToken } from "@/lib/graph/getGraphAppToken";
 import { supabaseServer } from "@/lib/SupabaseServer";
 
 type Params = {
@@ -14,21 +14,6 @@ export async function GET(
 ) {
     const { communicationId } =
         await context.params;
-
-    const token = await getToken({
-        req,
-        secret: process.env.NEXTAUTH_SECRET,
-    });
-
-    if (!token) {
-        return NextResponse.json(
-            {
-                ok: false,
-                error: "Unauthorized",
-            },
-            { status: 401 }
-        );
-    }
 
     const { data: communication, error } =
     await supabaseServer
@@ -56,21 +41,10 @@ if (error || !communication) {
         { status: 404 }
     );
 }
-const accessToken = (
-    token as {
-        accessToken?: string;
-    }
-).accessToken;
 
-if (!accessToken) {
-    return NextResponse.json(
-        {
-            ok: false,
-            error: "Missing Graph token",
-        },
-        { status: 401 }
-    );
-}
+const accessToken =
+    await getGraphAppToken();
+
 if (!communication.graph_message_id) {
     return NextResponse.json({
     ok: true,
@@ -86,7 +60,9 @@ if (!communication.graph_message_id) {
 });
 }
 const graphRes = await fetch(
-    `https://graph.microsoft.com/v1.0/me/messages/${communication.graph_message_id}?$select=body,bodyPreview,webLink`,
+    `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(
+        communication.sender_email!
+    )}/messages/${communication.graph_message_id}?$select=body,bodyPreview,webLink`,
     {
         headers: {
             Authorization: `Bearer ${accessToken}`,
