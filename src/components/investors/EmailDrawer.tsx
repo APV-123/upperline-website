@@ -9,6 +9,7 @@ import { formatActivityDate } from "./formatters";
 import styles from "./InvestorWorkspace.module.css";
 import { TimelineEvent } from "./types";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 
 function formatStatus(status?: unknown) {
@@ -49,12 +50,16 @@ export default function EmailDrawer({
 
     const [loading, setLoading] =
         useState(false);
+    const [senderEmail, setSenderEmail] =
+        useState<string | null>(null);
 
     const [emailHtml, setEmailHtml] =
         useState<string | null>(null);
 
     const [graphWebLink, setGraphWebLink] =
         useState<string | null>(null);
+
+    const { data: session } = useSession();
 
     useEffect(() => {
         async function loadEmail() {
@@ -77,6 +82,9 @@ export default function EmailDrawer({
                 setGraphWebLink(
                     data.graphWebLink ?? null
                 );
+                setSenderEmail(
+                    data.senderEmail ?? null
+                )
 
             } finally {
                 setLoading(false);
@@ -86,7 +94,9 @@ export default function EmailDrawer({
         loadEmail();
 
     }, [event.id]);
-
+    const canOpenInOutlook =
+        session?.user?.email?.toLowerCase() ===
+        senderEmail?.toLowerCase();
     return (
         <>
             <div
@@ -134,7 +144,9 @@ export default function EmailDrawer({
                         </div>
 
                         <div className={styles.drawerValue}>
-                            {event.metadata?.senderEmail ?? "—"}
+                            {senderEmail ??
+                                event.metadata?.senderEmail ??
+                                "—"}
                         </div>
                     </div>
 
@@ -234,20 +246,21 @@ export default function EmailDrawer({
                     </div>
                     <div className={styles.drawerFooter}>
 
-                        {graphWebLink && (
-                            <button
-                                className={styles.drawerPrimaryButton}
-                                onClick={() =>
-                                    window.open(
-                                        graphWebLink,
-                                        "_blank",
-                                        "noopener,noreferrer"
-                                    )
-                                }
-                            >
-                                Open in Outlook
-                            </button>
-                        )}
+                        {graphWebLink &&
+                            canOpenInOutlook && (
+                                <button
+                                    className={styles.drawerPrimaryButton}
+                                    onClick={() =>
+                                        window.open(
+                                            graphWebLink,
+                                            "_blank",
+                                            "noopener,noreferrer"
+                                        )
+                                    }
+                                >
+                                    Open in Outlook
+                                </button>
+                            )}
 
                     </div>
                 </div>

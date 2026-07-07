@@ -15,6 +15,7 @@ export async function GET(
     const { communicationId } =
         await context.params;
 
+    
     const { data: communication, error } =
     await supabaseServer
         .from("raise_subscription_communications")
@@ -59,6 +60,7 @@ if (!communication.graph_message_id) {
     outlookReady: false,
 });
 }
+
 const graphRes = await fetch(
     `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(
         communication.sender_email!
@@ -93,6 +95,9 @@ if (!graphRes.ok) {
         ok: true,
 
         communication,
+
+        senderEmail:
+            communication.sender_email,
 
         bodyHtml:
             communication.notes,
