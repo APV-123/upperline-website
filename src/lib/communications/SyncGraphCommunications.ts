@@ -190,10 +190,30 @@ const escapedSubject =
 if (!communication.subject) {
     return null;
 }
-const filter =
-    encodeURIComponent(
-        `subject eq '${escapedSubject}'`
-    );
+const communicationTime =
+    communication.sent_at
+        ? new Date(communication.sent_at)
+        : new Date(communication.created_at);
+
+const start =
+    new Date(
+        communicationTime.getTime() -
+        10 * 60 * 1000
+    ).toISOString();
+
+const end =
+    new Date(
+        communicationTime.getTime() +
+        10 * 60 * 1000
+    ).toISOString();
+
+const filter = existingConversation?.graph_conversation_id
+    ? encodeURIComponent(
+          `conversationId eq '${existingConversation.graph_conversation_id}'`
+      )
+    : encodeURIComponent(
+          `sentDateTime ge ${start} and sentDateTime le ${end}`
+      );
 
 let messages;
 
