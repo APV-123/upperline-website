@@ -184,9 +184,7 @@ console.log(
     existingConversation?.graph_conversation_id
 );        
 console.log("[GRAPH MAILBOX]", mailbox);
-const escapedSubject =
-    (communication.subject ?? "")
-        .replaceAll("'", "''");
+
 if (!communication.subject) {
     return null;
 }
@@ -253,22 +251,7 @@ if (existingConversation?.graph_conversation_id) {
     const candidates =
     messages.value as GraphMessage[] | undefined;
 
-    if (existingConversation?.graph_conversation_id) {
-    const conversationMatch =
-        candidates?.find(
-            (message) =>
-                message.conversationId ===
-                existingConversation.graph_conversation_id
-        );
-
-    if (conversationMatch) {
-        console.log(
-            "[MATCHED BY CONVERSATION]"
-        );
-
-        return conversationMatch;
-    }
-}
+    
     
     console.log(
         "[GRAPH CANDIDATE COUNT]",
@@ -311,7 +294,12 @@ if (existingConversation?.graph_conversation_id) {
     );
 }
 
-const match = candidates.find((message) => {
+let bestMatch: GraphMessage | null = null;
+let bestScore = -1;
+
+for (const message of candidates) {
+    let score = 0;
+
     const recipientMatch =
         message.toRecipients.some((r) =>
             recipients.includes(
@@ -319,43 +307,60 @@ const match = candidates.find((message) => {
             )
         );
 
-    if (!recipientMatch) {
-        return false;
+    if (recipientMatch) {
+        score += 100;
     }
 
-    if (
-        normalizeSubject(message.subject) !==
+    const subjectMatch =
+        normalizeSubject(message.subject) ===
         normalizeSubject(
             communication.subject ?? ""
-        )
-    ) {
-        return false;
+        );
+
+    if (subjectMatch) {
+        score += 50;
     }
 
-    if (!communicationSent) {
-        return true;
+    if (communicationSent) {
+        const deltaMinutes =
+            Math.abs(
+                new Date(
+                    message.sentDateTime
+                ).getTime() -
+                    communicationSent
+            ) /
+            60000;
+
+        console.log(
+            "[TIME DELTA]",
+            deltaMinutes
+        );
+
+        if (deltaMinutes <= 1) {
+            score += 40;
+        } else if (deltaMinutes <= 5) {
+            score += 20;
+        } else if (deltaMinutes <= 30) {
+            score += 10;
+        }
     }
 
-    const graphSent =
-        new Date(
-            message.sentDateTime
-        ).getTime();
+    console.log("[GRAPH SCORE]", {
+        subject: message.subject,
+        score,
+    });
 
-    const deltaMinutes =
-        Math.abs(
-            graphSent -
-                communicationSent
-        ) /
-        1000 /
-        60;
+    if (score > bestScore) {
+        bestScore = score;
+        bestMatch = message;
+    }
+}
 
-    console.log(
-        "[TIME DELTA]",
-        deltaMinutes
-    );
+console.log("[BEST SCORE]", bestScore);
 
-    return deltaMinutes <= 5;
-});
+if (bestScore < 150) {
+    return null;
+}
 
-    return match ?? null;
+return bestMatch;
 }
