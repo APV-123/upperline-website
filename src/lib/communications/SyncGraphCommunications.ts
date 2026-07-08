@@ -122,7 +122,15 @@ await supabaseServer
             new Date().toISOString(),
     })
     .eq("id", communication.id);
+const { error } = await supabaseServer
+    .from("raise_subscription_communications")
+    .update({...})
+    .eq("id", communication.id);
 
+if (error) {
+    console.error("[GRAPH UPDATE FAILED]", error);
+    return;
+}
 console.log(
     "[GRAPH BACKFILLED]",
     communication.id
@@ -254,6 +262,20 @@ console.log("[BEST SCORE]", {
     second: secondBestScore,
     winner: bestMatch?.subject,
 });
+if (
+    bestScore === secondBestScore &&
+    bestScore >= 150
+) {
+    console.log(
+        "[AMBIGUOUS MATCH]"
+    );
+
+    return {
+        bestMatch: null,
+        bestScore: -1,
+        secondBestScore: -1,
+    };
+}
 
     return {
         bestMatch,
@@ -417,8 +439,11 @@ const minimumConfidence = 150;
 let finalResult = result;
 
 if (
-    result.bestScore < minimumConfidence &&
-    conversationFilter
+    conversationFilter &&
+    (
+        !candidates.length ||
+        result.bestScore < minimumConfidence
+    )
 ) {
     console.log(
         "[FALLBACK]",
