@@ -180,9 +180,11 @@ for (const message of candidates) {
             )
         );
 
-    if (recipientMatch) {
-        score += 100;
-    }
+    if (!recipientMatch) {
+    continue;
+}
+
+score += 100;
 
     const subjectMatch =
         normalizeSubject(message.subject) ===
@@ -190,9 +192,11 @@ for (const message of candidates) {
             communication.subject ?? ""
         );
 
-    if (subjectMatch) {
-        score += 50;
-    }
+    if (!subjectMatch) {
+    continue;
+}
+
+score += 50;
 
     if (communicationSent) {
         const deltaMinutes =
@@ -208,7 +212,9 @@ for (const message of candidates) {
             "[TIME DELTA]",
             deltaMinutes
         );
-
+if (deltaMinutes > 30) {
+    continue;
+}
         if (deltaMinutes <= 1) {
     score += 60;
 } else if (deltaMinutes <= 3) {
