@@ -190,8 +190,20 @@ const messages = await graphFetch(
     );
     const candidates =
     messages.value as GraphMessage[] | undefined;
+    
+    console.log(
+        "[GRAPH CANDIDATE COUNT]",
+        candidates?.length ?? 0
+    );
 
     if (!candidates?.length) {
+        console.log(
+            "[NO GRAPH CANDIDATES]",
+            {
+                mailbox,
+                subject: communication.subject,
+            }
+        );
         return null;
     }
     const recipients =
@@ -201,9 +213,9 @@ const messages = await graphFetch(
             email.trim().toLowerCase()
         );
     console.log(
-    "[EXPECTED RECIPIENTS]",
-    recipients
-);
+        "[EXPECTED RECIPIENTS]",
+        recipients
+    );
     for (const message of candidates) {
     console.log(
         "[GRAPH RECIPIENTS]",
