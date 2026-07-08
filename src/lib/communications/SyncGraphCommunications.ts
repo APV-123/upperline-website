@@ -271,6 +271,12 @@ if (existingConversation?.graph_conversation_id) {
         .map((email) =>
             email.trim().toLowerCase()
         );
+
+    const communicationSent =
+    communication.sent_at
+        ? new Date(communication.sent_at).getTime()
+        : null;
+
     console.log(
         "[EXPECTED RECIPIENTS]",
         recipients
@@ -285,17 +291,51 @@ if (existingConversation?.graph_conversation_id) {
     );
 }
 
-const match = candidates.find((message) =>
-    normalizeSubject(message.subject) ===
+const match = candidates.find((message) => {
+    const recipientMatch =
+        message.toRecipients.some((r) =>
+            recipients.includes(
+                r.emailAddress.address.toLowerCase()
+            )
+        );
+
+    if (!recipientMatch) {
+        return false;
+    }
+
+    if (
+        normalizeSubject(message.subject) !==
         normalizeSubject(
             communication.subject ?? ""
-        ) &&
-    message.toRecipients.some((r) =>
-        recipients.includes(
-            r.emailAddress.address.toLowerCase()
         )
-    )
-);
+    ) {
+        return false;
+    }
+
+    if (!communicationSent) {
+        return true;
+    }
+
+    const graphSent =
+        new Date(
+            message.sentDateTime
+        ).getTime();
+
+    const deltaMinutes =
+        Math.abs(
+            graphSent -
+                communicationSent
+        ) /
+        1000 /
+        60;
+
+    console.log(
+        "[TIME DELTA]",
+        deltaMinutes
+    );
+
+    return deltaMinutes <= 5;
+});
 
     return match ?? null;
 }
