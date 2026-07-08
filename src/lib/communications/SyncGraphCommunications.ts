@@ -296,6 +296,7 @@ if (existingConversation?.graph_conversation_id) {
 
 let bestMatch: GraphMessage | null = null;
 let bestScore = -1;
+let secondBestScore = -1;
 
 for (const message of candidates) {
     let score = 0;
@@ -337,28 +338,53 @@ for (const message of candidates) {
         );
 
         if (deltaMinutes <= 1) {
-            score += 40;
-        } else if (deltaMinutes <= 5) {
-            score += 20;
-        } else if (deltaMinutes <= 30) {
-            score += 10;
-        }
+    score += 60;
+} else if (deltaMinutes <= 3) {
+    score += 45;
+} else if (deltaMinutes <= 5) {
+    score += 30;
+} else if (deltaMinutes <= 10) {
+    score += 15;
+}
     }
 
     console.log("[GRAPH SCORE]", {
-        subject: message.subject,
-        score,
-    });
+    subject: message.subject,
+    recipientMatch,
+    subjectMatch,
+    deltaMinutes: communicationSent
+        ? Math.abs(
+              new Date(message.sentDateTime).getTime() -
+                  communicationSent
+          ) / 60000
+        : null,
+    score,
+});
 
     if (score > bestScore) {
-        bestScore = score;
-        bestMatch = message;
-    }
+    secondBestScore = bestScore;
+
+    bestScore = score;
+    bestMatch = message;
+} else if (score > secondBestScore) {
+    secondBestScore = score;
+}
 }
 
-console.log("[BEST SCORE]", bestScore);
+console.log("[BEST SCORE]", {
+    best: bestScore,
+    second: secondBestScore,
+    winner: bestMatch?.subject,
+});
 
-if (bestScore < 150) {
+const minimumConfidence = 150;
+
+if (bestScore < minimumConfidence) {
+    console.log("[NO CONFIDENT MATCH]", {
+        bestScore,
+        secondBestScore,
+    });
+
     return null;
 }
 
