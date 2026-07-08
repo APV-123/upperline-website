@@ -195,11 +195,36 @@ const filter =
         `subject eq '${escapedSubject}'`
     );
 
-const messages = await graphFetch(
-    `/users/${encodeURIComponent(mailbox)}/messages` +
-    `?$filter=${filter}` +
-    `&$select=id,conversationId,internetMessageId,webLink,subject,sentDateTime,toRecipients`
-);
+let messages;
+
+if (existingConversation?.graph_conversation_id) {
+    console.log(
+        "[SEARCH STRATEGY]",
+        "conversation"
+    );
+
+    const conversationFilter =
+        encodeURIComponent(
+            `conversationId eq '${existingConversation.graph_conversation_id}'`
+        );
+
+    messages = await graphFetch(
+        `/users/${encodeURIComponent(mailbox)}/messages` +
+        `?$filter=${conversationFilter}` +
+        `&$select=id,conversationId,internetMessageId,webLink,subject,sentDateTime,toRecipients`
+    );
+} else {
+    console.log(
+        "[SEARCH STRATEGY]",
+        "subject"
+    );
+
+    messages = await graphFetch(
+        `/users/${encodeURIComponent(mailbox)}/messages` +
+        `?$filter=${filter}` +
+        `&$select=id,conversationId,internetMessageId,webLink,subject,sentDateTime,toRecipients`
+    );
+}
 
     console.log(
         "[GRAPH MESSAGES]",
@@ -207,6 +232,23 @@ const messages = await graphFetch(
     );
     const candidates =
     messages.value as GraphMessage[] | undefined;
+
+    if (existingConversation?.graph_conversation_id) {
+    const conversationMatch =
+        candidates?.find(
+            (message) =>
+                message.conversationId ===
+                existingConversation.graph_conversation_id
+        );
+
+    if (conversationMatch) {
+        console.log(
+            "[MATCHED BY CONVERSATION]"
+        );
+
+        return conversationMatch;
+    }
+}
     
     console.log(
         "[GRAPH CANDIDATE COUNT]",
