@@ -101,7 +101,8 @@ if (!graphMessage) {
     return;
 }
 
-await supabaseServer
+
+const { error } = await supabaseServer
     .from("raise_subscription_communications")
     .update({
         graph_message_id:
@@ -122,19 +123,20 @@ await supabaseServer
             new Date().toISOString(),
     })
     .eq("id", communication.id);
-const { error } = await supabaseServer
-    .from("raise_subscription_communications")
-    .update({...})
-    .eq("id", communication.id);
 
 if (error) {
-    console.error("[GRAPH UPDATE FAILED]", error);
+    console.error(
+        "[GRAPH UPDATE FAILED]",
+        error
+    );
     return;
 }
+
 console.log(
     "[GRAPH BACKFILLED]",
     communication.id
 );
+
 }
 function isUpperline(
     email?: string | null
