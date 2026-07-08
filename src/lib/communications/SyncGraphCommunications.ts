@@ -19,6 +19,7 @@ type GraphMessage = {
 
 type Communication = {
     id: string;
+    raise_subscription_id: string;
 
     sender_email: string | null;
     recipient_email: string | null;
@@ -43,6 +44,7 @@ export async function syncGraphCommunications() {
             )
             .select(`
                 id,
+                raise_subscription_id,
                 sender_email,
                 recipient_email,
                 direction,
@@ -165,7 +167,22 @@ const mailbox =
 if (!mailbox) {
     return null;
 }
-
+const { data: existingConversation } =
+    await supabaseServer
+        .from("raise_subscription_communications")
+        .select("graph_conversation_id")
+        .eq(
+            "raise_subscription_id",
+            communication.raise_subscription_id
+        )
+        .neq("id", communication.id)
+        .not("graph_conversation_id", "is", null)
+        .limit(1)
+        .maybeSingle();
+console.log(
+    "[KNOWN CONVERSATION]",
+    existingConversation?.graph_conversation_id
+);        
 console.log("[GRAPH MAILBOX]", mailbox);
 const escapedSubject =
     (communication.subject ?? "")
