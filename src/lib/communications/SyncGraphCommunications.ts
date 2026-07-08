@@ -144,157 +144,29 @@ function normalizeSubject(
         .trim()
         .toLowerCase();
 }
-async function findGraphMessage(
-    communication: Communication
-): Promise<GraphMessage | null> {
-    if (
-        !communication.sender_email ||
-        !communication.recipient_email
-    ) {
-        return null;
-    }
-
-    const recipientAddresses =
-    communication.recipient_email
-        .split(";")
-        .map((email) => email.trim());
-
-const mailbox =
-    isUpperline(communication.sender_email)
-        ? communication.sender_email
-        : recipientAddresses.find(isUpperline);
-
-if (!mailbox) {
-    return null;
-}
-const { data: existingConversation } =
-    await supabaseServer
-        .from("raise_subscription_communications")
-        .select("graph_conversation_id")
-        .eq(
-            "raise_subscription_id",
-            communication.raise_subscription_id
-        )
-        .neq("id", communication.id)
-        .not("graph_conversation_id", "is", null)
-        .limit(1)
-        .maybeSingle();
-console.log(
-    "[KNOWN CONVERSATION]",
-    existingConversation?.graph_conversation_id
-);        
-console.log("[GRAPH MAILBOX]", mailbox);
-
-if (!communication.subject) {
-    return null;
-}
-const communicationTime =
-    communication.sent_at
-        ? new Date(communication.sent_at)
-        : new Date(communication.created_at);
-
-const start =
-    new Date(
-        communicationTime.getTime() -
-        10 * 60 * 1000
-    ).toISOString();
-
-const end =
-    new Date(
-        communicationTime.getTime() +
-        10 * 60 * 1000
-    ).toISOString();
-
-const filter = existingConversation?.graph_conversation_id
-    ? encodeURIComponent(
-          `conversationId eq '${existingConversation.graph_conversation_id}'`
-      )
-    : encodeURIComponent(
-          `sentDateTime ge ${start} and sentDateTime le ${end}`
-      );
-
-let messages;
-
-if (existingConversation?.graph_conversation_id) {
-    console.log(
-        "[SEARCH STRATEGY]",
-        "conversation"
-    );
-
-    const conversationFilter =
-        encodeURIComponent(
-            `conversationId eq '${existingConversation.graph_conversation_id}'`
-        );
-
-    messages = await graphFetch(
+async function loadGraphMessages(
+    mailbox: string,
+    filter: string
+) {
+    return graphFetch(
         `/users/${encodeURIComponent(mailbox)}/messages` +
-        `?$filter=${conversationFilter}` +
-        `&$select=id,conversationId,internetMessageId,webLink,subject,sentDateTime,toRecipients`
-    );
-} else {
-    console.log(
-        "[SEARCH STRATEGY]",
-        "subject"
-    );
-
-    messages = await graphFetch(
-        `/users/${encodeURIComponent(mailbox)}/messages` +
-        `?$filter=${filter}` +
-        `&$select=id,conversationId,internetMessageId,webLink,subject,sentDateTime,toRecipients`
+            `?$filter=${filter}` +
+            `&$select=id,conversationId,internetMessageId,webLink,subject,sentDateTime,toRecipients`
     );
 }
-
-    console.log(
-        "[GRAPH MESSAGES]",
-        messages
-    );
-    const candidates =
-    messages.value as GraphMessage[] | undefined;
-
-    
-    
-    console.log(
-        "[GRAPH CANDIDATE COUNT]",
-        candidates?.length ?? 0
-    );
-
-    if (!candidates?.length) {
-        console.log(
-            "[NO GRAPH CANDIDATES]",
-            {
-                mailbox,
-                subject: communication.subject,
-            }
-        );
-        return null;
-    }
-    const recipients =
-    communication.recipient_email
-        .split(";")
-        .map((email) =>
-            email.trim().toLowerCase()
-        );
-
+function scoreCandidates(
+    candidates: GraphMessage[],
+    communication: Communication,
+    recipients: string[]
+) {
     const communicationSent =
-    communication.sent_at
-        ? new Date(communication.sent_at).getTime()
-        : null;
+        communication.sent_at
+            ? new Date(
+                  communication.sent_at
+              ).getTime()
+            : null;
 
-    console.log(
-        "[EXPECTED RECIPIENTS]",
-        recipients
-    );
-    for (const message of candidates) {
-    console.log(
-        "[GRAPH RECIPIENTS]",
-        message.subject,
-        message.toRecipients.map(
-            (r) => r.emailAddress.address
-        )
-    );
-}
-
-let bestMatch: GraphMessage | null = null;
+    let bestMatch: GraphMessage | null = null;
 let bestScore = -1;
 let secondBestScore = -1;
 
@@ -377,16 +249,226 @@ console.log("[BEST SCORE]", {
     winner: bestMatch?.subject,
 });
 
-const minimumConfidence = 150;
-
-if (bestScore < minimumConfidence) {
-    console.log("[NO CONFIDENT MATCH]", {
+    return {
+        bestMatch,
         bestScore,
         secondBestScore,
-    });
+    };
+}
+async function findGraphMessage(
+    communication: Communication
+): Promise<GraphMessage | null> {
+    if (
+        !communication.sender_email ||
+        !communication.recipient_email
+    ) {
+        return null;
+    }
+
+    const recipientAddresses =
+    communication.recipient_email
+        .split(";")
+        .map((email) => email.trim());
+
+const mailbox =
+    isUpperline(communication.sender_email)
+        ? communication.sender_email
+        : recipientAddresses.find(isUpperline);
+
+if (!mailbox) {
+    return null;
+}
+const { data: existingConversation } =
+    await supabaseServer
+        .from("raise_subscription_communications")
+        .select("graph_conversation_id")
+        .eq(
+            "raise_subscription_id",
+            communication.raise_subscription_id
+        )
+        .neq("id", communication.id)
+        .not("graph_conversation_id", "is", null)
+        .limit(1)
+        .maybeSingle();
+console.log(
+    "[KNOWN CONVERSATION]",
+    existingConversation?.graph_conversation_id
+);        
+console.log("[GRAPH MAILBOX]", mailbox);
+
+if (!communication.subject) {
+    return null;
+}
+const communicationTime =
+    communication.sent_at
+        ? new Date(communication.sent_at)
+        : new Date(communication.created_at);
+
+const start =
+    new Date(
+        communicationTime.getTime() -
+        10 * 60 * 1000
+    ).toISOString();
+
+const end =
+    new Date(
+        communicationTime.getTime() +
+        10 * 60 * 1000
+    ).toISOString();
+const timeWindowFilter =
+    encodeURIComponent(
+        `sentDateTime ge ${start} and sentDateTime le ${end}`
+    );
+
+const conversationFilter =
+    existingConversation?.graph_conversation_id
+        ? encodeURIComponent(
+              `conversationId eq '${existingConversation.graph_conversation_id}'`
+          )
+        : null;
+
+let messages;
+
+if (existingConversation?.graph_conversation_id) {
+    console.log(
+        "[SEARCH STRATEGY]",
+        "conversation"
+    );
+
+    messages = await loadGraphMessages(
+    mailbox,
+    conversationFilter!
+);
+} else {
+    console.log(
+        "[SEARCH STRATEGY]",
+        "subject"
+    );
+
+    messages = await loadGraphMessages(
+    mailbox,
+    timeWindowFilter
+);
+}
+
+    console.log(
+        "[GRAPH MESSAGES]",
+        messages
+    );
+    const candidates =
+    messages.value as GraphMessage[] | undefined;
+
+    
+    
+    console.log(
+        "[GRAPH CANDIDATE COUNT]",
+        candidates?.length ?? 0
+    );
+
+    if (!candidates?.length) {
+        console.log(
+            "[NO GRAPH CANDIDATES]",
+            {
+                mailbox,
+                subject: communication.subject,
+            }
+        );
+        return null;
+    }
+    const recipients =
+    communication.recipient_email
+        .split(";")
+        .map((email) =>
+            email.trim().toLowerCase()
+        );
+
+    const communicationSent =
+    communication.sent_at
+        ? new Date(communication.sent_at).getTime()
+        : null;
+
+    console.log(
+        "[EXPECTED RECIPIENTS]",
+        recipients
+    );
+    for (const message of candidates) {
+    console.log(
+        "[GRAPH RECIPIENTS]",
+        message.subject,
+        message.toRecipients.map(
+            (r) => r.emailAddress.address
+        )
+    );
+}
+const result = scoreCandidates(
+    candidates,
+    communication,
+    recipients
+);
+
+const minimumConfidence = 150;
+
+let finalResult = result;
+
+if (
+    result.bestScore < minimumConfidence &&
+    conversationFilter
+) {
+    console.log(
+        "[FALLBACK]",
+        "Trying time-window search..."
+    );
+
+    const fallbackMessages =
+        await loadGraphMessages(
+            mailbox,
+            timeWindowFilter
+        );
+
+    const fallbackCandidates =
+        (fallbackMessages.value ??
+            []) as GraphMessage[];
+
+    console.log(
+        "[FALLBACK CANDIDATES]",
+        fallbackCandidates.length
+    );
+
+    if (fallbackCandidates.length) {
+        const fallbackResult =
+            scoreCandidates(
+                fallbackCandidates,
+                communication,
+                recipients
+            );
+
+        console.log(
+            "[FALLBACK SCORE]",
+            fallbackResult.bestScore
+        );
+
+        if (
+            fallbackResult.bestScore >
+            finalResult.bestScore
+        ) {
+            console.log(
+                "[USING FALLBACK MATCH]"
+            );
+
+            finalResult = fallbackResult;
+        }
+    }
+}
+if (
+    finalResult.bestScore <
+    minimumConfidence
+) {
+    console.log(
+        "[NO CONFIDENT MATCH]"
+    );
 
     return null;
 }
 
-return bestMatch;
+return finalResult.bestMatch;
 }
