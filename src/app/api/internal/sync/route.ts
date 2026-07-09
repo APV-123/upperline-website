@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/SupabaseServer";
 import { syncHubspotCommunications } from "@/lib/communications/SyncCommunications";
+import { syncGraphCommunications } from "@/lib/communications/SyncGraphCommunications";
 
 export async function GET(
     request: Request
@@ -76,6 +77,26 @@ export async function GET(
                 });
             }
         }
+        let graphSyncOk = true;
+        try {
+            console.log(
+                "[CRON] Starting Graph sync"
+            );
+
+            await syncGraphCommunications();
+
+            console.log(
+                "[CRON] Graph sync complete"
+            );
+        } catch (e) {
+            graphSyncOk = false;
+
+            console.error(
+                "[GRAPH SYNC FAILED]",
+                e
+            );
+        }
+
 
         const successful =
             results.filter(
@@ -85,8 +106,10 @@ export async function GET(
         const failed =
             results.length - successful;
 
+       
         return NextResponse.json({
             ok: true,
+            graphSyncOk,
             raisesProcessed:
                 results.length,
             successful,
