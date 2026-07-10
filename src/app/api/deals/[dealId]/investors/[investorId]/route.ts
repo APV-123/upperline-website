@@ -10,6 +10,9 @@ import { formatActivityDate } from "@/components/investors/formatters";
 import {
     calculateEngagementScore,
 } from "@/lib/investors/calculateEngagementScore";
+import {
+    relationshipFromScore,
+} from "@/lib/investors/relationship";
 
 const HUBSPOT_BASE = 'https://api.hubapi.com';
 
@@ -582,7 +585,10 @@ const engagement =
         (communications ??
             []) as CommunicationRow[]
     );
-
+const relationship =
+    relationshipFromScore(
+        engagement.score
+    );
 console.log(
     "[ENGAGEMENT]",
     engagement
@@ -684,7 +690,10 @@ return NextResponse.json<InvestorWorkspaceResponse>({
     investor,
     metrics: {
         amount: hubspotInvestor?.amount ?? 250000,
-        relationship: "Healthy",
+        relationship:
+            relationship.label,
+        relationshipColor:
+            relationship.color,
         engagementScore:
             engagement.score,
         engagementSignals:

@@ -39,6 +39,8 @@ export type InvestorMetrics = {
 
     relationship: string;
 
+    relationshipColor: string;
+
     engagementScore: number;
 
     engagementSignals: string[];

@@ -292,35 +292,34 @@
     margin-bottom:6px;
 }
 
-.metricValue{
+.metricRelationship {
 
-    color:white;
-
-    font-size:22px;
-
-    font-weight:600;
-}
-
-.metricValueGreen{
-
-    color:#45d483;
+    color: var(--relationship-color);
 
     font-size:22px;
 
     font-weight:700;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
 }
+
 .statusDot {
 
-    width: 8px;
+    width:8px;
 
-    height: 8px;
+    height:8px;
 
-    border-radius: 999px;
+    border-radius:999px;
 
-    background: #45d483;
+    background:var(--relationship-color);
 
-    flex-shrink: 0;
+    flex-shrink:0;
 }
+
 .field{
 
     display:flex;

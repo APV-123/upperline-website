@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import type { CSSProperties } from "react";
 
 import {
     ListFilter,
@@ -154,7 +155,12 @@ export default function InvestorWorkspace({
 
         loadEmployees();
     }, []);
-
+    const relationshipStyle: CSSProperties & {
+        "--relationship-color": string;
+    } = {
+        "--relationship-color":
+            metrics.relationshipColor,
+    };
     return (
 
         <div className={styles.page}>
@@ -317,29 +323,6 @@ export default function InvestorWorkspace({
                         <div className={styles.divider} />
 
                         <div className={styles.sectionTitle}>
-                            Relationship
-                        </div>
-
-                        <div className={styles.statRow}>
-                            <span>Relationship</span>
-                            <strong className={styles.good}>
-                                ● {investor.relationship}
-                            </strong>
-                        </div>
-
-                        <div className={styles.statRow}>
-                            <span>Last Touch</span>
-                            <strong>{investor.lastTouch}</strong>
-                        </div>
-
-                        <div className={styles.statRow}>
-                            <span>Updated</span>
-                            <strong>{investor.lastUpdated}</strong>
-                        </div>
-
-                        <div className={styles.divider} />
-
-                        <div className={styles.sectionTitle}>
                             Quick Actions
                         </div>
 
@@ -389,7 +372,10 @@ export default function InvestorWorkspace({
                                 Relationship
                             </div>
 
-                            <div className={styles.metricValueGreen}>
+                            <div
+                                className={styles.metricRelationship}
+                                style={relationshipStyle}
+                            >
                                 <span className={styles.statusDot}></span>
                                 {metrics.relationship}
                             </div>
