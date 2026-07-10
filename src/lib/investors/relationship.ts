@@ -4,40 +4,40 @@ export function relationshipFromScore(
     if (score >= 200) {
         return {
             label: "Exceptional",
-            color: "blue",
+            color: "#56D4FF",
         };
     }
 
     if (score >= 150) {
         return {
             label: "Healthy",
-            color: "green",
+            color: "#45D483",
         };
     }
 
     if (score >= 100) {
         return {
             label: "Active",
-            color: "teal",
+            color: "#6FC8FF",
         };
     }
 
     if (score >= 60) {
         return {
             label: "Watching",
-            color: "yellow",
+            color: "#F7C948",
         };
     }
 
     if (score >= 25) {
         return {
             label: "Needs Attention",
-            color: "orange",
+            color: "#FF9F43",
         };
     }
 
     return {
         label: "Dormant",
-        color: "red",
+        color: "#FF6B6B",
     };
 }
