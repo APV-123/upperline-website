@@ -19,6 +19,7 @@ import {
     DollarSign,
     CheckCircle2,
 } from 'lucide-react';
+import { a, b } from 'framer-motion/client';
 
 type Bucket = 'committed' | 'circling' | 'needs_touch' | 'passed';
 
@@ -36,6 +37,8 @@ type ApiInvestorRow = {
     raise_id: string | null;
     hs_lastactivitydate: string | null;
     hs_lastmodifieddate: string | null;
+    engagementScore: number;
+    engagementSignals: string[];
 };
 
 type Investor = {
@@ -50,6 +53,8 @@ type Investor = {
     dealId?: string;
     raiseSubscriptionId?: string | null;
     contactId?: string | null;
+    engagementScore: number;
+    engagementSignals: string[];
 };
 
 type ProspectRow = {
@@ -229,6 +234,10 @@ export default function DealInvestorsPage() {
                 stageId: r.dealstageLabel
                     ? STAGE_LABEL_TO_ID[r.dealstageLabel]
                     : null,
+                engagementScore:
+                    r.engagementScore ?? 0,
+                engagementSignals:
+                    r.engagementSignals ?? [],
             };
         });
     }, [rows]);
@@ -803,6 +812,11 @@ export default function DealInvestorsPage() {
 
                                         {investors
                                             .filter((i) => i.bucket === bucket.key)
+                                            .sort(
+                                                (a,b) => 
+                                                    b.engagementScore -
+                                                    a.engagementScore
+                                            )
                                             .map((investor) => (
                                                 <InvestorCard
                                                     key={investor.id}

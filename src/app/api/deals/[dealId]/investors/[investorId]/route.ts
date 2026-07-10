@@ -7,6 +7,9 @@ import type {
 } from "@/components/investors/types";
 import { mapInvestor } from '@/components/investors/mapper';
 import { formatActivityDate } from "@/components/investors/formatters";
+import {
+    calculateEngagementScore,
+} from "@/lib/investors/calculateEngagementScore";
 
 const HUBSPOT_BASE = 'https://api.hubapi.com';
 
@@ -460,6 +463,8 @@ function stripHtml(html?: string | null) {
         .replace(/\s+/g, " ")
         .trim();
 }
+
+
         const hubspotTimeline: TimelineEvent[] =
     (hubspotActivityJson.activities ?? [])
         .filter(
@@ -571,6 +576,18 @@ const modelDownloads =
             'financial_model_downloaded'
     ).length;
 
+const engagement =
+    calculateEngagementScore(
+        activities ?? [],
+        (communications ??
+            []) as CommunicationRow[]
+    );
+
+console.log(
+    "[ENGAGEMENT]",
+    engagement
+);
+
 const lastContact =
     formatActivityDate(
         activities?.[0]?.activity_at ?? null
@@ -668,6 +685,10 @@ return NextResponse.json<InvestorWorkspaceResponse>({
     metrics: {
         amount: hubspotInvestor?.amount ?? 250000,
         relationship: "Healthy",
+        engagementScore:
+            engagement.score,
+        engagementSignals:
+            engagement.signals,
         memorandumViews,
         modelDownloads,
         lastContact,

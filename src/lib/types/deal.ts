@@ -3,6 +3,7 @@ export type Bucket = 'committed' | 'circling' | 'needs_touch' | 'passed';
 export type InvestorRow = {
   dealId: string;
   contactId: string | null;
+  raiseSubscriptionId: string | null;
   investorName: string;
   investorEmail: string | null;
   amount: number;

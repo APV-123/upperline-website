@@ -39,6 +39,10 @@ export type InvestorMetrics = {
 
     relationship: string;
 
+    engagementScore: number;
+
+    engagementSignals: string[];
+
     memorandumViews: number;
 
     modelDownloads: number;

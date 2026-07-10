@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/SupabaseServer';
 import type { InvestorRow, ProspectRow } from '@/lib/types/deal';
+import {
+    calculateEngagementScore,
+} from "@/lib/investors/calculateEngagementScore";
 
 type Params = { dealId: string };
 
@@ -120,20 +123,88 @@ export async function GET(
     }
 
     // ✅ ✅ ✅ 4. DEDUPE FIX (THIS IS THE KEY ADDITION)
-    const investorContactIds = new Set(
-      investors.map((i) => i.contactId)
-    );
+    
 
-    const filteredProspects = prospects.filter(
-      (p) => !investorContactIds.has(p.contact_id)
+    
+
+    const enrichedInvestors = await Promise.all(
+    investors.map(async (investor) => {
+
+      if (!investor.raiseSubscriptionId) {
+        return {
+          ...investor,
+          engagementScore: 0,
+          engagementSignals: [],
+        };
+
+      }
+        const { data: activities } =
+            await supabase
+                .from(
+                    "raise_subscription_activity"
+                )
+                .select(`
+                    activity_type,
+                    activity_at
+                `)
+                .eq(
+                    "raise_subscription_id",
+                    investor.raiseSubscriptionId
+                );
+        
+        const {
+            data: communications,
+        } = await supabase
+            .from(
+                "raise_subscription_communications"
+            )
+            .select(`
+                open_count,
+                click_count,
+                replied_at
+            `)
+            .eq(
+                "raise_subscription_id",
+                investor.raiseSubscriptionId
+            );
+
+        const engagement =
+            calculateEngagementScore(
+                activities ?? [],
+                communications ?? []
+            );
+
+        return {
+            ...investor,
+
+            engagementScore:
+                engagement.score,
+
+            engagementSignals:
+                engagement.signals,
+        };
+    })
+);
+const investorContactIds = new Set(
+    enrichedInvestors.map(
+        (i) => i.contactId
+    )
+);
+
+const filteredProspects =
+    prospects.filter(
+        (p) =>
+            !investorContactIds.has(
+                p.contact_id
+            )
     );
 
     // ✅ 5. Metrics (use filtered prospects!)
-    const committed = investors
+    const committed = enrichedInvestors
       .filter((i) => i.bucket === 'committed')
       .reduce((sum, i) => sum + (i.amount || 0), 0);
 
-    const committedCount = investors.filter(
+    const committedCount = enrichedInvestors.filter(
       (i) => i.bucket === 'committed'
     ).length;
 
@@ -148,7 +219,7 @@ export async function GET(
       (p) => p.invite_status === 'draft_ready'
     ).length;
 
-    const activeInvestorsCount = investors.filter(
+    const activeInvestorsCount = enrichedInvestors.filter(
       (i) => i.bucket !== 'passed'
     ).length;
 
@@ -156,7 +227,7 @@ export async function GET(
     return NextResponse.json<DashboardResponse>({
       ok: true,
       deal,
-      investors,
+      investors: enrichedInvestors,
       prospects: filteredProspects,
       metrics: {
         committed,

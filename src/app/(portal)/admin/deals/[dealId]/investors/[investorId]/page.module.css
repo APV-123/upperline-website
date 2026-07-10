@@ -15,7 +15,11 @@
 }
 
 .loadingSidebar {
-    height: 720px;
+    height: 760px;
+
+    background: #10233d;
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 18px;
 }
 
 .loadingMetrics {
