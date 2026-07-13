@@ -149,8 +149,8 @@ export default function DealInvestorsPage() {
     const [loadingActivity, setLoadingActivity] = useState(false);
     const [activityError, setActivityError] = useState<string | null>(null);
 
-    
-    
+
+
     //============================================
     // UI State / interaction state
     //============================================
@@ -288,8 +288,16 @@ export default function DealInvestorsPage() {
 
     const fmt0 = (n: number) => `$${Math.round(n).toLocaleString()}`;
     const [showAddInvestor, setShowAddInvestor] = useState(false);
-
-
+    const [introMethods, setIntroMethods] =
+        useState<Record<string, string>>({});
+    function getIntroMethod(
+        contactId: string
+    ) {
+        return (
+            introMethods[contactId] ??
+            "portal_email"
+        );
+    }
     return (
 
         <>
@@ -565,7 +573,22 @@ export default function DealInvestorsPage() {
                                 }}
                             >
                                 {prospects.map((p) => {
-                                    const isDraftReady = (p.invite_status ?? '').trim() === 'draft_ready';
+                                    const isDraftReady =
+                                        (p.invite_status ?? "").trim() ===
+                                        "draft_ready";
+
+                                    const introMethod =
+                                        getIntroMethod(
+                                            p.contact_id
+                                        );
+
+                                    const requiresDraft =
+                                        introMethod ===
+                                        "portal_email";
+
+                                    const canMove =
+                                        !requiresDraft ||
+                                        isDraftReady;
 
                                     return (
                                         <div
@@ -625,9 +648,54 @@ export default function DealInvestorsPage() {
                                                 >
                                                     {isDraftReady ? 'Edit Draft' : 'Draft Invite'}
                                                 </button>
+                                                <select
+                                                    value={introMethod}
+                                                    onChange={(e) =>
+                                                        setIntroMethods((prev) => ({
+                                                            ...prev,
+                                                            [p.contact_id]:
+                                                                e.target.value,
+                                                        }))
+                                                    }
+                                                    style={{
+                                                        background: colors.surface,
+                                                        color: colors.text,
+                                                        border: `1px solid ${colors.border}`,
+                                                        borderRadius: 8,
+                                                        fontSize: 12,
+                                                        padding: "6px 8px",
+                                                    }}
+                                                >
+                                                    <option value="portal_email">
+                                                        Portal Email
+                                                    </option>
 
+                                                    <option value="referral">
+                                                        Referral
+                                                    </option>
+
+                                                    <option value="sms">
+                                                        SMS
+                                                    </option>
+
+                                                    <option value="phone_call">
+                                                        Phone Call
+                                                    </option>
+
+                                                    <option value="forwarded_link">
+                                                        Forwarded Link
+                                                    </option>
+
+                                                    <option value="in_person">
+                                                        In Person
+                                                    </option>
+
+                                                    <option value="existing_relationship">
+                                                        Existing Relationship
+                                                    </option>
+                                                </select>
                                                 <button
-                                                    disabled={!isDraftReady}
+                                                    disabled={!canMove}
                                                     style={{
                                                         background: colors.accent,
                                                         color: '#071426',
@@ -636,15 +704,25 @@ export default function DealInvestorsPage() {
                                                         borderRadius: 8,
                                                         fontSize: 12,
                                                         padding: '6px 10px',
-                                                        cursor: isDraftReady ? 'pointer' : 'not-allowed',
-                                                        opacity: isDraftReady ? 1 : 0.45,
+                                                        cursor: canMove ? 'pointer' : 'not-allowed',
+                                                        opacity: canMove ? 1 : 0.45,
                                                     }}
                                                     onClick={async () => {
                                                         if (!confirm('Mark invite as sent and move investor into pipeline?')) return;
 
                                                         const sendRes = await fetch(
                                                             `/api/deals/${dealId}/prospects/${p.contact_id}/send`,
-                                                            { method: 'POST' }
+                                                            {
+                                                                method: "POST",
+                                                                headers: {
+                                                                    "Content-Type":
+                                                                        "application/json",
+                                                                },
+                                                                body: JSON.stringify({
+                                                                    inviteMethod:
+                                                                        introMethod,
+                                                                }),
+                                                            }
                                                         );
 
                                                         const sendJson = (await sendRes.json().catch(() => null)) as SendInviteResponse | null;
@@ -676,7 +754,7 @@ export default function DealInvestorsPage() {
                                                         setTimeout(() => loadDashboard(), 4000);
                                                     }}
                                                 >
-                                                    Send
+                                                    Move to Pipeline
                                                 </button>
 
                                                 <button
@@ -813,7 +891,7 @@ export default function DealInvestorsPage() {
                                         {investors
                                             .filter((i) => i.bucket === bucket.key)
                                             .sort(
-                                                (a,b) => 
+                                                (a, b) =>
                                                     b.engagementScore -
                                                     a.engagementScore
                                             )

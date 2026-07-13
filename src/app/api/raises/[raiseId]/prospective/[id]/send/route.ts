@@ -4,19 +4,31 @@ import { supabaseServer } from '@/lib/SupabaseServer';
 export const runtime = 'nodejs';
 
 export async function POST(
-  _req: Request,
+  req: Request,
   context: { params: Promise<{ raiseId: string; id: string }> }
 ) {
   const { raiseId, id } = await context.params;
   const contactId = id; // keep route shape, but treat it as contact_id
+  const body = await req.json().catch(
+    () => ({})
+);
+
+const inviteMethod =
+    body.inviteMethod ??
+    "portal_email";
 
   try {
     const { data, error } = await supabaseServer
       .from('raise_subscriptions')
       .update({
-        invite_status: 'invited',
-        invited_at: new Date().toISOString(),
-      })
+    invite_status: "invited",
+
+    invite_method:
+        inviteMethod,
+
+    invited_at:
+        new Date().toISOString(),
+})
       .eq('raise_id', raiseId)
       .eq('contact_id', contactId)
       .select('id')
