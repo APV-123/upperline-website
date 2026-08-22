@@ -42,6 +42,26 @@ values
   ('84000000-0000-4000-8000-000000000002',1,'rejected','reviewer@upperlineco.com',null,null,null,'underwriting','exit.exitCapRate',null,'kept_existing'),
   ('84000000-0000-4000-8000-000000000003',1,'edited_and_accepted','reviewer@upperlineco.com','decimal','"25"','USD_PER_SF_YEAR','tenant','rentalRatePerSfYear','99000000-0000-4000-8000-000000000001','replaced_existing');
 
+do $$ declare rejected_constraint text; begin
+  begin
+    insert into public.opportunity_candidate_facts
+      (ingestion_id,artifact_id,extraction_run_id,destination_domain,field_path,assertion_basis,economic_role,
+       normalized_value_type,normalized_value,confidence,validation_state,ordinal,candidate_fingerprint)
+    values
+      ('81000000-0000-4000-8000-000000000001','82000000-0000-4000-8000-000000000001','83000000-0000-4000-8000-000000000001',
+       'opportunity','bad','source_stated','descriptive_fact','decimal','"01.2"',1,'valid',9,repeat('f',64));
+    raise exception 'expected failure';
+  exception when check_violation then
+    get stacked diagnostics rejected_constraint = constraint_name;
+    if rejected_constraint <> 'opportunity_candidate_facts_value_check' then
+      raise exception 'unexpected candidate constraint: %', rejected_constraint;
+    end if;
+  end;
+  if exists (select 1 from public.opportunity_candidate_facts where candidate_fingerprint=repeat('f',64)) then
+    raise exception 'invalid candidate persisted';
+  end if;
+end $$;
+
 update public.opportunity_extraction_runs set status='succeeded',started_at=now(),completed_at=now()
   where id='83000000-0000-4000-8000-000000000001';
 
@@ -71,13 +91,21 @@ do $$ begin
   begin update public.opportunity_source_artifacts set opportunity_source_id='85000000-0000-4000-8000-000000000002' where id='82000000-0000-4000-8000-000000000002'; raise exception 'expected failure'; exception when others then if sqlerrm='expected failure' then raise; end if; end;
   begin update public.opportunity_source_artifacts set opportunity_source_id='85000000-0000-4000-8000-000000000002' where id='82000000-0000-4000-8000-000000000001'; raise exception 'expected failure'; exception when others then if sqlerrm='expected failure' then raise; end if; end;
   begin update public.opportunity_ingestions set opportunity_id=null where id='81000000-0000-4000-8000-000000000002'; raise exception 'expected failure'; exception when others then if sqlerrm='expected failure' then raise; end if; end;
-  begin insert into public.opportunity_candidate_facts (ingestion_id,artifact_id,extraction_run_id,destination_domain,field_path,assertion_basis,economic_role,validation_state,ordinal,candidate_fingerprint) values ('81000000-0000-4000-8000-000000000001','82000000-0000-4000-8000-000000000001','83000000-0000-4000-8000-000000000001','opportunity','lateField','source_stated','descriptive_fact','valid',20,repeat('6',64)); raise exception 'expected failure'; exception when others then if sqlerrm='expected failure' then raise; end if; end;
-  begin insert into public.opportunity_candidate_facts (ingestion_id,artifact_id,extraction_run_id,destination_domain,field_path,assertion_basis,economic_role,normalized_value_type,normalized_value,confidence,validation_state,ordinal,candidate_fingerprint) values ('81000000-0000-4000-8000-000000000001','82000000-0000-4000-8000-000000000001','83000000-0000-4000-8000-000000000001','opportunity','bad','source_stated','descriptive_fact','decimal','"01.2"',1.1,'valid',9,repeat('f',64)); raise exception 'expected failure'; exception when check_violation then null; end;
+  begin
+    insert into public.opportunity_candidate_facts (ingestion_id,artifact_id,extraction_run_id,destination_domain,field_path,assertion_basis,economic_role,validation_state,ordinal,candidate_fingerprint)
+    values ('81000000-0000-4000-8000-000000000001','82000000-0000-4000-8000-000000000001','83000000-0000-4000-8000-000000000001','opportunity','lateField','source_stated','descriptive_fact','valid',20,repeat('6',64));
+    raise exception 'expected failure';
+  exception when sqlstate 'P0001' then
+    if sqlerrm <> 'terminal_extraction_output_immutable' then raise; end if;
+  end;
+  if exists (select 1 from public.opportunity_candidate_facts where candidate_fingerprint=repeat('6',64)) then
+    raise exception 'terminal candidate persisted';
+  end if;
 end $$;
 
 set role authenticated;
 do $$ begin
-  if exists (select 1 from public.opportunity_ingestions) then raise exception 'RLS leaked rows'; end if;
+  begin perform 1 from public.opportunity_ingestions; raise exception 'read unexpectedly allowed'; exception when insufficient_privilege then null; end;
   begin insert into public.opportunity_ingestions(entry_type,requested_by_email) values('pdf','browser@test'); raise exception 'write unexpectedly allowed'; exception when insufficient_privilege then null; end;
 end $$;
 reset role;

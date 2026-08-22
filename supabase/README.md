@@ -123,3 +123,8 @@ candidate facts and evidence, and append-only human review decisions. It creates
 no storage bucket, extraction process, UI, API, or authoritative application RPC.
 Candidates remain separate from `opportunity_field_provenance`; only a future
 reviewed transaction may promote accepted values into authoritative data.
+
+Phase 4A.2.0 adds server-only transaction RPCs for verified artifact finalization,
+concurrency-safe extraction-run allocation, atomic candidate/evidence completion,
+and sanitized failure transitions. The migration does not create Storage objects,
+upload code, parsing, provider integration, API routes, UI, or authoritative writes.
