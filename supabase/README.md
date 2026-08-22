@@ -114,3 +114,12 @@ Use only newly created disposable databases. The RPC integration runner applies
 Phase 2 followed by Phase 3A.0. The concurrency runners use independent `psql`
 processes, and the rollback runner verifies that a failed Phase 3A.0 transaction
 leaves no RPC objects behind.
+
+## Opportunity ingestion foundation
+
+Phase 4A.1 adds private, server-only persistence for ingestion workflows,
+immutable source artifacts, append-oriented extraction attempts, untrusted
+candidate facts and evidence, and append-only human review decisions. It creates
+no storage bucket, extraction process, UI, API, or authoritative application RPC.
+Candidates remain separate from `opportunity_field_provenance`; only a future
+reviewed transaction may promote accepted values into authoritative data.
