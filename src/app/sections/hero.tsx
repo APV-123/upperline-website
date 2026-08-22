@@ -50,7 +50,7 @@ export default function Hero() {
           "
         >
           <Image
-            src="/upperline-mark.png"
+            src="/Upperline-mark.png"
             alt="Upperline mark"
             width={200}
             height={200}

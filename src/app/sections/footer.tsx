@@ -24,7 +24,7 @@ export default function Footer() {
         {/* Right: Logo */}
         <div className="order-3">
           <Image
-            src="/upperline-logo.png"
+            src="/Upperline-logo.png"
             alt="Upperline logo"
             width={280}
             height={80}

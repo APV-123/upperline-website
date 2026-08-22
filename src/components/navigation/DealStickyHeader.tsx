@@ -50,7 +50,7 @@ export default function DealStickyHeader({
             <div style={inner}>
                 <Link href="/" style={brand}>
                     <Image
-                        src="/upperline-mark.png"
+                        src="/Upperline-mark.png"
                         alt="Upperline mark"
                         width={180}
                         height={40}
@@ -147,7 +147,7 @@ export default function DealStickyHeader({
                     }}>
                         <div style={mobileMenuHeader}>
                             <Image
-                                src="/upperline-mark.png"
+                                src="/Upperline-mark.png"
                                 alt="Upperline mark"
                                 width={180}
                                 height={40}

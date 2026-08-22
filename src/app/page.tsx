@@ -102,7 +102,7 @@ export default function DealIndexPage() {
         className={styles.brand}
       >
         <Image
-          src="/upperline-mark.png"
+          src="/Upperline-mark.png"
           alt="Upperline mark"
           className={styles.logo}
         />

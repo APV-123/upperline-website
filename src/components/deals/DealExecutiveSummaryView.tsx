@@ -929,7 +929,7 @@ export default function DealExecutiveSummaryView({ deal, isDark }: { deal: Deal;
                 <img
                   src={isDark
                     ? "/Upperline-logo-inverted.png"
-                    : "/upperline-logo.png"
+                    : "/Upperline-logo.png"
                   }
                   alt="Upperline"
                   style={{
