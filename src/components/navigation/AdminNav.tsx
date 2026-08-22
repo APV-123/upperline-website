@@ -105,6 +105,15 @@ export default function AdminNav() {
         />
       </Link>
 
+      <nav style={{ display: 'flex', alignItems: 'center', gap: 18, marginLeft: 28, marginRight: 'auto' }} aria-label="Admin">
+        <Link href="/admin" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
+          Deals
+        </Link>
+        <Link href="/admin/opportunities" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
+          Opportunities
+        </Link>
+      </nav>
+
       <div
         ref={menuRef}
         style={{

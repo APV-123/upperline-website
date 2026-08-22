@@ -8,7 +8,7 @@ const decimalString = (value: string | number | null): string | null =>
 export type UnderwritingSummaryDto = {
   id: string; versionNumber: number; status: 'draft' | 'final'; isActive: boolean;
   screenResult: 'PASS' | 'REVIEW' | 'PURSUE' | null; complete: boolean | null;
-  returnOnCost: string | null; developmentSpread: string | null; revision: number;
+  buildingAreaSf: string | null; returnOnCost: string | null; developmentSpread: string | null; revision: number;
 };
 
 export type OpportunityDto = {
@@ -58,6 +58,7 @@ export type ProvenanceDto = {
 const summary = (row: UnderwritingRow): UnderwritingSummaryDto => ({
   id: row.id, versionNumber: row.version_number, status: row.status, isActive: row.is_active,
   screenResult: row.screen_result, complete: row.is_complete,
+  buildingAreaSf: decimalString(row.building_area_sf),
   returnOnCost: decimalString(row.return_on_cost),
   developmentSpread: decimalString(row.development_spread), revision: row.revision,
 });
