@@ -139,3 +139,20 @@ execution. Its integration and rollback runners are:
 ./supabase/tests/run-opportunity-land-flyer-contract-integration.ps1
 ./supabase/tests/run-opportunity-land-flyer-contract-rollback.ps1
 ```
+
+## Storage policy remediation
+
+Migration `20260823000200_scope_storage_object_policies.sql` removes the four
+legacy global `storage.objects` policies. It retains only anonymous create access
+scoped separately to `deal-images` and `deal-documents-public`, whose existing
+admin editors still upload through the browser. Their public bucket flags provide
+public-object delivery, so no `storage.objects` SELECT policy is required.
+
+`deal-documents-private` has no browser-role policy. Its writes use a NextAuth-
+authorized, server-derived exact path and create-only signed upload authorization;
+reads continue through server/service-role signed URLs. Arbitrary future buckets
+inherit no access. The fail-closed disposable integration runner is:
+
+```powershell
+./supabase/tests/run-storage-policy-integration.ps1
+```
