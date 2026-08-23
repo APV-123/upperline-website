@@ -13,7 +13,7 @@ const HTTP_STATUS_BY_KIND: Partial<Record<OpportunityApplicationError['kind'], n
   revision_conflict: 409, integrity_conflict: 409, idempotency_conflict: 409,
   upload_conflict: 409, artifact_conflict: 409,
   validation: 400, invalid_upload_request: 400, unsupported_document: 415,
-  invalid_pdf: 422, encrypted_pdf: 422, malformed_pdf: 422,
+  invalid_pdf: 422, encrypted_pdf: 422, malformed_pdf: 422, pdf_page_limit: 422,
   upload_too_large: 413, upload_missing: 404, storage_unavailable: 503,
   verification_failure: 500,
 };
@@ -42,6 +42,18 @@ export async function opportunityEndpoint<T>(
     const actor = await requireUpperlineUser();
     return NextResponse.json({ ok: true,
       data: await operation({ actor, repository: new SupabaseOpportunityRepository() }) });
+  } catch (cause) {
+    const translated = translateOpportunityHttpError(cause);
+    return NextResponse.json({ ok: false, error: translated.error }, { status: translated.status });
+  }
+}
+
+export async function authenticatedOpportunityEndpoint<T>(
+  operation: (actor: OpportunityServerContext['actor']) => Promise<T>,
+) {
+  try {
+    const actor = await requireUpperlineUser();
+    return NextResponse.json({ ok: true, data: await operation(actor) });
   } catch (cause) {
     const translated = translateOpportunityHttpError(cause);
     return NextResponse.json({ ok: false, error: translated.error }, { status: translated.status });

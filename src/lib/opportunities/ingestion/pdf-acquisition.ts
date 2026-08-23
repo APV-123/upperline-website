@@ -22,7 +22,7 @@ const UPPERLINE_EMAIL = /^[^@\s]+@upperlineco\.com$/;
 
 export type PdfRejectionReason =
   | 'unsupported_document' | 'upload_too_large' | 'invalid_pdf' | 'encrypted_pdf'
-  | 'malformed_pdf' | 'verification_failure';
+  | 'malformed_pdf' | 'pdf_page_limit' | 'verification_failure';
 
 export type PdfAcquisitionFailureCode = PdfRejectionReason
   | 'invalid_upload_request' | 'unauthorized' | 'opportunity_not_found'
@@ -98,6 +98,10 @@ export interface PdfIngestionRepositoryPort {
   finalizeVerifiedPdf(input: VerifiedPdfFinalization): Promise<{
     ingestionId: string; artifactId: string; ingestionStatus: 'ready';
   }>;
+}
+
+export interface PdfIngestionLookupPort {
+  findLatestPdfIngestion(opportunityId: string, requestedByEmail: string): Promise<PdfIngestionRecord | null>;
 }
 
 export type OpportunityAccessAction = 'begin_pdf_ingestion' | 'view_pdf_ingestion'

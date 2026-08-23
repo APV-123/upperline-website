@@ -126,7 +126,7 @@ describe('strict PDF identity and structural inspection', () => {
   });
   it('rejects more than 250 pages', async () => {
     await expect(new PdfJsStructuralInspector().inspectPdf(makePdf(251)))
-      .resolves.toMatchObject({ readable: false, rejectionReason: 'invalid_pdf' });
+      .resolves.toMatchObject({ readable: false, rejectionReason: 'pdf_page_limit' });
   });
   it('rejects magic-only malformed and truncated PDFs', async () => {
     const parser = new PdfJsStructuralInspector();
@@ -240,7 +240,7 @@ describe('verification orchestration', () => {
 });
 
 describe('rejected object cleanup classification', () => {
-  it.each(['invalid_pdf', 'encrypted_pdf', 'malformed_pdf', 'upload_too_large'] as const)
+  it.each(['invalid_pdf', 'encrypted_pdf', 'malformed_pdf', 'pdf_page_limit', 'upload_too_large'] as const)
   ('allows later exact cleanup only for definitive rejection %s', failureKind => {
     expect(classifyRejectedObjectCleanup({ ingestionStatus: 'awaiting_source', failureKind })).toBe('eligible_exact_cleanup');
   });

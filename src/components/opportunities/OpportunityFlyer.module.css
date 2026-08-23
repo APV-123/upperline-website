@@ -1,0 +1,9 @@
+.flyer{border:1px solid #dbe4ee;border-radius:10px;background:#f8fafc;padding:16px;margin-bottom:18px}
+.flyer .header{margin-bottom:10px}
+.flyer .sectionTitle{margin-bottom:4px}
+.flyerMeta{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:13px;margin:10px 0 14px}
+.flyerMeta span:not(:first-child){color:#64748b}
+.verified{background:#ecfdf5;color:#166534}
+.retry{border:0;background:transparent;color:inherit;text-decoration:underline;cursor:pointer;margin-left:8px}
+.sourceUrls{border-top:1px solid #e2e8f0;padding-top:16px}
+.visuallyHidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}

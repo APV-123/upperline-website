@@ -23,6 +23,7 @@ function client(input: {
   const query = (result: { data: unknown; error: unknown }) => {
     const chain = {
       eq: vi.fn(() => chain), select: vi.fn(() => chain),
+      order: vi.fn(() => chain), limit: vi.fn(() => chain),
       maybeSingle: vi.fn(async () => result), single: vi.fn(async () => result),
     }; return chain;
   };
@@ -74,6 +75,13 @@ describe('Supabase PDF ingestion repository', () => {
   it('returns null for a missing ingestion', async () => {
     const fake = client({ selects: [{ data: null, error: null }] });
     await expect(new SupabasePdfIngestionRepository(fake.value).getPdfIngestion(INGESTION_ID)).resolves.toBeNull();
+  });
+  it('finds the latest actor-scoped PDF ingestion for refresh recovery', async () => {
+    const fake = client({ selects: [{ data: row({ status: 'ready' }), error: null }] });
+    await expect(new SupabasePdfIngestionRepository(fake.value)
+      .findLatestPdfIngestion(OPPORTUNITY_ID, ACTOR)).resolves.toMatchObject({
+        ingestionId: INGESTION_ID, opportunityId: OPPORTUNITY_ID, status: 'ready', requestedByEmail: ACTOR,
+      });
   });
   it('maps trusted finalization exactly to the existing RPC', async () => {
     const finalized: VerifiedPdfFinalization = { opportunityId: OPPORTUNITY_ID, ingestionId: INGESTION_ID,

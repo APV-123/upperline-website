@@ -108,7 +108,7 @@ export class PdfJsStructuralInspector implements PdfInspectorPort {
       if (!Number.isSafeInteger(pageCount) || pageCount < 1) {
         return rejected('malformed_pdf');
       }
-      if (pageCount > MAX_PDF_PAGES) return rejected('invalid_pdf');
+      if (pageCount > MAX_PDF_PAGES) return rejected('pdf_page_limit');
       // Resolve every page dictionary without rendering, executing actions, or extracting text.
       for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
         await document.getPage(pageNumber);
@@ -217,7 +217,7 @@ export function classifyRejectedObjectCleanup(input: {
   failureKind: OpportunityApplicationError['kind'];
 }): RejectedObjectCleanupDisposition {
   if (isAcquired(input.ingestionStatus)) return 'prohibited_finalized_artifact';
-  if (['invalid_pdf', 'encrypted_pdf', 'malformed_pdf', 'upload_too_large'].includes(input.failureKind)) {
+  if (['invalid_pdf', 'encrypted_pdf', 'malformed_pdf', 'pdf_page_limit', 'upload_too_large'].includes(input.failureKind)) {
     return 'eligible_exact_cleanup';
   }
   if (['artifact_conflict', 'idempotency_conflict', 'upload_conflict', 'integrity_conflict'].includes(input.failureKind)) {
@@ -226,7 +226,7 @@ export function classifyRejectedObjectCleanup(input: {
   return 'retain_transient_failure';
 }
 
-function rejected(reason: 'invalid_pdf' | 'encrypted_pdf' | 'malformed_pdf'): PdfInspectionResult {
+function rejected(reason: 'invalid_pdf' | 'encrypted_pdf' | 'malformed_pdf' | 'pdf_page_limit'): PdfInspectionResult {
   return { readable: false, detectedMediaType: null, pageCount: null,
     encrypted: reason === 'encrypted_pdf', rejectionReason: reason, diagnostics: [] };
 }
@@ -242,6 +242,9 @@ function inspectionError(result: Extract<PdfInspectionResult, { readable: false 
   }
   if (result.rejectionReason === 'malformed_pdf') {
     return opportunityError('malformed_pdf', 'The uploaded PDF is malformed or truncated.');
+  }
+  if (result.rejectionReason === 'pdf_page_limit') {
+    return opportunityError('pdf_page_limit', 'The PDF exceeds the 250-page limit.');
   }
   return opportunityError('invalid_pdf', 'The stored object is not a valid PDF.');
 }
@@ -274,7 +277,7 @@ async function telemetry(port: PdfAcquisitionTelemetryPort | undefined,
 
 function telemetryFailureCode(kind: OpportunityApplicationError['kind']): PdfAcquisitionFailureCode {
   const supported = new Set<PdfAcquisitionFailureCode>(['unsupported_document', 'upload_too_large',
-    'invalid_pdf', 'encrypted_pdf', 'malformed_pdf', 'verification_failure',
+    'invalid_pdf', 'encrypted_pdf', 'malformed_pdf', 'pdf_page_limit', 'verification_failure',
     'invalid_upload_request', 'unauthorized', 'opportunity_not_found', 'ingestion_not_found',
     'idempotency_conflict', 'upload_conflict', 'upload_missing', 'artifact_conflict',
     'storage_unavailable', 'unexpected']);

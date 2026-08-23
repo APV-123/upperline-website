@@ -118,3 +118,33 @@ scanning, and content-disarm controls remain advisable.
 Here, verified PDF means the trusted server verified the exact stored bytes as a
 bounded, structurally readable, unencrypted PDF satisfying V1 artifact policy. It
 only becomes eligible for a later, separate extraction process after finalization.
+
+## Authenticated manual acquisition composition
+
+Phase 4A.2.1c.0 composes the trusted acquisition services into two authenticated,
+Node-only Opportunity endpoints and a compact **Sources & documents** UI. The first
+endpoint begins or recovers a PDF ingestion and returns only its ingestion ID plus
+the exact signed upload authorization needed by the browser. The browser uploads
+the selected file directly with create-only semantics. It never receives a trusted
+bucket, caller-selectable path, artifact identity, service-role credential, or
+authoritative verification metadata.
+
+The second endpoint accepts only the Opportunity and ingestion identities from its
+route and invokes trusted server verification. The server reads the exact stored
+object, computes SHA-256 and byte count, validates PDF identity and structure,
+rejects encryption and the 250-page limit, then calls the existing finalization RPC.
+The response exposes only safe ready state, authoritative byte size, page count,
+and PDF media type; it does not expose the digest, bucket, path, or parser details.
+
+The manual UI state machine is: Selected → Preparing → Uploading → Uploaded —
+verification pending → Verifying → Verified — Ready for Extraction. Preliminary
+filename, browser MIME, and size checks are UX only. The idempotency key and safe
+ingestion correlation are retained locally so a lost verification response or
+ordinary refresh can replay verification without overwriting the object. A ready
+ingestion replays as ready. An abandoned authorization creates no verified artifact.
+
+`OPPORTUNITY_PDF_STORAGE_BUCKET` remains trusted server-only configuration and is
+read lazily at request execution. Its absence fails an acquisition request closed
+without breaking unrelated Opportunity pages, imports, tests, or builds. A later
+controlled phase must provision/configure private Storage and exercise this flow
+with a real PDF; this phase does not provision Storage or perform extraction.

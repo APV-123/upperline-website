@@ -51,6 +51,15 @@ export class SupabasePdfIngestionRepository implements PdfIngestionRepositoryPor
     return data ? mapRow(data as IngestionRow) : null;
   }
 
+  async findLatestPdfIngestion(opportunityId: string, requestedByEmail: string): Promise<PdfIngestionRecord | null> {
+    const { data, error } = await this.client.from('opportunity_ingestions').select('*')
+      .eq('opportunity_id', opportunityId).eq('entry_type', 'pdf')
+      .eq('requested_by_email', requestedByEmail).order('created_at', { ascending: false })
+      .limit(1).maybeSingle();
+    if (error) throw translatePdfDatabaseError(error);
+    return data ? mapRow(data as IngestionRow) : null;
+  }
+
   async finalizeVerifiedPdf(input: VerifiedPdfFinalization): Promise<{
     ingestionId: string; artifactId: string; ingestionStatus: 'ready';
   }> {
