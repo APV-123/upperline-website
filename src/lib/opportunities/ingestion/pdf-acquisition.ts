@@ -105,7 +105,7 @@ export interface PdfIngestionLookupPort {
 }
 
 export type OpportunityAccessAction = 'begin_pdf_ingestion' | 'view_pdf_ingestion'
-  | 'authorize_pdf_upload' | 'verify_pdf_upload' | 'download_pdf_artifact';
+  | 'authorize_pdf_upload' | 'verify_pdf_upload' | 'download_pdf_artifact' | 'extract_pdf_artifact';
 
 export interface OpportunityAccessPort {
   opportunityExists(opportunityId: string): Promise<boolean>;

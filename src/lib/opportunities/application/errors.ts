@@ -4,7 +4,10 @@ export type OpportunityErrorKind =
   | 'invalid_upload_request' | 'unsupported_document' | 'upload_too_large'
   | 'ingestion_not_found' | 'idempotency_conflict' | 'upload_conflict'
   | 'upload_missing' | 'invalid_pdf' | 'encrypted_pdf' | 'malformed_pdf'
-  | 'pdf_page_limit' | 'verification_failure' | 'artifact_conflict' | 'storage_unavailable';
+  | 'pdf_page_limit' | 'verification_failure' | 'artifact_conflict' | 'storage_unavailable'
+  | 'artifact_not_ready' | 'extraction_already_running' | 'provider_timeout'
+  | 'provider_failure' | 'provider_invalid_output' | 'extraction_contract_violation'
+  | 'persistence_failure';
 
 export class OpportunityApplicationError extends Error {
   constructor(
