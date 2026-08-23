@@ -58,10 +58,23 @@ describe('PDF acquisition server/client boundary', () => {
 
     const nextConfig = read('next.config.ts');
     expect(nextConfig).toContain('serverExternalPackages: ["@napi-rs/canvas", "pdfjs-dist"]');
+    expect(nextConfig).toContain('"/api/opportunities/*/pdf-ingestions/*/verify"');
+    expect(nextConfig).toContain('"./node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs"');
 
     const [major, minor] = process.versions.node.split('.').map(Number);
     expect(major).toBe(22);
     expect(minor).toBeGreaterThanOrEqual(13);
+  });
+
+  it('makes the production build enforce the server runtime trace contract', () => {
+    const applicationPackage = JSON.parse(read('package.json')) as { scripts?: Record<string, string> };
+    expect(applicationPackage.scripts?.build).toContain('node scripts/verify-pdf-runtime-trace.mjs');
+
+    const traceCheck = read('scripts/verify-pdf-runtime-trace.mjs');
+    expect(traceCheck).toContain('pdfjs-dist\\/legacy\\/build\\/pdf');
+    expect(traceCheck).toContain('pdf\\.worker\\.mjs');
+    expect(traceCheck).toContain('@napi-rs\\/canvas-');
+    expect(traceCheck).toContain("resolve(root, '.next/static')");
   });
 
   it('evaluates the real PDF.js Node entrypoint with supported graphics primitives in a clean process', () => {

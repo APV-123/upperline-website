@@ -10,7 +10,10 @@ import {
   type PrivateArtifactObjectStorePort,
 } from './pdf-acquisition';
 import { readPdfStorageConfig } from './pdf-storage-config';
-import { PdfJsStructuralInspector, verifyPdfIngestion } from './pdf-verification';
+import {
+  createServerPdfVerificationDiagnostics, PdfJsStructuralInspector, verifyPdfIngestion,
+  type PdfVerificationDiagnosticsPort,
+} from './pdf-verification';
 import { SupabasePdfIngestionRepository } from './supabase-pdf-ingestion-repository';
 import { SupabasePrivatePdfObjectStore } from './supabase-pdf-object-store';
 
@@ -42,6 +45,7 @@ export type PdfApiDependencies = {
   authorizer: OpportunityAuthorizer;
   inspector: PdfInspectorPort;
   storageBucket: string;
+  diagnostics?: PdfVerificationDiagnosticsPort;
 };
 
 const BEGIN_KEYS = new Set(['idempotencyKey', 'originalFilename', 'declaredMediaType', 'declaredByteSize']);
@@ -114,6 +118,7 @@ export async function verifyPdfAcquisitionApi(
     objectStore: dependencies.objectStore,
     inspector: dependencies.inspector,
     storageBucket: dependencies.storageBucket,
+    diagnostics: dependencies.diagnostics,
   });
   return {
     disposition: result.disposition,
@@ -134,12 +139,14 @@ function composePdfApiDependencies(): PdfApiDependencies {
   const config = readPdfStorageConfig();
   const client = createOpportunitySupabaseClient();
   const repository = new SupabasePdfIngestionRepository(client);
+  const diagnostics = createServerPdfVerificationDiagnostics();
   return {
     repository,
     objectStore: new SupabasePrivatePdfObjectStore(client, config),
     authorizer: new OrganizationWideOpportunityAuthorizer(repository),
-    inspector: new PdfJsStructuralInspector(),
+    inspector: new PdfJsStructuralInspector(diagnostics),
     storageBucket: config.bucket,
+    diagnostics,
   };
 }
 

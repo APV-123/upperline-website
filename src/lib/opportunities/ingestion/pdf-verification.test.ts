@@ -9,8 +9,9 @@ import {
   type PrivateArtifactObjectStorePort, type VerifiedPdfFinalization,
 } from './pdf-acquisition';
 import {
-  classifyRejectedObjectCleanup, consumeStoredPdfBytes, NodeSha256ByteDigest,
-  PdfJsStructuralInspector, requireStrictPdfMagic, verifyPdfIngestion,
+  classifyPdfJsInspectionFailure, classifyRejectedObjectCleanup, consumeStoredPdfBytes,
+  createServerPdfVerificationDiagnostics, NodeSha256ByteDigest, normalizePdfJsBytes, PdfJsStructuralInspector,
+  requireStrictPdfMagic, verifyPdfIngestion,
 } from './pdf-verification';
 
 const OPPORTUNITY_ID = '11111111-1111-4111-8111-111111111111';
@@ -124,6 +125,16 @@ describe('strict PDF identity and structural inspection', () => {
     await expect(parser.inspectPdf(makePdf(3))).resolves.toMatchObject({ readable: true, pageCount: 3 });
     await expect(parser.inspectPdf(makePdf(250))).resolves.toMatchObject({ readable: true, pageCount: 250 });
   });
+  it('normalizes Buffer-backed authoritative bytes without changing byte identity', async () => {
+    const fixture = makePdf(2);
+    const buffer = Buffer.from(fixture);
+    const normalized = normalizePdfJsBytes(buffer.subarray(0));
+    expect(Buffer.isBuffer(normalized)).toBe(false);
+    expect(normalized).toBeInstanceOf(Uint8Array);
+    expect(normalized).toEqual(fixture);
+    await expect(new PdfJsStructuralInspector().inspectPdf(buffer))
+      .resolves.toMatchObject({ readable: true, pageCount: 2 });
+  });
   it('rejects more than 250 pages', async () => {
     await expect(new PdfJsStructuralInspector().inspectPdf(makePdf(251)))
       .resolves.toMatchObject({ readable: false, rejectionReason: 'pdf_page_limit' });
@@ -139,6 +150,57 @@ describe('strict PDF identity and structural inspection', () => {
   it('deterministically rejects encrypted/password-protected PDFs', async () => {
     await expect(new PdfJsStructuralInspector().inspectPdf(makePdf(1, true)))
       .resolves.toMatchObject({ readable: false, encrypted: true, rejectionReason: 'encrypted_pdf' });
+  });
+  it('fails closed on unexpected parser/runtime errors without classifying user content as malformed', async () => {
+    const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    const raw = new Error('native dependency detail');
+    expect(() => classifyPdfJsInspectionFailure(raw, pdfjs)).toThrow(expect.objectContaining({
+      kind: 'verification_failure', message: 'PDF verification could not be completed.', cause: raw,
+    }));
+  });
+  it('emits one allowlisted success event and sanitized failure telemetry without leaking details', () => {
+    const events: Array<Readonly<Record<string, unknown>>> = [];
+    const failureEvents: Array<Readonly<Record<string, unknown>>> = [];
+    const cause = Object.assign(new Error('secret.pdf opportunities/id private/path token'), {
+      code: 'ERR_DLOPEN_FAILED', stack: 'private stack', opportunityId: OPPORTUNITY_ID,
+    });
+    const diagnostics = createServerPdfVerificationDiagnostics(
+      event => events.push(event), event => failureEvents.push(event), () => 100,
+    );
+    diagnostics.succeeded();
+    diagnostics.failed('canvas_initialization', 'verification_failure', cause);
+    expect(Object.keys(events[0]).sort()).toEqual([
+      'canvasVersion', 'elapsedMilliseconds', 'event', 'pdfjsVersion',
+    ]);
+    expect(events[0]).toMatchObject({ event: 'opportunity_pdf_verification_succeeded',
+      pdfjsVersion: '6.2.108', canvasVersion: '1.0.7', elapsedMilliseconds: 0 });
+    expect(Object.keys(failureEvents[0]).sort()).toEqual([
+      'canvasVersion', 'classification', 'elapsedMilliseconds', 'errorCode',
+      'event', 'exceptionName', 'pdfjsVersion', 'stage',
+    ]);
+    expect(failureEvents[0]).toMatchObject({
+      event: 'opportunity_pdf_verification_failure', stage: 'canvas_initialization',
+      classification: 'verification_failure', exceptionName: 'Error', errorCode: 'ERR_DLOPEN_FAILED',
+      pdfjsVersion: '6.2.108', canvasVersion: '1.0.7', elapsedMilliseconds: 0,
+    });
+    expect(JSON.stringify([...events, ...failureEvents])).not.toMatch(/secret|private|token|opportunit(y|ies)\/id|11111111/);
+  });
+  it('tracks stages internally and attributes malformed input to the document promise', async () => {
+    const failed: Array<[string, string]> = [];
+    const diagnostics = { succeeded: vi.fn(),
+      failed: vi.fn((stage, classification) => failed.push([stage, classification])) };
+    const result = await new PdfJsStructuralInspector(diagnostics).inspectPdf(bytes('%PDF-1.4\nnot a PDF body'));
+    expect(result).toMatchObject({ readable: false, rejectionReason: 'malformed_pdf' });
+    expect(diagnostics.succeeded).not.toHaveBeenCalled();
+    expect(failed).toEqual([['document_promise', 'malformed_pdf']]);
+  });
+  it('does not let diagnostic sink failures alter verification behavior', async () => {
+    const diagnostics = { succeeded: vi.fn(() => { throw new Error('sink failed'); }),
+      failed: vi.fn(() => { throw new Error('sink failed'); }) };
+    await expect(new PdfJsStructuralInspector(diagnostics).inspectPdf(makePdf(1)))
+      .resolves.toMatchObject({ readable: true, pageCount: 1 });
+    await expect(new PdfJsStructuralInspector(diagnostics).inspectPdf(bytes('%PDF-1.4\ninvalid')))
+      .resolves.toMatchObject({ readable: false, rejectionReason: 'malformed_pdf' });
   });
 });
 
@@ -236,6 +298,29 @@ describe('verification orchestration', () => {
     expect(events).toHaveLength(2); expect(events[1].digestPrefix).toHaveLength(12);
     expect(JSON.stringify(events)).not.toContain('private-pdf-bucket');
     expect(JSON.stringify(events)).not.toContain('source.pdf');
+  });
+  it('attributes finalization failure without changing fail-closed behavior', async () => {
+    const repo = repository(); const raw = Object.assign(new Error('database secret'), { code: 'UNSAFE_CODE' });
+    repo.finalizeVerifiedPdf.mockRejectedValueOnce(raw);
+    const failed: Array<[string, string]> = [];
+    const diagnostics = { succeeded: vi.fn(),
+      failed: vi.fn((stage, classification) => failed.push([stage, classification])) };
+    await expect(verifyPdfIngestion({ actor: ACTOR, opportunityId: OPPORTUNITY_ID, ingestionId: INGESTION_ID }, {
+      authorizer, repository: repo.value, objectStore: store(), inspector: inspector(),
+      storageBucket: 'private', diagnostics,
+    })).rejects.toMatchObject({ kind: 'verification_failure', message: 'PDF verification could not be completed.' });
+    expect(diagnostics.succeeded).not.toHaveBeenCalled();
+    expect(failed).toEqual([['artifact_finalization', 'verification_failure']]);
+  });
+  it('emits exactly one success event only after artifact finalization succeeds', async () => {
+    const repo = repository(); const diagnostics = { succeeded: vi.fn(), failed: vi.fn() };
+    await verifyPdfIngestion({ actor: ACTOR, opportunityId: OPPORTUNITY_ID, ingestionId: INGESTION_ID }, {
+      authorizer, repository: repo.value, objectStore: store(), inspector: inspector(),
+      storageBucket: 'private', diagnostics,
+    });
+    expect(repo.finalizeVerifiedPdf).toHaveBeenCalledOnce();
+    expect(diagnostics.succeeded).toHaveBeenCalledOnce();
+    expect(diagnostics.failed).not.toHaveBeenCalled();
   });
 });
 
