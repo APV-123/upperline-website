@@ -1,9 +1,6 @@
 import 'server-only';
 
 import { createHash } from 'node:crypto';
-import {
-  getDocument, InvalidPDFException, PasswordException, VerbosityLevel,
-} from 'pdfjs-dist/legacy/build/pdf.mjs';
 import type { OpportunityActor } from '../application/actor-core';
 import { OpportunityApplicationError, opportunityError } from '../application/errors';
 import type {
@@ -93,15 +90,21 @@ export function requireStrictPdfMagic(bytes: Uint8Array): void {
 export class PdfJsStructuralInspector implements PdfInspectorPort {
   async inspectPdf(input: Uint8Array): Promise<PdfInspectionResult> {
     requireStrictPdfMagic(input);
-    let loading: ReturnType<typeof getDocument> | null = null;
-    let document: Awaited<ReturnType<typeof getDocument>['promise']> | null = null;
+    // Initialize PDF.js only once authenticated verification reaches structural
+    // inspection, keeping its native runtime out of unrelated request paths.
+    // This explicit edge ensures server-function tracing includes PDF.js's
+    // supported native fallback before PDF.js installs DOMMatrix and Path2D.
+    await import('@napi-rs/canvas');
+    const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    let loading: ReturnType<typeof pdfjs.getDocument> | null = null;
+    let document: Awaited<ReturnType<typeof pdfjs.getDocument>['promise']> | null = null;
     try {
-      loading = getDocument({
+      loading = pdfjs.getDocument({
         data: input,
         stopAtErrors: true,
         disableFontFace: true,
         useSystemFonts: false,
-        verbosity: VerbosityLevel.ERRORS,
+        verbosity: pdfjs.VerbosityLevel.ERRORS,
       });
       document = await loading.promise;
       const pageCount = document.numPages;
@@ -116,10 +119,10 @@ export class PdfJsStructuralInspector implements PdfInspectorPort {
       return { readable: true, detectedMediaType: EXPECTED_PDF_MEDIA_TYPE,
         pageCount, encrypted: false, diagnostics: [] };
     } catch (cause) {
-      if (cause instanceof PasswordException || exceptionName(cause) === 'PasswordException') {
+      if (cause instanceof pdfjs.PasswordException || exceptionName(cause) === 'PasswordException') {
         return rejected('encrypted_pdf');
       }
-      if (cause instanceof InvalidPDFException || exceptionName(cause) === 'InvalidPDFException') {
+      if (cause instanceof pdfjs.InvalidPDFException || exceptionName(cause) === 'InvalidPDFException') {
         return rejected('malformed_pdf');
       }
       return rejected('malformed_pdf');

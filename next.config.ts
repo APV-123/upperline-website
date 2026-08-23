@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // PDF.js loads its supported Node graphics primitives through a dynamic
+  // require. Keep both packages external so Vercel traces the native canvas
+  // package and its platform binary into the verification function.
+  serverExternalPackages: ["@napi-rs/canvas", "pdfjs-dist"],
 
   async headers() {
     return [

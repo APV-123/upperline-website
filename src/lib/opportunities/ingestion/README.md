@@ -80,10 +80,13 @@ are guarded by `server-only`, the parser is imported narrowly from
 `pdfjs-dist/legacy/build/pdf.mjs`, and Node's built-in `crypto` computes the digest.
 No parser module is exported from the client-safe ingestion barrel.
 
-`@napi-rs/canvas` is an optional `pdfjs-dist` dependency. V1 performs structural
-inspection only: it does not render pages, load browser viewer code, configure a
-worker, or require canvas at runtime. A deployment must not weaken structural
-verification if a future parser or rendering path changes that assumption.
+PDF.js 6 initializes real `DOMMatrix` and `Path2D` Node primitives through its
+supported `@napi-rs/canvas` fallback even when this application does not render.
+The package is therefore an explicit server runtime dependency and both packages
+remain external to the Next server bundle so Vercel includes the native platform
+binary. PDF.js is loaded lazily only when authenticated verification reaches
+structural inspection. V1 still does not render pages, load browser viewer code,
+configure a worker, perform OCR, or extract images.
 
 Verification consumes the exact object-store byte stream into one 25 MiB bounded
 application buffer while incrementally computing lowercase SHA-256. It ignores

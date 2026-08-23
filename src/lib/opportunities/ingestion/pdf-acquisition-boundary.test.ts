@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
 
 const root = process.cwd();
@@ -41,6 +42,7 @@ describe('PDF acquisition server/client boundary', () => {
   it('declares a Vercel-compatible Node runtime satisfying the structural parser', () => {
     const applicationPackage = JSON.parse(read('package.json')) as {
       engines?: { node?: string };
+      dependencies?: Record<string, string>;
     };
     const parserPackage = JSON.parse(read('node_modules/pdfjs-dist/package.json')) as {
       version?: string;
@@ -52,9 +54,29 @@ describe('PDF acquisition server/client boundary', () => {
     expect(parserPackage.version).toBe('6.2.108');
     expect(parserPackage.engines?.node).toBe('>=22.13.0 || >=24');
     expect(parserPackage.optionalDependencies).toHaveProperty('@napi-rs/canvas');
+    expect(applicationPackage.dependencies?.['@napi-rs/canvas']).toBe('1.0.7');
+
+    const nextConfig = read('next.config.ts');
+    expect(nextConfig).toContain('serverExternalPackages: ["@napi-rs/canvas", "pdfjs-dist"]');
 
     const [major, minor] = process.versions.node.split('.').map(Number);
     expect(major).toBe(22);
     expect(minor).toBeGreaterThanOrEqual(13);
+  });
+
+  it('evaluates the real PDF.js Node entrypoint with supported graphics primitives in a clean process', () => {
+    const probe = spawnSync(process.execPath, ['--input-type=module', '--eval', [
+      "await import('pdfjs-dist/legacy/build/pdf.mjs');",
+      "if (typeof globalThis.DOMMatrix !== 'function') throw new Error('DOMMatrix unavailable');",
+      "if (typeof globalThis.Path2D !== 'function') throw new Error('Path2D unavailable');",
+    ].join('\n')], { cwd: root, encoding: 'utf8' });
+    expect({ status: probe.status, stderr: probe.stderr }).toEqual({ status: 0, stderr: '' });
+  });
+
+  it('loads PDF.js lazily inside structural inspection and never statically at route evaluation', () => {
+    const verification = read('src/lib/opportunities/ingestion/pdf-verification.ts');
+    expect(verification).toContain("await import('@napi-rs/canvas')");
+    expect(verification).toContain("await import('pdfjs-dist/legacy/build/pdf.mjs')");
+    expect(verification).not.toMatch(/^import .*pdfjs-dist/m);
   });
 });
