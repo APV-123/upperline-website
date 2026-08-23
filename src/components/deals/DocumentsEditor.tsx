@@ -161,6 +161,8 @@ export default function DocumentsEditor({
             colors={colors}
             isMobile={isMobile}
             bucket="deal-documents-private"
+            dealId={deal.id}
+            documentType="investment_memorandum"
             onChange={(v) =>
               setDeal((p) =>
                 p
@@ -233,6 +235,8 @@ export default function DocumentsEditor({
             colors={colors}
             isMobile={isMobile}
             bucket="deal-documents-private"
+            dealId={deal.id}
+            documentType="financial_model"
             onChange={(v) =>
               setDeal((p) =>
                 p

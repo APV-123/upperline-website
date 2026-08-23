@@ -3,10 +3,11 @@
 import React from 'react';
 import { getSupabase } from '@/lib/supabaseClient';
 import { ADMIN_THEME } from '@/lib/adminTheme';
+import { uploadPrivateDealDocument, type PrivateDealDocumentType } from '@/lib/deals/private-document-upload';
 
 async function uploadFile(
   file: File,
-  bucket: string,
+  bucket: 'deal-documents-public',
   path: string
 ) {
   const supabase = getSupabase();
@@ -21,14 +22,8 @@ async function uploadFile(
     return null;
   }
 
-  if (bucket !== 'deal-documents-private') {
-    const { data } =
-      supabase.storage.from(bucket).getPublicUrl(path);
-
-    return data.publicUrl;
-  }
-
-  return path;
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
 }
 
 type Props = {
@@ -42,6 +37,8 @@ type Props = {
   | 'deal-documents-private';
   disabled?: boolean;
   accept?: string;
+  dealId?: string;
+  documentType?: PrivateDealDocumentType;
 };
 
 export default function DocumentField({
@@ -53,12 +50,14 @@ export default function DocumentField({
   bucket,
   disabled,
   accept = '.pdf,.doc,.docx,.ppt,.pptx',
+  dealId,
+  documentType,
 }: Props) {
   const [uploading, setUploading] =
     React.useState(false);
 
-  const isDisabled =
-    disabled || uploading;
+  const isPrivate = bucket === 'deal-documents-private';
+  const isDisabled = disabled || uploading || (isPrivate && (!dealId || !documentType));
 
   const isHttp =
     /^https?:\/\//i.test(url);
@@ -172,22 +171,15 @@ export default function DocumentField({
             setUploading(true);
 
             try {
-              const safeName =
-                file.name.replace(/\s+/g, '-');
-
-              const path =
-                `deals/${Date.now()}-${safeName}`;
-
-              const result =
-                await uploadFile(
-                  file,
-                  bucket,
-                  path
-                );
+              const result = bucket === 'deal-documents-private'
+                ? await uploadPrivateDealDocument(dealId!, documentType!, file)
+                : await uploadFile(file, bucket, `deals/${Date.now()}-${file.name.replace(/\s+/g, '-')}`);
 
               if (result) {
                 onChange(result);
               }
+            } catch (error) {
+              alert(error instanceof Error ? error.message : 'Private document upload failed.');
             } finally {
               setUploading(false);
               e.currentTarget.value = '';
@@ -205,6 +197,11 @@ export default function DocumentField({
           }}
         >
           Uploading...
+        </div>
+      )}
+      {isPrivate && !dealId && (
+        <div style={{ marginTop: 6, fontSize: 12, color: colors.subtext }}>
+          Save the Deal before uploading confidential documents.
         </div>
       )}
     </div>

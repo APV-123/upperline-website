@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { uploadPrivateDealDocument, type PrivateDealDocumentType } from '@/lib/deals/private-document-upload';
 
 let _supabase: ReturnType<typeof createClient> | null = null;
 
@@ -47,6 +48,7 @@ export type DealFormValues = {
 };
 
 type Props = {
+  dealId?: string;
   initialDeal?: Partial<DealFormValues>;
   onSave: (deal: DealFormValues) => Promise<void>;
   saving?: boolean;
@@ -58,6 +60,7 @@ export default function DealForm({
   onSave,
   saving = false,
   loading = false,
+  dealId,
 }: Props) {
   const [deal, setDeal] = useState<DealFormValues>({
     name: initialDeal?.name ?? '',
@@ -201,6 +204,8 @@ export default function DealForm({
             label="Investment Memorandum"
             url={deal.full_memo_url}
             bucket="deal-documents-private"
+            dealId={dealId}
+            documentType="investment_memorandum"
             disabled={saving || loading}
             onChange={(v) =>
               setDeal((p) => ({
@@ -214,6 +219,8 @@ export default function DealForm({
             label="Financial Model"
             url={deal.proforma_url}
             bucket="deal-documents-private"
+            dealId={dealId}
+            documentType="financial_model"
             disabled={saving || loading}
             accept=".xlsx,.xls,.csv"
             onChange={(v) =>
@@ -321,7 +328,7 @@ function Checkbox({ label, checked, onChange }: CheckboxProps) {
   );
 }
 
-async function uploadFile(file: File, bucket: string, path: string) {
+async function uploadFile(file: File, bucket: 'deal-images' | 'deal-documents-public', path: string) {
   const supabase = getSupabase();
 
   const { error } = await supabase.storage
@@ -334,12 +341,8 @@ async function uploadFile(file: File, bucket: string, path: string) {
     return null;
   }
 
-  if (bucket !== 'deal-documents-private') {
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-    return data.publicUrl;
-  }
-
-  return path;
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl;
 }
 
 function ImageField({
@@ -449,6 +452,8 @@ function DocumentField({
   bucket,
   disabled,
   accept = '.pdf,.doc,.docx,.ppt,.pptx',
+  dealId,
+  documentType,
 }: {
   label: string;
   url: string;
@@ -456,9 +461,12 @@ function DocumentField({
   bucket: 'deal-documents-public' | 'deal-documents-private';
   disabled?: boolean;
   accept?: string;
+  dealId?: string;
+  documentType?: PrivateDealDocumentType;
 }) {
   const [uploading, setUploading] = React.useState(false);
-  const isDisabled = !!disabled || uploading;
+  const isPrivate = bucket === 'deal-documents-private';
+  const isDisabled = !!disabled || uploading || (isPrivate && (!dealId || !documentType));
 
   const isHttp = /^https?:\/\//i.test(url);
   const fileName = url ? url.split('/').pop() : '';
@@ -535,10 +543,12 @@ function DocumentField({
 
           setUploading(true);
           try {
-            const safeName = file.name.replace(/\s+/g, '-');
-            const path = `deals/${Date.now()}-${safeName}`;
-            const result = await uploadFile(file, bucket, path);
+            const result = bucket === 'deal-documents-private'
+              ? await uploadPrivateDealDocument(dealId!, documentType!, file)
+              : await uploadFile(file, bucket, `deals/${Date.now()}-${file.name.replace(/\s+/g, '-')}`);
             if (result) onChange(result);
+          } catch (error) {
+            alert(error instanceof Error ? error.message : 'Private document upload failed.');
           } finally {
             setUploading(false);
             e.currentTarget.value = '';
@@ -559,6 +569,11 @@ function DocumentField({
       {uploading && (
         <div style={{ marginTop: 6, fontSize: 12, color: '#666' }}>
           Uploading…
+        </div>
+      )}
+      {isPrivate && !dealId && (
+        <div style={{ marginTop: 6, fontSize: 12, color: '#666' }}>
+          Save the Deal before uploading confidential documents.
         </div>
       )}
     </div>
