@@ -4,11 +4,13 @@ export type IngestionStatus = 'awaiting_source' | 'ready' | 'extracting' | 'revi
 export type ArtifactKind = 'pdf';
 export type ArtifactValidationStatus = 'pending' | 'valid' | 'rejected' | 'quarantined';
 export type ExtractionRunStatus = 'pending' | 'running' | 'succeeded' | 'failed' | 'cancelled';
-export type AssertionBasis = 'source_stated' | 'deterministically_derived' | 'system_proposed';
+export type AssertionBasis = 'source_stated' | 'deterministically_derived' | 'system_proposed' |
+  'visual_inference' | 'model_inference';
 export type EconomicRole = 'descriptive_fact' | 'contractual_fact' | 'source_assumption' | 'upperline_assumption';
 export type CandidateValueType = 'decimal' | 'integer' | 'date' | 'text' | 'boolean' | 'enum' | 'json';
 export type CandidateUnit = 'USD' | 'USD_PER_SF' | 'USD_PER_SF_YEAR' | 'SF' |
-  'PERCENT_DECIMAL' | 'MONTHS' | 'DAYS' | 'COUNT' | 'NONE';
+  'PERCENT_DECIMAL' | 'MONTHS' | 'DAYS' | 'COUNT' | 'NONE' | 'ACRES' |
+  'USD_PER_LAND_SF' | 'FEET' | 'VEHICLES_PER_DAY';
 export type CandidateValidationState = 'valid' | 'invalid' | 'warning';
 export type CandidateDecision = 'accepted' | 'rejected' | 'edited_and_accepted';
 export type ConflictDisposition = 'no_conflict' | 'kept_existing' | 'replaced_existing' | 'deferred';
@@ -16,6 +18,7 @@ export type ConflictDisposition = 'no_conflict' | 'kept_existing' | 'replaced_ex
 export type CandidateDestination =
   | { domain: 'opportunity'; fieldPath: string }
   | { domain: 'underwriting'; fieldPath: string }
+  | { domain: 'source'; fieldPath: string }
   | { domain: 'tenant'; candidateTenantKey: string; fieldPath: string };
 
 export type CandidateValue =

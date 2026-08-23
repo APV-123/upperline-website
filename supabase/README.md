@@ -128,3 +128,14 @@ Phase 4A.2.0 adds server-only transaction RPCs for verified artifact finalizatio
 concurrency-safe extraction-run allocation, atomic candidate/evidence completion,
 and sanitized failure transitions. The migration does not create Storage objects,
 upload code, parsing, provider integration, API routes, UI, or authoritative writes.
+
+Phase 4A.2.1a amends only the untrusted extraction contract for land flyers. It
+adds the `source` candidate destination, an exact conservative source-field
+registry, visual/model inference assertion bases, and four land-specific units.
+It does not promote candidates, create authoritative values, or grant browser
+execution. Its integration and rollback runners are:
+
+```powershell
+./supabase/tests/run-opportunity-land-flyer-contract-integration.ps1
+./supabase/tests/run-opportunity-land-flyer-contract-rollback.ps1
+```
