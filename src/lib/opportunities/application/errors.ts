@@ -1,6 +1,10 @@
 export type OpportunityErrorKind =
   | 'unauthorized' | 'forbidden' | 'not_found' | 'revision_conflict'
-  | 'validation' | 'immutable' | 'integrity_conflict' | 'calculation' | 'persistence';
+  | 'validation' | 'immutable' | 'integrity_conflict' | 'calculation' | 'persistence'
+  | 'invalid_upload_request' | 'unsupported_document' | 'upload_too_large'
+  | 'ingestion_not_found' | 'idempotency_conflict' | 'upload_conflict'
+  | 'upload_missing' | 'invalid_pdf' | 'encrypted_pdf' | 'malformed_pdf'
+  | 'verification_failure' | 'artifact_conflict' | 'storage_unavailable';
 
 export class OpportunityApplicationError extends Error {
   constructor(
