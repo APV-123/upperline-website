@@ -151,3 +151,24 @@ read lazily at request execution. Its absence fails an acquisition request close
 without breaking unrelated Opportunity pages, imports, tests, or builds. A later
 controlled phase must provision/configure private Storage and exercise this flow
 with a real PDF; this phase does not provision Storage or perform extraction.
+
+## OpenAI extraction adapter
+
+Phase 4A.3.3 adds a server-only provider-port adapter for the OpenAI Responses API.
+It uses built-in Node `fetch`, request-scoped inline Base64 PDF data, `store: false`,
+non-streaming execution, low reasoning effort, and a strict generated JSON Schema.
+The provider receives no Supabase authority, Storage URL/path, business identifier,
+or mutation callback. Raw responses are capped at 1 MiB and parsed twice—with
+duplicate keys rejected before JavaScript object materialization—before the existing
+hostile local validator applies the authoritative contract.
+
+`OPENAI_API_KEY` is read only by the server adapter's lazy credential boundary. It is
+never a `NEXT_PUBLIC_` value and must not be logged or serialized. Tests inject a fake
+credential and never call OpenAI.
+
+V1 deliberately allowlists the moving `gpt-5.6-terra` alias because OpenAI does not
+currently document an immutable Terra snapshot. A sanitized model identifier returned
+by the provider may be emitted as non-authoritative operational telemetry, but it never
+changes configuration, authorization, destination vocabulary, idempotency, or
+persistence authority. Extraction behavior may change behind the alias; migration to
+an immutable GPT-5.6 Terra snapshot remains future work once one is published.

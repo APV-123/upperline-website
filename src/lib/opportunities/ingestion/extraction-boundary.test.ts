@@ -3,7 +3,8 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const root = process.cwd();
-const serverFiles = ['extraction-provider.ts', 'fake-extraction-provider.ts', 'extraction-service.ts', 'supabase-extraction-repository.ts'];
+const serverFiles = ['extraction-provider.ts', 'fake-extraction-provider.ts', 'extraction-service.ts',
+  'supabase-extraction-repository.ts', 'openai-extraction-provider.ts'];
 
 describe('extraction server/client boundary', () => {
   it.each(serverFiles)('%s is explicitly server-only', file => {
@@ -30,5 +31,11 @@ describe('extraction server/client boundary', () => {
     expect(repository).toContain("rpc('complete_opportunity_extraction_run'");
     expect(repository).toContain("rpc('fail_opportunity_extraction_run'");
     expect(repository).not.toMatch(/\.insert\(|\.update\(|\.upsert\(|\.delete\(/);
+  });
+  it('keeps the OpenAI adapter free of persistence and application authority', () => {
+    const provider = readFileSync(join(root, 'src/lib/opportunities/ingestion/openai-extraction-provider.ts'), 'utf8');
+    expect(provider).not.toMatch(/@supabase|SupabaseClient|service.role|storagePath|signedUrl|OpportunityId|ingestionId|artifactId|DealId|completeRun|\.rpc\(/i);
+    expect(provider).not.toContain('NEXT_PUBLIC_');
+    expect(provider).not.toMatch(/from ['"]\.\/index['"]/);
   });
 });
