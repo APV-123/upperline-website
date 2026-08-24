@@ -133,6 +133,53 @@ describe('extraction validator invariant telemetry', () => {
     expect(JSON.stringify(events)).not.toContain('hostile');
   });
 
+  it.each([
+    ['empty snippet', ''],
+    ['whitespace-only snippet', '   '],
+    ['maximum plus one', 'x'.repeat(501)],
+    ['line feed', 'first\nsecond'],
+    ['carriage return', 'first\rsecond'],
+    ['tab', 'first\tsecond'],
+    ['C0 control', 'first\u0000second'],
+    ['C1 control', 'first\u0085second'],
+  ])('classifies %s as evidence_text_invalid', (_name, snippet) => {
+    expect(rejectedWithTelemetry(output(assertion({ evidence: [{ pageNumber: 1, snippet }] }))).events)
+      .toEqual([{ event: 'opportunity_extraction_validator_rejected', invariant: 'evidence_text_invalid' }]);
+  });
+
+  it('accepts the exact maximum and allowed Unicode', () => {
+    const maximum = 'é'.repeat(500);
+    expect(parseExtractionProviderOutput(output(assertion({ evidence: [{ pageNumber: 1, snippet: maximum }] })), 1)
+      .assertions[0].evidence[0].snippet).toBe(maximum);
+  });
+
+  it('trims and NFC-normalizes accepted evidence text before returning it', () => {
+    const parsed = parseExtractionProviderOutput(output(assertion({ evidence: [{
+      pageNumber: 1, snippet: '  Cafe\u0301  ', sectionLabel: '  Pricing  ',
+    }] })), 1);
+    expect(parsed.assertions[0].evidence[0]).toMatchObject({ snippet: 'Café', sectionLabel: 'Pricing' });
+  });
+
+  it('distinguishes absent support from invalid supplied text', () => {
+    expect(rejectedWithTelemetry(output(assertion({ evidence: [{ pageNumber: 1 }] }))).events)
+      .toEqual([{ event: 'opportunity_extraction_validator_rejected', invariant: 'evidence_support_missing' }]);
+    expect(rejectedWithTelemetry(output(assertion({ evidence: [{ pageNumber: 1, snippet: 42 }] }))).events)
+      .toEqual([{ event: 'opportunity_extraction_validator_rejected', invariant: 'evidence_text_invalid' }]);
+  });
+
+  it('applies the same evidence-text boundary to section labels', () => {
+    expect(rejectedWithTelemetry(output(assertion({ evidence: [{
+      pageNumber: 1, snippet: 'Supporting excerpt', sectionLabel: '\t',
+    }] }))).events).toEqual([
+      { event: 'opportunity_extraction_validator_rejected', invariant: 'evidence_text_invalid' },
+    ]);
+    expect(rejectedWithTelemetry(output(assertion({ evidence: [{
+      pageNumber: 1, snippet: 'Supporting excerpt', sectionLabel: 42,
+    }] }))).events).toEqual([
+      { event: 'opportunity_extraction_validator_rejected', invariant: 'evidence_text_invalid' },
+    ]);
+  });
+
   it('emits no rejection telemetry for valid output', () => {
     const events: ExtractionValidatorTelemetryEvent[] = [];
     expect(parseExtractionProviderOutput(output(assertion()), 2, event => events.push(event)).assertions).toHaveLength(1);
