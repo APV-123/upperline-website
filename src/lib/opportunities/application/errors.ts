@@ -6,6 +6,7 @@ export type OpportunityErrorKind =
   | 'upload_missing' | 'invalid_pdf' | 'encrypted_pdf' | 'malformed_pdf'
   | 'pdf_page_limit' | 'verification_failure' | 'artifact_conflict' | 'storage_unavailable'
   | 'artifact_not_ready' | 'extraction_already_running' | 'provider_timeout'
+  | 'extraction_retry_not_allowed'
   | 'provider_failure' | 'provider_invalid_output' | 'extraction_contract_violation'
   | 'persistence_failure';
 

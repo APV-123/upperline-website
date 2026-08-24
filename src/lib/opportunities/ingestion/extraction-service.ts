@@ -13,7 +13,7 @@ import {
 import { buildExtractionIdempotencyKey, mapValidatedExtraction } from './extraction-mapper';
 import { parseExtractionProviderOutput } from './extraction-validator';
 
-export type RunExtractionInput = { actor: OpportunityActor; opportunityId: string };
+export type RunExtractionInput = { actor: OpportunityActor; opportunityId: string; retryCommandId?: string };
 export type RunExtractionResult = { disposition: 'completed' | 'recovered'; run: ExtractionRunRecord };
 
 export async function runProviderNeutralExtraction(input: RunExtractionInput, dependencies: {
@@ -34,14 +34,18 @@ export async function runProviderNeutralExtraction(input: RunExtractionInput, de
   enforceArtifactLimits(artifact);
   const idFactory = dependencies.idFactory ?? randomUUID;
   const idempotencyKey = buildExtractionIdempotencyKey({ artifactDigest: artifact.sha256Digest, configuration });
-  const allocation = await dependencies.repository.allocateRun({ artifact, runId: idFactory(), idempotencyKey, configuration, actorEmail });
+  const runId = idFactory();
+  const allocation = input.retryCommandId === undefined
+    ? await dependencies.repository.allocateRun({ artifact, runId, idempotencyKey, configuration, actorEmail })
+    : await dependencies.repository.allocateRetryRun({ artifact, runId, logicalExtractionKey: idempotencyKey,
+      retryCommandId: requireRetryCommandId(input.retryCommandId), configuration, actorEmail });
   if (allocation.disposition === 'recovered') {
     if (allocation.run.status === 'running' || allocation.run.status === 'pending') throw opportunityError('extraction_already_running', 'Extraction is already running.');
     if (allocation.run.status === 'succeeded') return { disposition: 'recovered', run: await dependencies.repository.recoverSucceededRun(allocation.run.runId) };
     throw opportunityError('provider_failure', 'The prior extraction attempt did not succeed.');
   }
 
-  const runId = allocation.run.runId;
+  const allocatedRunId = allocation.run.runId;
   try {
     let bytes: Uint8Array;
     try { bytes = await readAuthoritativeBytes(dependencies.objectStore, artifact); }
@@ -63,12 +67,12 @@ export async function runProviderNeutralExtraction(input: RunExtractionInput, de
     if (controller.signal.aborted) throw new ExtractionProviderTimeoutError();
     const output = parseExtractionProviderOutput(untrusted, artifact.pageCount);
     const candidates = mapValidatedExtraction({ output, extractionVersion: configuration.extractionVersion, idFactory });
-    const completed = await dependencies.repository.completeRun({ artifact, runId, candidates, diagnostics: [] });
+    const completed = await dependencies.repository.completeRun({ artifact, runId: allocatedRunId, candidates, diagnostics: [] });
     await safeTelemetry(dependencies.telemetry, telemetry(configuration, 'complete_run', 'succeeded', { pageCount: artifact.pageCount, candidateCount: candidates.length, attemptNumber: completed.attemptNumber }));
     return { disposition: 'completed', run: completed };
   } catch (cause) {
     const translated = translateExtractionFailure(cause);
-    await safelyFailRun(dependencies.repository, artifact, runId, translated);
+    await safelyFailRun(dependencies.repository, artifact, allocatedRunId, translated);
     await safeTelemetry(dependencies.telemetry, telemetry(configuration, 'complete_run', 'failed', { failureClassification: translated.kind }));
     throw translated;
   }
@@ -117,6 +121,12 @@ function safeFailureMessage(kind: string): string { return `Extraction stopped w
 function requireActorEmail(actor: OpportunityActor): string {
   if (!actor?.email?.trim()) throw opportunityError('unauthorized', 'Authentication is required.');
   return actor.email.trim().toLowerCase();
+}
+function requireRetryCommandId(value: string): string {
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
+    throw opportunityError('validation', 'Retry command ID must be a UUID.');
+  }
+  return value.toLowerCase();
 }
 function telemetry(configuration: ExtractionConfiguration, stage: ExtractionTelemetryEvent['stage'], outcome: ExtractionTelemetryEvent['outcome'], extra: Partial<ExtractionTelemetryEvent>): ExtractionTelemetryEvent {
   return { stage, outcome, provider: configuration.provider, model: configuration.model, schemaVersion: configuration.schemaVersion,

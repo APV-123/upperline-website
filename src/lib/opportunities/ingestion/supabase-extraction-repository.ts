@@ -50,6 +50,23 @@ export class SupabaseExtractionRepository implements ExtractionRepositoryPort {
       disposition: row.run_id === input.runId ? 'allocated' : 'recovered' };
   }
 
+  async allocateRetryRun(input: Parameters<ExtractionRepositoryPort['allocateRetryRun']>[0]): Promise<Awaited<ReturnType<ExtractionRepositoryPort['allocateRetryRun']>>> {
+    const result = await this.client.rpc('allocate_opportunity_extraction_retry', {
+      p_ingestion_id: input.artifact.ingestionId, p_artifact_id: input.artifact.artifactId,
+      p_run_id: input.runId, p_logical_extraction_key: input.logicalExtractionKey,
+      p_retry_command_id: input.retryCommandId,
+      p_extraction_strategy: input.configuration.extractionStrategy,
+      p_extraction_version: input.configuration.extractionVersion, p_provider: input.configuration.provider,
+      p_model: input.configuration.model, p_parser_version: input.configuration.parserVersion,
+      p_prompt_version: input.configuration.promptVersion, p_schema_version: input.configuration.schemaVersion,
+      p_input_digest: input.artifact.sha256Digest, p_actor_email: input.actorEmail,
+    }).single();
+    if (result.error || !result.data) throw retryAllocationFailure(result.error);
+    const row = result.data as { run_id: string; attempt_number: number; run_status: ExtractionRunRecord['status'] };
+    return { run: { runId: row.run_id, attemptNumber: row.attempt_number, status: row.run_status },
+      disposition: row.run_id === input.runId ? 'allocated' : 'recovered' };
+  }
+
   async completeRun(input: Parameters<ExtractionRepositoryPort['completeRun']>[0]): Promise<ExtractionRunRecord> {
     const result = await this.client.rpc('complete_opportunity_extraction_run', {
       p_ingestion_id: input.artifact.ingestionId, p_artifact_id: input.artifact.artifactId,
@@ -88,5 +105,18 @@ export class SupabaseExtractionRepository implements ExtractionRepositoryPort {
 }
 
 function persistenceFailure(cause: unknown) { return opportunityError('persistence_failure', 'Extraction persistence failed.', cause); }
+function retryAllocationFailure(cause: unknown) {
+  const error = cause as { message?: string } | null;
+  if (error?.message === 'extraction_retry_running') {
+    return opportunityError('extraction_already_running', 'Extraction is already running.', cause);
+  }
+  if (error?.message?.startsWith('extraction_retry_')) {
+    return opportunityError('extraction_retry_not_allowed', 'This extraction cannot be retried.', cause);
+  }
+  if (error?.message === 'retry_command_conflict') {
+    return opportunityError('integrity_conflict', 'The retry command conflicts with another extraction.', cause);
+  }
+  return persistenceFailure(cause);
+}
 
 export type { ExtractionCompletionCandidate };

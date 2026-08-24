@@ -32,7 +32,13 @@ class MemoryRepository implements ExtractionRepositoryPort {
     if (this.run) return { run: this.run, disposition: 'recovered' as const };
     this.run = { runId: input.runId, attemptNumber: 1, status: 'running' }; return { run: this.run, disposition: 'allocated' as const };
   }
-  async completeRun(input: Parameters<ExtractionRepositoryPort['completeRun']>[0]) { this.completed++; this.lastCandidates = input.candidates; this.run = { runId: input.runId, attemptNumber: 1, status: 'succeeded', candidateCount: input.candidates.length, evidenceCount: input.candidates.flatMap(c => c.evidence).length }; return this.run; }
+  async allocateRetryRun(input: Parameters<ExtractionRepositoryPort['allocateRetryRun']>[0]):
+  Promise<Awaited<ReturnType<ExtractionRepositoryPort['allocateRetryRun']>>> {
+    if (this.run?.status !== 'failed') throw opportunityError('extraction_retry_not_allowed', 'This extraction cannot be retried.');
+    this.run = { runId: input.runId, attemptNumber: this.run.attemptNumber + 1, status: 'running' };
+    return { run: this.run, disposition: 'allocated' as const };
+  }
+  async completeRun(input: Parameters<ExtractionRepositoryPort['completeRun']>[0]) { this.completed++; this.lastCandidates = input.candidates; this.run = { runId: input.runId, attemptNumber: this.run?.attemptNumber ?? 1, status: 'succeeded', candidateCount: input.candidates.length, evidenceCount: input.candidates.flatMap(c => c.evidence).length }; return this.run; }
   async failRun() { this.failed++; if (this.run) this.run.status = 'failed'; }
   async recoverSucceededRun() { return this.run!; }
 }
@@ -70,6 +76,43 @@ describe('provider-neutral extraction orchestration', () => {
     expect(provider.calls).toBe(0);
     const running = new MemoryRepository(); running.run = { runId: 'run', attemptNumber: 1, status: 'running' };
     await expect(runProviderNeutralExtraction({ actor, opportunityId: artifact.opportunityId }, { authorizer, repository: running, objectStore: objectStore(), provider, configuration })).rejects.toMatchObject({ kind: 'extraction_already_running' });
+  });
+  it('requires explicit retry intent and creates a distinct second attempt', async () => {
+    const repository = new MemoryRepository();
+    repository.run = { runId: 'failed-attempt-1', attemptNumber: 1, status: 'failed' };
+    const provider = new DeterministicFakeExtractionProvider({ kind: 'success', output: providerOutput });
+    await expect(runProviderNeutralExtraction({ actor, opportunityId: artifact.opportunityId }, {
+      authorizer, repository, objectStore: objectStore(), provider, configuration, idFactory,
+    })).rejects.toMatchObject({ kind: 'provider_failure' });
+    expect(provider.calls).toBe(0);
+    const result = await runProviderNeutralExtraction({ actor, opportunityId: artifact.opportunityId,
+      retryCommandId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' }, {
+      authorizer, repository, objectStore: objectStore(), provider, configuration, idFactory,
+    });
+    expect(result.run).toMatchObject({ attemptNumber: 2, status: 'succeeded' });
+    expect(provider.calls).toBe(1);
+  });
+  it('rejects malformed retry identities before retry allocation or provider invocation', async () => {
+    const repository = new MemoryRepository();
+    repository.run = { runId: 'failed-attempt-1', attemptNumber: 1, status: 'failed' };
+    repository.allocateRetryRun = vi.fn(repository.allocateRetryRun.bind(repository));
+    const provider = new DeterministicFakeExtractionProvider({ kind: 'success', output: providerOutput });
+    await expect(runProviderNeutralExtraction({ actor, opportunityId: artifact.opportunityId, retryCommandId: 'attacker' }, {
+      authorizer, repository, objectStore: objectStore(), provider, configuration, idFactory,
+    })).rejects.toMatchObject({ kind: 'validation' });
+    expect(repository.allocateRetryRun).not.toHaveBeenCalled();
+    expect(provider.calls).toBe(0);
+  });
+  it('recovers a succeeded retry-command replay without invoking the provider', async () => {
+    const repository = new MemoryRepository();
+    repository.run = { runId: 'succeeded-attempt-2', attemptNumber: 2, status: 'succeeded', candidateCount: 1 };
+    repository.allocateRetryRun = vi.fn(async () => ({ disposition: 'recovered' as const, run: repository.run! }));
+    const provider = new DeterministicFakeExtractionProvider({ kind: 'success', output: providerOutput });
+    await expect(runProviderNeutralExtraction({ actor, opportunityId: artifact.opportunityId,
+      retryCommandId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' }, {
+      authorizer, repository, objectStore: objectStore(), provider, configuration, idFactory,
+    })).resolves.toMatchObject({ disposition: 'recovered', run: { attemptNumber: 2, status: 'succeeded' } });
+    expect(provider.calls).toBe(0);
   });
   it('enforces artifact limits before provider invocation', async () => {
     const repository = new MemoryRepository(); repository.artifact = { ...artifact, pageCount: 26 };

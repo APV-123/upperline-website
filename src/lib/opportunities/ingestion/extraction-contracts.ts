@@ -106,6 +106,10 @@ export interface ExtractionRepositoryPort {
     artifact: VerifiedExtractionArtifact; runId: string; idempotencyKey: string;
     configuration: ExtractionConfiguration; actorEmail: string;
   }): Promise<{ run: ExtractionRunRecord; disposition: 'allocated' | 'recovered' }>;
+  allocateRetryRun(input: {
+    artifact: VerifiedExtractionArtifact; runId: string; logicalExtractionKey: string;
+    retryCommandId: string; configuration: ExtractionConfiguration; actorEmail: string;
+  }): Promise<{ run: ExtractionRunRecord; disposition: 'allocated' | 'recovered' }>;
   completeRun(input: {
     artifact: VerifiedExtractionArtifact; runId: string;
     candidates: ExtractionCompletionCandidate[]; diagnostics: unknown[];

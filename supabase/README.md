@@ -140,6 +140,24 @@ execution. Its integration and rollback runners are:
 ./supabase/tests/run-opportunity-land-flyer-contract-rollback.ps1
 ```
 
+## Explicit extraction retries
+
+Phase 4A.3.5 preserves the stable logical extraction identity used by ordinary
+invocation and adds an explicit terminal-failure retry command. A retry creates a
+new immutable run linked to the prior failed attempt. Its opaque UUID is only an
+idempotency identity: it conveys no provider, model, artifact, configuration, or
+authorization authority. The service-role-only allocation RPC serializes on the
+ingestion/artifact, recovers identical commands, rejects running or non-failed
+predecessors, and prevents command reuse across logical extractions.
+
+Disposable behavioral, concurrency, and rollback runners are:
+
+```powershell
+./supabase/tests/run-opportunity-extraction-retry-integration.ps1
+./supabase/tests/run-opportunity-extraction-retry-concurrency.ps1
+./supabase/tests/run-opportunity-extraction-retry-rollback.ps1
+```
+
 ## Storage policy remediation
 
 Migration `20260823000200_scope_storage_object_policies.sql` removes the four
