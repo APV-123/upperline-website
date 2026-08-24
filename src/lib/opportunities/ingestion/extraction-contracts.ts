@@ -85,7 +85,7 @@ export type ExtractionCompletionCandidate = {
   economicRole: 'descriptive_fact';
   rawValue: CandidateValue;
   normalizedValueType: CandidateValue['type'];
-  normalizedValue: CandidateValue;
+  normalizedValue: CandidateValue['value'];
   unit: CandidateUnit;
   confidence: string | null;
   validationState: 'valid' | 'warning';
