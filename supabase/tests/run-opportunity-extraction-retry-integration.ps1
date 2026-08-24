@@ -10,6 +10,8 @@ Run (Join-Path $root 'supabase/migrations/20260821000100_create_acquisition_oppo
 Run (Join-Path $root 'supabase/migrations/20260822000100_create_opportunity_ingestion_foundation.sql')
 Run (Join-Path $root 'supabase/migrations/20260822000200_create_opportunity_ingestion_transaction_rpcs.sql')
 Run (Join-Path $root 'supabase/migrations/20260823000100_amend_land_flyer_extraction_contract.sql')
+Run (Join-Path $PSScriptRoot 'opportunity-extraction-retry-predecessor.integration.sql')
 Run (Join-Path $root 'supabase/migrations/20260823000300_add_extraction_retry_semantics.sql')
+Run (Join-Path $PSScriptRoot 'opportunity-extraction-retry-preservation.integration.sql')
 Run (Join-Path $PSScriptRoot 'opportunity-extraction-retry.integration.sql')
 Write-Host 'Opportunity extraction retry integration tests passed.'

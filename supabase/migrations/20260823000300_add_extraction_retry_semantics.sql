@@ -5,8 +5,19 @@ alter table public.opportunity_extraction_runs
   add column retry_command_id uuid,
   add column retry_of_run_id uuid;
 
+-- ADD COLUMN holds an ACCESS EXCLUSIVE lock through this transaction. Disable only
+-- the two update triggers that would reject the controlled terminal-row backfill
+-- or rewrite updated_at; both are restored before any remaining migration work.
+alter table public.opportunity_extraction_runs
+  disable trigger opportunity_extraction_runs_protect,
+  disable trigger opportunity_extraction_runs_set_updated_at;
+
 update public.opportunity_extraction_runs
 set logical_extraction_key = run_idempotency_key;
+
+alter table public.opportunity_extraction_runs
+  enable trigger opportunity_extraction_runs_protect,
+  enable trigger opportunity_extraction_runs_set_updated_at;
 
 alter table public.opportunity_extraction_runs
   alter column logical_extraction_key set not null,
@@ -142,11 +153,11 @@ declare v_attempt integer;
 declare v_run_key text;
 begin
   if p_retry_command_id is null then raise exception using errcode='22023', message='retry_command_invalid'; end if;
-  select * into v_ingestion from public.opportunity_ingestions where id=p_ingestion_id for update;
-  if not found then raise exception using errcode='P0002', message='ingestion_not_found'; end if;
-  select * into v_artifact from public.opportunity_source_artifacts where id=p_artifact_id and ingestion_id=p_ingestion_id for update;
-  if not found then raise exception using errcode='22023', message='artifact_ingestion_mismatch'; end if;
-  select * into v_existing from public.opportunity_extraction_runs where retry_command_id=p_retry_command_id;
+  -- Serialize one opaque retry authorization before checking whether it already
+  -- allocated a run. The lock conveys no authority and lasts only for this transaction.
+  perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(p_retry_command_id::text,0));
+  select * into v_existing from public.opportunity_extraction_runs
+    where retry_command_id=p_retry_command_id for update;
   if found then
     if v_existing.ingestion_id<>p_ingestion_id or v_existing.artifact_id<>p_artifact_id
       or v_existing.logical_extraction_key<>p_logical_extraction_key
@@ -156,12 +167,18 @@ begin
       or v_existing.schema_version<>p_schema_version or v_existing.input_digest<>p_input_digest then
       raise exception using errcode='22023', message='retry_command_conflict';
     end if;
+    select * into v_ingestion from public.opportunity_ingestions where id=p_ingestion_id for update;
+    if not found then raise exception using errcode='P0002', message='ingestion_not_found'; end if;
     return query select v_existing.id,v_existing.attempt_number,v_existing.status,v_ingestion.status; return;
   end if;
   select * into v_previous from public.opportunity_extraction_runs
     where artifact_id=p_artifact_id and logical_extraction_key=p_logical_extraction_key
     order by attempt_number desc limit 1 for update;
   if not found then raise exception using errcode='55000', message='extraction_retry_requires_failed_run'; end if;
+  select * into v_ingestion from public.opportunity_ingestions where id=p_ingestion_id for update;
+  if not found then raise exception using errcode='P0002', message='ingestion_not_found'; end if;
+  select * into v_artifact from public.opportunity_source_artifacts where id=p_artifact_id and ingestion_id=p_ingestion_id for update;
+  if not found then raise exception using errcode='22023', message='artifact_ingestion_mismatch'; end if;
   if v_previous.status in ('pending','running') then raise exception using errcode='55000', message='extraction_retry_running'; end if;
   if v_previous.status<>'failed' then raise exception using errcode='55000', message='extraction_retry_requires_failed_run'; end if;
   if v_ingestion.status<>'failed' then raise exception using errcode='55000', message='extraction_retry_ingestion_not_failed'; end if;
