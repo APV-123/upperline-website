@@ -7,6 +7,7 @@ import {
   collectBoundedOpenAIResponse,
   decodeOpenAIResponsesEnvelope, loadOpenAIApiKey, OpenAIExtractionProvider,
   OPENAI_EXTRACTION_MODEL, OPENAI_MAX_RESPONSE_BYTES, OpenAIExtractionProviderError,
+  type OpenAIEnvelopeInvariant,
 } from './openai-extraction-provider';
 
 const bytes = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0, 255]);
@@ -196,16 +197,46 @@ describe('OpenAI extraction transport', () => {
 });
 
 describe('OpenAI Responses envelope decoder', () => {
-  it.each([
-    ['refusal', envelope('{}', { output: [{ type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'refusal', refusal: 'no' }] }] }), 'provider_refusal'],
-    ['incomplete', envelope('{}', { status: 'incomplete', incomplete_details: { reason: 'max_output_tokens' } }), 'incomplete_response'],
-    ['multiple messages', envelope('{}', { output: [{}, {}] }), 'unexpected_provider_envelope'],
-    ['multiple blocks', envelope('{}', { output: [{ type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'output_text', text: '{}' }, { type: 'output_text', text: '{}' }] }] }), 'unexpected_provider_envelope'],
-    ['missing output', envelope('{}', { output: [] }), 'unexpected_provider_envelope'],
-    ['unexpected content', envelope('{}', { output: [{ type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'image' }] }] }), 'unexpected_provider_envelope'],
-  ] as const)('rejects %s', (_name, value, classification) => {
+  const rejectionCases: Array<[string, unknown, OpenAIExtractionProviderError['classification'], OpenAIEnvelopeInvariant]> = [
+    ['root primitive', 'private root', 'unexpected_provider_envelope', 'root_not_object'],
+    ['incomplete', envelope('{}', { status: 'incomplete', incomplete_details: { reason: 'private' } }), 'incomplete_response', 'top_level_incomplete'],
+    ['invalid status', envelope('{}', { status: 'private-status' }), 'unexpected_provider_envelope', 'top_level_status_not_completed'],
+    ['output not array', envelope('{}', { output: { private: true } }), 'unexpected_provider_envelope', 'output_not_array'],
+    ['multiple output items', envelope('{}', { output: [{ type: 'reasoning', id: 'private' }, { type: 'message', id: 'private' }] }), 'unexpected_provider_envelope', 'output_count_not_one'],
+    ['output item primitive', envelope('{}', { output: ['private'] }), 'unexpected_provider_envelope', 'output_item_not_object'],
+    ['wrong output type', envelope('{}', { output: [{ type: 'private-type' }] }), 'unexpected_provider_envelope', 'output_item_type_not_message'],
+    ['wrong role', envelope('{}', { output: [{ type: 'message', role: 'private-role' }] }), 'unexpected_provider_envelope', 'output_item_role_not_assistant'],
+    ['wrong message status', envelope('{}', { output: [{ type: 'message', role: 'assistant', status: 'private-status' }] }), 'unexpected_provider_envelope', 'output_item_status_not_completed'],
+    ['content not array', envelope('{}', { output: [{ type: 'message', role: 'assistant', status: 'completed', content: { private: true } }] }), 'unexpected_provider_envelope', 'message_content_not_array'],
+    ['multiple blocks', envelope('{}', { output: [{ type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'output_text', text: 'private' }, { type: 'output_text', text: 'private' }] }] }), 'unexpected_provider_envelope', 'message_content_count_not_one'],
+    ['content primitive', envelope('{}', { output: [{ type: 'message', role: 'assistant', status: 'completed', content: ['private'] }] }), 'unexpected_provider_envelope', 'content_item_not_object'],
+    ['refusal', envelope('{}', { output: [{ type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'refusal', refusal: 'private refusal' }] }] }), 'provider_refusal', 'content_item_refusal'],
+    ['unexpected content', envelope('{}', { output: [{ type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'private-content', private: 'value' }] }] }), 'unexpected_provider_envelope', 'content_item_type_not_output_text'],
+    ['missing text', envelope('{}', { output: [{ type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'output_text', text: { private: true } }] }] }), 'unexpected_provider_envelope', 'output_text_missing'],
+    ['usage not object', envelope('{}', { usage: 'private usage' }), 'unexpected_provider_envelope', 'usage_not_object'],
+  ];
+
+  it.each(rejectionCases)('rejects %s with a precise fixed invariant', (_name, value, classification, envelopeInvariant) => {
     expect(() => decodeOpenAIResponsesEnvelope(value)).toThrowError(
-      expect.objectContaining<Partial<OpenAIExtractionProviderError>>({ classification }));
+      expect.objectContaining<Partial<OpenAIExtractionProviderError>>({ classification, envelopeInvariant }));
+  });
+
+  it.each(rejectionCases)('telemeters %s without provider data disclosure', async (_name, value, classification, envelopeInvariant) => {
+    const events: unknown[] = [];
+    const provider = new OpenAIExtractionProvider({
+      fetch: vi.fn(async () => jsonResponse(typeof value === 'string' ? JSON.stringify(value) : value)) as typeof fetch,
+      loadCredential: () => 'private-secret',
+      recordTelemetry: event => { events.push(event); },
+    });
+    await expect(provider.extract(providerRequest())).rejects.toMatchObject({ classification, envelopeInvariant });
+    expect(events).toEqual([expect.objectContaining({ outcome: 'failed', failureClassification: classification,
+      envelopeInvariant })]);
+    const serialized = JSON.stringify(events);
+    expect(serialized).not.toMatch(/private|secret|reasoning|metadata|response[_-]?id|source\.pdf/i);
+    expect(Object.keys(events[0] as object).sort()).toEqual([
+      'configuredModel', 'elapsedMilliseconds', 'envelopeInvariant', 'extractionVersion',
+      'failureClassification', 'outcome', 'promptVersion', 'provider', 'schemaVersion',
+    ]);
   });
   it.each(['prose {"schemaVersion":"land-flyer-v1","assertions":[]}',
     '```json\n{"schemaVersion":"land-flyer-v1","assertions":[]}\n```'])

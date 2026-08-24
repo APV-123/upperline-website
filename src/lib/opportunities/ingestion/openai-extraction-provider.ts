@@ -17,8 +17,27 @@ export type OpenAIProviderFailureClassification =
   | 'duplicate_json_key' | 'excessive_json_nesting' | 'provider_refusal'
   | 'incomplete_response' | 'unexpected_provider_envelope';
 
+export type OpenAIEnvelopeInvariant =
+  | 'root_not_object'
+  | 'top_level_incomplete'
+  | 'top_level_status_not_completed'
+  | 'output_not_array'
+  | 'output_count_not_one'
+  | 'output_item_not_object'
+  | 'output_item_type_not_message'
+  | 'output_item_role_not_assistant'
+  | 'output_item_status_not_completed'
+  | 'message_content_not_array'
+  | 'message_content_count_not_one'
+  | 'content_item_not_object'
+  | 'content_item_refusal'
+  | 'content_item_type_not_output_text'
+  | 'output_text_missing'
+  | 'usage_not_object';
+
 export class OpenAIExtractionProviderError extends ExtractionProviderFailureError {
-  constructor(readonly classification: OpenAIProviderFailureClassification) {
+  constructor(readonly classification: OpenAIProviderFailureClassification,
+    readonly envelopeInvariant?: OpenAIEnvelopeInvariant) {
     super();
     this.name = 'OpenAIExtractionProviderError';
   }
@@ -34,6 +53,7 @@ export type OpenAIExtractionTelemetryEvent = Readonly<{
   elapsedMilliseconds: number;
   outcome: 'succeeded' | 'failed';
   failureClassification?: OpenAIProviderFailureClassification;
+  envelopeInvariant?: OpenAIEnvelopeInvariant;
   inputTokens?: number;
   outputTokens?: number;
   totalTokens?: number;
@@ -91,8 +111,10 @@ export class OpenAIExtractionProvider implements ExtractionProviderPort {
       return output;
     } catch (cause) {
       const classification = cause instanceof OpenAIExtractionProviderError ? cause.classification : undefined;
+      const envelopeInvariant = cause instanceof OpenAIExtractionProviderError ? cause.envelopeInvariant : undefined;
       await safeTelemetry(this.dependencies.recordTelemetry, telemetryEvent(request, startedAt, this.now(), {
         ...telemetry, outcome: 'failed', ...(classification ? { failureClassification: classification } : {}),
+        ...(envelopeInvariant ? { envelopeInvariant } : {}),
       }));
       throw cause;
     }
@@ -237,28 +259,42 @@ export function decodeOpenAIResponsesEnvelope(value: unknown): {
   structuredText: string; returnedModel?: string;
   usage: Pick<OpenAIExtractionTelemetryEvent, 'inputTokens' | 'outputTokens' | 'totalTokens'>;
 } {
-  const envelope = record(value);
-  if (envelope.status === 'incomplete') throw new OpenAIExtractionProviderError('incomplete_response');
-  if (envelope.status !== 'completed' || !Array.isArray(envelope.output) || envelope.output.length !== 1) {
-    throw new OpenAIExtractionProviderError('unexpected_provider_envelope');
+  const envelope = envelopeRecord(value, 'root_not_object');
+  if (envelope.status === 'incomplete') {
+    throw new OpenAIExtractionProviderError('incomplete_response', 'top_level_incomplete');
   }
-  const message = record(envelope.output[0]);
-  if (message.type !== 'message' || message.role !== 'assistant' || message.status !== 'completed' ||
-      !Array.isArray(message.content) || message.content.length !== 1) {
-    throw new OpenAIExtractionProviderError('unexpected_provider_envelope');
+  if (envelope.status !== 'completed') envelopeFailure('top_level_status_not_completed');
+  if (!Array.isArray(envelope.output)) envelopeFailure('output_not_array');
+  if (envelope.output.length !== 1) envelopeFailure('output_count_not_one');
+  const message = envelopeRecord(envelope.output[0], 'output_item_not_object');
+  if (message.type !== 'message') envelopeFailure('output_item_type_not_message');
+  if (message.role !== 'assistant') envelopeFailure('output_item_role_not_assistant');
+  if (message.status !== 'completed') envelopeFailure('output_item_status_not_completed');
+  if (!Array.isArray(message.content)) envelopeFailure('message_content_not_array');
+  if (message.content.length !== 1) envelopeFailure('message_content_count_not_one');
+  const content = envelopeRecord(message.content[0], 'content_item_not_object');
+  if (content.type === 'refusal') {
+    throw new OpenAIExtractionProviderError('provider_refusal', 'content_item_refusal');
   }
-  const content = record(message.content[0]);
-  if (content.type === 'refusal') throw new OpenAIExtractionProviderError('provider_refusal');
-  if (content.type !== 'output_text' || typeof content.text !== 'string') {
-    throw new OpenAIExtractionProviderError('unexpected_provider_envelope');
-  }
+  if (content.type !== 'output_text') envelopeFailure('content_item_type_not_output_text');
+  if (typeof content.text !== 'string') envelopeFailure('output_text_missing');
   const returnedModel = safeReturnedModel(envelope.model);
-  const usageRecord = envelope.usage === undefined ? null : record(envelope.usage);
+  const usageRecord = envelope.usage === undefined ? null : envelopeRecord(envelope.usage, 'usage_not_object');
   return { structuredText: content.text, ...(returnedModel ? { returnedModel } : {}), usage: {
     ...(safeTokenCount(usageRecord?.input_tokens) !== undefined ? { inputTokens: safeTokenCount(usageRecord?.input_tokens) } : {}),
     ...(safeTokenCount(usageRecord?.output_tokens) !== undefined ? { outputTokens: safeTokenCount(usageRecord?.output_tokens) } : {}),
     ...(safeTokenCount(usageRecord?.total_tokens) !== undefined ? { totalTokens: safeTokenCount(usageRecord?.total_tokens) } : {}),
   } };
+}
+
+function envelopeRecord(value: unknown, invariant: OpenAIEnvelopeInvariant): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+      || Object.getPrototypeOf(value) !== Object.prototype) envelopeFailure(invariant);
+  return value as Record<string, unknown>;
+}
+
+function envelopeFailure(invariant: OpenAIEnvelopeInvariant): never {
+  throw new OpenAIExtractionProviderError('unexpected_provider_envelope', invariant);
 }
 
 function parseProviderJson(raw: string): unknown {
@@ -275,13 +311,6 @@ function parseProviderJson(raw: string): unknown {
 
 function parseStructuredOutput(raw: string): unknown {
   return parseProviderJson(raw);
-}
-
-function record(value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== 'object' || Array.isArray(value) || Object.getPrototypeOf(value) !== Object.prototype) {
-    throw new OpenAIExtractionProviderError('unexpected_provider_envelope');
-  }
-  return value as Record<string, unknown>;
 }
 
 function parseDeclaredLength(value: string | null): number | null {
