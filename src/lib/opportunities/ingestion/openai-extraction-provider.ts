@@ -22,9 +22,15 @@ export type OpenAIEnvelopeInvariant =
   | 'top_level_incomplete'
   | 'top_level_status_not_completed'
   | 'output_not_array'
-  | 'output_count_not_one'
   | 'output_item_not_object'
-  | 'output_item_type_not_message'
+  | 'output_item_type_not_allowed'
+  | 'assistant_message_count_not_one'
+  | 'reasoning_item_id_missing'
+  | 'reasoning_item_status_not_completed'
+  | 'reasoning_item_summary_not_array'
+  | 'reasoning_summary_item_not_object'
+  | 'reasoning_summary_item_type_not_summary_text'
+  | 'reasoning_summary_text_missing'
   | 'output_item_role_not_assistant'
   | 'output_item_status_not_completed'
   | 'message_content_not_array'
@@ -265,9 +271,21 @@ export function decodeOpenAIResponsesEnvelope(value: unknown): {
   }
   if (envelope.status !== 'completed') envelopeFailure('top_level_status_not_completed');
   if (!Array.isArray(envelope.output)) envelopeFailure('output_not_array');
-  if (envelope.output.length !== 1) envelopeFailure('output_count_not_one');
-  const message = envelopeRecord(envelope.output[0], 'output_item_not_object');
-  if (message.type !== 'message') envelopeFailure('output_item_type_not_message');
+  const messages: Record<string, unknown>[] = [];
+  for (const itemValue of envelope.output) {
+    const item = envelopeRecord(itemValue, 'output_item_not_object');
+    if (item.type === 'reasoning') {
+      // Responses reasoning models may emit inert reasoning items beside the message.
+      // Validate their documented shape, but never use their provider-authored data.
+      validateReasoningItem(item);
+    } else if (item.type === 'message') {
+      messages.push(item);
+    } else {
+      envelopeFailure('output_item_type_not_allowed');
+    }
+  }
+  if (messages.length !== 1) envelopeFailure('assistant_message_count_not_one');
+  const message = messages[0];
   if (message.role !== 'assistant') envelopeFailure('output_item_role_not_assistant');
   if (message.status !== 'completed') envelopeFailure('output_item_status_not_completed');
   if (!Array.isArray(message.content)) envelopeFailure('message_content_not_array');
@@ -285,6 +303,19 @@ export function decodeOpenAIResponsesEnvelope(value: unknown): {
     ...(safeTokenCount(usageRecord?.output_tokens) !== undefined ? { outputTokens: safeTokenCount(usageRecord?.output_tokens) } : {}),
     ...(safeTokenCount(usageRecord?.total_tokens) !== undefined ? { totalTokens: safeTokenCount(usageRecord?.total_tokens) } : {}),
   } };
+}
+
+function validateReasoningItem(item: Record<string, unknown>): void {
+  if (typeof item.id !== 'string' || item.id.length === 0) envelopeFailure('reasoning_item_id_missing');
+  if (item.status !== undefined && item.status !== 'completed') {
+    envelopeFailure('reasoning_item_status_not_completed');
+  }
+  if (!Array.isArray(item.summary)) envelopeFailure('reasoning_item_summary_not_array');
+  for (const summaryValue of item.summary) {
+    const summary = envelopeRecord(summaryValue, 'reasoning_summary_item_not_object');
+    if (summary.type !== 'summary_text') envelopeFailure('reasoning_summary_item_type_not_summary_text');
+    if (typeof summary.text !== 'string') envelopeFailure('reasoning_summary_text_missing');
+  }
 }
 
 function envelopeRecord(value: unknown, invariant: OpenAIEnvelopeInvariant): Record<string, unknown> {

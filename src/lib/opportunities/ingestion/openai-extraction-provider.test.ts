@@ -26,6 +26,13 @@ const envelope = (structured: string = JSON.stringify(extraction), overrides: Re
     content: [{ type: 'output_text', text: structured, annotations: [] }] }],
   usage: { input_tokens: 100, output_tokens: 20, total_tokens: 120 }, ...overrides,
 });
+const messageItem = (structured: string = JSON.stringify(extraction), overrides: Record<string, unknown> = {}) => ({
+  type: 'message', role: 'assistant', status: 'completed',
+  content: [{ type: 'output_text', text: structured, annotations: [] }], ...overrides,
+});
+const reasoningItem = (overrides: Record<string, unknown> = {}) => ({
+  id: 'rs_safe', type: 'reasoning', status: 'completed', summary: [], ...overrides,
+});
 const jsonResponse = (value: unknown, init: ResponseInit = {}) => new Response(
   typeof value === 'string' ? value : JSON.stringify(value),
   { status: 200, headers: { 'content-type': 'application/json', ...init.headers }, ...init },
@@ -202,9 +209,16 @@ describe('OpenAI Responses envelope decoder', () => {
     ['incomplete', envelope('{}', { status: 'incomplete', incomplete_details: { reason: 'private' } }), 'incomplete_response', 'top_level_incomplete'],
     ['invalid status', envelope('{}', { status: 'private-status' }), 'unexpected_provider_envelope', 'top_level_status_not_completed'],
     ['output not array', envelope('{}', { output: { private: true } }), 'unexpected_provider_envelope', 'output_not_array'],
-    ['multiple output items', envelope('{}', { output: [{ type: 'reasoning', id: 'private' }, { type: 'message', id: 'private' }] }), 'unexpected_provider_envelope', 'output_count_not_one'],
     ['output item primitive', envelope('{}', { output: ['private'] }), 'unexpected_provider_envelope', 'output_item_not_object'],
-    ['wrong output type', envelope('{}', { output: [{ type: 'private-type' }] }), 'unexpected_provider_envelope', 'output_item_type_not_message'],
+    ['wrong output type', envelope('{}', { output: [{ type: 'private-type' }] }), 'unexpected_provider_envelope', 'output_item_type_not_allowed'],
+    ['zero messages', envelope('{}', { output: [reasoningItem()] }), 'unexpected_provider_envelope', 'assistant_message_count_not_one'],
+    ['two messages', envelope('{}', { output: [messageItem('{}'), messageItem('{}')] }), 'unexpected_provider_envelope', 'assistant_message_count_not_one'],
+    ['reasoning without id', envelope('{}', { output: [reasoningItem({ id: undefined }), messageItem('{}')] }), 'unexpected_provider_envelope', 'reasoning_item_id_missing'],
+    ['incomplete reasoning', envelope('{}', { output: [reasoningItem({ status: 'incomplete' }), messageItem('{}')] }), 'unexpected_provider_envelope', 'reasoning_item_status_not_completed'],
+    ['reasoning summary not array', envelope('{}', { output: [reasoningItem({ summary: 'private' }), messageItem('{}')] }), 'unexpected_provider_envelope', 'reasoning_item_summary_not_array'],
+    ['reasoning summary primitive', envelope('{}', { output: [reasoningItem({ summary: ['private'] }), messageItem('{}')] }), 'unexpected_provider_envelope', 'reasoning_summary_item_not_object'],
+    ['reasoning summary wrong type', envelope('{}', { output: [reasoningItem({ summary: [{ type: 'private', text: 'private' }] }), messageItem('{}')] }), 'unexpected_provider_envelope', 'reasoning_summary_item_type_not_summary_text'],
+    ['reasoning summary missing text', envelope('{}', { output: [reasoningItem({ summary: [{ type: 'summary_text', text: { private: true } }] }), messageItem('{}')] }), 'unexpected_provider_envelope', 'reasoning_summary_text_missing'],
     ['wrong role', envelope('{}', { output: [{ type: 'message', role: 'private-role' }] }), 'unexpected_provider_envelope', 'output_item_role_not_assistant'],
     ['wrong message status', envelope('{}', { output: [{ type: 'message', role: 'assistant', status: 'private-status' }] }), 'unexpected_provider_envelope', 'output_item_status_not_completed'],
     ['content not array', envelope('{}', { output: [{ type: 'message', role: 'assistant', status: 'completed', content: { private: true } }] }), 'unexpected_provider_envelope', 'message_content_not_array'],
@@ -215,6 +229,41 @@ describe('OpenAI Responses envelope decoder', () => {
     ['missing text', envelope('{}', { output: [{ type: 'message', role: 'assistant', status: 'completed', content: [{ type: 'output_text', text: { private: true } }] }] }), 'unexpected_provider_envelope', 'output_text_missing'],
     ['usage not object', envelope('{}', { usage: 'private usage' }), 'unexpected_provider_envelope', 'usage_not_object'],
   ];
+
+  it.each([
+    ['before message', [reasoningItem(), messageItem()]],
+    ['after message', [messageItem(), reasoningItem()]],
+    ['multiple reasoning items', [reasoningItem({ id: 'rs_one' }), reasoningItem({ id: 'rs_two' }), messageItem()]],
+    ['reasoning summary', [reasoningItem({ summary: [{ type: 'summary_text', text: 'provider generated and ignored' }] }), messageItem()]],
+  ])('accepts structurally valid inert reasoning %s', (_name, output) => {
+    expect(decodeOpenAIResponsesEnvelope(envelope(undefined, { output })).structuredText)
+      .toBe(JSON.stringify(extraction));
+  });
+
+  it('ignores hostile provider properties on a valid reasoning item', () => {
+    const decoded = decodeOpenAIResponsesEnvelope(envelope(undefined, { output: [reasoningItem({
+      id: 'rs_hostile', metadata: { destination: 'attacker.chosen' },
+      encrypted_content: 'private-provider-content', configuration: { model: 'attacker-model' },
+    }), messageItem()] }));
+    expect(decoded.structuredText).toBe(JSON.stringify(extraction));
+  });
+
+  it.each(['function_call', 'computer_call', 'web_search_call', 'file_search_call', 'code_interpreter_call'])
+  ('rejects actionable or unknown %s output items', type => {
+    expect(() => decodeOpenAIResponsesEnvelope(envelope('{}', {
+      output: [reasoningItem(), { type, id: 'private' }, messageItem('{}')],
+    }))).toThrowError(expect.objectContaining<Partial<OpenAIExtractionProviderError>>({
+      classification: 'unexpected_provider_envelope', envelopeInvariant: 'output_item_type_not_allowed',
+    }));
+  });
+
+  it('rejects a valid message accompanied by a refusal message', () => {
+    expect(() => decodeOpenAIResponsesEnvelope(envelope('{}', { output: [messageItem('{}'), messageItem('{}', {
+      content: [{ type: 'refusal', refusal: 'private refusal' }],
+    })] }))).toThrowError(expect.objectContaining<Partial<OpenAIExtractionProviderError>>({
+      classification: 'unexpected_provider_envelope', envelopeInvariant: 'assistant_message_count_not_one',
+    }));
+  });
 
   it.each(rejectionCases)('rejects %s with a precise fixed invariant', (_name, value, classification, envelopeInvariant) => {
     expect(() => decodeOpenAIResponsesEnvelope(value)).toThrowError(
@@ -232,7 +281,7 @@ describe('OpenAI Responses envelope decoder', () => {
     expect(events).toEqual([expect.objectContaining({ outcome: 'failed', failureClassification: classification,
       envelopeInvariant })]);
     const serialized = JSON.stringify(events);
-    expect(serialized).not.toMatch(/private|secret|reasoning|metadata|response[_-]?id|source\.pdf/i);
+    expect(serialized).not.toMatch(/private|secret|metadata|response[_-]?id|source\.pdf/i);
     expect(Object.keys(events[0] as object).sort()).toEqual([
       'configuredModel', 'elapsedMilliseconds', 'envelopeInvariant', 'extractionVersion',
       'failureClassification', 'outcome', 'promptVersion', 'provider', 'schemaVersion',
