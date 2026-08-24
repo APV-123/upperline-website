@@ -1,7 +1,13 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { OpportunityApplicationError } from '../application/errors';
 import { LAND_FLYER_SOURCE_DESTINATIONS } from './destination-registry';
 import { parseExtractionProviderOutput } from './extraction-validator';
+import type {
+  ExtractionValidatorInvariant,
+  ExtractionValidatorTelemetryEvent,
+} from './extraction-validator-telemetry';
+
+vi.mock('server-only', () => ({}));
 
 const evidence = { pageNumber: 1, snippet: 'Asking price: $1,000,000' };
 const assertion = (overrides: Record<string, unknown> = {}) => ({
@@ -11,6 +17,14 @@ const assertion = (overrides: Record<string, unknown> = {}) => ({
 const output = (...assertions: unknown[]) => ({ schemaVersion: 'land-flyer-v1', assertions });
 const invalid = (value: unknown, pages = 2) => {
   try { parseExtractionProviderOutput(value, pages); return null; } catch (error) { return error as OpportunityApplicationError; }
+};
+const rejectedWithTelemetry = (value: unknown, pages = 2) => {
+  const events: ExtractionValidatorTelemetryEvent[] = [];
+  const error = (() => {
+    try { parseExtractionProviderOutput(value, pages, event => events.push(event)); return null; }
+    catch (cause) { return cause as OpportunityApplicationError; }
+  })();
+  return { error, events };
 };
 
 describe('hostile extraction output parser', () => {
@@ -75,5 +89,83 @@ describe('hostile extraction output parser', () => {
     expect(invalid(null)?.kind).toBe('provider_invalid_output');
     expect(invalid([])?.kind).toBe('provider_invalid_output');
     expect(invalid(Object.create({ schemaVersion: 'land-flyer-v1', assertions: [] }))?.kind).toBe('provider_invalid_output');
+  });
+});
+
+describe('extraction validator invariant telemetry', () => {
+  it.each<[string, unknown, ExtractionValidatorInvariant]>([
+    ['non-object output', null, 'structured_output_not_object'],
+    ['unknown output property', { ...output(), hostileRoot: 'do not disclose' }, 'structured_output_unknown_property'],
+    ['schema version', { ...output(), schemaVersion: 'hostile-version' }, 'schema_version_invalid'],
+    ['candidate collection', { schemaVersion: 'land-flyer-v1', assertions: 'hostile' }, 'candidate_collection_invalid'],
+    ['candidate limit', output(...Array(101).fill(assertion())), 'candidate_count_exceeded'],
+    ['non-object candidate', output(null), 'candidate_not_object'],
+    ['unknown candidate property', output({ ...assertion(), privateObjectPath: 'secret/path' }), 'candidate_unknown_property'],
+    ['destination shape', output(assertion({ destination: 4 })), 'candidate_destination_invalid'],
+    ['unregistered destination', output(assertion({ destination: 'hostile.destination' })), 'candidate_destination_not_registered'],
+    ['non-object value', output(assertion({ value: null })), 'candidate_value_not_object'],
+    ['unknown value property', output(assertion({ value: { type: 'decimal', value: '1', rawProviderText: 'secret' } })), 'candidate_value_unknown_property'],
+    ['invalid value', output(assertion({ value: { type: 'decimal', value: 'not-a-decimal' } })), 'candidate_value_invalid'],
+    ['value type mismatch', output(assertion({ value: { type: 'text', value: '1000000' } })), 'candidate_value_type_mismatch'],
+    ['unit', output(assertion({ unit: 'NONE' })), 'candidate_unit_invalid'],
+    ['assertion basis', output(assertion({ assertionBasis: 'provider_authority' })), 'candidate_assertion_basis_invalid'],
+    ['confidence', output(assertion({ confidence: 'provider-secret' })), 'candidate_confidence_invalid'],
+    ['evidence collection', output(assertion({ evidence: [] })), 'evidence_collection_invalid'],
+    ['non-object evidence', output(assertion({ evidence: [null] })), 'evidence_not_object'],
+    ['unknown evidence property', output(assertion({ evidence: [{ ...evidence, signedUrl: 'secret' }] })), 'evidence_unknown_property'],
+    ['evidence page', output(assertion({ evidence: [{ ...evidence, pageNumber: 3 }] })), 'evidence_page_invalid'],
+    ['evidence text', output(assertion({ evidence: [{ pageNumber: 1, snippet: '' }] })), 'evidence_text_invalid'],
+    ['non-object bounding box', output(assertion({ assertionBasis: 'visual_inference', evidence: [{ pageNumber: 1, boundingBox: null }] })), 'evidence_bounding_box_not_object'],
+    ['unknown bounding-box property', output(assertion({ assertionBasis: 'visual_inference', evidence: [{ pageNumber: 1, boundingBox: { x: '0', y: '0', width: '1', height: '1', objectPath: 'secret' } }] })), 'evidence_bounding_box_unknown_property'],
+    ['invalid bounding box', output(assertion({ assertionBasis: 'visual_inference', evidence: [{ pageNumber: 1, boundingBox: { x: '0.8', y: '0', width: '0.3', height: '1' } }] })), 'evidence_bounding_box_invalid'],
+    ['missing evidence support', output(assertion({ evidence: [{ pageNumber: 1 }] })), 'evidence_support_missing'],
+    ['competing scalar', output(assertion(), assertion()), 'scalar_destination_competing'],
+    ['duplicate set member', output(
+      assertion({ destination: 'access.roadName', value: { type: 'text', value: 'Mason Rd' }, unit: 'NONE' }),
+      assertion({ destination: 'access.roadName', value: { type: 'text', value: 'Mason Rd' }, unit: 'NONE' }),
+    ), 'set_destination_duplicate'],
+  ])('emits only the fixed invariant for %s', (_name, hostileValue, invariant) => {
+    const { error, events } = rejectedWithTelemetry(hostileValue);
+    expect(error?.kind).toBe('provider_invalid_output');
+    expect(events).toEqual([{ event: 'opportunity_extraction_validator_rejected', invariant }]);
+    expect(Object.keys(events[0])).toEqual(['event', 'invariant']);
+    expect(JSON.stringify(events)).not.toContain('secret');
+    expect(JSON.stringify(events)).not.toContain('hostile');
+  });
+
+  it('emits no rejection telemetry for valid output', () => {
+    const events: ExtractionValidatorTelemetryEvent[] = [];
+    expect(parseExtractionProviderOutput(output(assertion()), 2, event => events.push(event)).assertions).toHaveLength(1);
+    expect(events).toEqual([]);
+  });
+
+  it('attributes only the deterministic first failed invariant', () => {
+    const hostile = { ...output(assertion({ destination: 'hostile.destination' })), rawResponseBody: 'secret' };
+    expect(rejectedWithTelemetry(hostile).events).toEqual([
+      { event: 'opportunity_extraction_validator_rejected', invariant: 'structured_output_unknown_property' },
+    ]);
+  });
+
+  it('remains fail-closed when the non-authoritative telemetry recorder throws', () => {
+    expect(() => parseExtractionProviderOutput(output(assertion({ unit: 'NONE' })), 2, () => {
+      throw new Error('telemetry unavailable');
+    })).toThrow(expect.objectContaining({ kind: 'provider_invalid_output' }));
+  });
+
+  it('never passes issue text, provider content, identifiers, or storage data to telemetry', () => {
+    const recorder = vi.fn();
+    const hostile = output({
+      ...assertion(),
+      actorId: 'actor-secret',
+      opportunityId: 'opportunity-secret',
+      storagePath: 'bucket/private/object.pdf',
+      rawProviderResponse: 'provider-generated-secret',
+    });
+    expect(() => parseExtractionProviderOutput(hostile, 2, recorder)).toThrow();
+    expect(recorder).toHaveBeenCalledOnce();
+    expect(recorder.mock.calls[0]).toEqual([{
+      event: 'opportunity_extraction_validator_rejected',
+      invariant: 'candidate_unknown_property',
+    }]);
   });
 });
