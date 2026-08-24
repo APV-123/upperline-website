@@ -20,7 +20,8 @@ export function mapValidatedExtraction(input: {
       fingerprint: ingestionFingerprint({ domain: 'source', fieldPath: assertion.destination, value: normalizedValue, unit: assertion.unit }),
       evidence: assertion.evidence.map((evidence, evidenceOrdinal) => ({
         id: input.idFactory(), pageNumber: evidence.pageNumber, snippet: evidence.snippet ?? null,
-        boundingBox: evidence.boundingBox ?? null, sectionLabel: evidence.sectionLabel ?? null,
+        ...(evidence.boundingBox ? { boundingBox: evidence.boundingBox } : {}),
+        sectionLabel: evidence.sectionLabel ?? null,
         extractionMethod: assertion.assertionBasis === 'visual_inference' ? 'provider_visual' :
           assertion.assertionBasis === 'model_inference' ? 'provider_model_inference' : 'provider_text',
         extractionVersion: input.extractionVersion, ordinal: evidenceOrdinal,

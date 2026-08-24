@@ -95,7 +95,7 @@ export type ExtractionCompletionCandidate = {
   fingerprint: string;
   evidence: Array<{
     id: string; pageNumber: number; snippet: string | null;
-    boundingBox: ExtractionBoundingBox | null; sectionLabel: string | null;
+    boundingBox?: ExtractionBoundingBox; sectionLabel: string | null;
     extractionMethod: string; extractionVersion: string; ordinal: number;
   }>;
 };
