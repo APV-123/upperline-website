@@ -10,10 +10,11 @@ describe('extraction review boundary', () => {
     expect(repository).toContain(".eq('status', 'succeeded')"); expect(repository).toContain(".order('attempt_number', { ascending: false })");
     expect(repository).toContain(".eq('opportunity_id', opportunityId)"); expect(repository).toContain("import 'server-only'");
   });
-  it('keeps mutation controls and service authority out of the review client', () => {
+  it('keeps repository authority and sensitive material out of the review client', () => {
     const component = readFileSync(join(root,'src/components/opportunities/OpportunityExtractionReview.tsx'),'utf8');
-    expect(component).not.toMatch(/SUPABASE_SERVICE_ROLE|OPENAI_API_KEY|fetch\(|method:\s*['"](?:POST|PATCH|DELETE)/);
-    expect(component).not.toMatch(/Approve|Reject candidate|Promote Opportunity/);
+    expect(component).not.toMatch(/SUPABASE_SERVICE_ROLE|OPENAI_API_KEY|method:\s*['"](?:POST|PATCH|DELETE)/);
+    expect(component).toContain("method: 'PUT'"); expect(component).toContain('Approve'); expect(component).toContain('Reject');
+    expect(component).not.toMatch(/Promote Opportunity|reviewerEmail|acceptedValue|candidate_fingerprint/);
     expect(component).not.toMatch(/dangerouslySetInnerHTML|innerHTML|raw provider/i);
     expect(component).toContain('{evidence.snippet}');
     expect(component).toContain('Confidence: Not provided');

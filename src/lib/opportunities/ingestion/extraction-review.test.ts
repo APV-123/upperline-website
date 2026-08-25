@@ -3,7 +3,7 @@ import { buildExtractionReviewModel, formatCandidateValue, type ExtractionReview
 const candidate = (fieldPath: string, ordinal = 0, overrides: Partial<ExtractionReviewCandidate> = {}): ExtractionReviewCandidate => ({
   id: `candidate-${ordinal}`, fieldPath, valueType: 'text', value: `Value ${ordinal}`, unit: 'NONE',
   assertionBasis: 'source_stated', confidence: null, validationState: 'valid', validationIssues: [], ordinal,
-  fingerprint: String(ordinal).padStart(64, '0'), decisionCount: 0,
+  fingerprint: String(ordinal).padStart(64, '0'), latestDecision: null,
   evidence: [{ pageNumber: 2, snippet: 'Synthetic support', sectionLabel: null, boundingBoxAvailable: false,
     extractionMethod: 'synthetic', extractionVersion: 'v1' }], ...overrides,
 });
@@ -17,7 +17,7 @@ describe('extraction review model', () => {
       candidates: paths.map((path, index) => candidate(path, index)) });
     expect(model.factCount).toBe(17); expect(model.representedDestinationCount).toBe(16);
     expect(model.registryDestinationCount).toBe(31); expect(model.missingDestinationCount).toBe(15);
-    expect(model.decisionCount).toBe(0);
+    expect(model).toMatchObject({ unreviewedCount: 17, approvedCount: 0, rejectedCount: 0 });
   });
   it('preserves set values while flagging conflicting scalar candidates', () => {
     const model = buildExtractionReviewModel({ attemptNumber: 1, completedAt: null, candidates: [
@@ -47,5 +47,12 @@ describe('extraction review model', () => {
       candidates: [candidate('site.utilities')] }); const item = model.groups[0].items[0];
     expect(item.confidence).toBeNull(); expect(item.evidence[0]).toMatchObject({ pageNumber: 2, boundingBoxAvailable: false });
     expect(item.humanReviewStatus).toBe('unreviewed');
+  });
+  it('exposes only opaque candidate identity and the latest human decision state', () => {
+    const model = buildExtractionReviewModel({ attemptNumber: 2, completedAt: null, candidates: [candidate('site.utilities', 0, {
+      id: '2d4fbcc3-32d0-4339-92b8-e075dc99aa51', latestDecision: { state: 'approved', decisionNumber: 3, decidedAt: '2026-08-25T12:00:00Z' },
+    })] }); const item = model.groups[0].items[0];
+    expect(item).toMatchObject({ candidateId: '2d4fbcc3-32d0-4339-92b8-e075dc99aa51', humanReviewStatus: 'approved', decisionNumber: 3 });
+    expect(item).not.toHaveProperty('fingerprint'); expect(model).toMatchObject({ approvedCount: 1, rejectedCount: 0, unreviewedCount: 0 });
   });
 });
