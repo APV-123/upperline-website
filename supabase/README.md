@@ -179,6 +179,39 @@ Disposable behavioral and rollback runners are:
 ./supabase/tests/run-property-intelligence-foundation-rollback.ps1
 ```
 
+## Property Intelligence observations
+
+Phase 4C.2.3 adds the private immutable observation spine, tenancy/lease identity,
+typed evidence locations, admission and independence history, deterministic
+lineage, and typed rent, lease-term, and area payloads. The two V1 derivation RPCs
+are hard-bound to canonical contract digests and admitted immutable inputs. The
+annualized-rent method uses exact numeric arithmetic and strict affirmative
+temporal containment; the acres conversion is exact. Derived outputs remain
+pending and do not inherit direct source/evidence assertions.
+Resolved-premises qualification is identity-level in V1: exactly one authoritative
+confirmed Property `contains` Premises relationship is required, while relationship
+dates are ignored rather than treated as temporal truth. Reported spaces remain
+distinct unresolved identities. Admission validates exact assertion/evidence edition
+paths, and V1 observation relationships are limited to proposition-aware
+`restates` and `contradicts`.
+After the first admission decision, database triggers close the observation's
+payload, subject, temporal, and direct provenance sets to further insertion;
+reversal never reopens the immutable proposition.
+
+No browser role receives table or function authority. The service-role-only
+functions are `decide_intelligence_observation_admission`,
+`derive_intelligence_acres_to_square_feet_v1`, and
+`derive_intelligence_annualized_rent_per_square_foot_v1`. This migration creates
+no extraction promotion, recommendation, underwriting, or UI behavior.
+
+Disposable behavioral, concurrency, and rollback runners are:
+
+```powershell
+./supabase/tests/run-property-intelligence-observations-integration.ps1
+./supabase/tests/run-property-intelligence-observations-concurrency.ps1
+./supabase/tests/run-property-intelligence-observations-rollback.ps1
+```
+
 ## Storage policy remediation
 
 Migration `20260823000200_scope_storage_object_policies.sql` removes the four

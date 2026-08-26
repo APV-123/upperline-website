@@ -75,6 +75,77 @@ The Square at Elyson validation established these future domain requirements:
 
 None of those observation families or application behaviors is implemented here.
 
+## Phase 4C.2.3 persistence foundation
+
+The additive observation migration implements the common immutable observation
+spine, tenancy/lease identity, typed evidence locators, append-only admission and
+relationship history, immutable derivation lineage, and the initial rent,
+lease-term, and area payload families. All 29 tables are private by default with
+RLS enabled, no browser policies, restrictive foreign keys, and server-only
+`service_role` authority. This milestone does not create extraction promotion,
+comparables, recommendations, underwriting application, or UI behavior.
+
+Deterministic methods are bound to repository-controlled canonical semantic
+manifests. `contract_sha256` identifies the reviewed semantic contract; it is not
+claimed to hash or prove arbitrary executable PostgreSQL. Static bindings,
+behavioral PostgreSQL tests, and immutable method versioning establish executable
+conformance. Callers cannot choose formulas, constants, precision, rounding, units,
+subject projection, or temporal policy.
+
+`annualized_rent_per_square_foot` version 1 uses exact PostgreSQL `numeric`, computes
+`monthly_absolute_rent * 12 / square_feet` without input or intermediate rounding,
+then performs one final `round(result, 8)`. PostgreSQL's numeric rounding supplies
+the locked half-away-from-zero rule. Magnitude validation follows that rounding.
+Numeric equality—not textual trailing-zero formatting—defines amount equality.
+`acres_to_square_feet` version 1 is the exact multiplication `acres * 43560` with
+no rounding.
+
+The rent input is the semantic anchor for annualized-rent derivation. The output
+copies its complete subject and proposition-temporal sets exactly. The area input
+must match the rent's property and denominator (`premises` or `reported_space`) and
+may establish compatibility or supply the operand, but contributes no output
+subject, direct source assertion, evidence, or temporal assertion. Both immutable
+inputs remain reachable through exactly two derivation-lineage rows.
+
+For V1 admission and deterministic derivation, a resolved premises is qualified at
+identity level only: exactly one current authoritative `confirmed` Property
+`contains` Premises relationship must resolve it to the observation Property.
+Relationship `valid_from` and `valid_to` are ignored and never establish
+observation-date applicability. Zero or ambiguous qualifying relationships fail
+closed. An unresolved space remains a distinct `reported_space`; it is never
+silently converted into a premises. Annualized rent requires identical Property
+and premises or `reported_space`, with the denominator identity already on rent.
+
+Admission provenance is assertion-specific. Containing assertions require support
+from the exact edition and any artifact must represent that edition. Attributed
+upstream assertions require exact containing-to-upstream lineage and supporting
+evidence for that path. Human attestation uses an immutable attestation locator
+without manufacturing an artifact. Contradicting evidence alone cannot admit.
+
+V1 observation relationships are limited to `restates` and `contradicts`.
+Restatement compares the complete family proposition while ignoring incidental
+persistence and provenance IDs. Contradiction requires identical family, canonical
+subjects, temporal assertions, and non-value context with a different value.
+`duplicates`, `corrects`, and `supersedes` are deferred.
+
+Temporal storage and derivation eligibility are deliberately different:
+
+- no row means no assertion;
+- `closed + unknown` means a boundary exists but its value is unknown;
+- `open + unknown` affirmatively means unbounded;
+- incomplete temporal knowledge may be stored truthfully;
+- annualized-rent V1 requires complete affirmative proof.
+
+If area effective timing is present, both `effective_start` and `effective_end`
+rows are required for derivation eligibility. The only eligible pairs are exact-day
+closed/closed, exact-day closed/open, and open/exact-day closed, with closed bounds
+inclusive. A lone known boundary is insufficient even at that exact date. Omitted,
+closed-unknown, closed year/month, open/open, and reporting-period substitution all
+fail closed. When no effective boundary is asserted, an exact matching point
+`as_of`, or then `measurement`, may establish V1 compatibility. Storage preserves
+incomplete temporal knowledge; derivation requires complete affirmative temporal
+proof.
+
 ## Phase 4C.2.0 observation-domain contract
 
 Phase 4C.2.0 locks semantics only. It creates no table, migration, RPC, extraction
@@ -181,6 +252,9 @@ recommended, or authoritative for underwriting.
 
 Admission decisions are append-only events: `admitted`, `rejected`, and `reversed`.
 The initial projected state is pending. The observation payload never changes.
+Once any admission history exists, the proposition, subject, temporal, and direct
+source/evidence rows are closed to further insertion. Reversal changes retrieval
+eligibility but does not reopen the immutable historical proposition for amendment.
 Authorized server application services act for an identified reviewer or an
 allowlisted deterministic derivation policy. Deterministic derivations still receive
 an explicit admission event and must cite admitted inputs and a versioned method.
@@ -312,9 +386,8 @@ remain separate observations.
 
 6. **Conflicting editions.** A 2025 OM reporting 96% occupancy and a 2026 OM
    reporting 92% create separate source-stated observations with distinct as-of or
-   reporting contexts. Neither automatically supersedes the other. A reviewed 2026
-   revised OM explicitly correcting 92% to 93% may support a `corrects` relationship;
-   `supersedes` is appropriate only if the later edition declares replacement scope.
+   reporting contexts. Neither automatically supersedes the other. Correction and
+   supersession authority are deferred beyond V1 observation relationships.
 
 7. **Repeated evidence.** Rent on pages 4 and 11 and in the executive summary is
    three supporting evidence locations in one edition, one containing-source
