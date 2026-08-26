@@ -1,5 +1,59 @@
 # Property Intelligence domain
 
+## Phase 4C.3.1 promotion boundary
+
+The reviewed authority chain is:
+
+`Extraction -> candidate -> extraction review -> promotion bundle -> promotion eligibility -> pending observation construction -> observation review/admission -> reusable Property Intelligence -> later comparable/recommendation/underwriting systems`.
+
+Only the stages through reusable Property Intelligence have domain or persistence
+foundations today. Comparable selection, recommendations, underwriting-assumption
+application, and their user interfaces do not exist yet.
+
+Extraction approval establishes only that a candidate faithfully represents the
+reviewed source. Promotion is a separate, explicit proposition-construction action,
+and observation admission is a third, separately reviewed authority decision.
+Approval never implies promotion or admission.
+
+One immutable promotion bundle represents exactly one proposed source observation.
+It may use multiple accepted candidates when one proposition needs several extracted
+facts, but candidate and Opportunity identifiers remain workflow lineage and never
+enter durable proposition identity. A bundle targets only the installed `area`,
+`rent`, or `lease_term` families. Unsupported facts remain valid extraction results.
+Deterministic derived observations are not promotion bundles: source observations
+must first be separately constructed and admitted, after which installed versioned
+derivation methods may operate on eligible admitted inputs.
+
+Promotion requires an authoritative current successful extraction, accepted
+candidate values copied from immutable workflow state, exactly one confirmed
+Property, pre-authorized required subjects, a global artifact plus acquisition and
+one source-edition representation, and evidence capable of becoming a durable
+locator. A resolved Premises must already satisfy the installed unique confirmed
+identity-level Property containment contract. `reported_space` remains distinct;
+creating it is an explicit preparation action rather than a promotion side effect.
+Trade names do not establish legal tenant identity, and asking rent never invents a
+Lease. Contractual and lease-term propositions require their applicable durable
+Lease identity.
+
+Temporal mapping preserves absence, explicit unknown, explicit open bounds, and
+year/month/day precision. Promotion may construct a truthful pending observation
+that remains ineligible for deterministic derivation. It never manufactures dates,
+denominators, per-area rent, source authority, durable evidence, subject resolution,
+or independence.
+
+Existing intelligence is reconciled without overwrite. Equivalent proposition and
+source context is an idempotent match; independent matching sources may create
+corroborating observations; dependent sources create reviewed restatements; equal
+comparison context with a different value creates a contradiction candidate; and
+ambiguous comparison stops for human reconciliation. Numeric equality ignores
+textual trailing-zero scale. Future persistence must canonicalize proposition and
+provenance contexts separately and serialize equivalent concurrent commands.
+
+`domain/promotion-contracts.ts` encodes these pure controlled vocabularies and the
+inputs/results that a future authoritative database operation must derive. It is not
+a persistence DTO, does not prove database state, and creates no API, RPC, migration,
+observation, admission, recommendation, or underwriting behavior.
+
 Phase 4C treats an Opportunity as a workflow context, not the universal owner of
 institutional intelligence. Phase 4C.1 implements only durable subject identity and
 source/provenance identity. It deliberately creates no observation, evidence,
