@@ -1,5 +1,61 @@
 # Property Intelligence domain
 
+## Phase 4C.3.2A provenance bridge contract
+
+The provenance bridge moves through independent semantic boundaries:
+
+`eligible Opportunity artifact -> global artifact -> acquisition -> logical source -> source edition -> reviewed edition/artifact representation -> reviewed upstream attribution when applicable -> derived provenance readiness`.
+
+These are derived semantic states, not a mutable bridge-state record. The contract
+creates no SQL, storage copy, source row, observation, promotion, or admission.
+
+Global artifact identity is the SHA-256 identity of immutable bytes. Opportunity,
+ingestion, filename, URL, storage path, uploader, and acquisition context never enter
+that identity. The same bytes reuse one artifact while each distinct encounter or
+custody path may create a separate acquisition. Replaying the same Opportunity
+artifact recovers its acquisition; a new Opportunity, ingestion, URL, email, or
+download is a new acquisition. Revised bytes are a new artifact.
+
+Source, edition, publisher, representation, and upstream attribution are separate
+authority concerns. Filename, Property, publisher, uploader, and acquisition timing
+may be matching evidence but establish none of them alone. Publication timing keeps
+unknown/year/month/day precision and can never be manufactured from acquisition or
+filename dates. Publisher may remain unresolved because it is not the source subject,
+seller, broker contact, upstream provider, or legal party by implication.
+
+The installed representation vocabulary is locked as follows: `primary` with
+`is_primary=true` is the preferred complete rendition; `primary` with false is an
+alternate complete peer; `supplement` is companion material; `embedded` identifies
+an edition inside a broader artifact; and `derivative` is a reviewed transformation
+such as OCR. Different bytes require reviewed content-equivalence before they can
+represent one edition.
+
+Representation and source-relationship proposals share one abstract append-only
+review lifecycle—proposed, confirmed, rejected, ambiguous, and reversed—but retain
+distinct typed proposal contracts. Reversal never deletes an affirmative historical
+relationship. A corrected assignment reverses the old proposal and confirms a new
+one. Command replay requires the same canonical semantics; changed semantics under
+the same command reference fail closed, and optimistic decision numbers serialize
+concurrent authority changes.
+
+Containing source and attributed upstream source remain separate. A JLL OM citing
+Esri has JLL as containing edition and a reviewed relationship to Esri. Another OM
+repeating that Esri statistic does not become independent merely because its
+publisher differs. Attribution never supplies independence authority.
+
+Provenance readiness is derived only when the artifact is bridgeable, the global
+artifact and acquisition exist, source and edition are confirmed, exactly one
+applicable representation is confirmed, a containing source exists, and exactly one
+required upstream attribution is confirmed. Promotion consumes this reviewed bridge
+authority rather than arbitrary source or edition UUIDs. Candidate approval,
+subjects, temporal interpretation, classification, durable evidence sufficiency,
+observation reconciliation, construction, and admission remain outside the bridge.
+
+`domain/provenance-bridge-contracts.ts` models the facts and decisions a future
+database boundary must derive. It deliberately does not choose SQL tables or pretend
+that TypeScript can prove Opportunity ownership, digest, acquisition, or current
+review authority.
+
 ## Phase 4C.3.1 promotion boundary
 
 The reviewed authority chain is:
