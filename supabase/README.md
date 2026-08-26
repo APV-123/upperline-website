@@ -158,6 +158,27 @@ Disposable behavioral, concurrency, and rollback runners are:
 ./supabase/tests/run-opportunity-extraction-retry-rollback.ps1
 ```
 
+## Property Intelligence identity and source foundation
+
+Phase 4C.1 adds private, server-only durable identity for real-world subjects and
+for source provenance independent of Opportunity workflow ownership. Only
+Property/Site receives a typed entity extension. Future entity kinds are reserved
+as controlled vocabulary; no parcel, building, premises, tenancy, lease, road,
+study-area, observation, evidence, recommendation, or UI implementation is created.
+
+Logical sources, immutable editions, global byte identity, acquisitions, and
+edition relationships are distinct. The optional legacy-artifact bridge verifies
+digest, size, and Opportunity context and performs no data migration. Publication
+precision never manufactures an unknown month or day. All new tables use RLS with
+no browser policy and explicit service-role-only table grants.
+
+Disposable behavioral and rollback runners are:
+
+```powershell
+./supabase/tests/run-property-intelligence-foundation-integration.ps1
+./supabase/tests/run-property-intelligence-foundation-rollback.ps1
+```
+
 ## Storage policy remediation
 
 Migration `20260823000200_scope_storage_object_policies.sql` removes the four
