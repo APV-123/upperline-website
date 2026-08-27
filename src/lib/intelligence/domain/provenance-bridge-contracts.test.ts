@@ -10,6 +10,7 @@ import {
   validateEditionProposal,
   validateRepresentationProposal,
   validateUpstreamAttribution,
+  validateUpstreamProvenanceConfirmation,
   type AuthoritativeArtifactFacts,
   type AuthorityDecision,
   type ProvenanceAuthorityFacts,
@@ -17,7 +18,7 @@ import {
   type ReviewedAuthorityHistory,
   type SourceEditionProposal,
   type SourceIdentityProposal,
-  type UpstreamAttributionProposal,
+  type UpstreamProvenanceProposal,
 } from './provenance-bridge-contracts';
 
 const artifact: AuthoritativeArtifactFacts = {
@@ -31,8 +32,9 @@ const readyFacts: ProvenanceAuthorityFacts = {
   sourceAuthority: 'confirmed', editionAuthority: 'confirmed',
   editionResolutionInitiated: true, representationResolutionInitiated: true,
   representationAuthorities: ['confirmed'], containingSourceEstablished: true,
-  upstreamAttributionRequired: false, upstreamAttributionResolutionInitiated: false,
-  upstreamAttributionAuthorities: [],
+  upstreamProvenanceAuthorities: [{
+    state: 'confirmed', conclusion: 'no_upstream_required', materialization: 'none',
+  }],
 };
 
 const sourceProposal: SourceIdentityProposal = {
@@ -53,11 +55,18 @@ const representationProposal: RepresentationProposal = {
   contentEquivalence: { state: 'same_bytes', authority: 'database_derived' },
 };
 
-const attributionProposal: UpstreamAttributionProposal = {
+const attributionProposal: UpstreamProvenanceProposal = {
   proposalReference: 'attribution-proposal-1', containingEditionSelection: 'preauthorized',
+  conclusion: 'attributed_upstream',
   relationshipType: 'attributes_to', upstreamSourceSelection: 'preauthorized',
   upstreamEditionSelection: 'unidentified', explicitAttributionEvidence: true,
-  independenceAuthority: 'not_established',
+  humanReviewRationale: null, independenceAuthority: 'not_established',
+};
+
+const noUpstreamProposal: UpstreamProvenanceProposal = {
+  proposalReference: 'no-upstream-proposal-1', containingEditionSelection: 'preauthorized',
+  conclusion: 'no_upstream_required',
+  humanReviewRationale: 'Reviewed the containing edition; no upstream attribution is required for V1 provenance.',
 };
 
 const decision = (
@@ -131,11 +140,11 @@ const fixtures: readonly Fixture[] = [
   fixture(31, 'representation confirmation reversal remains historical', () => deriveReviewedAuthorityState(history(representationProposal, [decision('confirm'), decision('reverse', 2)])), 'reversed', { currentAuthorityState: 'reversed', provenanceReadinessState: 'representation_unresolved', promotionSourceRequirementsSatisfied: false }),
   fixture(32, 'corrected edition assignment uses reversed old and confirmed new proposals', () => deriveProvenanceReadiness({ ...readyFacts, representationAuthorities: ['reversed', 'confirmed'] }), 'provenance_ready'),
   fixture(33, 'JLL OM citing ESRI preserves upstream authority', () => validateUpstreamAttribution(attributionProposal), 'valid'),
-  fixture(34, 'direct ESRI report needs no upstream attribution', () => deriveProvenanceReadiness(readyFacts), 'provenance_ready'),
+  fixture(34, 'direct ESRI report has reviewed no-upstream authority', () => deriveProvenanceReadiness(readyFacts), 'provenance_ready'),
   fixture(35, 'second OM repeating ESRI does not establish independence', () => attributionProposal.independenceAuthority, 'not_established'),
-  fixture(36, 'proposed upstream attribution is not ready', () => deriveProvenanceReadiness({ ...readyFacts, upstreamAttributionRequired: true, upstreamAttributionAuthorities: ['proposed'] }), 'upstream_attribution_unresolved', { currentAuthorityState: 'proposed', provenanceReadinessState: 'upstream_attribution_unresolved', promotionSourceRequirementsSatisfied: false }),
-  fixture(37, 'rejected upstream attribution is not ready', () => deriveProvenanceReadiness({ ...readyFacts, upstreamAttributionRequired: true, upstreamAttributionAuthorities: ['rejected'] }), 'upstream_attribution_unresolved', { currentAuthorityState: 'rejected', provenanceReadinessState: 'upstream_attribution_unresolved', promotionSourceRequirementsSatisfied: false }),
-  fixture(38, 'reversed upstream attribution is not ready', () => deriveProvenanceReadiness({ ...readyFacts, upstreamAttributionRequired: true, upstreamAttributionAuthorities: ['reversed'] }), 'upstream_attribution_unresolved', { currentAuthorityState: 'reversed', provenanceReadinessState: 'upstream_attribution_unresolved', promotionSourceRequirementsSatisfied: false }),
+  fixture(36, 'proposed upstream attribution is not ready', () => deriveProvenanceReadiness({ ...readyFacts, upstreamProvenanceAuthorities: [{ state: 'proposed', conclusion: 'attributed_upstream', materialization: 'none' }] }), 'upstream_provenance_unresolved', { currentAuthorityState: 'proposed', provenanceReadinessState: 'upstream_provenance_unresolved', promotionSourceRequirementsSatisfied: false }),
+  fixture(37, 'rejected upstream attribution is not ready', () => deriveProvenanceReadiness({ ...readyFacts, upstreamProvenanceAuthorities: [{ state: 'rejected', conclusion: 'attributed_upstream', materialization: 'none' }] }), 'upstream_provenance_unresolved', { currentAuthorityState: 'rejected', provenanceReadinessState: 'upstream_provenance_unresolved', promotionSourceRequirementsSatisfied: false }),
+  fixture(38, 'reversed upstream attribution is not ready', () => deriveProvenanceReadiness({ ...readyFacts, upstreamProvenanceAuthorities: [{ state: 'reversed', conclusion: 'attributed_upstream', materialization: 'matching_relationship' }] }), 'upstream_provenance_unresolved', { currentAuthorityState: 'reversed', provenanceReadinessState: 'upstream_provenance_unresolved', promotionSourceRequirementsSatisfied: false }),
   fixture(39, 'concurrent representation decision detects revision conflict', () => evaluateAuthorityDecision(history(representationProposal, [decision('confirm')]), { commandReference: 'concurrent', canonicalRequestSemantics: 'concurrent-v1', expectedDecisionNumber: 0, action: 'reverse' }), { disposition: 'revision_conflict', state: 'confirmed', decisionNumber: 1 }, { provenanceReadinessState: 'representation_ambiguous', promotionSourceRequirementsSatisfied: false }),
   fixture(40, 'same decision command replay is idempotent', () => evaluateAuthorityDecision(history(representationProposal, [decision('confirm', 1, 'same-command')]), { commandReference: 'same-command', canonicalRequestSemantics: 'confirm:1', expectedDecisionNumber: 0, action: 'confirm' }), { disposition: 'replayed', state: 'confirmed', decisionNumber: 1 }),
   fixture(41, 'same command UUID with changed semantics fails closed', () => evaluateAuthorityDecision(history(representationProposal, [decision('confirm', 1, 'same-command')]), { commandReference: 'same-command', canonicalRequestSemantics: 'changed', expectedDecisionNumber: 1, action: 'reverse' }), { disposition: 'command_semantics_conflict', state: 'confirmed', decisionNumber: 1 }, { promotionSourceRequirementsSatisfied: false }),
@@ -196,5 +205,134 @@ describe('bridge invariants', () => {
     expect(deriveReviewedAuthorityState(history(attributionProposal))).toBe('proposed');
     expect(validateRepresentationProposal(representationProposal)).toBe('valid');
     expect(validateUpstreamAttribution(attributionProposal)).toBe('valid');
+  });
+});
+
+describe('durable upstream provenance authority amendment', () => {
+  const unresolved = { ...readyFacts, upstreamProvenanceAuthorities: [] };
+  const confirmedNoUpstream = { ...readyFacts, upstreamProvenanceAuthorities: [{
+    state: 'confirmed' as const, conclusion: 'no_upstream_required' as const, materialization: 'none' as const,
+  }] };
+  const confirmedAttribution = { ...readyFacts, upstreamProvenanceAuthorities: [{
+    state: 'confirmed' as const, conclusion: 'attributed_upstream' as const,
+    materialization: 'matching_relationship' as const,
+  }] };
+
+  it('treats absence as unresolved rather than negative authority', () => {
+    expect(deriveProvenanceReadiness(unresolved)).toBe('upstream_provenance_unresolved');
+  });
+
+  it('lets one confirmed no-upstream conclusion satisfy the gate', () => {
+    expect(deriveProvenanceReadiness(confirmedNoUpstream)).toBe('provenance_ready');
+  });
+
+  it.each(['proposed', 'rejected', 'reversed'] as const)(
+    'does not let a %s no-upstream conclusion satisfy the gate', state => {
+      expect(deriveProvenanceReadiness({ ...readyFacts, upstreamProvenanceAuthorities: [{
+        state, conclusion: 'no_upstream_required', materialization: 'none',
+      }] })).toBe('upstream_provenance_unresolved');
+    },
+  );
+
+  it('requires human confirmation even when machine assistance proposed no upstream', () => {
+    expect(validateUpstreamProvenanceConfirmation(noUpstreamProposal, 'machine_assisted', 'none'))
+      .toBe('human_confirmation_required');
+  });
+
+  it.each([
+    'upstreamSourceSelection', 'relationshipType', 'upstreamEditionSelection',
+    'explicitAttributionEvidence', 'independenceAuthority',
+  ] as const)(
+    'rejects no-upstream payload carrying %s', field => {
+      const hostile = { ...noUpstreamProposal, [field]: 'forbidden' } as unknown as UpstreamProvenanceProposal;
+      expect(validateUpstreamAttribution(hostile)).toBe('attribution_fields_forbidden');
+    },
+  );
+
+  it.each(['', ' ', `valid${String.fromCharCode(0)}invalid`, 'x'.repeat(2001)])(
+    'rejects missing, untrimmed, control-bearing, or oversized rationale %#', rationale => {
+      expect(validateUpstreamAttribution({
+        ...noUpstreamProposal, humanReviewRationale: rationale,
+      })).toBe('human_review_rationale_required');
+    },
+  );
+
+  it('rejects attributed-upstream without evidence', () => {
+    expect(validateUpstreamAttribution({ ...attributionProposal, explicitAttributionEvidence: false }))
+      .toBe('explicit_attribution_required');
+  });
+
+  it.each(['relationshipType', 'upstreamSourceSelection', 'upstreamEditionSelection'] as const)(
+    'rejects hostile attributed-upstream payload missing %s', field => {
+      const hostile = { ...attributionProposal } as unknown as Record<string, unknown>;
+      delete hostile[field];
+      expect(validateUpstreamAttribution(hostile as unknown as UpstreamProvenanceProposal))
+        .toBe('attribution_fields_required');
+    },
+  );
+
+  it('lets valid attributed-upstream authority satisfy the gate', () => {
+    expect(validateUpstreamAttribution(attributionProposal)).toBe('valid');
+    expect(deriveProvenanceReadiness(confirmedAttribution)).toBe('provenance_ready');
+  });
+
+  it('requires the matching affirmative relationship for attributed-upstream confirmation', () => {
+    expect(validateUpstreamProvenanceConfirmation(attributionProposal, 'human_review', 'none'))
+      .toBe('affirmative_relationship_required');
+  });
+
+  it('forbids affirmative relationship materialization for no-upstream confirmation', () => {
+    expect(validateUpstreamProvenanceConfirmation(noUpstreamProposal, 'human_review', 'matching_relationship'))
+      .toBe('affirmative_relationship_forbidden');
+  });
+
+  it('fails closed for competing confirmed conclusions', () => {
+    expect(deriveProvenanceReadiness({ ...readyFacts, upstreamProvenanceAuthorities: [
+      { state: 'confirmed', conclusion: 'no_upstream_required', materialization: 'none' },
+      { state: 'confirmed', conclusion: 'attributed_upstream', materialization: 'matching_relationship' },
+    ] })).toBe('upstream_provenance_ambiguous');
+  });
+
+  it('fails closed for incompatible competing proposed conclusions', () => {
+    expect(deriveProvenanceReadiness({ ...readyFacts, upstreamProvenanceAuthorities: [
+      { state: 'proposed', conclusion: 'no_upstream_required', materialization: 'none' },
+      { state: 'proposed', conclusion: 'attributed_upstream', materialization: 'none' },
+    ] })).toBe('upstream_provenance_ambiguous');
+  });
+
+  it('supports reversed no-upstream followed by confirmed attribution', () => {
+    expect(deriveProvenanceReadiness({ ...readyFacts, upstreamProvenanceAuthorities: [
+      { state: 'reversed', conclusion: 'no_upstream_required', materialization: 'none' },
+      { state: 'confirmed', conclusion: 'attributed_upstream', materialization: 'matching_relationship' },
+    ] })).toBe('provenance_ready');
+  });
+
+  it('supports reversed attribution followed by confirmed no-upstream', () => {
+    expect(deriveProvenanceReadiness({ ...readyFacts, upstreamProvenanceAuthorities: [
+      { state: 'reversed', conclusion: 'attributed_upstream', materialization: 'matching_relationship' },
+      { state: 'confirmed', conclusion: 'no_upstream_required', materialization: 'none' },
+    ] })).toBe('provenance_ready');
+  });
+
+  it('locks the direct Esri canonical fixture without fabricating a relationship', () => {
+    expect(validateUpstreamProvenanceConfirmation(noUpstreamProposal, 'human_review', 'none')).toBe('valid');
+    expect(projectProvenanceBridge(confirmedNoUpstream)).toEqual({
+      readiness: 'provenance_ready', promotionSourceRequirementsSatisfied: true,
+    });
+  });
+
+  it('locks the JLL to Esri canonical fixture with reviewed attribution evidence', () => {
+    expect(validateUpstreamProvenanceConfirmation(
+      attributionProposal, 'human_review', 'matching_relationship',
+    )).toBe('valid');
+    expect(projectProvenanceBridge(confirmedAttribution)).toEqual({
+      readiness: 'provenance_ready', promotionSourceRequirementsSatisfied: true,
+    });
+  });
+
+  it('never turns absence of any conclusion into readiness', () => {
+    expect(projectProvenanceBridge(unresolved)).toEqual({
+      readiness: 'upstream_provenance_unresolved', promotionSourceRequirementsSatisfied: false,
+    });
   });
 });

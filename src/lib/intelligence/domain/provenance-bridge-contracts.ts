@@ -140,15 +140,50 @@ export const SOURCE_RELATIONSHIP_AUTHORITY_TYPES = [
   'cites', 'attributes_to', 'embeds_summary_of', 'derived_from', 'revises', 'supersedes',
 ] as const satisfies readonly SourceRelationshipType[];
 
-export type UpstreamAttributionProposal = {
+type UpstreamProvenanceProposalBase = {
   proposalReference: string;
   containingEditionSelection: 'preauthorized';
-  relationshipType: SourceRelationshipType;
-  upstreamSourceSelection: 'preauthorized';
-  upstreamEditionSelection: 'preauthorized' | 'unidentified';
-  explicitAttributionEvidence: boolean;
-  /** Attribution never supplies independence authority. */
-  independenceAuthority: 'not_established';
+};
+
+export type UpstreamProvenanceProposal = UpstreamProvenanceProposalBase & (
+  | {
+    conclusion: 'attributed_upstream';
+    relationshipType: SourceRelationshipType;
+    upstreamSourceSelection: 'preauthorized';
+    upstreamEditionSelection: 'preauthorized' | 'unidentified';
+    explicitAttributionEvidence: boolean;
+    humanReviewRationale: string | null;
+    /** Attribution never supplies independence authority. */
+    independenceAuthority: 'not_established';
+  }
+  | {
+    conclusion: 'no_upstream_required';
+    humanReviewRationale: string;
+    relationshipType?: never;
+    upstreamSourceSelection?: never;
+    upstreamEditionSelection?: never;
+    explicitAttributionEvidence?: never;
+    independenceAuthority?: never;
+  }
+);
+
+/** Compatibility alias: persistence keeps the reviewed `upstream_attribution` kind name. */
+export type UpstreamAttributionProposal = UpstreamProvenanceProposal;
+
+export type UpstreamProvenanceProposalValidation =
+  | 'valid'
+  | 'human_review_rationale_required'
+  | 'attribution_fields_forbidden'
+  | 'attribution_fields_required'
+  | 'explicit_attribution_required'
+  | 'independence_authority_forbidden';
+
+export type UpstreamProvenanceMaterialization = 'matching_relationship' | 'none';
+
+export type UpstreamProvenanceAuthority = {
+  state: ReviewedAuthorityState;
+  conclusion: UpstreamProvenanceProposal['conclusion'];
+  materialization: UpstreamProvenanceMaterialization;
 };
 
 export const AUTHORITY_DECISION_ACTIONS = ['confirm', 'reject', 'mark_ambiguous', 'reverse'] as const;
@@ -244,17 +279,56 @@ export function validateRepresentationProposal(proposal: RepresentationProposal)
   return 'valid';
 }
 
-export function validateUpstreamAttribution(proposal: UpstreamAttributionProposal):
-  'valid' | 'explicit_attribution_required' | 'independence_authority_forbidden' {
+const isBoundedHumanRationale = (value: unknown): value is string =>
+  typeof value === 'string' && value === value.trim() && value.length >= 1
+  && value.length <= 2000 && !/[\u0000-\u001f\u007f-\u009f]/u.test(value);
+
+export function validateUpstreamProvenanceProposal(
+  proposal: UpstreamProvenanceProposal,
+): UpstreamProvenanceProposalValidation {
+  const hostile = proposal as unknown as Record<string, unknown>;
+  if (proposal.conclusion === 'no_upstream_required') {
+    if (!isBoundedHumanRationale(proposal.humanReviewRationale)) {
+      return 'human_review_rationale_required';
+    }
+    if (hostile.relationshipType !== undefined || hostile.upstreamSourceSelection !== undefined
+      || hostile.upstreamEditionSelection !== undefined || hostile.explicitAttributionEvidence !== undefined
+      || hostile.independenceAuthority !== undefined) return 'attribution_fields_forbidden';
+    return 'valid';
+  }
+  if (proposal.conclusion !== 'attributed_upstream'
+    || !SOURCE_RELATIONSHIP_AUTHORITY_TYPES.includes(proposal.relationshipType)
+    || proposal.upstreamSourceSelection !== 'preauthorized'
+    || !['preauthorized', 'unidentified'].includes(proposal.upstreamEditionSelection)) {
+    return 'attribution_fields_required';
+  }
   if (proposal.independenceAuthority !== 'not_established') return 'independence_authority_forbidden';
   return proposal.explicitAttributionEvidence ? 'valid' : 'explicit_attribution_required';
+}
+
+/** Compatibility wrapper retained for callers using the original contract name. */
+export const validateUpstreamAttribution = validateUpstreamProvenanceProposal;
+
+export function validateUpstreamProvenanceConfirmation(
+  proposal: UpstreamProvenanceProposal,
+  proposalOrigin: 'human_review' | 'deterministic_system' | 'machine_assisted',
+  materialization: UpstreamProvenanceMaterialization,
+): 'valid' | UpstreamProvenanceProposalValidation | 'human_confirmation_required'
+  | 'affirmative_relationship_required' | 'affirmative_relationship_forbidden' {
+  const proposalValidation = validateUpstreamProvenanceProposal(proposal);
+  if (proposalValidation !== 'valid') return proposalValidation;
+  if (proposalOrigin !== 'human_review') return 'human_confirmation_required';
+  if (proposal.conclusion === 'attributed_upstream') {
+    return materialization === 'matching_relationship' ? 'valid' : 'affirmative_relationship_required';
+  }
+  return materialization === 'none' ? 'valid' : 'affirmative_relationship_forbidden';
 }
 
 export const PROVENANCE_READINESS_STATES = [
   'artifact_not_bridgeable', 'artifact_unestablished', 'artifact_established',
   'acquisition_established', 'source_unresolved', 'source_ambiguous', 'edition_unresolved',
   'edition_ambiguous', 'representation_unresolved', 'representation_ambiguous',
-  'upstream_attribution_unresolved', 'upstream_attribution_ambiguous', 'provenance_ready',
+  'upstream_provenance_unresolved', 'upstream_provenance_ambiguous', 'provenance_ready',
 ] as const;
 export type ProvenanceReadinessState = (typeof PROVENANCE_READINESS_STATES)[number];
 
@@ -269,9 +343,7 @@ export type ProvenanceAuthorityFacts = {
   representationResolutionInitiated: boolean;
   representationAuthorities: readonly ReviewedAuthorityState[];
   containingSourceEstablished: boolean;
-  upstreamAttributionRequired: boolean;
-  upstreamAttributionResolutionInitiated: boolean;
-  upstreamAttributionAuthorities: readonly ReviewedAuthorityState[];
+  upstreamProvenanceAuthorities: readonly UpstreamProvenanceAuthority[];
 };
 
 export function deriveProvenanceReadiness(facts: ProvenanceAuthorityFacts): ProvenanceReadinessState {
@@ -288,12 +360,22 @@ export function deriveProvenanceReadiness(facts: ProvenanceAuthorityFacts): Prov
   const representations = facts.representationAuthorities.filter(value => value === 'confirmed');
   if (facts.representationAuthorities.includes('ambiguous') || representations.length > 1) return 'representation_ambiguous';
   if (representations.length !== 1) return 'representation_unresolved';
-  if (facts.upstreamAttributionRequired) {
-    if (!facts.upstreamAttributionResolutionInitiated) return 'upstream_attribution_unresolved';
-    const attributions = facts.upstreamAttributionAuthorities.filter(value => value === 'confirmed');
-    if (facts.upstreamAttributionAuthorities.includes('ambiguous') || attributions.length > 1) return 'upstream_attribution_ambiguous';
-    if (attributions.length !== 1) return 'upstream_attribution_unresolved';
+  const upstream = facts.upstreamProvenanceAuthorities;
+  if (upstream.length === 0) return 'upstream_provenance_unresolved';
+  if (upstream.some(value => value.state === 'ambiguous')) return 'upstream_provenance_ambiguous';
+  const confirmed = upstream.filter(value => value.state === 'confirmed');
+  const proposedConclusions = new Set(upstream.filter(value => value.state === 'proposed')
+    .map(value => value.conclusion));
+  if (confirmed.length > 1 || proposedConclusions.size > 1) return 'upstream_provenance_ambiguous';
+  if (confirmed.length !== 1) return 'upstream_provenance_unresolved';
+  if (upstream.some(value => value.state === 'proposed' && value.conclusion !== confirmed[0].conclusion)) {
+    return 'upstream_provenance_ambiguous';
   }
+  const conclusion = confirmed[0];
+  if (conclusion.conclusion === 'attributed_upstream'
+    && conclusion.materialization !== 'matching_relationship') return 'upstream_provenance_ambiguous';
+  if (conclusion.conclusion === 'no_upstream_required'
+    && conclusion.materialization !== 'none') return 'upstream_provenance_ambiguous';
   return 'provenance_ready';
 }
 
@@ -328,9 +410,9 @@ export const PROVENANCE_BRIDGE_FIELD_AUTHORITY = {
   proposedSourceMetadata: 'human_proposal',
   proposedEditionMetadata: 'human_proposal',
   proposedRepresentationRole: 'human_proposal',
-  proposedUpstreamAttribution: 'human_proposal',
+  proposedUpstreamProvenance: 'human_proposal',
   representationDecision: 'human_decision',
-  upstreamAttributionDecision: 'human_decision',
+  upstreamProvenanceDecision: 'human_decision',
   arbitraryPublisherIdentity: 'forbidden_caller_authority',
   arbitrarySourceIdentity: 'forbidden_caller_authority',
   arbitraryEditionIdentity: 'forbidden_caller_authority',

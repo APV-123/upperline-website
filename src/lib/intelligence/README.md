@@ -4,7 +4,7 @@
 
 The provenance bridge moves through independent semantic boundaries:
 
-`eligible Opportunity artifact -> global artifact -> acquisition -> logical source -> source edition -> reviewed edition/artifact representation -> reviewed upstream attribution when applicable -> derived provenance readiness`.
+`eligible Opportunity artifact -> global artifact -> acquisition -> logical source -> source edition -> reviewed edition/artifact representation -> reviewed upstream-provenance conclusion -> derived provenance readiness`.
 
 These are derived semantic states, not a mutable bridge-state record. The contract
 creates no SQL, storage copy, source row, observation, promotion, or admission.
@@ -43,11 +43,27 @@ Esri has JLL as containing edition and a reviewed relationship to Esri. Another 
 repeating that Esri statistic does not become independent merely because its
 publisher differs. Attribution never supplies independence authority.
 
+Upstream provenance readiness is always established by affirmative reviewed
+authority. Its tagged conclusion is either `attributed_upstream`, backed by compatible
+evidence and a materialized source relationship, or `no_upstream_required`, backed by
+a bounded human-review rationale and no fabricated relationship. Absence of a
+proposal or detected attribution is unresolved; it never means no upstream source is
+required. `no_upstream_required` is not a claim of source independence, proof that no
+upstream source exists, or proof that the publisher originated every fact. Later
+discovery reverses the historical conclusion and uses a new correction proposal.
+It is never derived from source kind, publisher, filename, acquisition channel,
+artifact bytes, application defaults, or the absence of detected citations. For
+persistence compatibility, both tagged conclusions continue to use the reviewed
+`upstream_attribution` resolution kind and its single typed payload table.
+
 Provenance readiness is derived only when the artifact is bridgeable, the global
 artifact and acquisition exist, source and edition are confirmed, exactly one
 applicable representation is confirmed, a containing source exists, and exactly one
-required upstream attribution is confirmed. Promotion consumes this reviewed bridge
-authority rather than arbitrary source or edition UUIDs. Candidate approval,
+compatible current upstream-provenance conclusion is confirmed. A confirmed
+`attributed_upstream` conclusion requires its Phase 4C.1 relationship; a confirmed
+`no_upstream_required` conclusion forbids one. No conclusion, proposed/rejected/
+reversed authority, and conflicting conclusions fail closed. Promotion consumes this
+reviewed bridge authority rather than arbitrary source or edition UUIDs. Candidate approval,
 subjects, temporal interpretation, classification, durable evidence sufficiency,
 observation reconciliation, construction, and admission remain outside the bridge.
 
