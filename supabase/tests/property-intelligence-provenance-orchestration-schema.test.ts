@@ -1,0 +1,8 @@
+import { readFileSync } from 'node:fs';import { join } from 'node:path';import { describe,expect,it } from 'vitest';
+const sql=readFileSync(join(process.cwd(),'supabase/migrations/20260828000100_create_property_intelligence_provenance_orchestration.sql'),'utf8');
+describe('Phase 4C.3.2B.2 orchestration migration',()=>{
+  it('adds no table and exposes exactly two mutation RPCs plus readiness',()=>{expect(sql).not.toMatch(/create table/i);expect(sql.match(/create function public\./g)).toHaveLength(3);expect(sql).toContain('create_intelligence_provenance_proposal_v1');expect(sql).toContain('decide_intelligence_provenance_proposal_v1');expect(sql).toContain('get_intelligence_provenance_readiness_v1')});
+  it('is invoker-only, empty-search-path, and service-role-only',()=>{expect(sql.match(/security invoker set search_path=''/g)).toHaveLength(3);expect(sql).not.toContain('security definer');expect(sql).toContain('from public,anon,authenticated');expect(sql).toContain('to service_role')});
+  it('uses the B.1 ledger and authoritative readiness',()=>{expect(sql).toContain('intelligence_provenance_commands');expect(sql).toContain('intelligence_provenance_command_semantics_conflict');expect(sql).toContain('intelligence_provenance_readiness_v1');expect(sql).not.toContain('on conflict(command_id)')});
+  it('documents deterministic authority locking order',()=>{const acquisition=sql.indexOf("proposal.artifact_acquisition_id::text||':'||proposal.proposal_kind");const upstream=sql.indexOf("upstream_payload.containing_source_edition_id::text||':upstream'");const proposal=sql.indexOf('where id=p_proposal_id for update',upstream);expect(acquisition).toBeGreaterThan(0);expect(upstream).toBeGreaterThan(acquisition);expect(proposal).toBeGreaterThan(upstream)});
+});

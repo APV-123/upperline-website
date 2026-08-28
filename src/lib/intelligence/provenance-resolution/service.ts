@@ -1,0 +1,6 @@
+import type { OpportunityActor } from '../../opportunities/application';
+import type { ProvenanceResolutionRepository } from './contracts';
+import { canonicalCreateRequest,canonicalDecisionRequest,canonicalProposalPayload,sha256 } from './canonical';
+import { parseCreateProposal,parseDecision,parseReadiness } from './validation';
+export async function executeProvenanceCommand(body:unknown,actor:OpportunityActor,repository:ProvenanceResolutionRepository){const operation=(body&&typeof body==='object'&&!Array.isArray(body))?(body as Record<string,unknown>).operation:null;if(operation==='create_proposal'){const command=parseCreateProposal(body);return repository.createProposal({...command,proposedByEmail:actor.email,semanticFingerprint:sha256(canonicalProposalPayload(command.proposalKind,command.payload)),canonicalRequest:canonicalCreateRequest(command,actor.email)})}const command=parseDecision(body);return repository.decideProposal({...command,reviewerEmail:actor.email,canonicalRequest:canonicalDecisionRequest(command,actor.email)})}
+export function getProvenanceReadiness(acquisitionId:string,repository:ProvenanceResolutionRepository){return repository.getReadiness(parseReadiness(acquisitionId))}

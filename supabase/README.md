@@ -253,3 +253,18 @@ The migration replaces the Phase 4C.1 physical preferred-primary uniqueness
 index with authority-aware enforcement. Reversed primary representations remain
 historically intact while at most one current confirmed primary can exist per
 edition. No mutable current-state or readiness table is introduced.
+
+## Phase 4C.3.2B.2 provenance orchestration
+
+`20260828000100_create_property_intelligence_provenance_orchestration.sql` adds
+three private, `SECURITY INVOKER`, empty-`search_path`, service-role-only RPCs for
+atomic proposal creation, trusted human decisions/materialization, and authoritative
+readiness retrieval. It adds no table and preserves the Phase 4C.3.2B.1 data model.
+
+Disposable validation runners are:
+
+```powershell
+./supabase/tests/run-property-intelligence-provenance-orchestration-integration.ps1
+./supabase/tests/run-property-intelligence-provenance-orchestration-concurrency.ps1
+./supabase/tests/run-property-intelligence-provenance-orchestration-rollback.ps1
+```

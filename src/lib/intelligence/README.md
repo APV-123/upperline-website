@@ -553,3 +553,19 @@ Every Phase 4C.1 table enables RLS and has no browser policy. `PUBLIC`, `anon`, 
 table privileges. Immutable source editions, artifact identity/acquisition lineage,
 source relationships, and entity-resolution history are protected by database
 append-only triggers.
+
+## Phase 4C.3.2B.2 provenance orchestration
+
+`provenance-resolution/` is the narrow trusted-server boundary over the durable
+Phase 4C.3.2B.1 history model. Authenticated Upperline actors may submit proposal
+semantics or a review intent, but actor identity, human proposal origin, authority
+markers, canonical request text, semantic fingerprints, and readiness are derived
+by the server/database. The service-role repository calls only transactional RPCs;
+it never writes the eight provenance tables directly.
+
+Mutations use caller-generated opaque command UUIDs for safe transport retries.
+PostgreSQL serializes command replay and acquisition/kind authority, locks the
+containing edition for upstream authority, materializes durable source records in
+the same transaction as confirmation, and returns B.1 database-derived readiness.
+The HTTP surface provides no promotion, observation creation, or underwriting
+authority.
