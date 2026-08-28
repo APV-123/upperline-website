@@ -46,7 +46,7 @@ if($count-ne '2'){throw "Decision race persisted $count rows"}
 Write-Host 'RACE 01 PASS - two decisions on one proposal serialize to one winner.'
 Write-Host 'RACE 02 PASS - duplicate decision number cannot commit twice.'
 Write-Host 'RACE 03 PASS - expected revision rejects stale writer.'
-Write-Host 'RACE 04 PASS - parent-row lock preserves sequential history.'
+Write-Host 'RACE 04 PASS - proposal advisory lock preserves sequential history.'
 Race 'RACE 05 - competing source authority' '93000000-0000-4000-8000-000000000001' '93000000-0000-4000-8000-000000000002' 'materialized_source_id' '83000000-0000-4000-8000-000000000001' '83000000-0000-4000-8000-000000000003' '94000000-0000-4000-8000-000000000001' '94000000-0000-4000-8000-000000000002'
 Race 'RACE 06 - competing edition authority' '93000000-0000-4000-8000-000000000003' '93000000-0000-4000-8000-000000000004' 'materialized_edition_id' '84000000-0000-4000-8000-000000000001' '84000000-0000-4000-8000-000000000003' '94000000-0000-4000-8000-000000000003' '94000000-0000-4000-8000-000000000004'
 Race 'RACE 07 - competing preferred-primary representation authority' '93000000-0000-4000-8000-000000000005' '93000000-0000-4000-8000-000000000006' 'materialized_representation_id' '85000000-0000-4000-8000-000000000002' '85000000-0000-4000-8000-000000000002' '94000000-0000-4000-8000-000000000005' '94000000-0000-4000-8000-000000000006'

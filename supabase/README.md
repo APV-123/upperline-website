@@ -268,3 +268,16 @@ Disposable validation runners are:
 ./supabase/tests/run-property-intelligence-provenance-orchestration-concurrency.ps1
 ./supabase/tests/run-property-intelligence-provenance-orchestration-rollback.ps1
 ```
+## Phase 4C.3.2B.1H provenance privilege hardening
+
+`20260828000200_harden_property_intelligence_provenance_privileges.sql`
+replaces provenance row-lock coupling with domain-separated transaction advisory
+locks and revokes Supabase-inherited table ACLs before granting `service_role`
+only `SELECT, INSERT` on the eight provenance-resolution tables.
+
+Supabase production default privileges can grant `service_role` broad authority
+on newly created tables. Every future Property Intelligence table migration must
+therefore explicitly revoke inherited/default per-table privileges from
+`service_role`, `PUBLIC`, `anon`, and `authenticated` before granting its reviewed
+least-privilege set. This migration intentionally does not alter project-wide
+default privileges because that broader blast radius requires separate review.
