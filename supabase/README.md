@@ -228,3 +228,28 @@ inherit no access. The fail-closed disposable integration runner is:
 ```powershell
 ./supabase/tests/run-storage-policy-integration.ps1
 ```
+
+## Phase 4C.3.2B.1 provenance resolution
+
+`20260827000100_create_property_intelligence_provenance_resolution.sql` adds the
+private, append-only provenance-resolution foundation. Its eight tables retain
+command identity, immutable proposal spines and typed payloads, attribution
+evidence links, and decision history. Current authority and promotion readiness
+are derived by database functions; neither is mutable caller state.
+
+The database trusts `service_role` only as the final server assertion boundary
+for a normalized reviewer identity. Phase 4C.3.2B.2 must derive that identity
+from the authenticated NextAuth/Azure AD session and must reject browser-supplied
+reviewer authority. PostgreSQL independently enforces every structural,
+fingerprint, lifecycle, materialization, concurrency, RLS, and append-only
+invariant within its authority boundary.
+
+Attribution evidence is part of the proposal fingerprint. Evidence insertion
+therefore locks the proposal, is permitted only while it remains proposed, and
+deferredly revalidates the complete fingerprint so neither a later insert nor a
+decision race can change finalized proposal semantics.
+
+The migration replaces the Phase 4C.1 physical preferred-primary uniqueness
+index with authority-aware enforcement. Reversed primary representations remain
+historically intact while at most one current confirmed primary can exist per
+edition. No mutable current-state or readiness table is introduced.
