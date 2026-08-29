@@ -120,6 +120,12 @@ describe('provider-neutral extraction orchestration', () => {
     await expect(runProviderNeutralExtraction({ actor, opportunityId: artifact.opportunityId }, { authorizer, repository, objectStore: objectStore(), provider, configuration })).rejects.toMatchObject({ kind: 'artifact_not_ready' });
     expect(provider.calls).toBe(0);
   });
+  it('rejects a valid artifact resolved for a different Opportunity', async () => {
+    const repository = new MemoryRepository(); repository.artifact = { ...artifact, opportunityId: '99999999-9999-4999-8999-999999999999' };
+    const provider = new DeterministicFakeExtractionProvider({ kind: 'success', output: providerOutput });
+    await expect(runProviderNeutralExtraction({ actor, opportunityId: artifact.opportunityId }, { authorizer, repository, objectStore: objectStore(), provider, configuration })).rejects.toMatchObject({ kind: 'integrity_conflict' });
+    expect(provider.calls).toBe(0);
+  });
   it.each([{ pageCount: Number.NaN }, { byteSize: 1.5 }, { sha256Digest: 'not-a-digest' }])(
     'rejects malformed authoritative artifact metadata %#', async malformed => {
       const repository = new MemoryRepository(); repository.artifact = { ...artifact, ...malformed };

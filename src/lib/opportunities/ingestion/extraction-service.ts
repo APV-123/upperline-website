@@ -31,6 +31,7 @@ export async function runProviderNeutralExtraction(input: RunExtractionInput, de
   await dependencies.authorizer.authorize({ actor: input.actor, opportunityId: input.opportunityId, action: 'extract_pdf_artifact' });
   const artifact = await dependencies.repository.resolveEligibleArtifact(input.opportunityId);
   if (!artifact || artifact.detectedMediaType !== 'application/pdf') throw opportunityError('artifact_not_ready', 'A verified PDF artifact is required.');
+  if (artifact.opportunityId !== input.opportunityId) throw opportunityError('integrity_conflict', 'The verified artifact is not attached to this Opportunity.');
   enforceArtifactLimits(artifact);
   const idFactory = dependencies.idFactory ?? randomUUID;
   const idempotencyKey = buildExtractionIdempotencyKey({ artifactDigest: artifact.sha256Digest, configuration });

@@ -97,6 +97,15 @@ export class SupabaseExtractionRepository implements ExtractionRepositoryPort {
     if (candidateResult.error || evidenceResult.error) throw persistenceFailure(candidateResult.error ?? evidenceResult.error);
     return { runId, attemptNumber: row.attempt_number, status: 'succeeded', candidateCount: candidateResult.count ?? 0, evidenceCount: evidenceResult.count ?? 0 };
   }
+  async getLatestRun(artifact: VerifiedExtractionArtifact): Promise<ExtractionRunRecord | null> {
+    const result = await this.client.from('opportunity_extraction_runs').select('id,attempt_number,status')
+      .eq('ingestion_id', artifact.ingestionId).eq('artifact_id', artifact.artifactId)
+      .order('attempt_number', { ascending: false }).limit(1).maybeSingle();
+    if (result.error) throw persistenceFailure(result.error);
+    if (!result.data) return null;
+    const row = result.data as RunRow;
+    return { runId: row.id, attemptNumber: row.attempt_number, status: row.status };
+  }
   private async readAttempt(runId: string): Promise<number> {
     const result = await this.client.from('opportunity_extraction_runs').select('attempt_number').eq('id', runId).single();
     if (result.error || !result.data) throw persistenceFailure(result.error);
