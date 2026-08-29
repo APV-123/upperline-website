@@ -75,6 +75,13 @@ begin
 end;
 $$;
 
+revoke all privileges on table public.intelligence_artifacts,
+  public.intelligence_artifact_acquisitions from service_role;
+grant select, insert on table public.intelligence_artifacts,
+  public.intelligence_artifact_acquisitions to service_role;
+revoke all privileges on table public.intelligence_artifacts,
+  public.intelligence_artifact_acquisitions from public, anon, authenticated;
+
 revoke all on function public.ensure_opportunity_intelligence_artifact_bridge(uuid, text)
 from public, anon, authenticated;
 grant execute on function public.ensure_opportunity_intelligence_artifact_bridge(uuid, text)

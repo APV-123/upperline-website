@@ -44,6 +44,33 @@ do $$ begin
 end $$;
 reset role;
 
+do $$ begin
+  if not pg_catalog.has_table_privilege('service_role','public.intelligence_artifacts','select')
+    or not pg_catalog.has_table_privilege('service_role','public.intelligence_artifacts','insert')
+    or pg_catalog.has_table_privilege('service_role','public.intelligence_artifacts','update')
+    or pg_catalog.has_table_privilege('service_role','public.intelligence_artifacts','delete')
+    or pg_catalog.has_table_privilege('service_role','public.intelligence_artifacts','truncate')
+    or pg_catalog.has_table_privilege('service_role','public.intelligence_artifacts','references')
+    or pg_catalog.has_table_privilege('service_role','public.intelligence_artifacts','trigger')
+    or not pg_catalog.has_table_privilege('service_role','public.intelligence_artifact_acquisitions','select')
+    or not pg_catalog.has_table_privilege('service_role','public.intelligence_artifact_acquisitions','insert')
+    or pg_catalog.has_table_privilege('service_role','public.intelligence_artifact_acquisitions','update')
+    or pg_catalog.has_table_privilege('service_role','public.intelligence_artifact_acquisitions','delete')
+    or pg_catalog.has_table_privilege('service_role','public.intelligence_artifact_acquisitions','truncate')
+    or pg_catalog.has_table_privilege('service_role','public.intelligence_artifact_acquisitions','references')
+    or pg_catalog.has_table_privilege('service_role','public.intelligence_artifact_acquisitions','trigger') then
+    raise exception 'bridge table privilege mismatch';
+  end if;
+end $$;
+set role service_role;
+do $$ begin
+  begin
+    truncate table public.intelligence_artifact_acquisitions;
+    raise exception 'service_role truncate unexpectedly succeeded';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
 -- A failed transaction must leave neither byte identity nor acquisition, and retry must succeed.
 insert into public.acquisition_opportunities(id,name,created_by_email,updated_by_email)
 values ('91000000-0000-4000-8000-000000000004','Bridge Rollback','reviewer@upperlineco.com','reviewer@upperlineco.com');

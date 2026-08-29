@@ -34,4 +34,9 @@ describe('Opportunity to Property Intelligence artifact bridge SQL contract', ()
     expect(sql).toMatch(/revoke all on function[\s\S]+from public, anon, authenticated/i);
     expect(sql).toMatch(/grant execute on function[\s\S]+to service_role/i);
   });
+  it('hardens exact bridge tables to the minimum invoker privileges', () => {
+    expect(sql).toMatch(/revoke all privileges on table public\.intelligence_artifacts,[\s\S]+public\.intelligence_artifact_acquisitions from service_role/i);
+    expect(sql).toMatch(/grant select, insert on table public\.intelligence_artifacts,[\s\S]+public\.intelligence_artifact_acquisitions to service_role/i);
+    expect(sql).not.toMatch(/alter default privileges/i);
+  });
 });
