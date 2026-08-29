@@ -2,6 +2,14 @@
 
 ## Phase 4C.3.2A provenance bridge contract
 
+Phase 4C.5 adds the transactional byte-bridge establishment operation used when an
+authorized reviewer first opens provenance control. The database selects the newest
+valid PDF for the Opportunity, reuses immutable global artifact identity by SHA-256,
+and creates at most one acquisition for the legacy artifact. Transaction advisory
+locks and database uniqueness make refreshes, retries, and concurrent requests
+converge. This establishes custody only: it creates no source, edition,
+representation, upstream authority, observation, or extraction dependency.
+
 The provenance bridge moves through independent semantic boundaries:
 
 `eligible Opportunity artifact -> global artifact -> acquisition -> logical source -> source edition -> reviewed edition/artifact representation -> reviewed upstream-provenance conclusion -> derived provenance readiness`.

@@ -1,5 +1,12 @@
 # Supabase migrations
 
+`20260829000100_ensure_opportunity_intelligence_artifact_bridge.sql` adds the
+service-role-only, `SECURITY INVOKER` operation that transactionally establishes or
+reuses Property Intelligence byte identity and the Opportunity artifact acquisition.
+The operation derives the verified PDF, digest, size, MIME, storage identity, and
+Opportunity ownership in the database. It does not establish provenance authority or
+admit observations.
+
 This directory uses the standard Supabase CLI-compatible timestamped migration
 layout. The Phase 2 acquisition-table migration is deployed. Later migrations
 remain local until they complete their own production review and application.

@@ -41,9 +41,22 @@ async function loadBoundAcquisition(client:ReturnType<typeof createOpportunitySu
   return acquisition;
 }
 
+async function ensureBoundAcquisition(
+  client: ReturnType<typeof createOpportunitySupabaseClient>,
+  opportunityId: string,
+  actorEmail: string,
+) {
+  const { error } = await client.rpc('ensure_opportunity_intelligence_artifact_bridge', {
+    p_opportunity_id: opportunityId,
+    p_actor_email: actorEmail,
+  });
+  if (error) throw opportunityError('persistence_failure', 'The Property Intelligence artifact bridge could not be established.', error);
+}
+
 export async function getProvenanceControlModel(opportunityId: string, actor: OpportunityActor): Promise<ProvenanceControlModel> {
   if (!actor.email.endsWith('@upperlineco.com')) throw opportunityError('forbidden', 'Upperline access is required.');
   const client = createOpportunitySupabaseClient();
+  await ensureBoundAcquisition(client, opportunityId, actor.email);
   const acquisition=await loadBoundAcquisition(client,opportunityId);
   const [{ data: opportunity, error: opportunityErrorResult }, { data: artifact, error: artifactError }, { data: legacy, error: legacyError }] = await Promise.all([
     client.from('acquisition_opportunities').select('id,name').eq('id', opportunityId).single(),
