@@ -577,3 +577,8 @@ containing edition for upstream authority, materializes durable source records i
 the same transaction as confirmation, and returns B.1 database-derived readiness.
 The HTTP surface provides no promotion, observation creation, or underwriting
 authority.
+# Opportunity Property/Site authority (Phase 4C.6C)
+
+An Opportunity's confirmed `primary_target` is established only through the dedicated, human-reviewed subject-resolution boundary. Its three append-only responsibilities are command replay, Opportunity-scoped proposal intent, and decision history. The existing entity-resolution proposal/decision tables remain exclusively about entity-to-entity matching and deduplication.
+
+A confirmed relationship means only that an authorized Upperline reviewer identified a durable `property_site` as the real-world site evaluated by the Opportunity. It does not establish ownership, title, parcel/APN identity or boundaries, address/coordinate accuracy, source or observation truth, comparability, or underwriting authority. A new Property is created only inside the confirming transaction; rejection and ambiguity create history but no Property. Existing-Property reuse is limited to server-returned possible matches and never silently merges fuzzy identities.

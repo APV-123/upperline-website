@@ -288,3 +288,6 @@ therefore explicitly revoke inherited/default per-table privileges from
 `service_role`, `PUBLIC`, `anon`, and `authenticated` before granting its reviewed
 least-privilege set. This migration intentionally does not alter project-wide
 default privileges because that broader blast radius requires separate review.
+# Phase 4C.6C Opportunity subject authority
+
+`20260829000200_create_property_intelligence_opportunity_subject_authority.sql` adds three narrow append-only authority tables and an atomic service-role RPC for human-reviewed Opportunity-to-Property/Site `primary_target` confirmation. It retains `intelligence_opportunity_subjects` as the materialized relationship, binds it to immutable proposal authority, denies direct mutation/truncation, and uses transaction-scoped command/Opportunity/entity advisory locks. This migration does not create observations or change entity-to-entity resolution semantics.
