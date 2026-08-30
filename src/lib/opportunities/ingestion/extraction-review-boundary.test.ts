@@ -7,7 +7,8 @@ describe('extraction review boundary', () => {
     const repository = readFileSync(join(root,'src/lib/opportunities/ingestion/supabase-extraction-review-repository.ts'),'utf8');
     expect(route).toContain('authenticatedOpportunityEndpoint'); expect(route).toMatch(/export async function GET/);
     expect(route).not.toMatch(/POST|PATCH|DELETE|runId|SUPABASE_SERVICE_ROLE_KEY/);
-    expect(repository).toContain(".eq('status', 'succeeded')"); expect(repository).toContain(".order('attempt_number', { ascending: false })");
+    expect(repository).toContain(".eq('status', 'succeeded')"); expect(repository).toContain('logical_extraction_key');
+    expect(repository).toContain('currentExtractionLogicalKey'); expect(repository).toContain('b.attempt_number - a.attempt_number');
     expect(repository).toContain(".eq('opportunity_id', opportunityId)"); expect(repository).toContain("import 'server-only'");
   });
   it('keeps repository authority and sensitive material out of the review client', () => {
@@ -18,7 +19,8 @@ describe('extraction review boundary', () => {
     expect(component).not.toMatch(/dangerouslySetInnerHTML|innerHTML|raw provider/i);
     expect(component).toContain('{evidence.snippet}');
     expect(component).toContain('Confidence: Not provided');
-    expect(component).toContain('No successful extraction is available for review.');
+    expect(component).toContain('No successful extraction exists for the current server-configured contract.');
+    expect(component).toContain('Previous extraction history');
     expect(component).toContain('No candidate extracted');
   });
 });

@@ -13,6 +13,7 @@ import { readPdfStorageConfig } from './pdf-storage-config';
 import { SupabaseExtractionRepository } from './supabase-extraction-repository';
 import { SupabasePdfIngestionRepository } from './supabase-pdf-ingestion-repository';
 import { SupabasePrivatePdfObjectStore } from './supabase-pdf-object-store';
+import { buildExtractionIdempotencyKey } from './extraction-mapper';
 
 export const PRODUCTION_EXTRACTION_CONFIGURATION: Readonly<ExtractionConfiguration> = Object.freeze({
   provider: OPENAI_EXTRACTION_PROVIDER, model: OPENAI_EXTRACTION_MODEL, extractionStrategy: 'land-flyer',
@@ -24,6 +25,8 @@ export type ExtractionControlState = {
   stage: 'not_ready' | 'ready' | 'extracting' | 'failed' | 'succeeded';
   attemptNumber: number | null;
   canRetry: boolean;
+  extractionVersion: string;
+  schemaVersion: string;
 };
 
 type StateRepository = Pick<SupabaseExtractionRepository, 'resolveEligibleArtifact' | 'getLatestRun'>;
@@ -41,10 +44,16 @@ export async function getExtractionControlState(opportunityId: string, actor: Op
   dependencies: StateDependencies = composeStateDependencies()): Promise<ExtractionControlState> {
   await dependencies.authorizer.authorize({ actor, opportunityId, action: 'extract_pdf_artifact' });
   const artifact = await dependencies.repository.resolveEligibleArtifact(opportunityId);
-  if (!artifact) return { stage: 'not_ready', attemptNumber: null, canRetry: false };
+  if (!artifact) return { stage: 'not_ready', attemptNumber: null, canRetry: false,
+    extractionVersion: PRODUCTION_EXTRACTION_CONFIGURATION.extractionVersion,
+    schemaVersion: PRODUCTION_EXTRACTION_CONFIGURATION.schemaVersion };
   if (artifact.opportunityId !== opportunityId) throw opportunityError('integrity_conflict', 'The verified artifact is not attached to this Opportunity.');
-  const run = await dependencies.repository.getLatestRun(artifact);
+  const run = await dependencies.repository.getLatestRun(artifact, currentExtractionLogicalKey(artifact.sha256Digest));
   return projectState(run);
+}
+
+export function currentExtractionLogicalKey(artifactDigest: string): string {
+  return buildExtractionIdempotencyKey({ artifactDigest, configuration: PRODUCTION_EXTRACTION_CONFIGURATION });
 }
 
 export async function runExtractionControl(opportunityId: string, actor: OpportunityActor, body: unknown,
@@ -60,10 +69,11 @@ export async function runExtractionControl(opportunityId: string, actor: Opportu
 }
 
 function projectState(run: ExtractionRunRecord | null): ExtractionControlState {
-  if (!run) return { stage: 'ready', attemptNumber: null, canRetry: false };
-  if (run.status === 'pending' || run.status === 'running') return { stage: 'extracting', attemptNumber: run.attemptNumber, canRetry: false };
-  if (run.status === 'succeeded') return { stage: 'succeeded', attemptNumber: run.attemptNumber, canRetry: false };
-  return { stage: 'failed', attemptNumber: run.attemptNumber, canRetry: run.status === 'failed' };
+  const contract = { extractionVersion: PRODUCTION_EXTRACTION_CONFIGURATION.extractionVersion, schemaVersion: PRODUCTION_EXTRACTION_CONFIGURATION.schemaVersion };
+  if (!run) return { stage: 'ready', attemptNumber: null, canRetry: false, ...contract };
+  if (run.status === 'pending' || run.status === 'running') return { stage: 'extracting', attemptNumber: run.attemptNumber, canRetry: false, ...contract };
+  if (run.status === 'succeeded') return { stage: 'succeeded', attemptNumber: run.attemptNumber, canRetry: false, ...contract };
+  return { stage: 'failed', attemptNumber: run.attemptNumber, canRetry: run.status === 'failed', ...contract };
 }
 
 function parseRequest(value: unknown): { retryCommandId?: string } {

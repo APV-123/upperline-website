@@ -158,6 +158,8 @@ describe('provider-neutral extraction orchestration', () => {
     const first = buildExtractionIdempotencyKey({ artifactDigest: artifact.sha256Digest, configuration });
     expect(first).toBe(buildExtractionIdempotencyKey({ artifactDigest: artifact.sha256Digest, configuration }));
     expect(first).not.toBe(buildExtractionIdempotencyKey({ artifactDigest: artifact.sha256Digest, configuration: { ...configuration, promptVersion: '2' } }));
+    expect(first).not.toBe(buildExtractionIdempotencyKey({ artifactDigest: artifact.sha256Digest, configuration: { ...configuration, extractionVersion: 'openai-land-flyer-v2', schemaVersion: 'land-flyer-v2' } }));
+    expect(first).not.toBe(buildExtractionIdempotencyKey({ artifactDigest: 'f'.repeat(64), configuration }));
   });
   it('derives identities and warning state server-side', () => {
     const candidates = mapValidatedExtraction({ output: { schemaVersion: 'land-flyer-v1', assertions: [{ destination: 'site.zoning', value: { type: 'text', value: 'C-2' }, unit: 'NONE', assertionBasis: 'model_inference', confidence: null, evidence: [{ pageNumber: 1, snippet: 'Zoning C-2' }] }] }, extractionVersion: '1', idFactory });

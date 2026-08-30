@@ -10,8 +10,12 @@ export async function PUT(request: Request, context: { params: Promise<{ id: str
     const { id, candidateId } = await context.params; let body: unknown;
     try { body = await request.json(); } catch { throw opportunityError('validation', 'Decision request must contain valid JSON.'); }
     const client = createOpportunitySupabaseClient();
+    const reviewRepository = new SupabaseExtractionReviewRepository(client);
+    const selection = await reviewRepository.getReviewSelection(id);
+    const currentCandidateIds = new Set(selection.current?.groups.flatMap(group => group.items.map(item => item.candidateId)) ?? []);
+    if (!currentCandidateIds.has(candidateId)) throw opportunityError('not_found', 'Current extraction candidate was not found.');
     await recordCandidateDecision({ opportunityId: id, candidateId, body, reviewerEmail: actor.email,
       repository: new SupabaseCandidateDecisionRepository(client) });
-    return new SupabaseExtractionReviewRepository(client).getLatestReview(id);
+    return reviewRepository.getReviewSelection(id);
   });
 }
