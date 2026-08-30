@@ -3,10 +3,11 @@ import { opportunityError } from '../application/errors';
 import type { CandidateUnit, CandidateValue } from './contracts';
 import { getSourceDestinationDefinition } from './destination-registry';
 import {
-  EXTRACTION_POLICY, EXTRACTION_SCHEMA_VERSION, type ExtractionBoundingBox,
+  EXTRACTION_POLICY, EXTRACTION_SCHEMA_VERSION, LEGACY_EXTRACTION_SCHEMA_VERSION, type ExtractionBoundingBox,
   type ProviderAssertionBasis, type ValidatedExtractionAssertion,
   type ValidatedExtractionEvidence, type ValidatedProviderOutput,
 } from './extraction-contracts';
+import { parseTrafficCountProposition } from './rich-candidate';
 import { IngestionValidationError, validateCandidateValue, validateConfidence } from './validation';
 import {
   recordExtractionValidatorTelemetry, type ExtractionValidatorInvariant,
@@ -23,14 +24,19 @@ const MAX_COORDINATE_CHARACTERS = 32;
 export function parseExtractionProviderOutput(value: unknown, verifiedPageCount: number,
   recordTelemetry: ExtractionValidatorTelemetryRecorder = recordExtractionValidatorTelemetry): ValidatedProviderOutput {
   try {
-    const root = exactRecord(value, ['schemaVersion', 'assertions'], 'provider output',
+    const version = (value as {schemaVersion?:unknown})?.schemaVersion;
+    const keys = version === EXTRACTION_SCHEMA_VERSION ? ['schemaVersion','assertions','propositions'] : ['schemaVersion','assertions'];
+    const root = exactRecord(value, keys, 'provider output',
       'structured_output_not_object', 'structured_output_unknown_property');
-    if (root.schemaVersion !== EXTRACTION_SCHEMA_VERSION) fail('schema_version_invalid', 'schemaVersion is unsupported');
+    if (root.schemaVersion !== EXTRACTION_SCHEMA_VERSION && root.schemaVersion !== LEGACY_EXTRACTION_SCHEMA_VERSION) fail('schema_version_invalid', 'schemaVersion is unsupported');
     if (!Array.isArray(root.assertions)) fail('candidate_collection_invalid', 'assertions must be an array');
     if (root.assertions.length > EXTRACTION_POLICY.maxCandidates) fail('candidate_count_exceeded', 'candidate limit exceeded');
     const assertions = root.assertions.map((item, index) => parseAssertion(item, index, verifiedPageCount));
+    const propositions = root.schemaVersion === EXTRACTION_SCHEMA_VERSION ? parsePropositions(root.propositions, verifiedPageCount) : undefined;
+    if (root.schemaVersion === EXTRACTION_SCHEMA_VERSION && assertions.some(assertion => assertion.destination === 'traffic.vehiclesPerDay')) fail('candidate_destination_invalid', 'traffic counts require a rich proposition');
+    if (assertions.length + (propositions?.length ?? 0) > EXTRACTION_POLICY.maxCandidates) fail('candidate_count_exceeded', 'candidate limit exceeded');
     enforceCardinality(assertions);
-    return { schemaVersion: EXTRACTION_SCHEMA_VERSION, assertions };
+    return { schemaVersion: root.schemaVersion, assertions, ...(propositions ? {propositions} : {}) } as ValidatedProviderOutput;
   } catch (cause) {
     if (cause instanceof ExtractionValidatorError) {
       safeTelemetry(recordTelemetry, cause.invariant);
@@ -42,6 +48,12 @@ export function parseExtractionProviderOutput(value: unknown, verifiedPageCount:
     }
     throw cause;
   }
+}
+
+function parsePropositions(value: unknown, pageCount: number) {
+  if (!Array.isArray(value) || value.length > EXTRACTION_POLICY.maxCandidates) fail('candidate_collection_invalid','propositions must be a bounded array');
+  const seen=new Set<string>();
+  return value.map((input,index)=>{const item=exactRecord(input,['proposition','assertionBasis','confidence','evidence'],`proposition ${index}`,'candidate_not_object','candidate_unknown_property'); const proposition=parseTrafficCountProposition(item.proposition); const basis=item.assertionBasis; if(typeof basis!=='string'||!BASES.has(basis as ProviderAssertionBasis))fail('candidate_assertion_basis_invalid',`proposition ${index} basis is invalid`); const confidence=item.confidence===null?null:requireConfidence(item.confidence); if(!Array.isArray(item.evidence)||item.evidence.length===0||item.evidence.length>EXTRACTION_POLICY.maxEvidencePerCandidate)fail('evidence_collection_invalid',`proposition ${index} evidence is invalid`); const evidence=item.evidence.map((e,i)=>parseEvidence(e,index,i,pageCount,basis as ProviderAssertionBasis)); if(!evidence.some(item=>item.snippet))fail('evidence_support_missing',`proposition ${index} requires source text supporting the complete proposition`); const key=JSON.stringify(proposition); if(seen.has(key))fail('set_destination_duplicate','duplicate traffic proposition'); seen.add(key); return {proposition,assertionBasis:basis as ProviderAssertionBasis,confidence,evidence};});
 }
 
 function parseAssertion(value: unknown, index: number, pageCount: number): ValidatedExtractionAssertion {

@@ -16,8 +16,8 @@ import { SupabasePrivatePdfObjectStore } from './supabase-pdf-object-store';
 
 export const PRODUCTION_EXTRACTION_CONFIGURATION: Readonly<ExtractionConfiguration> = Object.freeze({
   provider: OPENAI_EXTRACTION_PROVIDER, model: OPENAI_EXTRACTION_MODEL, extractionStrategy: 'land-flyer',
-  extractionVersion: 'openai-land-flyer-v1', parserVersion: 'strict-json-v1', promptVersion: 'land-flyer-v1',
-  schemaVersion: 'land-flyer-v1', timeoutMilliseconds: 90_000,
+  extractionVersion: 'openai-land-flyer-v2', parserVersion: 'strict-json-v2', promptVersion: 'land-flyer-v2',
+  schemaVersion: 'land-flyer-v2', timeoutMilliseconds: 90_000,
 });
 
 export type ExtractionControlState = {

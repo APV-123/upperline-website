@@ -5,7 +5,8 @@ import type { OpportunityActor } from '../application/actor-core';
 import { OpportunityApplicationError, opportunityError } from '../application/errors';
 import type { OpportunityAuthorizer, PrivateArtifactObjectStorePort } from './pdf-acquisition';
 import {
-  EXTRACTION_POLICY, ExtractionProviderFailureError, ExtractionProviderTimeoutError,
+  EXTRACTION_POLICY, EXTRACTION_SCHEMA_VERSION, LEGACY_EXTRACTION_SCHEMA_VERSION,
+  ExtractionProviderFailureError, ExtractionProviderTimeoutError,
   type ExtractionConfiguration, type ExtractionProviderPort, type ExtractionRepositoryPort,
   type ExtractionRunRecord, type ExtractionTelemetryEvent, type ExtractionTelemetryPort,
   type VerifiedExtractionArtifact,
@@ -96,7 +97,7 @@ async function readAuthoritativeBytes(store: PrivateArtifactObjectStorePort, art
 }
 
 function validateConfiguration(configuration: ExtractionConfiguration, providerIdentifier: string): void {
-  if (configuration.provider !== providerIdentifier || configuration.schemaVersion !== 'land-flyer-v1' ||
+  if (configuration.provider !== providerIdentifier || ![EXTRACTION_SCHEMA_VERSION, LEGACY_EXTRACTION_SCHEMA_VERSION].includes(configuration.schemaVersion) ||
       ![configuration.model, configuration.extractionStrategy, configuration.extractionVersion, configuration.parserVersion, configuration.promptVersion].every(value => typeof value === 'string' && value.trim() && value.length <= 120) ||
       !Number.isSafeInteger(configuration.timeoutMilliseconds) || configuration.timeoutMilliseconds < EXTRACTION_POLICY.minimumTimeoutMilliseconds || configuration.timeoutMilliseconds > EXTRACTION_POLICY.maximumTimeoutMilliseconds) {
     throw opportunityError('extraction_contract_violation', 'Extraction configuration is invalid.');

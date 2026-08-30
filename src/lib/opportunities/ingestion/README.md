@@ -172,3 +172,12 @@ by the provider may be emitted as non-authoritative operational telemetry, but i
 changes configuration, authorization, destination vocabulary, idempotency, or
 persistence authority. Extraction behavior may change behind the alias; migration to
 an immutable GPT-5.6 Terra snapshot remains future work once one is published.
+# Rich extraction propositions (Phase 4C.6D)
+
+Legacy candidate rows remain scalar and retain their historical fingerprints and decisions. New typed propositions use the existing immutable candidate JSON value, with `group_key` carrying the bounded family/version discriminator. No provider JSON reaches persistence until the provider-neutral hostile validator produces the canonical proposition.
+
+`traffic_count` version 1 contains a positive integer count, `vehicles_per_day`, a controlled VPD/ADT/AADT/unknown basis plus exact source terminology, optional source-reported roadway/location/direction, and explicit measurement-time precision. Null means the source did not provide an optional dimension; `basis.normalized = unknown` is a distinct affirmative classification. Leading/trailing whitespace and controls are rejected, admitted strings are NFC-normalized, source literals remain case-sensitive, controlled values have fixed case, and canonical identity sorts object keys rather than trusting insertion order. The fingerprint covers kind, schema version, and the complete canonical proposition. Evidence is immutable and bound to the same candidate reviewed by the human.
+
+Candidate validity means the extraction is structurally faithful to the source. It does not mean the proposition is eligible for Property Intelligence admission. A later traffic admission requires a known traffic basis, sufficiently specific measured roadway/segment/station, measurement/vintage time, confirmed contextual Property, durable evidence, and resolved source/provenance. This phase creates no observation or admission.
+
+The same envelope can later carry `demographic_metric` with typed metric/value/statistic, radius/unit, study-area literal, vintage/projection/growth dimensions, methodology literal, and evidence; those semantics and persistence are intentionally deferred.

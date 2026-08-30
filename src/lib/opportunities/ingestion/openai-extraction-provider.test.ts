@@ -67,7 +67,9 @@ describe('OpenAI extraction request', () => {
   });
   it('generates all registry destinations and disables visual inference', () => {
     const schemaText = JSON.stringify(buildOpenAIExtractionSchema());
-    for (const destination of Object.keys(LAND_FLYER_SOURCE_DESTINATIONS)) expect(schemaText).toContain(destination);
+    for (const destination of Object.keys(LAND_FLYER_SOURCE_DESTINATIONS).filter(path => path !== 'traffic.vehiclesPerDay')) expect(schemaText).toContain(destination);
+    expect(schemaText).toContain('traffic_count');
+    expect(schemaText).not.toContain('traffic.vehiclesPerDay');
     expect(Object.keys(LAND_FLYER_SOURCE_DESTINATIONS)).toHaveLength(31);
     expect(schemaText).not.toContain('visual_inference');
     expect(schemaText).toContain('source_stated');
