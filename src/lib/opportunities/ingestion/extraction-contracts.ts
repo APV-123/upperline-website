@@ -1,5 +1,5 @@
 import type { CandidateUnit, CandidateValue, ExtractionRunStatus } from './contracts';
-import type { TrafficCountPropositionV1 } from './rich-candidate';
+import type { TrafficCountProposition } from './rich-candidate';
 
 export const EXTRACTION_POLICY = Object.freeze({
   maxPdfBytes: 10 * 1024 * 1024,
@@ -11,7 +11,8 @@ export const EXTRACTION_POLICY = Object.freeze({
   maximumTimeoutMilliseconds: 120_000,
 });
 
-export const EXTRACTION_SCHEMA_VERSION = 'land-flyer-v2' as const;
+export const EXTRACTION_SCHEMA_VERSION = 'land-flyer-v3' as const;
+export const PREVIOUS_EXTRACTION_SCHEMA_VERSION = 'land-flyer-v2' as const;
 export const LEGACY_EXTRACTION_SCHEMA_VERSION = 'land-flyer-v1' as const;
 export type ProviderAssertionBasis = 'source_stated' | 'visual_inference' | 'model_inference';
 
@@ -30,9 +31,9 @@ export type ValidatedExtractionAssertion = {
   confidence: string | null;
   evidence: ValidatedExtractionEvidence[];
 };
-export type ValidatedTrafficProposition = { proposition: TrafficCountPropositionV1; assertionBasis: ProviderAssertionBasis; confidence: string | null; evidence: ValidatedExtractionEvidence[] };
+export type ValidatedTrafficProposition = { proposition: TrafficCountProposition; assertionBasis: ProviderAssertionBasis; confidence: string | null; evidence: ValidatedExtractionEvidence[] };
 export type ValidatedProviderOutput = {
-  schemaVersion: typeof EXTRACTION_SCHEMA_VERSION | typeof LEGACY_EXTRACTION_SCHEMA_VERSION;
+  schemaVersion: typeof EXTRACTION_SCHEMA_VERSION | typeof PREVIOUS_EXTRACTION_SCHEMA_VERSION | typeof LEGACY_EXTRACTION_SCHEMA_VERSION;
   assertions: ValidatedExtractionAssertion[];
   propositions?: ValidatedTrafficProposition[];
 };
@@ -44,7 +45,7 @@ export type ExtractionConfiguration = {
   extractionVersion: string;
   parserVersion: string;
   promptVersion: string;
-  schemaVersion: typeof EXTRACTION_SCHEMA_VERSION | typeof LEGACY_EXTRACTION_SCHEMA_VERSION;
+  schemaVersion: typeof EXTRACTION_SCHEMA_VERSION | typeof PREVIOUS_EXTRACTION_SCHEMA_VERSION | typeof LEGACY_EXTRACTION_SCHEMA_VERSION;
   timeoutMilliseconds: number;
 };
 

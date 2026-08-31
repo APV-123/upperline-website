@@ -309,3 +309,12 @@ Disposable integration and rollback runners are:
 ./supabase/tests/run-opportunity-rich-traffic-persistence-integration.ps1
 ./supabase/tests/run-opportunity-rich-traffic-persistence-rollback.ps1
 ```
+
+## Phase 4C.6D.5 traffic source semantics version 2
+
+Migration `20260831000100_admit_rich_traffic_extraction_candidates_v2.sql` adds only the closed `traffic_count` version-2 JSON family under `traffic_count:2`. It preserves scalar traffic and version 1, checks required and allowed nested keys with fail-closed JSON guards, leaves table ACLs unchanged, and retains service-role-only execution of the transactional completion function.
+
+```powershell
+./supabase/tests/run-opportunity-rich-traffic-v2-persistence-integration.ps1
+./supabase/tests/run-opportunity-rich-traffic-v2-persistence-rollback.ps1
+```

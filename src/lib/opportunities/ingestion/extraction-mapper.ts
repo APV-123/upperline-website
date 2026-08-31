@@ -34,8 +34,8 @@ export function mapValidatedExtraction(input: {
     assertionBasis:item.assertionBasis,economicRole:'descriptive_fact' as const,rawValue:item.proposition,
     normalizedValueType:'json' as const,normalizedValue:item.proposition,unit:'VEHICLES_PER_DAY' as const,confidence:item.confidence,
     validationState:item.assertionBasis==='model_inference'?'warning' as const:'valid' as const,
-    validationIssues:item.assertionBasis==='model_inference'?['MODEL_INFERENCE_REQUIRES_REVIEW']:[],groupKey:'traffic_count:1',ordinal:scalar.length+index,
-    fingerprint:ingestionFingerprint({domain:'source',fieldPath:'traffic.vehiclesPerDay',kind:'traffic_count',schemaVersion:1,canonicalProposition:canonicalizeRichCandidate(item.proposition)}),
+    validationIssues:item.assertionBasis==='model_inference'?['MODEL_INFERENCE_REQUIRES_REVIEW']:[],groupKey:`traffic_count:${item.proposition.schemaVersion}`,ordinal:scalar.length+index,
+    fingerprint:ingestionFingerprint({domain:'source',fieldPath:'traffic.vehiclesPerDay',kind:'traffic_count',schemaVersion:item.proposition.schemaVersion,canonicalProposition:canonicalizeRichCandidate(item.proposition)}),
     evidence:item.evidence.map((evidence,evidenceOrdinal)=>({id:input.idFactory(),pageNumber:evidence.pageNumber,snippet:evidence.snippet??null,...(evidence.boundingBox?{boundingBox:evidence.boundingBox}:{}),sectionLabel:evidence.sectionLabel??null,extractionMethod:item.assertionBasis==='visual_inference'?'provider_visual':item.assertionBasis==='model_inference'?'provider_model_inference':'provider_text',extractionVersion:input.extractionVersion,ordinal:evidenceOrdinal}))
   }));
   return [...scalar,...rich];

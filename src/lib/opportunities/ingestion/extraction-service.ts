@@ -5,7 +5,7 @@ import type { OpportunityActor } from '../application/actor-core';
 import { OpportunityApplicationError, opportunityError } from '../application/errors';
 import type { OpportunityAuthorizer, PrivateArtifactObjectStorePort } from './pdf-acquisition';
 import {
-  EXTRACTION_POLICY, EXTRACTION_SCHEMA_VERSION, LEGACY_EXTRACTION_SCHEMA_VERSION,
+  EXTRACTION_POLICY, EXTRACTION_SCHEMA_VERSION, LEGACY_EXTRACTION_SCHEMA_VERSION, PREVIOUS_EXTRACTION_SCHEMA_VERSION,
   ExtractionProviderFailureError, ExtractionProviderTimeoutError,
   type ExtractionConfiguration, type ExtractionProviderPort, type ExtractionRepositoryPort,
   type ExtractionRunRecord, type ExtractionTelemetryEvent, type ExtractionTelemetryPort,
@@ -67,7 +67,7 @@ export async function runProviderNeutralExtraction(input: RunExtractionInput, de
       untrusted = await Promise.race([invocation, deadline]);
     } finally { if (timeout) clearTimeout(timeout); }
     if (controller.signal.aborted) throw new ExtractionProviderTimeoutError();
-    const output = parseExtractionProviderOutput(untrusted, artifact.pageCount);
+    const output = parseExtractionProviderOutput(untrusted, artifact.pageCount, undefined, configuration.schemaVersion);
     const candidates = mapValidatedExtraction({ output, extractionVersion: configuration.extractionVersion, idFactory });
     const completed = await dependencies.repository.completeRun({ artifact, runId: allocatedRunId, candidates, diagnostics: [] });
     await safeTelemetry(dependencies.telemetry, telemetry(configuration, 'complete_run', 'succeeded', { pageCount: artifact.pageCount, candidateCount: candidates.length, attemptNumber: completed.attemptNumber }));
@@ -97,7 +97,7 @@ async function readAuthoritativeBytes(store: PrivateArtifactObjectStorePort, art
 }
 
 function validateConfiguration(configuration: ExtractionConfiguration, providerIdentifier: string): void {
-  if (configuration.provider !== providerIdentifier || ![EXTRACTION_SCHEMA_VERSION, LEGACY_EXTRACTION_SCHEMA_VERSION].includes(configuration.schemaVersion) ||
+  if (configuration.provider !== providerIdentifier || ![EXTRACTION_SCHEMA_VERSION, PREVIOUS_EXTRACTION_SCHEMA_VERSION, LEGACY_EXTRACTION_SCHEMA_VERSION].includes(configuration.schemaVersion) ||
       ![configuration.model, configuration.extractionStrategy, configuration.extractionVersion, configuration.parserVersion, configuration.promptVersion].every(value => typeof value === 'string' && value.trim() && value.length <= 120) ||
       !Number.isSafeInteger(configuration.timeoutMilliseconds) || configuration.timeoutMilliseconds < EXTRACTION_POLICY.minimumTimeoutMilliseconds || configuration.timeoutMilliseconds > EXTRACTION_POLICY.maximumTimeoutMilliseconds) {
     throw opportunityError('extraction_contract_violation', 'Extraction configuration is invalid.');

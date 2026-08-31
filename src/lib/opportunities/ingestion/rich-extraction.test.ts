@@ -5,6 +5,7 @@ import { buildExtractionReviewModel, type ExtractionReviewCandidate } from './ex
 import { parseExtractionProviderOutput } from './extraction-validator';
 import { buildOpenAIExtractionInstructions, buildOpenAIExtractionSchema } from './openai-extraction-provider';
 import type { TrafficCountPropositionV1 } from './rich-candidate';
+import type { TrafficCountPropositionV2 } from './rich-candidate';
 
 const proposition = (): TrafficCountPropositionV1 => ({
   kind: 'traffic_count', schemaVersion: 1, count: 31_942, unit: 'vehicles_per_day',
@@ -18,6 +19,14 @@ const output = (value: unknown = proposition()) => ({ schemaVersion: 'land-flyer
 }] });
 
 describe('rich extraction pipeline', () => {
+  it('maps traffic V2 unchanged under its own group and fingerprints every source dimension',()=>{
+    const base:TrafficCountPropositionV2={kind:'traffic_count',schemaVersion:2,count:10732,unit:'vehicles_per_day',basis:{normalized:'unknown',sourceLiteral:'Avg Daily Volume'},sourceVolumeType:'MPSI',roadway:{sourceLiteral:'Greenbusch Rd'},crossStreet:{sourceLiteral:'Roesner Rd'},crossStreetOffset:{distance:0.21,unit:'miles',direction:'NW'},sourceRelativeSubjectDistance:{distance:0.12,unit:'miles'},measurementTime:{role:'measurement',precision:'year',year:2025,month:null,day:null}};
+    const envelope=(p:TrafficCountPropositionV2)=>({schemaVersion:'land-flyer-v3',assertions:[],propositions:[{proposition:p,assertionBasis:'source_stated',confidence:null,evidence:[{pageNumber:1,snippet:'Traffic table'}]}]});
+    const mapped=(p:TrafficCountPropositionV2)=>mapValidatedExtraction({output:parseExtractionProviderOutput(envelope(p),9),extractionVersion:'rich-v2',idFactory:()=> 'id'})[0];
+    expect(mapped(base)).toMatchObject({normalizedValue:base,groupKey:'traffic_count:2',unit:'VEHICLES_PER_DAY'});
+    for(const changed of [{...base,count:10733},{...base,roadway:{sourceLiteral:'Green Bush Rd'}},{...base,crossStreet:null},{...base,crossStreetOffset:{...base.crossStreetOffset,distance:0}},{...base,crossStreetOffset:{...base.crossStreetOffset,direction:'SE' as const}},{...base,sourceVolumeType:'AADT'},{...base,sourceRelativeSubjectDistance:{distance:0,unit:'miles' as const}},{...base,measurementTime:{...base.measurementTime,year:2024}}]) expect(mapped(changed).fingerprint).not.toBe(mapped(base).fingerprint);
+    expect(mapped({...base,sourceRelativeSubjectDistance:{distance:null,unit:null}}).fingerprint).not.toBe(mapped({...base,sourceRelativeSubjectDistance:{distance:0,unit:'miles'}}).fingerprint);
+  });
   it('validates and maps the complete proposition without scalar flattening', () => {
     const validated = parseExtractionProviderOutput(output(), 9);
     let id = 0;
@@ -48,6 +57,18 @@ describe('rich extraction pipeline', () => {
     expect(item).toMatchObject({ candidateId: 'opaque-candidate', formattedValue: '31,942 VPD · Roadway: Mason Road · Measurement: 2025 · Location: at Mason Manor Drive · Direction: Not reported', cardinality: 'set',
       humanReviewStatus: 'approved', propositionDetails: { basis: 'VPD · Source: VPD', roadway: 'Mason Road', vintage: '2025', location: 'at Mason Manor Drive', direction: 'Not reported' } });
     expect(item).not.toHaveProperty('fingerprint');
+  });
+
+  it('renders V2 traffic with distinct source semantics and no generic location labels',()=>{
+    const value:TrafficCountPropositionV2={kind:'traffic_count',schemaVersion:2,count:3172,unit:'vehicles_per_day',basis:{normalized:'unknown',sourceLiteral:'Avg Daily Volume'},sourceVolumeType:'MPSI',roadway:{sourceLiteral:'Amy Shores Ct'},crossStreet:null,crossStreetOffset:{distance:0,unit:'miles',direction:null},sourceRelativeSubjectDistance:{distance:0.06,unit:'miles'},measurementTime:{role:'measurement',precision:'year',year:2024,month:null,day:null}};
+    const candidate:ExtractionReviewCandidate={id:'v2',fieldPath:'traffic.vehiclesPerDay',valueType:'json',value,unit:'VEHICLES_PER_DAY',groupKey:'traffic_count:2',assertionBasis:'source_stated',confidence:null,validationState:'valid',validationIssues:[],ordinal:0,fingerprint:'hidden',latestDecision:null,evidence:[]};
+    const item=buildExtractionReviewModel({attemptNumber:1,completedAt:null,candidates:[candidate]}).groups[0].items[0];
+    expect(item.formattedValue).toContain('Amy Shores Ct · Cross street: Not reported · Cross-street offset: 0.00 mi');
+    expect(item.formattedValue).toContain('Source heading: Avg Daily Volume');
+    expect(item.formattedValue).toContain('Volume type: MPSI');
+    expect(item.propositionDetails).toMatchObject({crossStreet:'Not reported',sourceRelativeSubjectDistance:'0.06 mi'});
+    expect(item.propositionDetails).not.toHaveProperty('location');
+    expect(item.propositionDetails).not.toHaveProperty('direction');
   });
 
   it('keeps historical scalar extraction envelopes readable and mappable', () => {

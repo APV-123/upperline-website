@@ -75,6 +75,7 @@ describe('OpenAI extraction request', () => {
     expect(schemaText).toContain('source_stated');
     expect(schemaText).toContain('model_inference');
   });
+  it('publishes only the V2 traffic source-semantics contract',()=>{const schema=JSON.stringify(buildOpenAIExtractionSchema());const instructions=buildOpenAIExtractionInstructions();expect(schema).toContain('"schemaVersion":{"type":"integer","enum":[2]}');for(const key of ['sourceVolumeType','crossStreet','crossStreetOffset','sourceRelativeSubjectDistance'])expect(schema).toContain(key);expect(schema).not.toContain('countLocation');expect(instructions).toContain('Preserve MPSI exactly as sourceVolumeType');expect(instructions).toContain('Numeric zero is real data, not null');expect(instructions).toContain('never geocode');});
   it('aligns provider-facing evidence text with downstream whitespace and control restrictions', () => {
     const schema = buildOpenAIExtractionSchema() as {
       properties: { assertions: { items: { properties: { evidence: { items: {

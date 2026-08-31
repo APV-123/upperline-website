@@ -17,8 +17,8 @@ import { buildExtractionIdempotencyKey } from './extraction-mapper';
 
 export const PRODUCTION_EXTRACTION_CONFIGURATION: Readonly<ExtractionConfiguration> = Object.freeze({
   provider: OPENAI_EXTRACTION_PROVIDER, model: OPENAI_EXTRACTION_MODEL, extractionStrategy: 'land-flyer',
-  extractionVersion: 'openai-land-flyer-v2', parserVersion: 'strict-json-v2', promptVersion: 'land-flyer-v2',
-  schemaVersion: 'land-flyer-v2', timeoutMilliseconds: 90_000,
+  extractionVersion: 'openai-land-flyer-v3', parserVersion: 'strict-json-v3', promptVersion: 'land-flyer-v3',
+  schemaVersion: 'land-flyer-v3', timeoutMilliseconds: 90_000,
 });
 
 export type ExtractionControlState = {
