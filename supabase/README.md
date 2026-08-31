@@ -291,3 +291,21 @@ default privileges because that broader blast radius requires separate review.
 # Phase 4C.6C Opportunity subject authority
 
 `20260829000200_create_property_intelligence_opportunity_subject_authority.sql` adds three narrow append-only authority tables and an atomic service-role RPC for human-reviewed Opportunity-to-Property/Site `primary_target` confirmation. It retains `intelligence_opportunity_subjects` as the materialized relationship, binds it to immutable proposal authority, denies direct mutation/truncation, and uses transaction-scoped command/Opportunity/entity advisory locks. This migration does not create observations or change entity-to-entity resolution semantics.
+
+## Phase 4C.6D.3 rich traffic extraction persistence
+
+`20260830000100_admit_rich_traffic_extraction_candidates.sql` replaces only the
+transactional extraction-completion RPC. It preserves historical scalar
+`traffic.vehiclesPerDay` candidates and narrowly admits the approved
+`traffic_count` version-1 JSON proposition when its field, value type, unit,
+group key, discriminator, version, and durable structural envelope all agree.
+Arbitrary JSON and other rich candidate families remain rejected. The migration
+adds no tables, changes no extraction lineage, and creates no observation or
+admission behavior.
+
+Disposable integration and rollback runners are:
+
+```powershell
+./supabase/tests/run-opportunity-rich-traffic-persistence-integration.ps1
+./supabase/tests/run-opportunity-rich-traffic-persistence-rollback.ps1
+```
